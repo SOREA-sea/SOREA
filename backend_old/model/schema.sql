@@ -1,0 +1,187 @@
+DROP DATABASE IF EXISTS sorea;
+CREATE DATABASE IF NOT EXISTS sorea;
+USE sorea;
+
+-- users table
+CREATE TABLE users (
+	id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+	first_name VARCHAR(100) NOT NULL,
+	last_name VARCHAR(100) NOT NULL,
+	email VARCHAR(150) NOT NULL UNIQUE,
+	password_hash VARCHAR(255) NOT NULL,
+	phone VARCHAR(30),
+	gender ENUM('male', 'female', 'other', 'prefer_not_to_say') DEFAULT 'prefer_not_to_say',
+	birth_date DATE,
+	avatar_url VARCHAR(255),
+	role ENUM('user', 'coach', 'superadmin') NOT NULL DEFAULT 'user',
+	is_active BOOLEAN NOT NULL DEFAULT TRUE,
+	created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+	updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+-- coaches table
+CREATE TABLE coach_profiles (
+	id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+	user_id INT UNSIGNED NOT NULL UNIQUE,
+	bio TEXT,
+	specialty VARCHAR(150),
+	experience_years INT UNSIGNED DEFAULT 0,
+	hourly_rate DECIMAL(10,2) DEFAULT 0.00,
+	average_rating DECIMAL(2,1) DEFAULT 0.0,
+	verified BOOLEAN NOT NULL DEFAULT FALSE,
+	created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+	updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+	CONSTRAINT chk_coach_rating CHECK (average_rating BETWEEN 0 AND 5),
+	FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+-- shop products table
+CREATE TABLE shop_products (
+	id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+	name VARCHAR(150) NOT NULL,
+	description TEXT,
+	price DECIMAL(10,2) NOT NULL,
+	stock_quantity INT UNSIGNED NOT NULL DEFAULT 0,
+	image_url VARCHAR(255),
+	is_active BOOLEAN NOT NULL DEFAULT TRUE,
+	created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+	updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+-- coach sessions table
+CREATE TABLE coach_sessions (
+	id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+	coach_id INT UNSIGNED NOT NULL,
+	title VARCHAR(150) NOT NULL,
+	description TEXT,
+	session_type ENUM('online', 'offline', 'hybrid') DEFAULT 'online',
+	starts_at DATETIME,
+	duration_minutes INT UNSIGNED DEFAULT 60,
+	capacity INT UNSIGNED DEFAULT 1,
+	price DECIMAL(10,2) NOT NULL,
+	average_rating DECIMAL(2,1) DEFAULT 0.0,
+	is_published BOOLEAN NOT NULL DEFAULT FALSE,
+	created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+	updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+	CONSTRAINT chk_session_rating CHECK (average_rating BETWEEN 0 AND 5),
+	FOREIGN KEY (coach_id) REFERENCES coach_profiles(id) ON DELETE CASCADE
+);
+
+-- session bookings table
+CREATE TABLE session_bookings (
+	id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+	session_id INT UNSIGNED NOT NULL,
+	user_id INT UNSIGNED NOT NULL,
+	status ENUM('pending', 'confirmed', 'cancelled', 'completed') DEFAULT 'pending',
+	booked_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+	UNIQUE (session_id, user_id),
+	FOREIGN KEY (session_id) REFERENCES coach_sessions(id) ON DELETE CASCADE,
+	FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+-- coach reviews table
+CREATE TABLE coach_reviews (
+	id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+	coach_id INT UNSIGNED NOT NULL,
+	user_id INT UNSIGNED NOT NULL,
+	rating DECIMAL(2,1) NOT NULL,
+	review_text TEXT,
+	created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+	updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+	CONSTRAINT chk_coach_reviews_rating CHECK (rating BETWEEN 0 AND 5),
+	UNIQUE (coach_id, user_id),
+	FOREIGN KEY (coach_id) REFERENCES coach_profiles(id) ON DELETE CASCADE,
+	FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+-- session reviews table
+CREATE TABLE session_reviews (
+	id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+	session_id INT UNSIGNED NOT NULL,
+	user_id INT UNSIGNED NOT NULL,
+	rating DECIMAL(2,1) NOT NULL,
+	review_text TEXT,
+	created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+	updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+	CONSTRAINT chk_session_reviews_rating CHECK (rating BETWEEN 0 AND 5),
+	UNIQUE (session_id, user_id),
+	FOREIGN KEY (session_id) REFERENCES coach_sessions(id) ON DELETE CASCADE,
+	FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+-- coach comments table
+CREATE TABLE coach_comments (
+	id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+	coach_id INT UNSIGNED NOT NULL,
+	user_id INT UNSIGNED NOT NULL,
+	comment_text TEXT NOT NULL,
+	created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+	FOREIGN KEY (coach_id) REFERENCES coach_profiles(id) ON DELETE CASCADE,
+	FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+-- session comments table
+CREATE TABLE session_comments (
+	id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+	session_id INT UNSIGNED NOT NULL,
+	user_id INT UNSIGNED NOT NULL,
+	comment_text TEXT NOT NULL,
+	created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+	FOREIGN KEY (session_id) REFERENCES coach_sessions(id) ON DELETE CASCADE,
+	FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+-- shopping carts table
+CREATE TABLE carts (
+	id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+	user_id INT UNSIGNED NOT NULL UNIQUE,
+	created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+	updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+	FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+-- shopping cart items table
+CREATE TABLE cart_items (
+	id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+	cart_id INT UNSIGNED NOT NULL,
+	product_id INT UNSIGNED NOT NULL,
+	quantity INT UNSIGNED NOT NULL DEFAULT 1,
+	unit_price DECIMAL(10,2) NOT NULL,
+	created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+	updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+	UNIQUE (cart_id, product_id),
+	FOREIGN KEY (cart_id) REFERENCES carts(id) ON DELETE CASCADE,
+	FOREIGN KEY (product_id) REFERENCES shop_products(id) ON DELETE CASCADE
+);
+
+-- product favorites table
+CREATE TABLE favorite_products (
+	id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+	user_id INT UNSIGNED NOT NULL,
+	product_id INT UNSIGNED NOT NULL,
+	created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+	UNIQUE (user_id, product_id),
+	FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+	FOREIGN KEY (product_id) REFERENCES shop_products(id) ON DELETE CASCADE
+);
+
+-- coach favorites table
+CREATE TABLE favorite_coaches (
+	id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+	user_id INT UNSIGNED NOT NULL,
+	coach_id INT UNSIGNED NOT NULL,
+	created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+	UNIQUE (user_id, coach_id),
+	FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+	FOREIGN KEY (coach_id) REFERENCES coach_profiles(id) ON DELETE CASCADE
+);
+
+-- session favorites table
+CREATE TABLE favorite_sessions (
+	id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+	user_id INT UNSIGNED NOT NULL,
+	session_id INT UNSIGNED NOT NULL,
+	created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+	UNIQUE (user_id, session_id),
+	FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+	FOREIGN KEY (session_id) REFERENCES coach_sessions(id) ON DELETE CASCADE
+);
