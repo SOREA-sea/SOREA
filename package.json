@@ -6,10 +6,17 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "seed:reset": "prisma db push --force-reset && prisma db seed"
+  },
+  "prisma": {
+    "seed": "node prisma/seed.js"
   },
   "dependencies": {
+    "@prisma/client": "^5.13.0",
+    "dotenv": "^17.4.2",
     "next": "16.2.4",
+    "prisma": "^5.13.0",
     "react": "19.2.4",
     "react-dom": "19.2.4"
   },
