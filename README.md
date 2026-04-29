@@ -11,6 +11,7 @@ Dans le cadre du stage, l'architecture du projet a été intégralement migrée 
 - **Nouvelle stack unifiée** : Passage sur **Next.js** (App Router) version 16, regroupant frontend et backend au même endroit (adieu à l'ancienne séparation `frontend_old` et `backend_old` qui sont gardés pour l'historique administratif).
 - **Base de données (Dev)** : Intégration de l'ORM **Prisma (v5)** avec une base de données locale **SQLite** (`prisma/dev.db`). Le schéma SQL métier complet a été modélisé (utilisateurs, coachings, produits, favoris, commentaires, paniers).
 - **Interface & Landing Page** : Le design initial a été drastiquement rafraîchi pour un rendu plus haut de gamme (cartes glassmorphism, typos modernes, loading optimisé des images LCP, design responsive).
+- **SEO & Métadonnées** : Ajout de l'icône du site (favicon), configuration détaillée des balises OpenGraph/Twitter et référencement de l'équipe de créateurs.
 - **Jeu de données de test (Seed)** : Un jeu de test complet (seed) a été créé pour alimenter directement la plateforme en faux coachs, avis, sessions, et produits pour faciliter le développement.
 
 ---
