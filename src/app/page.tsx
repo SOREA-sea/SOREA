@@ -7,6 +7,7 @@ import Testimonial from '../components/Testimonial';
 import Footer from '../components/Footer';
 import Image from 'next/image';
 import prisma from '../lib/prisma';
+import { cookies } from 'next/headers';
 
 export default async function Home() {
   // Server-side: read directly from the database via Prisma to avoid relative fetch issues
@@ -30,9 +31,21 @@ export default async function Home() {
     testimonials = [];
   }
 
+  const cookieStore = await cookies();
+  const sessionId = cookieStore.get("sorea_session")?.value;
+  let isLoggedIn = false;
+  if (sessionId) {
+    const session = await prisma.userSession.findUnique({
+      where: { id: sessionId },
+    });
+    if (session && session.expiresAt > new Date()) {
+      isLoggedIn = true;
+    }
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-pastel-1 to-pastel-2 text-foreground font-sans">
-      <Navbar />
+      <Navbar isLoggedIn={isLoggedIn} />
       <main className="max-w-7xl mx-auto px-6 pb-24">
         <Hero title="SOREA — Votre bulle de sérénité" subtitle={"Des rituels, des produits et des accompagnements pour mieux vivre chaque jour."} primaryCta="Nos kits" secondaryCta="Nos coachings" />
 

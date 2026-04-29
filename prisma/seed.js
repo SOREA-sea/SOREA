@@ -1,6 +1,7 @@
 require('dotenv').config();
 
 const { PrismaClient } = require('@prisma/client');
+const bcrypt = require('bcrypt');
 
 const prisma = new PrismaClient();
 
@@ -20,12 +21,15 @@ async function main() {
   await prisma.shopProduct.deleteMany();
   await prisma.user.deleteMany();
 
+  const adminPassword = await bcrypt.hash('soreadmin123', 10);
+  const coachPassword = await bcrypt.hash('coach-temp', 10);
+
   const admin = await prisma.user.create({
     data: {
       firstName: 'Sorea',
       lastName: 'Admin',
       email: 'admin@sorea.local',
-      password: 'soreadmin123',
+      password: adminPassword,
       role: 'admin',
       avatarUrl: '/images/logo_sorea.webp',
       isActive: true,
@@ -38,7 +42,7 @@ async function main() {
         firstName: 'Lina',
         lastName: 'Moreau',
         email: 'lina.moreau@sorea.local',
-        password: 'coach-temp',
+        password: coachPassword,
         role: 'coach',
         avatarUrl: '/images/illustration_community.webp',
         isActive: true,
@@ -49,7 +53,7 @@ async function main() {
         firstName: 'Nora',
         lastName: 'Benali',
         email: 'nora.benali@sorea.local',
-        password: 'coach-temp',
+        password: coachPassword,
         role: 'coach',
         avatarUrl: '/images/hero_cover.webp',
         isActive: true,
@@ -60,7 +64,7 @@ async function main() {
         firstName: 'Camille',
         lastName: 'Rossi',
         email: 'camille.rossi@sorea.local',
-        password: 'coach-temp',
+        password: coachPassword,
         role: 'coach',
         avatarUrl: '/images/illustration_features.webp',
         isActive: true,
