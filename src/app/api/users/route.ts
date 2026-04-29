@@ -1,5 +1,5 @@
-import { successResponse, errorResponse } from "../utils/response";
-import { usersDB } from "../data/inMemoryStore";
+import { NextResponse } from "next/server";
+import prisma from "@/lib/prisma";
 
 // GET - Retrieve all users or single user by ID
 // Query params: id (optional) - Can pass ?id=1 to get specific user
@@ -10,44 +10,53 @@ export async function GET(request: Request) {
 
     // Get user by ID if provided
     if (id) {
-      const user = usersDB.find((u) => u.id === parseInt(id));
-      if (!user) {
-        return errorResponse("User not found", 404);
+      const parsedId = parseInt(id, 10);
+      if (isNaN(parsedId)) {
+        return NextResponse.json({ error: "Invalid ID format" }, { status: 400 });
       }
-      return successResponse(user, "User found");
+      const user = await prisma.user.findUnique({
+        where: { id: parsedId },
+      });
+      if (!user) {
+        return NextResponse.json({ error: "User not found" }, { status: 404 });
+      }
+      return NextResponse.json({ data: user, message: "User found" }, { status: 200 });
     }
 
     // Return all users
-    return successResponse(usersDB, "All users retrieved");
+    const users = await prisma.user.findMany();
+    return NextResponse.json({ data: users, message: "All users retrieved" }, { status: 200 });
   } catch (error) {
-    return errorResponse("Internal server error", 500, error);
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }
 
 // POST - Create new user
-// Body: { name: string, email: string, role?: string }
+// Body: { firstName: string, lastName: string, email: string, role?: string, password?: string }
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { name, email, role } = body;
+    const { firstName, lastName, email, role, password } = body;
 
     // Validate required fields
-    if (!name || !email) {
-      return errorResponse("Name and email are required", 400);
+    if (!firstName || !email || !password) {
+      return NextResponse.json({ error: "firstName, email and password are required" }, { status: 400 });
     }
 
-    // Create new user object
-    const newUser = {
-      id: usersDB.length + 1,
-      name,
-      email,
-      role: role || "user",
-    };
+    // Create new user object via prisma
+    const newUser = await prisma.user.create({
+      data: {
+        firstName,
+        lastName: lastName || "",
+        email,
+        password, // Warning: In production, password should be hashed!
+        role: role || "user",
+        isActive: true,
+      }
+    });
 
-    // Add to in-memory store (no DB required)
-    usersDB.push(newUser);
-    return successResponse(newUser, "User created successfully", 201);
+    return NextResponse.json({ data: newUser, message: "User created successfully" }, { status: 201 });
   } catch (error) {
-    return errorResponse("Internal server error", 500, error);
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }

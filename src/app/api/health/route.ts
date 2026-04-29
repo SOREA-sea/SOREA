@@ -1,4 +1,4 @@
-import { successResponse } from "../utils/response";
+import { NextResponse } from "next/server";
 import { ensureEnv } from "../utils/env";
 import { info } from "../utils/logger";
 
@@ -8,8 +8,9 @@ export async function GET() {
   const missing = ensureEnv();
   if (missing.length > 0) info(`Missing env vars: ${missing.join(', ')}`);
 
-  return successResponse(
-    { status: "online", timestamp: new Date().toISOString() },
-    "Server is running"
-  );
+  return NextResponse.json({
+    status: "online", 
+    timestamp: new Date().toISOString(),
+    message: "Server is running"
+  }, { status: 200 });
 }

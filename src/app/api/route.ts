@@ -1,4 +1,4 @@
-import { successResponse } from "./utils/response";
+import { NextResponse } from "next/server";
 import { ensureEnv } from "./utils/env";
 import { info } from "./utils/logger";
 
@@ -8,28 +8,14 @@ export async function GET() {
   const missing = ensureEnv();
   if (missing.length > 0) info(`Missing env vars: ${missing.join(', ')}`);
 
-  return successResponse(
-    {
-      message: "API responding <3",
-      endpoints: {
-        health: "/api/health",
-        auth: {
-          login: "POST /api/auth/login",
-          coach_register: "POST /api/auth/coach/register",
-          coach_login: "POST /api/auth/coach/login",
-        },
-        users: {
-          getAll: "GET /api/users",
-          getById: "GET /api/users?id=1",
-          create: "POST /api/users",
-        },
-        products: {
-          getAll: "GET /api/products",
-          getById: "GET /api/products?id=1",
-          create: "POST /api/products",
-        },
+  return NextResponse.json({
+    message: "API responding <3",
+    endpoints: {
+      health: "/api/health",
+      auth: {
+        login: "POST /api/auth/login",
+        me: "GET /api/auth/me",
       },
     },
-    "Welcome to SOREA API"
-  );
+  }, { status: 200 });
 }

@@ -1,20 +1,30 @@
-import { successResponse, errorResponse } from "../../utils/response";
+import { NextResponse } from "next/server";
 import { requireAuth } from "../../middleware/auth";
-
-// Simulated sessions DB
-const sessionsDB: any[] = [];
+import prisma from "@/lib/prisma";
 
 // GET - list sessions for authenticated coach
-export async function GET(request: Request) {
+export async function GET() {
   try {
-    const auth = requireAuth(request, "coach");
-    if ((auth as any).success === false) return auth; // auth returned a Response (error)
+    const auth = await requireAuth("coach");
+    if (!("id" in auth)) return auth; // auth returned a NextResponse error
 
-    const user = auth as any;
-    const coachSessions = sessionsDB.filter((s) => s.coachId === user.id);
-    return successResponse(coachSessions, "Coach sessions retrieved");
+    const user = auth;
+    
+    const coachProfile = await prisma.coachProfile.findUnique({
+      where: { userId: user.id }
+    });
+
+    if (!coachProfile) {
+      return NextResponse.json({ error: "Coach profile not found" }, { status: 404 });
+    }
+
+    const coachSessions = await prisma.coachSession.findMany({
+      where: { coachId: coachProfile.id }
+    });
+    
+    return NextResponse.json({ success: true, data: coachSessions });
   } catch (error) {
-    return errorResponse("Internal server error", 500, error);
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }
 
@@ -22,26 +32,35 @@ export async function GET(request: Request) {
 // Body: { title, description, startAt }
 export async function POST(request: Request) {
   try {
-    const auth = requireAuth(request, "coach");
-    if ((auth as any).success === false) return auth;
+    const auth = await requireAuth("coach");
+    if (!("id" in auth)) return auth; // auth returned a NextResponse error
 
-    const user = auth as any;
+    const user = auth;
     const body = await request.json();
     const { title, description, startAt } = body;
 
-    if (!title || !startAt) return errorResponse("Title and startAt are required", 400);
+    if (!title || !startAt) return NextResponse.json({ error: "Title and startAt are required" }, { status: 400 });
 
-    const newSession = {
-      id: sessionsDB.length + 1,
-      coachId: user.id,
-      title,
-      description: description || "",
-      startAt,
-    };
+    const coachProfile = await prisma.coachProfile.findUnique({
+      where: { userId: user.id }
+    });
 
-    sessionsDB.push(newSession);
-    return successResponse(newSession, "Session created", 201);
+    if (!coachProfile) {
+      return NextResponse.json({ error: "Coach profile not found" }, { status: 404 });
+    }
+
+    const newSession = await prisma.coachSession.create({
+      data: {
+        coachId: coachProfile.id,
+        title,
+        description: description || "",
+        startsAt: new Date(startAt),
+        price: 45 // Default price
+      }
+    });
+
+    return NextResponse.json({ success: true, data: newSession }, { status: 201 });
   } catch (error) {
-    return errorResponse("Internal server error", 500, error);
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }

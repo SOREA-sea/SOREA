@@ -1,23 +1,37 @@
-import { errorResponse } from "../utils/response";
-import { verifyToken } from "../utils/jwt";
+import { NextResponse } from "next/server";
+import { cookies } from "next/headers";
+import prisma from "@/lib/prisma";
 
-// Extract user from Authorization header (Bearer token)
-export const getUserFromRequest = (request: Request) => {
-  const auth = request.headers.get("authorization") || "";
-  if (!auth.startsWith("Bearer ")) return null;
-  const token = auth.split(" ")[1];
-  if (!token) return null;
+// Vérifie si l'utilisateur est authentifié via son cookie de session
+export async function getUserFromRequest() {
+  try {
+    const unparsedCookies = await cookies();
+    const sessionId = unparsedCookies.get("sorea_session")?.value;
 
-  const decoded = verifyToken(token as string);
-  return decoded;
-};
+    if (!sessionId) return null;
 
-// Require authentication and optional role check
-// If not authenticated or not authorized, return a Response (error)
-// Otherwise return the decoded user object
-export const requireAuth = (request: Request, role?: string) => {
-  const user = getUserFromRequest(request);
-  if (!user) return errorResponse("Unauthorized", 401);
-  if (role && (user as any).role !== role) return errorResponse("Forbidden", 403);
+    const session = await prisma.userSession.findUnique({
+      where: { id: sessionId },
+      include: {
+        user: true,
+      },
+    });
+
+    if (!session || session.expiresAt < new Date()) {
+      return null;
+    }
+
+    return session.user;
+  } catch (error) {
+    console.error("Erreur lors de l'extraction de l'utilisateur:", error);
+    return null;
+  }
+}
+
+// Helper pour sécuriser les routes API, retourne Response (NextResponse) ou User
+export async function requireAuth(role?: string) {
+  const user = await getUserFromRequest();
+  if (!user) return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
+  if (role && user.role !== role) return NextResponse.json({ error: "Accès refusé" }, { status: 403 });
   return user;
-};
+}

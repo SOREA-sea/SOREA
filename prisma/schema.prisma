@@ -22,6 +22,7 @@ model User {
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
 
+  sessions   UserSession[]
   coachProfile CoachProfile?
   carts        Cart[]
   bookings     SessionBooking[]
@@ -200,4 +201,13 @@ model FavoriteSession {
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
   session CoachSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+}
+
+model UserSession {
+  id        String   @id @default(uuid())
+  userId    Int
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
