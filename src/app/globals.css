@@ -34,7 +34,6 @@ body {
     linear-gradient(180deg, #fbf8ff 0%, #fffafd 42%, #fff7f1 100%);
 }
 
-/* Design tokens for the SOREA landing */
 :root {
   --pastel-1: #f6eefc;
   --pastel-2: #fff8f3;
@@ -90,11 +89,9 @@ body {
   padding: 1rem;
 }
 
-/* Background gradients used in components */
 .from-pastel-1{ --tw-gradient-from: var(--pastel-1); }
 .to-pastel-2{ --tw-gradient-to: var(--pastel-2); }
 
-/* Utility aliases used in page.tsx */
 .text-foreground{ color: var(--fg); }
 .text-foreground\/70{ color: rgba(43,37,64,0.7); }
 .bg-pastel-1{ background: var(--pastel-1);} 
