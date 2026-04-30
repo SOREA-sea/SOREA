@@ -12,7 +12,7 @@ export default function Navbar({ isLoggedIn = false }: { isLoggedIn?: boolean })
       </Link>
       <nav className="hidden md:flex gap-2 items-center rounded-full border border-white/70 bg-white/55 px-2 py-2 shadow-sm backdrop-blur">
         <Link href="/#products" className="text-sm px-4 py-2 rounded-full hover:bg-white/70 transition-colors">Boutique</Link>
-        <Link href="/#sessions" className="text-sm px-4 py-2 rounded-full hover:bg-white/70 transition-colors">Coaching</Link>
+        <Link href="/#sessions" className="text-sm px-4 py-2 rounded-full hover:bg-white/70 transition-colors">Séances</Link>
         <Link href="/#testimonials" className="text-sm px-4 py-2 rounded-full hover:bg-white/70 transition-colors">Avis</Link>
         {isLoggedIn ? (
           <Link href="/dashboard" className="btn-primary">Dashboard</Link>
