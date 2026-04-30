@@ -1,4 +1,5 @@
 import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
 import prisma from "@/lib/prisma";
 import Link from "next/link";
 
@@ -11,15 +12,20 @@ export default async function DashboardPage() {
     include: { user: true },
   });
 
-  const user = session!.user;
+  if (!session) {
+    redirect("/login");
+  }
+
+  const user = session.user;
+  // Coaches no longer have a separate dashboard page; keep showing the standard dashboard
 
   // Charger les stats direct côté serveur
-  const [favoriteProducts, favoriteCoaches, favoriteSessions, bookings, cart] =
+  const [favoriteProducts, favoriteCoaches, favoriteSessions, reservations, cart] =
     await Promise.all([
       prisma.favoriteProduct.count({ where: { userId: user.id } }),
       prisma.favoriteCoach.count({ where: { userId: user.id } }),
       prisma.favoriteSession.count({ where: { userId: user.id } }),
-      prisma.sessionBooking.count({ where: { userId: user.id } }),
+      prisma.sessionBooking.count({ where: { userId: user.id, status: "pending" } }),
       prisma.cart.findUnique({
         where: { userId: user.id },
         include: { items: true },
@@ -33,6 +39,7 @@ export default async function DashboardPage() {
   const upcomingBookings = await prisma.sessionBooking.findMany({
     where: {
       userId: user.id,
+      status: "confirmed",
       session: { startsAt: { gte: new Date() } },
     },
     include: {
@@ -67,15 +74,15 @@ export default async function DashboardPage() {
       href: "/dashboard/favorites",
     },
     {
-      label: "Séances réservées",
-      value: bookings,
+      label: "Réservations",
+      value: reservations,
       icon: (
         <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
         </svg>
       ),
-      color: "bg-blue-100 text-blue-600",
-      href: "/dashboard/sessions",
+      color: "bg-violet-100 text-violet-600",
+      href: "/dashboard/reservations",
     },
     {
       label: "Panier",
@@ -181,6 +188,33 @@ export default async function DashboardPage() {
                 </div>
               );
             })}
+          </div>
+        )}
+      </section>
+
+      {/* Reservations */}
+      <section>
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-xl font-bold">Réservations en attente</h2>
+          <Link href="/dashboard/reservations" className="text-sm text-purple-600 font-semibold hover:text-purple-800 transition-colors">
+            Tout voir →
+          </Link>
+        </div>
+
+        {reservations === 0 ? (
+          <div className="glass-panel rounded-3xl p-8 text-center">
+            <p className="text-foreground/70 font-medium">Aucune réservation en attente</p>
+            <p className="text-foreground/50 text-sm mt-1">Cliquez sur Réserver sur une séance pour l’ajouter ici.</p>
+            <Link href="/#sessions" className="btn-primary inline-block mt-4 text-sm">
+              Voir les séances
+            </Link>
+          </div>
+        ) : (
+          <div className="glass-panel rounded-3xl p-5">
+            <p className="text-foreground/70 font-medium">Vous avez {reservations} réservation{reservations > 1 ? "s" : ""} en attente.</p>
+            <Link href="/dashboard/reservations" className="btn-primary inline-block mt-4 text-sm">
+              Gérer mes réservations
+            </Link>
           </div>
         )}
       </section>

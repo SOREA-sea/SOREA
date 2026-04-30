@@ -11,7 +11,7 @@ export async function GET() {
     }
 
     const bookings = await prisma.sessionBooking.findMany({
-      where: { userId: user.id },
+      where: { userId: user.id, status: "confirmed" },
       include: {
         session: {
           select: {
@@ -81,7 +81,7 @@ export async function POST(request: Request) {
 
     // Vérifier que le user n'a pas déjà réservé cette session
     const existingBooking = await prisma.sessionBooking.findFirst({
-      where: { userId: user.id, sessionId },
+      where: { userId: user.id, sessionId, status: { in: ["pending", "confirmed"] } },
     });
 
     if (existingBooking) {
