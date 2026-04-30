@@ -184,7 +184,6 @@ export async function PUT(request: Request) {
         durationMinutes: durationMinutes ?? existingSession.durationMinutes,
         capacity: capacity ?? existingSession.capacity,
         price: price ?? existingSession.price,
-        imageUrl: imageUrl ?? existingSession.imageUrl,
         isPublished: isPublished ?? existingSession.isPublished,
       },
     });
