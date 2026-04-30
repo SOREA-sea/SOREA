@@ -10,17 +10,16 @@ import prisma from '../lib/prisma';
 import { cookies } from 'next/headers';
 
 export default async function Home() {
-  // Server-side: read directly from the database via Prisma to avoid relative fetch issues
   let products: any[] = [];
   let sessions: any[] = [];
   let testimonials: any[] = [];
   try {
-    products = await prisma.shopProduct.findMany({ orderBy: { id: 'asc' } });
+    products = await prisma.shopProduct.findMany({ where: { isActive: true }, orderBy: { id: 'asc' } });
   } catch (e) {
     products = [];
   }
   try {
-    sessions = await prisma.coachSession.findMany({ orderBy: { id: 'asc' } });
+    sessions = await prisma.coachSession.findMany({ where: { isPublished: true }, orderBy: { id: 'asc' } });
   } catch (e) {
     sessions = [];
   }
@@ -81,19 +80,19 @@ export default async function Home() {
           </div>
         </section>
 
-        {/* Sessions */}
+        {/* Séances */}
         <section id="sessions" className="mt-20">
           <div className="flex items-end justify-between gap-4">
             <div>
               <p className="text-xs uppercase tracking-[0.28em] text-foreground/50">Accompagnement</p>
-              <h2 className="section-title mt-2 text-3xl md:text-4xl font-black">Coaching & Sessions</h2>
+              <h2 className="section-title mt-2 text-3xl md:text-4xl font-black">Coaching & Séances</h2>
             </div>
-            <a href="#sessions" className="btn-ghost">Tous les programmes</a>
+            <a href="#sessions" className="btn-ghost">Toutes les séances</a>
           </div>
           <p className="text-foreground/70 mt-2">Des séances guidées pour vos objectifs de bien-être.</p>
           <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-6">
             {sessions.map((s: any)=> (
-              <SessionCard key={s.id} title={s.title} price={s.price ?? 45} kind={s.title + ' session'} imageSrc={s.imageUrl ?? s.image} />
+              <SessionCard key={s.id} title={s.title} price={s.price ?? 45} kind={s.title + ' · séance'} imageSrc={s.imageUrl ?? s.image} />
             ))}
           </div>
         </section>

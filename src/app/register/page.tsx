@@ -41,7 +41,6 @@ export default function RegisterPage() {
         throw new Error(data.error || "Une erreur est survenue");
       }
 
-      // Connexion automatique après inscription
       const loginRes = await fetch("/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -49,7 +48,7 @@ export default function RegisterPage() {
       });
 
       if (loginRes.ok) {
-        router.push("/");
+        router.push("/dashboard");
         router.refresh();
       } else {
         router.push("/login");
@@ -67,7 +66,6 @@ export default function RegisterPage() {
       <Navbar />
       <main className="flex-1 max-w-7xl mx-auto px-6 pb-24 flex items-center justify-center min-h-[75vh]">
         <div className="w-full max-w-lg glass-panel rounded-[2rem] p-8 md:p-10 relative overflow-hidden mt-12 mb-12">
-        {/* Décoration d'arrière-plan */}
         <div className="absolute -top-32 -left-20 w-52 h-52 bg-purple-300 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animation-blob"></div>
         <div className="absolute -bottom-32 -right-20 w-52 h-52 bg-pink-300 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animation-blob animation-delay-2000"></div>
 
