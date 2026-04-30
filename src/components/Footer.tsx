@@ -6,8 +6,8 @@ export default function Footer(){
       <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-6 text-sm text-foreground/70">
         <div>© {new Date().getFullYear()} SOREA — Sérénité, équilibre et alignement.</div>
         <div className="flex gap-5">
-          <Link href="/privacy" className="hover:text-foreground transition-colors">Privacy</Link>
-          <Link href="/terms" className="hover:text-foreground transition-colors">Terms</Link>
+          <Link href="/termandprivacy" className="hover:text-foreground transition-colors">Privacy</Link>
+          <Link href="/termandprivacy" className="hover:text-foreground transition-colors">Terms</Link>
           <Link href="/contact" className="hover:text-foreground transition-colors">Contact</Link>
         </div>
       </div>

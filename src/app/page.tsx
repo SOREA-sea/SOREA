@@ -128,7 +128,7 @@ export default async function Home() {
             <h3 className="mt-2 text-3xl font-black">Rejoindre la communauté</h3>
             <p className="text-foreground/70 mt-2">Des moments partagés, des challenges et un réseau bien-être.</p>
             <div className="mt-6 flex gap-4">
-              <a className="btn-primary" href="#">Devenir ambassadrice</a>
+              <a className="btn-primary" href="/register">Devenir ambassadrice</a>
               <a className="btn-ghost" href="#">En savoir plus</a>
             </div>
           </div>
