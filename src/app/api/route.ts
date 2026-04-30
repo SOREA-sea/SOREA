@@ -38,6 +38,13 @@ export async function GET() {
       testimonials: {
         list: "GET /api/testimonials (public)",
       },
+        dashboard: {
+          stats: "GET /api/dashboard/stats (protected)",
+          favorites: "GET/DELETE /api/dashboard/favorites (protected)",
+          bookings: "GET/POST /api/dashboard/bookings (protected)",
+          reservations: "GET/POST/PATCH/DELETE /api/dashboard/reservations (protected)",
+          profile: "GET/PATCH /api/dashboard/profile (protected)",
+        },
     },
   }, { status: 200 });
 }

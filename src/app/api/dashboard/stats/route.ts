@@ -15,7 +15,7 @@ export async function GET() {
         prisma.favoriteProduct.count({ where: { userId: user.id } }),
         prisma.favoriteCoach.count({ where: { userId: user.id } }),
         prisma.favoriteSession.count({ where: { userId: user.id } }),
-        prisma.sessionBooking.count({ where: { userId: user.id } }),
+        prisma.sessionBooking.count({ where: { userId: user.id, status: "confirmed" } }),
         prisma.cart.findUnique({
           where: { userId: user.id },
           include: { items: true },
