@@ -46,13 +46,28 @@ body {
   --shadow: 0 20px 60px rgba(67, 56, 114, 0.12);
 }
 
-.btn-primary{
-  background: linear-gradient(90deg,var(--accent),var(--accent-2));
+@keyframes gradientWave {
+  0% { background-position: 0% 0%; }
+  33% { background-position: 100% 50%; }
+  66% { background-position: 50% 100%; }
+  100% { background-position: 0% 0%; }
+}
+
+.btn-primary {
+  background: linear-gradient(120deg, var(--accent), var(--accent-2), #d946ef, var(--accent));
+  background-size: 300% 300%;
+  animation: gradientWave 5s ease-in-out infinite;
   color: white;
   padding: 0.78rem 1.1rem;
   border-radius: 9999px;
   font-weight: 600;
   box-shadow: 0 14px 30px rgba(139, 92, 246, 0.25);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.btn-primary:hover {
+  transform: translateY(-1px) scale(1.02);
+  box-shadow: 0 18px 36px rgba(139, 92, 246, 0.35);
 }
 .btn-ghost{
   background: rgba(255, 255, 255, 0.5);
