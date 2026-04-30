@@ -14,6 +14,14 @@ export async function POST(request: Request) {
       );
     }
 
+    // Validate password strength (minimum 8 characters)
+    if (typeof password !== 'string' || password.length < 8) {
+      return NextResponse.json(
+        { error: "Le mot de passe doit contenir au moins 8 caractères." },
+        { status: 400 }
+      );
+    }
+
     // Vérifier si l'utilisateur existe déjà
     const existingUser = await prisma.user.findUnique({
       where: { email },
