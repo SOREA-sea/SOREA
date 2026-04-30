@@ -73,9 +73,7 @@ export default async function Home() {
 
           <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
             {products.map((p: any, idx: number)=> (
-              <div key={p.id ?? idx} className="product-card hover:shadow-2xl transition-shadow">
-                <ProductCard name={p.name} price={p.price ?? 0} description={p.description} imageSrc={p.imageUrl ?? p.imageSrc ?? `/images/product_${(idx%6)+1}.webp`} />
-              </div>
+              <ProductCard key={p.id ?? idx} id={p.id} name={p.name} price={p.price ?? 0} description={p.description} imageSrc={p.imageUrl ?? p.imageSrc ?? `/images/product_${(idx%6)+1}.webp`} />
             ))}
           </div>
         </section>

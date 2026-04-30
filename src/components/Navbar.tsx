@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import Image from 'next/image';
+import CartDropdown from './CartDropdown';
 
 export default function Navbar({ isLoggedIn = false }: { isLoggedIn?: boolean }){
   return (
@@ -14,6 +15,7 @@ export default function Navbar({ isLoggedIn = false }: { isLoggedIn?: boolean })
         <Link href="/#products" className="text-sm px-4 py-2 rounded-full hover:bg-white/70 transition-colors">Boutique</Link>
         <Link href="/#sessions" className="text-sm px-4 py-2 rounded-full hover:bg-white/70 transition-colors">Séances</Link>
         <Link href="/#testimonials" className="text-sm px-4 py-2 rounded-full hover:bg-white/70 transition-colors">Avis</Link>
+        <CartDropdown />
         {isLoggedIn ? (
           <Link href="/dashboard" className="btn-primary">Dashboard</Link>
         ) : (
