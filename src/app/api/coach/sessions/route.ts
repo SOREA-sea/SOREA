@@ -82,3 +82,38 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }
+
+// DELETE - delete a session (coach only)
+export async function DELETE(request: Request) {
+  try {
+    const auth = await requireAuth("coach");
+    if (!("id" in auth)) return auth;
+
+    const user = auth;
+    const { searchParams } = new URL(request.url);
+    const sessionIdParam = searchParams.get("sessionId");
+
+    if (!sessionIdParam) {
+      return NextResponse.json({ error: "sessionId requis" }, { status: 400 });
+    }
+
+    const sessionId = Number(sessionIdParam);
+    if (!Number.isInteger(sessionId) || sessionId <= 0) {
+      return NextResponse.json({ error: "sessionId invalide" }, { status: 400 });
+    }
+
+    const coachProfile = await prisma.coachProfile.findUnique({ where: { userId: user.id } });
+    if (!coachProfile) return NextResponse.json({ error: "Coach introuvable" }, { status: 404 });
+
+    const session = await prisma.coachSession.findUnique({ where: { id: sessionId } });
+    if (!session || session.coachId !== coachProfile.id) {
+      return NextResponse.json({ error: "Séance introuvable ou non autorisée" }, { status: 404 });
+    }
+
+    await prisma.coachSession.delete({ where: { id: sessionId } });
+    return NextResponse.json({ message: "Séance supprimée" });
+  } catch (error) {
+    console.error("[DELETE /api/coach/sessions] Erreur:", error);
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+  }
+}

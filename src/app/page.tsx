@@ -90,7 +90,7 @@ export default async function Home() {
           <p className="text-foreground/70 mt-2">Des séances guidées pour vos objectifs de bien-être.</p>
           <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-6">
             {sessions.map((s: any)=> (
-              <SessionCard key={s.id} title={s.title} price={s.price ?? 45} kind={s.title + ' · séance'} imageSrc={s.imageUrl ?? s.image} />
+              <SessionCard key={s.id} id={s.id} title={s.title} price={s.price ?? 45} kind={s.title + ' · séance'} imageSrc={s.imageUrl ?? s.image} />
             ))}
           </div>
         </section>

@@ -40,6 +40,37 @@ export default async function AdminOverviewPage() {
   });
   const totalRevenue = bookingsWithPrice.reduce((sum, b) => sum + b.session.price, 0);
 
+  const recentBookings = await prisma.sessionBooking.findMany({
+    orderBy: { bookedAt: "desc" },
+    take: 6,
+    include: {
+      user: {
+        select: {
+          firstName: true,
+          lastName: true,
+          role: true,
+        },
+      },
+      session: {
+        select: {
+          title: true,
+          price: true,
+          startsAt: true,
+          coach: {
+            select: {
+              user: {
+                select: {
+                  firstName: true,
+                  lastName: true,
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  });
+
   // Derniers inscrits
   const recentUsers = await prisma.user.findMany({
     orderBy: { createdAt: "desc" },
@@ -234,6 +265,40 @@ export default async function AdminOverviewPage() {
               ))}
             </tbody>
           </table>
+        </div>
+      </section>
+
+      <section>
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-xl font-bold">Réservations récentes</h2>
+          <span className="text-sm text-foreground/50">{totalBookings} au total</span>
+        </div>
+        <div className="space-y-3">
+          {recentBookings.map((booking) => {
+            const startsAt = booking.session.startsAt ? new Date(booking.session.startsAt) : null;
+
+            return (
+              <div key={booking.id} className="glass-panel rounded-2xl p-5 flex items-center justify-between gap-4">
+                <div>
+                  <p className="font-bold text-foreground">{booking.session.title}</p>
+                  <p className="text-foreground/50 text-sm">
+                    {booking.user.firstName} {booking.user.lastName}
+                    {booking.user.role === "coach" ? " · Coach" : ""}
+                    {booking.session.coach?.user ? ` · ${booking.session.coach.user.firstName} ${booking.session.coach.user.lastName}` : ""}
+                  </p>
+                </div>
+
+                <div className="text-right shrink-0">
+                  {startsAt && (
+                    <p className="font-semibold text-foreground">
+                      {startsAt.toLocaleDateString("fr-FR", { day: "numeric", month: "short", year: "numeric" })}
+                    </p>
+                  )}
+                  <p className="text-purple-600 font-bold">{booking.session.price} €</p>
+                </div>
+              </div>
+            );
+          })}
         </div>
       </section>
     </div>
