@@ -27,7 +27,7 @@ export default function ProfilePage() {
     fetchProfile();
   }, []);
 
-  const fetchProfile = async () => {
+  async function fetchProfile() {
     try {
       const res = await fetch("/api/dashboard/profile");
       if (!res.ok) throw new Error("Erreur lors du chargement du profil");

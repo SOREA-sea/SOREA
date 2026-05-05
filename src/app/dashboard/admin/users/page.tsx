@@ -29,7 +29,7 @@ export default function AdminUsersPage() {
     fetchUsers();
   }, []);
 
-  const fetchUsers = async () => {
+  async function fetchUsers() {
     try {
       const res = await fetch("/api/admin/users");
       if (!res.ok) throw new Error("Erreur");
