@@ -44,12 +44,15 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  return (
-    <html
-      lang="fr"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
-    >
-      <body className="min-h-full flex flex-col">{children}</body>
-    </html>
-  );
+ return (
+        <html
+            lang="fr"
+            className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+        >
+            <head>
+                <link rel="stylesheet" href="https://www.dimdams.com/font-awesome/css/all.min.css" />
+            </head>
+            <body className="min-h-full flex flex-col">{children}</body>
+        </html>
+    );
 }
