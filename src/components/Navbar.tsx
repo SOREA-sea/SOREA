@@ -93,7 +93,7 @@ export default function Navbar({ isLoggedIn = false }: { isLoggedIn?: boolean })
   }, [currentIndex]);
 
   return (
-    <header className="w-full max-w-7xl mx-auto px-6 py-5 flex items-center justify-between sticky top-0 z-30">
+    <header className="w-full max-w-7xl mx-auto px-6 py-5 flex items-center justify-between fixed top-0 left-1/2 -translate-x-1/2 z-50">
       <Link 
         href="/" 
         className="flex items-center gap-4 rounded-full border border-white/70 bg-white/55 p-1.5 pr-6 shadow-sm backdrop-blur hover:bg-white/60 transition-colors"

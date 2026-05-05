@@ -69,10 +69,13 @@ export async function GET(request: Request) {
   }
 }
 
-// POST - Create new user (PROTECTED - admin or self-registration with email validation)
+// POST - Create new user (PROTECTED - admin only)
 // Body: { firstName: string, lastName: string, email: string, password: string, role?: string }
 export async function POST(request: Request) {
   try {
+    const auth = await requireAuth("admin");
+    if (!("id" in auth)) return auth;
+
     const body = await request.json();
     const { firstName, lastName, email, password, role } = body;
 

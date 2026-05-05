@@ -142,6 +142,10 @@ export async function POST(request: Request) {
 // PUT - Mettre à jour une session
 export async function PUT(request: Request) {
   try {
+    const auth = await requireAuth();
+    if (!("id" in auth)) return auth;
+    const user = auth;
+
     const body = await request.json();
     const { id, title, description, sessionType, startsAt, durationMinutes, capacity, price, imageUrl, isPublished } = body;
 
@@ -164,6 +168,7 @@ export async function PUT(request: Request) {
     // Vérifier que la session existe
     const existingSession = await prisma.coachSession.findUnique({
       where: { id: parsedId },
+      include: { coach: true },
     });
 
     if (!existingSession) {
@@ -171,6 +176,10 @@ export async function PUT(request: Request) {
         { error: "Session non trouvée" },
         { status: 404 }
       );
+    }
+
+    if (user.role !== "admin" && existingSession.coach.userId !== user.id) {
+       return NextResponse.json({ error: "Non autorisé à modifier cette session" }, { status: 403 });
     }
 
     // Mise à jour de la session
@@ -205,6 +214,10 @@ export async function PUT(request: Request) {
 // DELETE - Désactiver une session (soft delete via isPublished)
 export async function DELETE(request: Request) {
   try {
+    const auth = await requireAuth();
+    if (!("id" in auth)) return auth;
+    const user = auth;
+
     const body = await request.json();
     const { id } = body;
 
@@ -227,6 +240,7 @@ export async function DELETE(request: Request) {
     // Vérifier que la session existe
     const existingSession = await prisma.coachSession.findUnique({
       where: { id: parsedId },
+      include: { coach: true },
     });
 
     if (!existingSession) {
@@ -234,6 +248,10 @@ export async function DELETE(request: Request) {
         { error: "Session non trouvée" },
         { status: 404 }
       );
+    }
+
+    if (user.role !== "admin" && existingSession.coach.userId !== user.id) {
+       return NextResponse.json({ error: "Non autorisé à supprimer cette session" }, { status: 403 });
     }
 
     // Soft delete : dépublier la session au lieu de la supprimer
