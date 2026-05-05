@@ -36,7 +36,7 @@ export default function AdminProductsPage() {
     fetchProducts();
   }, []);
 
-  const fetchProducts = async () => {
+  async function fetchProducts() {
     try {
       const res = await fetch("/api/admin/products");
       if (!res.ok) throw new Error("Erreur");
