@@ -58,7 +58,7 @@ export default function FavoritesPage() {
     fetchFavorites();
   }, []);
 
-  const fetchFavorites = async () => {
+  async function fetchFavorites() {
     try {
       const res = await fetch("/api/dashboard/favorites");
       if (!res.ok) throw new Error("Erreur");

@@ -1,3 +1,4 @@
+import Link from "next/link";
 "use client";
 
 import { useState, useEffect } from "react";
@@ -34,7 +35,7 @@ export default function SessionsPage() {
     fetchBookings();
   }, []);
 
-  const fetchBookings = async () => {
+  async function fetchBookings() {
     try {
       const res = await fetch("/api/dashboard/bookings");
       if (!res.ok) throw new Error("Erreur");
@@ -84,9 +85,9 @@ export default function SessionsPage() {
           <p className="text-foreground/50 mt-2 max-w-md mx-auto">
             Vous n'avez pas encore réservé de séance de coaching. Explorez nos programmes pour trouver celle qui vous correspond.
           </p>
-          <a href="/#sessions" className="btn-primary inline-block mt-6">
+          <Link href="/#sessions" className="btn-primary inline-block mt-6">
             Découvrir les séances
-          </a>
+          </Link>
         </div>
       ) : (
         <>
