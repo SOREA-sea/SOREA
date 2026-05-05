@@ -33,6 +33,14 @@ export async function POST(request: Request) {
     const { coachId, rating, reviewText } = body;
     if (!coachId || typeof rating !== 'number') return NextResponse.json({ error: 'coachId et rating requis' }, { status: 400 });
 
+    const existingReview = await prisma.coachReview.findFirst({
+      where: { coachId, userId: (user as any).id },
+    });
+
+    if (existingReview) {
+      return NextResponse.json({ error: 'Vous avez déjà laissé un avis pour ce coach.' }, { status: 409 });
+    }
+
     const newReview = await prisma.coachReview.create({
       data: { coachId, userId: (user as any).id, rating, reviewText: reviewText || undefined },
     });

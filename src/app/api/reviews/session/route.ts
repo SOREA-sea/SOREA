@@ -33,6 +33,14 @@ export async function POST(request: Request) {
     const { sessionId, rating, reviewText } = body;
     if (!sessionId || typeof rating !== 'number') return NextResponse.json({ error: 'sessionId et rating requis' }, { status: 400 });
 
+    const existingReview = await prisma.sessionReview.findFirst({
+      where: { sessionId, userId: (user as any).id },
+    });
+
+    if (existingReview) {
+      return NextResponse.json({ error: 'Vous avez déjà laissé un avis pour cette séance.' }, { status: 409 });
+    }
+
     const newReview = await prisma.sessionReview.create({
       data: { sessionId, userId: (user as any).id, rating, reviewText: reviewText || undefined },
     });
