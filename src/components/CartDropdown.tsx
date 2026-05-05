@@ -46,7 +46,7 @@ export default function CartDropdown() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const fetchCart = async (showLoading = true) => {
+  async function fetchCart(showLoading = true) {
     if (showLoading) setIsLoading(true);
     try {
       const res = await fetch("/api/cart");

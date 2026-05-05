@@ -1,3 +1,4 @@
+import Link from "next/link";
 "use client";
 
 import { useEffect, useState } from "react";
@@ -39,7 +40,7 @@ export default function ReservationsPage() {
 
   // No coach-specific redirect — coaches will use the unified dashboard reservations page
 
-  const fetchReservations = async () => {
+  async function fetchReservations() {
     try {
       const res = await fetch("/api/dashboard/reservations");
       if (!res.ok) throw new Error("Erreur chargement réservations");
@@ -111,9 +112,9 @@ export default function ReservationsPage() {
           <p className="text-foreground/50 mt-2 max-w-md mx-auto">
             Cliquez sur Réserver depuis une séance pour l’ajouter ici, puis confirmez plus tard.
           </p>
-          <a href="/#sessions" className="btn-primary inline-block mt-6">
+          <Link href="/#sessions" className="btn-primary inline-block mt-6">
             Voir les séances
-          </a>
+          </Link>
         </div>
       ) : (
         <div className="space-y-4">

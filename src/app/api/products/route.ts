@@ -101,6 +101,9 @@ export async function POST(request: Request) {
 // PUT - Mettre à jour un produit
 export async function PUT(request: Request) {
   try {
+    const auth = await requireAuth("admin");
+    if (!("id" in auth)) return auth;
+
     const body = await request.json();
     const { id, name, description, price, stockQuantity, imageUrl, isActive } = body;
 
@@ -162,6 +165,9 @@ export async function PUT(request: Request) {
 // DELETE - Désactiver un produit (soft delete)
 export async function DELETE(request: Request) {
   try {
+    const auth = await requireAuth("admin");
+    if (!("id" in auth)) return auth;
+
     const body = await request.json();
     const { id } = body;
 
