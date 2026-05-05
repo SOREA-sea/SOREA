@@ -16,6 +16,25 @@ export default function Footer() {
         { href: '/carnet', label: 'Mon carnet' },
     ];
 
+    const infoLinks = [
+        { href: '/login?tab=inscription', label: 'Devenir ambassadrice' },
+        { href: '/about', label: 'À propos' },
+        { href: '/termandprivacy', label: 'Politique de confidentialité' },
+        { href: '/termandprivacy', label: 'CGU' },
+    ];
+
+    const isActive = (href: string) => {
+        if (href === '/login?tab=inscription') return pathname === '/login';
+        return pathname === href;
+    };
+
+    const activeStyle = {
+        background: 'linear-gradient(259.12deg, #8b47ff, #f498c5)',
+        WebkitBackgroundClip: 'text',
+        WebkitTextFillColor: 'transparent',
+        textDecoration: 'underline',
+    };
+
     return (
         <footer className="w-full [background:linear-gradient(90deg,_rgba(75,_85,_99,_0.2),_rgba(152,_173,_201,_0.2))] py-10 px-6">
             <div className="max-w-7xl mx-auto flex flex-col gap-8">
@@ -50,13 +69,8 @@ export default function Footer() {
                                 <Link
                                     key={href}
                                     href={href}
-                                    style={pathname === href ? {
-                                        background: 'linear-gradient(259.12deg, #8b47ff, #f498c5)',
-                                        WebkitBackgroundClip: 'text',
-                                        WebkitTextFillColor: 'transparent',
-                                        textDecoration: 'underline',
-                                    } : undefined}
-                                    className={pathname === href ? '' : 'text-primary-darker hover:opacity-70 transition-opacity'}
+                                    style={isActive(href) ? activeStyle : undefined}
+                                    className={isActive(href) ? '' : 'text-primary-darker hover:opacity-70 transition-opacity'}
                                 >
                                     {label}
                                 </Link>
@@ -67,11 +81,17 @@ export default function Footer() {
                     {/* Informations */}
                     <div className="flex flex-col gap-4">
                         <h3 className="font-['Inria_Sans'] text-primary-darker text-xl tracking-widest">Information</h3>
-                        <div className="flex flex-col gap-3 text-sm text-primary-darker font-['Inria_Sans'] tracking-wide">
-                            <Link href="/register" className="hover:opacity-70 transition-opacity">Devenir ambassadrice</Link>
-                            <Link href="/about" className="hover:opacity-70 transition-opacity">À propos</Link>
-                            <Link href="/termandprivacy" className="hover:opacity-70 transition-opacity">Politique de confidentialité</Link>
-                            <Link href="/termandprivacy" className="hover:opacity-70 transition-opacity">CGU</Link>
+                        <div className="flex flex-col gap-3 text-sm font-['Inria_Sans'] tracking-wide">
+                            {infoLinks.map(({ href, label }) => (
+                                <Link
+                                    key={label}
+                                    href={href}
+                                    style={isActive(href) ? activeStyle : undefined}
+                                    className={isActive(href) ? '' : 'text-primary-darker hover:opacity-70 transition-opacity'}
+                                >
+                                    {label}
+                                </Link>
+                            ))}
                         </div>
                     </div>
 
