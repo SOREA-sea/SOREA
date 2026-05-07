@@ -1,4 +1,5 @@
 "use client";
+import { usePathname } from "next/navigation";
 import { useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
@@ -13,6 +14,7 @@ const NAV_LINKS = [
 ];
 
 export default function Navbar({ isLoggedIn = false }: { isLoggedIn?: boolean }) {
+  const pathname = usePathname();
   const [visible, setVisible] = useState(false);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -21,14 +23,16 @@ export default function Navbar({ isLoggedIn = false }: { isLoggedIn?: boolean })
 
   return (
     <>
-      <Link
-        href={isLoggedIn ? "/dashboard" : "/login"}
-        className="sorea-cta-float-btn"
-        onMouseEnter={show}
-        onMouseLeave={hide}
-      >
-        {isLoggedIn ? "Mon espace" : "Se connecter"}
-      </Link>
+      {(pathname === "/login" || visible) ? (
+        <Link
+          href={isLoggedIn ? "/dashboard" : "/login"}
+          className={`sorea-cta-float-btn ${pathname === "/login" ? "sorea-cta-float-btn--login" : "sorea-cta-float-btn--default"}`}
+          onMouseEnter={show}
+          onMouseLeave={hide}
+        >
+          {isLoggedIn ? "Mon espace" : "Se connecter"}
+        </Link>
+      ) : null}
 
       <div className="sorea-hotzone" onMouseEnter={show} onMouseLeave={hide} />
 
@@ -66,13 +70,26 @@ export default function Navbar({ isLoggedIn = false }: { isLoggedIn?: boolean })
           text-decoration: none;
           display: inline-block;
           flex-shrink: 0;
-          background: #9B6FD9;
-          color: #fff;
           border: 3px solid #9B6FD9;
           transition: background 0.22s ease, color 0.22s ease, border-color 0.22s ease;
         }
 
-        .sorea-cta-float-btn:hover {
+        .sorea-cta-float-btn--login {
+          background: #fff;
+          color: #9B6FD9;
+        }
+
+        .sorea-cta-float-btn--login:hover {
+          background: #fff;
+          color: #9B6FD9;
+        }
+
+        .sorea-cta-float-btn--default {
+          background: #9B6FD9;
+          color: #fff;
+        }
+
+        .sorea-cta-float-btn--default:hover {
           background: #fff;
           color: #9B6FD9;
         }
@@ -127,7 +144,7 @@ export default function Navbar({ isLoggedIn = false }: { isLoggedIn?: boolean })
           position: relative;
           padding: 4px 0;
           color: #fff;
-          -webkit-text-stroke: 3px var(--color-sorea-navBar);
+          -webkit-text-stroke: 2px var(--color-primary-dark);
           paint-order: stroke fill;
           transition: transform 0.18s ease, -webkit-text-stroke 0.2s ease;
           transform-origin: center;
