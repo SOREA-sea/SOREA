@@ -1,8 +1,8 @@
 "use client";
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-
+// on doit changer les # apresss
 const NAV_LINKS = [
   { label: "Shopping", href: "#products" },
   { label: "Coaching", href: "#sessions" },
@@ -21,6 +21,15 @@ export default function Navbar({ isLoggedIn = false }: { isLoggedIn?: boolean })
 
   return (
     <>
+      <Link
+        href={isLoggedIn ? "/dashboard" : "/login"}
+        className="sorea-cta-float-btn"
+        onMouseEnter={show}
+        onMouseLeave={hide}
+      >
+        {isLoggedIn ? "Mon espace" : "Se connecter"}
+      </Link>
+
       <div className="sorea-hotzone" onMouseEnter={show} onMouseLeave={hide} />
 
       <header
@@ -39,13 +48,35 @@ export default function Navbar({ isLoggedIn = false }: { isLoggedIn?: boolean })
             </Link>
           ))}
         </nav>
-
-        <Link href={isLoggedIn ? "/dashboard" : "/login"} className="sorea-cta-btn">
-          {isLoggedIn ? "Mon espace" : "Se connecter"}
-        </Link>
       </header>
 
       <style>{`
+        .sorea-cta-float-btn {
+          position: fixed;
+          top: 22px;
+          right: 56px;
+          z-index: 60;
+          font-family: var(--font-inria-sans), serif;
+          font-weight: 700;
+          font-size: 15px;
+          letter-spacing: 0.04em;
+          border-radius: 20px;
+          padding: 11px 28px;
+          white-space: nowrap;
+          text-decoration: none;
+          display: inline-block;
+          flex-shrink: 0;
+          background: #9B6FD9;
+          color: #fff;
+          border: 3px solid #9B6FD9;
+          transition: background 0.22s ease, color 0.22s ease, border-color 0.22s ease;
+        }
+
+        .sorea-cta-float-btn:hover {
+          background: #fff;
+          color: #9B6FD9;
+        }
+
         .sorea-hotzone {
           position: fixed;
           top: 0; left: 0; right: 0;
@@ -128,28 +159,6 @@ export default function Navbar({ isLoggedIn = false }: { isLoggedIn?: boolean })
           opacity: 1;
         }
 
-        /* ── Bouton : violet plein → blanc au hover ── */
-        .sorea-cta-btn {
-          font-family: var(--font-inria-sans), serif;
-          font-weight: 700;
-          font-size: 15px;
-          letter-spacing: 0.04em;
-          border-radius: 20px;
-          padding: 11px 28px;
-          white-space: nowrap;
-          text-decoration: none;
-          display: inline-block;
-          flex-shrink: 0;
-          background: #9B6FD9;
-          color: #fff;
-          border: 2px solid #9B6FD9;
-          transition: background 0.22s ease, color 0.22s ease;
-        }
-
-        .sorea-cta-btn:hover {
-          background: #fff;
-          color: #9B6FD9;
-        }
       `}</style>
     </>
   );
