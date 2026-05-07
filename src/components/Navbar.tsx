@@ -1,159 +1,156 @@
 "use client";
+import { useEffect, useRef, useState } from "react";
+import Image from "next/image";
+import Link from "next/link";
 
-import Link from 'next/link';
-import Image from 'next/image';
-import CartDropdown from './CartDropdown';
-import { useState, useEffect, useRef } from 'react';
+const NAV_LINKS = [
+  { label: "Shopping", href: "#products" },
+  { label: "Coaching", href: "#sessions" },
+  { label: "Devenir ambassadrice", href: "/register" },
+  { label: "Challenge", href: "#community" },
+  { label: "Vibe", href: "#" },
+  { label: "Mon carnet", href: "#" },
+];
 
 export default function Navbar({ isLoggedIn = false }: { isLoggedIn?: boolean }) {
-  const navItems = [
-    { label: 'Boutique', href: '/#products' },
-    { label: 'Séances', href: '/#sessions' },
-    { label: 'Avis', href: '/#testimonials' }
-  ];
+  const [visible, setVisible] = useState(false);
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const navRef = useRef<HTMLElement>(null);
-  const itemRefs = useRef<(HTMLAnchorElement | null)[]>([]);
-  const [activeIndex, setActiveIndex] = useState<number>(3); // 3 is Dashboard/Login
-  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
-  const [indicatorStyle, setIndicatorStyle] = useState({ left: 0, top: 0, width: 0, height: 0, opacity: 0 });
-
-  const currentIndex = hoveredIndex !== null ? hoveredIndex : activeIndex;
-
-  useEffect(() => {
-    const handleScroll = () => {
-      let newIndex = 3; // Par défaut: Dashboard
-
-      // Ne faire le scroll spy que sur la page d'accueil
-      if (window.location.pathname === "/") {
-        const sections = ['products', 'sessions', 'testimonials'];
-        
-        for (let i = 0; i < sections.length; i++) {
-          const el = document.getElementById(sections[i]);
-          if (el) {
-            const rect = el.getBoundingClientRect();
-            // La section est active si son haut a passé le tiers de l'écran
-            // et son bas est encore visible
-            if (rect.top <= window.innerHeight / 3 && rect.bottom >= 100) {
-              newIndex = i;
-              break;
-            }
-          }
-        }
-
-        // Si on est tout en haut, remettre sur le CTA Dashboard
-        if (window.scrollY < 100) {
-          newIndex = 3;
-        }
-      }
-
-      setActiveIndex(newIndex);
-    };
-
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    window.addEventListener('hashchange', handleScroll);
-    
-    // Vérification initiale
-    setTimeout(handleScroll, 100);
-
-    return () => {
-      window.removeEventListener('scroll', handleScroll);
-      window.removeEventListener('hashchange', handleScroll);
-    };
-  }, []);
-
-  useEffect(() => {
-    const activeEl = itemRefs.current[currentIndex];
-    if (activeEl) {
-      setIndicatorStyle({
-        left: activeEl.offsetLeft,
-        top: activeEl.offsetTop,
-        width: activeEl.offsetWidth,
-        height: activeEl.offsetHeight,
-        opacity: 1
-      });
-    }
-  }, [currentIndex, isLoggedIn]);
-
-  useEffect(() => {
-    const handleResize = () => {
-      const activeEl = itemRefs.current[currentIndex];
-      if (activeEl) {
-        setIndicatorStyle({
-          left: activeEl.offsetLeft,
-          top: activeEl.offsetTop,
-          width: activeEl.offsetWidth,
-          height: activeEl.offsetHeight,
-          opacity: 1
-        });
-      }
-    };
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, [currentIndex]);
+  const show = () => { if (timerRef.current) clearTimeout(timerRef.current); setVisible(true); };
+  const hide = () => { timerRef.current = setTimeout(() => setVisible(false), 250); };
 
   return (
-    <header className="w-full max-w-7xl mx-auto px-6 py-5 flex items-center justify-between fixed top-0 left-1/2 -translate-x-1/2 z-50">
-      <Link 
-        href="/" 
-        className="flex items-center gap-4 rounded-full border border-white/70 bg-white/55 p-1.5 pr-6 shadow-sm backdrop-blur hover:bg-white/60 transition-colors"
+    <>
+      <div className="sorea-hotzone" onMouseEnter={show} onMouseLeave={hide} />
+
+      <header
+        className={`sorea-navbar ${visible ? "sorea-navbar--visible" : ""}`}
+        onMouseEnter={show}
+        onMouseLeave={hide}
       >
-        <div className="w-11 h-11 rounded-full bg-white/80 flex items-center justify-center shadow overflow-hidden ring-1 ring-white/80 backdrop-blur shrink-0">
-          <Image src="/images/logo_sorea.webp" alt="SOREA" width={40} height={40} />
-        </div>
-        <div className="text-sm tracking-[0.35em] text-foreground/80 font-bold">S O R E A</div>
-      </Link>
-      <nav 
-        ref={navRef}
-        className="relative hidden md:flex items-center rounded-full border border-white/70 bg-white/55 p-2 shadow-sm backdrop-blur"
-        onMouseLeave={() => setHoveredIndex(null)}
-      >
-        {/* Sliding Indicator */}
-        <div 
-          className="absolute rounded-full z-0 pointer-events-none"
-          style={{
-            background: 'linear-gradient(120deg, var(--accent), var(--accent-2), #d946ef, var(--accent))',
-            backgroundSize: '300% 300%',
-            animation: 'gradientWave 5s ease-in-out infinite',
-            boxShadow: '0 14px 30px rgba(139, 92, 246, 0.25)',
-            transition: 'all 0.4s cubic-bezier(0.25, 1, 0.5, 1)',
-            left: `${indicatorStyle.left}px`,
-            top: `${indicatorStyle.top}px`,
-            width: `${indicatorStyle.width}px`,
-            height: `${indicatorStyle.height}px`,
-            opacity: indicatorStyle.opacity,
-          }}
-        />
-
-        {navItems.map((item, i) => (
-          <Link 
-            key={item.href}
-            href={item.href}
-            ref={el => { itemRefs.current[i] = el; }}
-            onMouseEnter={() => setHoveredIndex(i)}
-            className={`relative z-10 text-sm px-4 py-2 mx-1 rounded-full font-medium transition-colors duration-300 ${
-              currentIndex === i ? 'text-white' : 'text-foreground/80 hover:text-foreground'
-            }`}
-          >
-            {item.label}
-          </Link>
-        ))}
-
-        <div className="relative z-10 mx-2 flex items-center" onMouseEnter={() => setHoveredIndex(null)}>
-          <CartDropdown />
-        </div>
-
-        <Link 
-          href={isLoggedIn ? "/dashboard" : "/login"}
-          ref={el => { itemRefs.current[3] = el; }}
-          onMouseEnter={() => setHoveredIndex(3)}
-          className={`relative z-10 text-sm px-[1.1rem] py-[0.78rem] ml-1 rounded-full font-semibold transition-colors duration-300 ${
-            currentIndex === 3 ? 'text-white' : 'text-foreground hover:bg-white/40'
-          }`}
-        >
-          {isLoggedIn ? "Dashboard" : "Se connecter"}
+        <Link href="/" style={{ display: "flex", alignItems: "center", textDecoration: "none", flexShrink: 0 }}>
+          <Image src="/images/logo_sorea.webp" alt="Logo SOREA" width={54} height={54} priority />
         </Link>
-      </nav>
-    </header>
+
+        <nav className="sorea-navbar-nav">
+          {NAV_LINKS.map((link) => (
+            <Link key={link.label} href={link.href} className="sorea-navbar-link">
+              {link.label}
+            </Link>
+          ))}
+        </nav>
+
+        <Link href={isLoggedIn ? "/dashboard" : "/login"} className="sorea-cta-btn">
+          {isLoggedIn ? "Mon espace" : "Se connecter"}
+        </Link>
+      </header>
+
+      <style>{`
+        .sorea-hotzone {
+          position: fixed;
+          top: 0; left: 0; right: 0;
+          height: 16px;
+          z-index: 50;
+        }
+
+        .sorea-navbar {
+          position: fixed;
+          top: 0; left: 0; right: 0;
+          z-index: 40;
+          height: 84px;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          padding: 0 56px;
+          background: linear-gradient(90deg, #ddd8ef 0%, #e4dff2 40%, #ecdfe8 100%);
+          border-bottom: 1px solid rgba(180,170,210,0.3);
+          opacity: 0;
+          transform: translateY(-100%);
+          transition: opacity 0.28s ease, transform 0.28s ease;
+          pointer-events: none;
+        }
+
+        .sorea-navbar--visible {
+          opacity: 1;
+          transform: translateY(0);
+          pointer-events: all;
+        }
+
+        .sorea-navbar-nav {
+          display: flex;
+          align-items: center;
+          gap: 28px;
+          position: absolute;
+          left: 50%;
+          transform: translateX(-50%);
+        }
+
+        /* ── Liens : blanc + contour violet par défaut ── */
+        .sorea-navbar-link {
+          font-family: var(--font-inria-sans), serif;
+          font-weight: 700;
+          font-size: 18px;
+          letter-spacing: 0.05em;
+          text-decoration: none;
+          white-space: nowrap;
+          position: relative;
+          padding: 4px 0;
+          color: #fff;
+          -webkit-text-stroke: 3px var(--color-sorea-navBar);
+          paint-order: stroke fill;
+          transition: transform 0.18s ease, -webkit-text-stroke 0.2s ease;
+          transform-origin: center;
+        }
+
+        /* Soulignement dégradé direct (sans animation) */
+        .sorea-navbar-link::after {
+          content: '';
+          position: absolute;
+          left: 0; right: 0; bottom: -3px;
+          height: 2px;
+          border-radius: 2px;
+          background: linear-gradient(259.12deg, #8b47ff, #f498c5);
+          opacity: 0;
+          transition: opacity 0.18s ease;
+        }
+
+        /* Hover : texte en dégradé + soulignement direct + petit pop */
+        .sorea-navbar-link:hover {
+          background-image: linear-gradient(259.12deg, #8b47ff, #f498c5);
+          -webkit-background-clip: text;
+          background-clip: text;
+          color: transparent;
+          -webkit-text-stroke: 0px transparent;
+          transform: scale(1.08);
+        }
+
+        .sorea-navbar-link:hover::after {
+          opacity: 1;
+        }
+
+        /* ── Bouton : violet plein → blanc au hover ── */
+        .sorea-cta-btn {
+          font-family: var(--font-inria-sans), serif;
+          font-weight: 700;
+          font-size: 15px;
+          letter-spacing: 0.04em;
+          border-radius: 20px;
+          padding: 11px 28px;
+          white-space: nowrap;
+          text-decoration: none;
+          display: inline-block;
+          flex-shrink: 0;
+          background: #9B6FD9;
+          color: #fff;
+          border: 2px solid #9B6FD9;
+          transition: background 0.22s ease, color 0.22s ease;
+        }
+
+        .sorea-cta-btn:hover {
+          background: #fff;
+          color: #9B6FD9;
+        }
+      `}</style>
+    </>
   );
 }
