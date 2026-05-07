@@ -1,6 +1,6 @@
 "use client";
 import { usePathname } from "next/navigation";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 // on doit changer les # apresss
@@ -16,21 +16,59 @@ const NAV_LINKS = [
 export default function Navbar({ isLoggedIn = false }: { isLoggedIn?: boolean }) {
   const pathname = usePathname();
   const [visible, setVisible] = useState(false);
+  const [sessionUser, setSessionUser] = useState<{ id: string } | null>(null);
+  const [sessionChecked, setSessionChecked] = useState(false);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const show = () => { if (timerRef.current) clearTimeout(timerRef.current); setVisible(true); };
   const hide = () => { timerRef.current = setTimeout(() => setVisible(false), 250); };
 
+  useEffect(() => {
+    let cancelled = false;
+
+    const loadSession = async () => {
+      try {
+        const response = await fetch("/api/auth/me", { credentials: "include" });
+        if (!response.ok) {
+          if (!cancelled) setSessionUser(null);
+          return;
+        }
+
+        const data = await response.json();
+        if (!cancelled) {
+          setSessionUser(data.user ?? null);
+        }
+      } catch {
+        if (!cancelled) setSessionUser(null);
+      } finally {
+        if (!cancelled) setSessionChecked(true);
+      }
+    };
+
+    loadSession();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const isAuthenticated = isLoggedIn || !!sessionUser;
+  const ctaLabel = isAuthenticated ? "Mon dossier personnel" : "Se connecter";
+  const ctaHref = isAuthenticated ? "/dashboard" : "/login";
+  const isLoginPage = pathname === "/login";
+  const showFloatingLoginButton = isLoginPage;
+  const showNavbarButton = pathname !== "/login" && visible;
+
   return (
     <>
-      {(pathname === "/login" || visible) ? (
+      {showFloatingLoginButton ? (
         <Link
-          href={isLoggedIn ? "/dashboard" : "/login"}
-          className={`sorea-cta-float-btn ${pathname === "/login" ? "sorea-cta-float-btn--login" : "sorea-cta-float-btn--default"}`}
+          href={ctaHref}
+          className="sorea-cta-btn sorea-cta-btn--floating sorea-cta-btn--login"
           onMouseEnter={show}
           onMouseLeave={hide}
         >
-          {isLoggedIn ? "Mon espace" : "Se connecter"}
+          {sessionChecked || isAuthenticated ? ctaLabel : "Se connecter"}
         </Link>
       ) : null}
 
@@ -52,13 +90,19 @@ export default function Navbar({ isLoggedIn = false }: { isLoggedIn?: boolean })
             </Link>
           ))}
         </nav>
+
+        {showNavbarButton ? (
+          <Link
+            href={ctaHref}
+            className={`sorea-cta-btn sorea-cta-btn--navbar ${pathname === "/dashboard" && isAuthenticated ? "sorea-cta-btn--login" : "sorea-cta-btn--default"}`}
+          >
+            {sessionChecked || isAuthenticated ? ctaLabel : "Se connecter"}
+          </Link>
+        ) : null}
       </header>
 
       <style>{`
-        .sorea-cta-float-btn {
-          position: fixed;
-          top: 22px;
-          right: 56px;
+        .sorea-cta-btn {
           z-index: 60;
           font-family: var(--font-inria-sans), serif;
           font-weight: 700;
@@ -74,31 +118,42 @@ export default function Navbar({ isLoggedIn = false }: { isLoggedIn?: boolean })
           transition: background 0.22s ease, color 0.22s ease, border-color 0.22s ease;
         }
 
-        .sorea-cta-float-btn--login {
+        .sorea-cta-btn--floating {
+          position: fixed;
+          top: 22px;
+          right: 56px;
+        }
+
+        .sorea-cta-btn--navbar {
+          position: relative;
+          margin-left: auto;
+        }
+
+        .sorea-cta-btn--login {
           background: #fff;
           color: #9B6FD9;
         }
 
-        .sorea-cta-float-btn--login:hover {
+        .sorea-cta-btn--login:hover {
           background: #fff;
           color: #9B6FD9;
         }
 
-        .sorea-cta-float-btn--default {
+        .sorea-cta-btn--default {
           background: #9B6FD9;
           color: #fff;
         }
 
-        .sorea-cta-float-btn--default:hover {
-          background: #fff;
-          color: #9B6FD9;
+        .sorea-cta-btn--default:hover {
+          background: #9B6FD9;
+          color: #fff;
         }
 
         .sorea-hotzone {
           position: fixed;
           top: 0; left: 0; right: 0;
-          height: 16px;
-          z-index: 50;
+          height: 50px;
+          z-index: 30;
         }
 
         .sorea-navbar {
@@ -113,14 +168,15 @@ export default function Navbar({ isLoggedIn = false }: { isLoggedIn?: boolean })
           background: linear-gradient(90deg, #ddd8ef 0%, #e4dff2 40%, #ecdfe8 100%);
           border-bottom: 1px solid rgba(180,170,210,0.3);
           opacity: 0;
-          transform: translateY(-100%);
+          transform: scale(0.95);
+          transform-origin: top center;
           transition: opacity 0.28s ease, transform 0.28s ease;
           pointer-events: none;
         }
 
         .sorea-navbar--visible {
           opacity: 1;
-          transform: translateY(0);
+          transform: scale(1);
           pointer-events: all;
         }
 
