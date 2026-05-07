@@ -55,7 +55,19 @@ body {
   66% { background-position: 50% 100%; }
   100% { background-position: 0% 0%; }
 }
+ 
+.btn-connexion {
+  font-family: 'Roboto', sans-serif;
+  background: #fdf8ff;
+  color: var(--color-primary-dark);
+  box-shadow: 0px 3px 3.1px #BA98F4;
+}
 
+.btn-connexion:hover {
+  background: linear-gradient(90deg, #8B47FF 0%, #BA98F4 100%);
+  color: white;
+  transform: translateY(-1px);
+}
 .btn-primary {
   background: linear-gradient(120deg, var(--accent), var(--accent-2), #d946ef, var(--accent));
   background-size: 300% 300%;
