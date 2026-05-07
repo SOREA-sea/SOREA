@@ -7,7 +7,7 @@ import Link from "next/link";
 const NAV_LINKS = [
   { label: "Shopping", href: "#products" },
   { label: "Coaching", href: "#sessions" },
-  { label: "Devenir ambassadrice", href: "/register" },
+  { label: "Devenir ambassadrice", href: "/login?tab=inscription" },
   { label: "Challenge", href: "#community" },
   { label: "Vibe", href: "#" },
   { label: "Mon carnet", href: "#" },
