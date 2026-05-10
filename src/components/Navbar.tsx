@@ -20,30 +20,30 @@ export default function Navbar({ isLoggedIn = false }: { isLoggedIn?: boolean })
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
 
   return (
-    // Conteneur principal (la grande div bleue sur ton screenshot Figma)
+    // Conteneur principal (la grande div )
     <header className="fixed top-4 left-1/2 -translate-x-1/2 z-50 w-[95%] max-w-7xl flex flex-col items-end gap-2">
       
       {/* 1. La Navbar principale blanche */}
-      <div className="w-full flex items-center justify-between px-4 py-2 shadow-sm"
+      <div className="w-[1248px] h-[84px] flex items-center justify-center px-[70px] gap-[50px] shadow-sm mx-auto"
 style={{
   background: 'linear-gradient(90deg, rgba(75, 85, 99, 0.15) 0%, rgba(152, 173, 201, 0.15) 100%)',
   backdropFilter: 'blur(12px)',
 }}>
         
-        {/* Logo */}
+        {/* Logo - shrink-0 pour éviter qu'il s'écrase */}
         <Link href="/" className="shrink-0">
-          <div className="w-12 h-12 rounded-full bg-white flex items-center justify-center shadow-sm overflow-hidden border border-purple-100">
-            <Image src="/images/logo_sorea.webp" alt="SOREA" width={45} height={45} className="object-contain" />
+          <div className=" flex items-center justify-center">
+            <Image src="/images/Logo_SOREA.png" alt="SOREA" width={72} height={72} className="object-contain" />
           </div>
         </Link>
 
-        {/* Liens de navigation */}
-        <nav className="hidden lg:flex items-center gap-1">
+        {/* Liens de navigation - gap-[50px] ici aussi pour l'espace entre chaque lien*/}
+        <nav className="hidden lg:flex items-center gap-[50px]">
           {navItems.map((item, i) => (
             <Link 
               key={item.label}
               href={item.href}
-              className="px-4 py-2 text-[15px] font-semibold transition-all hover:opacity-70"
+              className="text-[15px] font-semibold transition-all hover:opacity-70 whitespace-nowrap"
               style={{
                 color: '#a855f7',
                 textShadow: '-1px -1px 0 #ffffff, 1px -1px 0 #ffffff, -1px 1px 0 #ffffff, 1px 1px 0 #ffffff',
@@ -54,10 +54,10 @@ style={{
           ))}
         </nav>
 
-        {/* Bouton de connexion */}
+        {/* Bouton de connexion - shrink-0 pour garder sa taille*/}
         <Link 
           href={isLoggedIn ? "/dashboard" : "/login"}
-          className="bg-[#a78bfa] text-white px-8 py-3 rounded-full font-bold text-sm shadow-md hover:bg-[#9061f9] transition-all"
+          className="shrink-0 bg-[#a78bfa] text-white px-8 py-3 rounded-full font-bold text-sm shadow-md hover:bg-[#9061f9] transition-all whitespace-nowrap"
         >
           {isLoggedIn ? "Dashboard" : "Se connecter"}
         </Link>
@@ -67,7 +67,7 @@ style={{
       <div className="flex items-center gap-6 px-6 py-1">
         
         {/* Icône Recherche (exemple sur ton image) */}
-        <button className="text-gray-500 hover:text-purple-500 transition-colors">
+        <div className="text-gray-500 hover:text-purple-500 transition-colors">
           <Image 
   src="/images/Loop.svg" 
   alt="Recherche" 
@@ -75,7 +75,7 @@ style={{
   height={27} 
   className="text-gray-500"
 />
-        </button>
+        </div>
 
         {/* Icône Favoris / Coeur */}
         <div className="flex items-center gap-1 text-gray-500">
@@ -101,7 +101,15 @@ style={{
 />
         </div>
       </div>
-
+ <div className="text-gray-500 hover:text-purple-500 transition-colors">
+          <Image 
+  src="/images/Navbar.png" 
+  alt="Recherche" 
+  width={1248} 
+  height={84} 
+  className="text-gray-500"
+/>
+        </div>
     </header>
   );
 }
