@@ -166,23 +166,9 @@ export default function Home() {
           </div>
 
           <div className="flex flex-col md:flex-row items-center justify-between w-full gap-8 relative">
-            
-            {/* Left side: Fake wheel */}
-            <div className="w-full md:w-1/3 flex justify-center relative">
-              <div className="w-[300px] h-[300px] rounded-full border-[15px] border-[#CCC4E9] bg-white relative overflow-hidden shadow-sm flex items-center justify-center rotate-[-15deg]">
-                {/* Segments */}
-                <div className="absolute inset-0 bg-[#A697E3] opacity-30 w-1/2 h-full left-0 origin-right"></div>
-                <div className="absolute inset-0 bg-[#F4D9EE] opacity-50 w-full h-1/2 top-0 origin-bottom"></div>
-                <div className="absolute w-full h-1 bg-white"></div>
-                <div className="absolute w-1 h-full bg-white"></div>
-                <div className="absolute w-full h-1 bg-white rotate-45"></div>
-                <div className="absolute w-full h-1 bg-white -rotate-45"></div>
-                <div className="w-12 h-12 bg-white rounded-full z-10 border-4 border-[#CCC4E9]"></div>
-              </div>
-              {/* Product small image overlapping bottom of wheel */}
-              <div className="absolute -bottom-8 left-10 opacity-70">
-                <Image src="/images/product_4.webp" alt="Accessoire" width={60} height={60} />
-              </div>
+            {/* Wheel Spinner */}
+            <div>
+              <Image src="/images/wheelspinner.png" alt="Roulette des défis" width={400} height={400} className="w-full h-auto object-contain" />
             </div>
 
             {/* Middle: Text and Buttons */}
@@ -200,13 +186,9 @@ export default function Home() {
               </div>
             </div>
 
-            {/* Right: small product box */}
-            <div className="w-full md:w-1/3 flex justify-center mt-12 md:mt-0">
-              <div className="relative">
-                <div className="w-32 h-32 bg-[#D1C6F3] rounded-md shadow-sm rotate-6 flex items-center justify-center border-t-[20px] border-[#F4D9EE]">
-                  <span className="text-white font-semibold text-sm -rotate-6">SOREA</span>
-                </div>
-              </div>
+            {/* GiftBox */}
+            <div>
+              <Image src="/images/cadeaux.png" alt="Roulette des défis" width={400} height={400} className="w-full h-auto object-contain" />
             </div>
             
           </div>
@@ -223,7 +205,7 @@ export default function Home() {
           <p className="text-sm tracking-wider uppercase mb-16 text-center">Notes, Humeurs, Habitudes, Challenges et<br />Coin divertissement</p>
 
           <div>
-            <Image src="/images/Diary_SOREA.png" alt="Carnet SOREA" width={600} height={400} className="w-full max-w-[500px] h-auto object-cover" />
+            <Image src="/images/Diary_SOREA.png" alt="Carnet SOREA" width={1200} height={800} className="w-full max-w-[1200px] h-auto object-cover" />
           </div>
 
           <div className="flex gap-4">
@@ -348,61 +330,76 @@ export default function Home() {
 
       {/* 9. REJOINS L'AVENTURE SOREA */}
       <section className="w-full py-16 px-4 bg-[linear-gradient(90deg,#d3cced_0%,#fbf7f2_100%)]">
-        <div className="max-w-4xl mx-auto flex flex-col items-center text-center">
-          <div className="flex flex-col items-center mb-6">
-            <h2 className="text-2xl md:text-3xl font-medium tracking-wide">Rejoins l&apos;aventure SOREA</h2>
-            <div className="h-px bg-[linear-gradient(90deg,#d3cced_0%,#fbf7f2_100%)]"></div>
+        <div className="flex flex-col items-center mb-6">
+            <h2 className="text-2xl md:text-3xl font-medium tracking-wide">Rejoindre la communauté SOREA</h2>
+            <div className="h-px bg-[linear-gradient(90deg,#d3cced_0%,#fbf7f2_100%)] w-[180px] mt-2 mb-4"></div>
           </div>
-          <p className="text-base tracking-wide mb-8 leading-relaxed max-w-2xl">
-            Organise des moments de bien-être, découvre des routines apaisantes pour avancer sereinement.<br />
-            Profite d&apos;expérience unique et d&apos;avantages exclusifs.
+          <p className="text-base text-center italic font-light mb-12">
+            RRejoins nous et incarne nos valeurs <br />
+            en tant qu&apos; ambassadrice.
           </p>
-          <button className="py-2.5 px-8 border border-purple-200 text-[#665D8B] bg-white rounded-md text-xs font-semibold hover:bg-purple-50 transition-colors">Créer mon compte gratuit</button>
-        </div>
-      </section>
-
-      {/* 10. REJOINDRE LA COMMUNAUTE SOREA */}
-      <section className="w-full py-16 px-4 bg-[linear-gradient(90deg,#d3cced_0%,#fbf7f2_100%)]">
-        <div className="max-w-5xl mx-auto">
-          <div className="flex flex-col items-center mb-12 text-center">
-            <h2 className="text-2xl md:text-3xl font-medium tracking-wide">Rejoindre la<br/>communauté SOREA</h2>
-            <div className="h-px bg-[#2A2340] w-[280px] mt-2 mb-4"></div>
-            <p className="text-base">Rejoins nous et incarne nos valeurs en tant qu&apos;ambassadrice.</p>
-          </div>
-
-          <div className="flex flex-col md:flex-row items-center gap-12">
-            <div className="w-full md:w-1/2 flex flex-col gap-8">
-              {[
-                "Développe ton activité et transforme ta passion pour le bien-être en véritable opportunité",
-                "Partage avec tes proches l&apos;univers des soins naturels SOREA",
-                "Organise tes séances en toute liberté, selon tes envies et ton rythme",
-                "Rejoins un réseau inspirant d&apos;ambassadrice de SOREA et inspire ta communauté.",
-                "Accède à des événements exclusifs réservés à la communauté SOREA"
-              ].map((text, i) => (
-                <div key={i} className="flex gap-4 items-start">
-                  <div className="text-purple-300 text-2xl mt-0.5"><Image src="/images/fleur.png" alt="Fleur" width={50} height={50} /></div>
-                  <p className="text-sm leading-relaxed max-w-[300px] text-[#2A2340]">{text}</p>
-                </div>
-              ))}
-              <div className="mt-4 flex justify-center md:justify-start">
-                <button className="py-2.5 px-6 bg-white border border-purple-200 text-[#665D8B] rounded-md text-xs font-bold hover:bg-purple-50 shadow-sm">
-                  Je veux être membre de SOREA !
-                </button>
-              </div>
-            </div>
-            
-            <div className="w-full md:w-1/2 bg-[#F6D0BA] p-8 rounded-[2rem] flex flex-col items-center justify-center relative min-h-[400px]">
-              <div className="absolute top-6">
-                <span className="text-4xl text-[#782ca7] font-semibold tracking-widest stroke-black drop-shadow-md outline-white drop-shadow-[2px_2px_0_rgba(255,255,255,1)]">Rayonne</span>
-              </div>
-              <Image src="/images/rejoindre_SOREA.png" alt="Communauté SOREA" width={400} height={400} className="w-[85%] h-auto mt-8 mix-blend-multiply" />
-            </div>
-          </div>
+        <div className="max-w-4xl mx-auto flex flex-col items-center text-center">
           
-          <div className="w-full text-center mt-16 pb-4 relative">
-             <Image src="/images/etoile1.png" alt="Étoile 1" width={50} height={50} className="absolute left-[50%]" />
-             <p className="text-[#2A2340] tracking-wider text-sm md:text-base">Sérénité, Équilibre et Alignement. SOREA ton bien-être au quotidien.</p>
+            {/* LE PARENT : On le met en relative pour contenir le fond absolu */}
+<div className="relative w-full max-w-7xl mx-auto px-6 py-12 min-h-[500px]">
+  
+  {/* LE FOND (Background) : On l'isole ici */}
+  <div 
+    className="absolute inset-0 z-0 bg-[linear-gradient(180deg,#fadcce_0%,#fbddcf_100%)]"
+    style={{
+      WebkitMaskImage: 'linear-gradient(to right, transparent 0%, black 50%)',
+      maskImage: 'linear-gradient(to right, transparent 0%, black 100%)'
+    }}
+  />
+
+  {/* LE CONTENU : On le met en z-10 pour qu'il passe au-dessus du fond */}
+  <div className="relative z-10 flex flex-col md:flex-row items-center gap-12">
+    
+    {/* BLOC GAUCHE : Texte (Maintenant bien visible !) */}
+    <div className="w-full md:w-1/2 flex flex-col gap-8">
+      {[
+        "Développe ton activité et transforme ta passion pour le bien-être en véritable opportunité",
+        "Partage avec tes proches l'univers des soins naturels SOREA",
+        "Organise tes séances en toute liberté, selon tes envies et ton rythme",
+        "Rejoins un réseau inspirant d'ambassadrice de SOREA et inspire ta communauté.",
+        "Accède à des événements exclusifs réservés à la communauté SOREA"
+      ].map((text, i) => (
+        <div key={i} className="flex gap-4 items-start">
+          <div className="text-purple-300 text-2xl mt-0.5">
+            <Image src="/images/fleur.png" alt="Fleur" width={30} height={30} />
           </div>
+          <p className="text-sm leading-relaxed max-w-[300px] text-[#2A2340] font-medium">
+            {text}
+          </p>
+        </div>
+      ))}
+
+      <div className="mt-4 flex justify-center md:justify-start">
+        <button className="py-2.5 px-6 bg-white border border-purple-200 text-[#665D8B] rounded-md text-xs font-bold hover:bg-purple-50 shadow-sm transition-all">
+          Je veux être membre de SOREA !
+        </button>
+      </div>
+    </div>
+    
+    {/* BLOC DROITE : Image et Rayonne */}
+    <div className="w-full md:w-1/2 flex flex-col items-center justify-center relative min-h-[400px]">
+      <div className="absolute top-6">
+        <span className="text-4xl text-[#782ca7] font-semibold tracking-widest drop-shadow-[2px_2px_0_rgba(255,255,255,1)]">
+          Rayonne
+        </span>
+      </div>
+      
+      <Image 
+        src="/images/rejoindre_SOREA.png" 
+        alt="Communauté SOREA" 
+        width={400} 
+        height={400} 
+        className="w-[85%] h-auto mt-8 mix-blend-multiply" 
+      />
+    </div>
+
+  </div>
+</div>
         </div>
       </section>
 
