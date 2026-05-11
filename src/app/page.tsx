@@ -402,7 +402,12 @@ export default function Home() {
 </div>
         </div>
       </section>
-
+        <div>
+          <h2 className="text-2xl md:text-3xl font-medium tracking-wide text-center mb-6"><strong>S</strong>érénité, <strong>É</strong>quilibre et <strong>A</strong>lignement. SOREA ton bien-être au quotidien.</h2>
+        </div>
+        <div>
+          <Image src="/images/etoile1.png" alt="Etoile" width={60} height={60} className="mx-auto" />
+        </div>
       <Footer />
     </div>
   );
