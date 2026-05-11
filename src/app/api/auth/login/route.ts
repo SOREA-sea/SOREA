@@ -2,11 +2,12 @@ import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import prisma from "@/lib/prisma";
 import bcrypt from "bcrypt";
+import crypto from "crypto";
 
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { email, password } = body;
+    const { email, password, isPostRegistration } = body;
 
     if (!email || !password) {
       return NextResponse.json(
@@ -17,7 +18,17 @@ export async function POST(request: Request) {
 
     // Récupérer l'utilisateur
     const user = await prisma.user.findUnique({
-      where: { email },
+      where: { email: email.toLowerCase().trim() },
+      select: {
+        id: true,
+        email: true,
+        firstName: true,
+        lastName: true,
+        role: true,
+        password: true,
+        isActive: true,
+        twoFactorEnabled: true,
+      },
     });
 
     if (!user || !user.isActive) {
@@ -33,6 +44,37 @@ export async function POST(request: Request) {
       return NextResponse.json(
         { error: "Identifiants invalides" },
         { status: 401 }
+      );
+    }
+
+    // Si c'est un auto-login post-inscription OU si 2FA est activée, créer une session temporaire
+    if (isPostRegistration || user.twoFactorEnabled) {
+      const tempSessionId = crypto.randomBytes(16).toString('hex');
+      const tempSessionData = JSON.stringify({ userId: user.id });
+
+      // Sauvegarder les données de session temporaire dans un cookie sécurisé (expire dans 10 minutes)
+      const cookieStore = await cookies();
+      cookieStore.set(`2fa_temp_${tempSessionId}`, tempSessionData, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "lax",
+        maxAge: 600, // 10 minutes
+        path: "/",
+      });
+
+      return NextResponse.json(
+        {
+          message: "Authentification à deux facteurs requise",
+          requiresTwoFactor: true,
+          tempSessionId,
+          user: {
+            id: user.id,
+            email: user.email,
+            firstName: user.firstName,
+            lastName: user.lastName,
+          },
+        },
+        { status: 206 } // 206 = Partial Content
       );
     }
 
@@ -55,16 +97,19 @@ export async function POST(request: Request) {
       path: "/",
     });
 
-    return NextResponse.json({
-      message: "Connexion réussie",
-      user: {
-        id: user.id,
-        email: user.email,
-        firstName: user.firstName,
-        lastName: user.lastName,
-        role: user.role,
+    return NextResponse.json(
+      {
+        message: "Connexion réussie",
+        user: {
+          id: user.id,
+          email: user.email,
+          firstName: user.firstName,
+          lastName: user.lastName,
+          role: user.role,
+        },
       },
-    }, { status: 200 });
+      { status: 200 }
+    );
 
   } catch (error) {
     console.error("Erreur login:", error);
