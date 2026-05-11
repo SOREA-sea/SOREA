@@ -4,7 +4,7 @@ import Navbar from '../components/Navbar';
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-[#F9F7FA] text-[#2A2340] font-sans overflow-x-hidden">
+    <div className="min-h-screen bg-[linear-gradient(90deg,#d3cced_0%,#fbf7f2_100%)] text-[#2A2340] font-sans overflow-x-hidden">
       <Navbar />
       
       {/* 1. HERO SECTION */}
@@ -38,7 +38,7 @@ export default function Home() {
       </section>
 
       {/* 2. L'UNIVERS QUE VOUS PROPOSE SOREA */}
-      <section className="w-full py-16 px-4 bg-gradient-to-b from-[#F2EBF9] to-[#F9F7FA]">
+      <section className="w-full py-16 px-4 bg-[linear-gradient(90deg,#d3cced_0%,#fbf7f2_100%)]">
         <div className="max-w-5xl mx-auto">
           <div className="flex flex-col items-center mb-12">
             <h2 className="text-2xl md:text-3xl font-medium tracking-wide">L&apos;univers que vous propose SOREA</h2>
@@ -95,11 +95,11 @@ export default function Home() {
       </section>
 
       {/* 3. NOS ESSENTIELS BIEN-ETRE */}
-      <section className="w-full py-16 px-4 bg-[#F5F2F8]">
+      <section className="w-full py-16 px-4 bg-[linear-gradient(90deg,#d3cced_0%,#fbf7f2_100%)]">
         <div className="max-w-6xl mx-auto">
           <div className="flex flex-col items-center mb-10">
             <h2 className="text-2xl md:text-3xl font-medium tracking-wide">Nos essentiels bien-être</h2>
-            <div className="h-px bg-[#2A2340] w-full max-w-[360px] mt-2 mb-6"></div>
+            <div className="h-px bg-[linear-gradient(90deg,#d3cced_0%,#fbf7f2_100%)]"></div>
             <p className="text-center italic font-light text-lg">Des objectifs doux & beaux, sélectionnés<br />pour vous accompagner chaque jour.</p>
           </div>
           
@@ -158,11 +158,11 @@ export default function Home() {
       </section>
 
       {/* 4. NOS CHALLENGES SURPRISES */}
-      <section className="w-full py-16 px-4 bg-gradient-to-b from-[#F9F7FA] to-[#F2EBF9] overflow-hidden">
+      <section className="w-full py-16 px-4 bg-[linear-gradient(90deg,#d3cced_0%,#fbf7f2_100%)] overflow-hidden">
         <div className="max-w-5xl mx-auto flex flex-col items-center">
           <div className="flex flex-col items-center mb-16">
             <h2 className="text-2xl md:text-3xl font-medium tracking-wide text-center">Nos challenges<br />surprises</h2>
-            <div className="h-px bg-[#2A2340] w-[200px] mt-2"></div>
+            <div className="h-px bg-[linear-gradient(90deg,#d3cced_0%,#fbf7f2_100%)] w-[200px] mt-2"></div>
           </div>
 
           <div className="flex flex-col md:flex-row items-center justify-between w-full gap-8 relative">
@@ -214,35 +214,16 @@ export default function Home() {
       </section>
 
       {/* 5. SUIVRE, ECRIRE, PROGRESSER */}
-      <section className="w-full py-16 px-4 bg-[#F9F7FA]">
+      <section className="w-full py-16 px-4 bg-[linear-gradient(90deg,#d3cced_0%,#fbf7f2_100%)]">
         <div className="max-w-4xl mx-auto flex flex-col items-center">
           <div className="flex flex-col items-center mb-6">
             <h2 className="text-2xl md:text-3xl font-medium tracking-wide">Suivre, écrire, progresser</h2>
-            <div className="h-px bg-[#2A2340] w-full max-w-[300px] mt-2 mb-4"></div>
+            <div className="h-px bg-[linear-gradient(90deg,#d3cced_0%,#fbf7f2_100%)] w-full max-w-[300px] mt-2 mb-4"></div>
           </div>
           <p className="text-sm tracking-wider uppercase mb-16 text-center">Notes, Humeurs, Habitudes, Challenges et<br />Coin divertissement</p>
 
-          {/* Pen and Book fake graphics */}
-          <div className="flex flex-col items-center relative mb-12">
-            {/* Pen */}
-            <div className="w-64 h-4 rounded-full bg-gradient-to-r from-pink-200 via-green-100 to-purple-300 relative mb-8 flex items-center justify-end pr-8">
-               <span className="text-xs text-purple-900 font-semibold tracking-widest opacity-60">SOREA</span>
-               <div className="w-6 h-4 bg-yellow-100 rounded-r-full absolute right-[-24px] clip-path-pen"></div>
-            </div>
-
-            <div className="flex items-center gap-8">
-              <div className="hidden sm:flex flex-col items-center text-[#745B93] font-cursive italic text-2xl rotate-[-10deg]">
-                <span>Ouvrez</span>
-                <span>moi</span>
-                <span className="text-3xl mt-2 rotate-[40deg]">↪</span>
-              </div>
-              {/* Book */}
-              <div className="w-48 h-64 bg-[#A18FE3] rounded-sm shadow-md border-l-8 border-[#8A79CD] flex flex-col items-center justify-center p-4">
-                 <span className="font-cursive italic text-white text-3xl mb-4">Mon</span>
-                 <span className="font-cursive italic text-white text-3xl">carnet</span>
-                 <div className="mt-auto w-full h-[2px] bg-white opacity-50 absolute bottom-4"></div>
-              </div>
-            </div>
+          <div>
+            <Image src="/images/Diary_SOREA.png" alt="Carnet SOREA" width={600} height={400} className="w-full max-w-[500px] h-auto object-cover" />
           </div>
 
           <div className="flex gap-4">
@@ -253,11 +234,11 @@ export default function Home() {
       </section>
 
       {/* 6. COACHING */}
-      <section className="w-full py-16 px-4 bg-white">
+      <section className="w-full py-16 px-4 bg-[linear-gradient(90deg,#d3cced_0%,#fbf7f2_100%)]">
         <div className="max-w-6xl mx-auto flex flex-col items-center">
           <div className="flex flex-col items-center mb-8">
             <h2 className="text-2xl md:text-3xl font-medium tracking-wide">Coaching</h2>
-            <div className="h-px bg-[#2A2340] w-[120px] mt-2 mb-4"></div>
+            <div className="h-px bg-[linear-gradient(90deg,#d3cced_0%,#fbf7f2_100%)] w-[120px] mt-2 mb-4"></div>
           </div>
           <p className="text-base italic font-light mb-12">Un moment d&apos;accompagnement à vivre ensemble.</p>
 
@@ -296,11 +277,11 @@ export default function Home() {
       </section>
 
       {/* 7. ELLES PARLENT DE SOREA */}
-      <section className="w-full py-16 px-4 bg-[#F9F7FA]">
+      <section className="w-full py-16 px-4 bg-[linear-gradient(90deg,#d3cced_0%,#fbf7f2_100%)]">
         <div className="max-w-6xl mx-auto flex flex-col items-center">
           <div className="flex flex-col items-center mb-6">
             <h2 className="text-2xl md:text-3xl font-medium tracking-wide">Elles parlent de SOREA !</h2>
-            <div className="h-px bg-[#2A2340] w-full max-w-[280px] mt-2 mb-4"></div>
+            <div className="h-px bg-[linear-gradient(90deg,#d3cced_0%,#fbf7f2_100%)] w-full max-w-[280px] mt-2 mb-4"></div>
           </div>
           <p className="text-lg italic font-light mb-12">De petites habitudes, de grands effets</p>
 
@@ -343,11 +324,11 @@ export default function Home() {
       </section>
 
       {/* 8. SOREA NEWS */}
-      <section className="w-full py-16 px-4 bg-white">
+      <section className="w-full py-16 px-4 bg-[linear-gradient(90deg,#d3cced_0%,#fbf7f2_100%)]">
         <div className="max-w-5xl mx-auto flex flex-col items-center">
           <div className="flex flex-col items-center mb-6">
             <h2 className="text-2xl md:text-3xl font-medium tracking-wide">SOREA NEWS</h2>
-            <div className="h-px bg-[#2A2340] w-[180px] mt-2 mb-4"></div>
+            <div className="h-px bg-[linear-gradient(90deg,#d3cced_0%,#fbf7f2_100%)] w-[180px] mt-2 mb-4"></div>
           </div>
           <p className="text-base text-center italic font-light mb-12">
             Parce qu&apos;être informé peut aussi être un moment de bien-être :<br />
@@ -355,7 +336,7 @@ export default function Home() {
           </p>
 
           <div className="w-full max-w-4xl relative aspect-video md:aspect-[21/9] mb-12">
-            <Image src="/images/news_collage.webp" alt="SOREA News Collage" fill className="object-contain" />
+            <Image src="/images/News_landing.png" alt="SOREA News Collage" fill className="object-contain" />
           </div>
 
           <div className="flex gap-4">
@@ -366,11 +347,11 @@ export default function Home() {
       </section>
 
       {/* 9. REJOINS L'AVENTURE SOREA */}
-      <section className="w-full py-16 px-4 bg-gradient-to-b from-white to-[#F2EBF9] border-t border-purple-50">
+      <section className="w-full py-16 px-4 bg-[linear-gradient(90deg,#d3cced_0%,#fbf7f2_100%)]">
         <div className="max-w-4xl mx-auto flex flex-col items-center text-center">
           <div className="flex flex-col items-center mb-6">
             <h2 className="text-2xl md:text-3xl font-medium tracking-wide">Rejoins l&apos;aventure SOREA</h2>
-            <div className="h-px bg-[#2A2340] w-full max-w-[320px] mt-2 mb-4"></div>
+            <div className="h-px bg-[linear-gradient(90deg,#d3cced_0%,#fbf7f2_100%)]"></div>
           </div>
           <p className="text-base tracking-wide mb-8 leading-relaxed max-w-2xl">
             Organise des moments de bien-être, découvre des routines apaisantes pour avancer sereinement.<br />
@@ -381,7 +362,7 @@ export default function Home() {
       </section>
 
       {/* 10. REJOINDRE LA COMMUNAUTE SOREA */}
-      <section className="w-full py-16 px-4 bg-[#F2EBF9]">
+      <section className="w-full py-16 px-4 bg-[linear-gradient(90deg,#d3cced_0%,#fbf7f2_100%)]">
         <div className="max-w-5xl mx-auto">
           <div className="flex flex-col items-center mb-12 text-center">
             <h2 className="text-2xl md:text-3xl font-medium tracking-wide">Rejoindre la<br/>communauté SOREA</h2>
@@ -399,7 +380,7 @@ export default function Home() {
                 "Accède à des événements exclusifs réservés à la communauté SOREA"
               ].map((text, i) => (
                 <div key={i} className="flex gap-4 items-start">
-                  <div className="text-purple-300 text-2xl mt-0.5"><i className="fa-solid fa-snowflake text-[1.5rem]"></i></div>
+                  <div className="text-purple-300 text-2xl mt-0.5"><Image src="/images/fleur.png" alt="Fleur" width={50} height={50} /></div>
                   <p className="text-sm leading-relaxed max-w-[300px] text-[#2A2340]">{text}</p>
                 </div>
               ))}
@@ -414,12 +395,12 @@ export default function Home() {
               <div className="absolute top-6">
                 <span className="text-4xl text-[#782ca7] font-semibold tracking-widest stroke-black drop-shadow-md outline-white drop-shadow-[2px_2px_0_rgba(255,255,255,1)]">Rayonne</span>
               </div>
-              <Image src="/images/illustration_community.webp" alt="Communauté SOREA" width={400} height={400} className="w-[85%] h-auto mt-8 mix-blend-multiply" />
+              <Image src="/images/rejoindre_SOREA.png" alt="Communauté SOREA" width={400} height={400} className="w-[85%] h-auto mt-8 mix-blend-multiply" />
             </div>
           </div>
           
           <div className="w-full text-center mt-16 pb-4 relative">
-             <span className="absolute left-[10%] opacity-20 text-4xl text-purple-300 top-0"><i className="fa-solid fa-asterisk"></i></span>
+             <Image src="/images/etoile1.png" alt="Étoile 1" width={50} height={50} className="absolute left-[50%]" />
              <p className="text-[#2A2340] tracking-wider text-sm md:text-base">Sérénité, Équilibre et Alignement. SOREA ton bien-être au quotidien.</p>
           </div>
         </div>
