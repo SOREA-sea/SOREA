@@ -59,7 +59,7 @@ export default function Home() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div className="bg-white rounded-[2rem] p-6 shadow-sm border border-purple-100 flex flex-col items-center text-center">
               <div className="w-full aspect-square rounded-[1.5rem] bg-[#EAE5F8] mb-6 overflow-hidden relative border-4 border-white shadow-sm">
-                <Image src="/images/product_3.webp" alt="Kit personnalisé" fill className="object-cover" />
+                <Image src="/images/product_3.webp" alt="Kit personnalisé" fill sizes="(min-width: 768px) 33vw, 100vw" className="object-cover" />
               </div>
               <h3 className="text-lg font-semibold text-[#665D8B] mb-4">Kit personnalisé</h3>
               <p className="text-xs text-left text-gray-600 leading-relaxed pl-3 border-l-2 border-purple-200">
@@ -70,7 +70,7 @@ export default function Home() {
 
             <div className="bg-white rounded-[2rem] p-6 shadow-sm border border-purple-100 flex flex-col items-center text-center">
               <div className="w-full aspect-square rounded-[1.5rem] bg-[#F7E5D4] mb-6 overflow-hidden relative border-4 border-white shadow-sm">
-                <Image src="/images/illustration_features.webp" alt="Espace digital personnel" fill className="object-cover object-left-top" />
+                <Image src="/images/illustration_features.webp" alt="Espace digital personnel" fill sizes="(min-width: 768px) 33vw, 100vw" className="object-cover object-left-top" />
               </div>
               <h3 className="text-lg font-semibold text-[#665D8B] mb-4 leading-tight">Espace digital<br />personnel</h3>
               <p className="text-xs text-left text-gray-600 leading-relaxed pl-3 border-l-2 border-purple-200">
@@ -82,7 +82,7 @@ export default function Home() {
 
             <div className="bg-white rounded-[2rem] p-6 shadow-sm border border-purple-100 flex flex-col items-center text-center">
               <div className="w-full aspect-square rounded-[1.5rem] bg-[#EAE5F8] mb-6 overflow-hidden relative border-4 border-white shadow-sm">
-                <Image src="/images/coaching_pilate.webp" alt="Coaching et inspiration" fill className="object-cover object-center" />
+                <Image src="/images/coaching_pilate.webp" alt="Coaching et inspiration" fill sizes="(min-width: 768px) 33vw, 100vw" className="object-cover object-center" />
               </div>
               <h3 className="text-lg font-semibold text-[#665D8B] mb-4 leading-tight">Coaching et<br />inspiration</h3>
               <p className="text-xs text-left text-gray-600 leading-relaxed pl-3 border-l-2 border-purple-200">
@@ -244,7 +244,7 @@ export default function Home() {
 
           <div className="w-full bg-[#FAF8FC] border border-purple-50 flex flex-col md:flex-row items-center mb-8 shadow-sm">
             <div className="w-full md:w-1/2 relative aspect-video md:aspect-auto md:h-[400px]">
-              <Image src="/images/coaching_pilate.webp" alt="Coaching" fill className="object-cover" />
+              <Image src="/images/coaching_pilate.webp" alt="Coaching" fill sizes="(min-width: 768px) 50vw, 100vw" className="object-cover" />
               <button className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 bg-white/50 backdrop-blur rounded-full flex items-center justify-center hover:bg-white text-gray-700">
                 <i className="fa-solid fa-chevron-left"></i>
               </button>
@@ -336,7 +336,7 @@ export default function Home() {
           </p>
 
           <div className="w-full max-w-4xl relative aspect-video md:aspect-[21/9] mb-12">
-            <Image src="/images/News_landing.png" alt="SOREA News Collage" fill className="object-contain" />
+            <Image src="/images/News_landing.png" alt="SOREA News Collage" fill sizes="(min-width: 1024px) 896px, 100vw" className="object-contain" />
           </div>
 
           <div className="flex gap-4">
