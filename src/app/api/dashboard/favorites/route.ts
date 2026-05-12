@@ -128,3 +128,76 @@ export async function DELETE(request: Request) {
     return NextResponse.json({ error: "Erreur interne du serveur" }, { status: 500 });
   }
 }
+
+// POST — Ajoute ou supprime (toggle) un favori
+// Body: { type: "product" | "coach" | "session", targetId: 123 }
+export async function POST(request: Request) {
+  try {
+    const user = await getUserFromRequest();
+    if (!user) {
+      return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
+    }
+
+    const body = await request.json();
+    const { type, targetId } = body;
+
+    if (!type || !targetId) {
+      return NextResponse.json(
+        { error: "Les paramètres 'type' et 'targetId' sont requis" },
+        { status: 400 }
+      );
+    }
+
+    const tId = parseInt(targetId, 10);
+    if (isNaN(tId)) {
+      return NextResponse.json({ error: "Target ID invalide" }, { status: 400 });
+    }
+
+    switch (type) {
+      case "product": {
+        const existing = await prisma.favoriteProduct.findFirst({
+          where: { productId: tId, userId: user.id }
+        });
+        if (existing) {
+          await prisma.favoriteProduct.delete({ where: { id: existing.id } });
+          return NextResponse.json({ message: "Favori supprimé", status: "removed" });
+        } else {
+          await prisma.favoriteProduct.create({ data: { productId: tId, userId: user.id } });
+          return NextResponse.json({ message: "Favori ajouté", status: "added" });
+        }
+      }
+      case "coach": {
+        const existing = await prisma.favoriteCoach.findFirst({
+          where: { coachId: tId, userId: user.id }
+        });
+        if (existing) {
+          await prisma.favoriteCoach.delete({ where: { id: existing.id } });
+          return NextResponse.json({ message: "Favori supprimé", status: "removed" });
+        } else {
+          await prisma.favoriteCoach.create({ data: { coachId: tId, userId: user.id } });
+          return NextResponse.json({ message: "Favori ajouté", status: "added" });
+        }
+      }
+      case "session": {
+        const existing = await prisma.favoriteSession.findFirst({
+          where: { sessionId: tId, userId: user.id }
+        });
+        if (existing) {
+          await prisma.favoriteSession.delete({ where: { id: existing.id } });
+          return NextResponse.json({ message: "Favori supprimé", status: "removed" });
+        } else {
+          await prisma.favoriteSession.create({ data: { sessionId: tId, userId: user.id } });
+          return NextResponse.json({ message: "Favori ajouté", status: "added" });
+        }
+      }
+      default:
+        return NextResponse.json(
+          { error: "Type invalide. Valeurs acceptées : product, coach, session" },
+          { status: 400 }
+        );
+    }
+  } catch (error) {
+    console.error("Erreur dashboard/favorites POST:", error);
+    return NextResponse.json({ error: "Erreur interne du serveur" }, { status: 500 });
+  }
+}
