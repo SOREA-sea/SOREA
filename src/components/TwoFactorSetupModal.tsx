@@ -9,6 +9,7 @@ interface TwoFactorSetupModalProps {
   onClose: () => void;
   onComplete: () => void;
   pendingId: string | null;
+}
 
 interface TwoFactorData {
   secret: string;

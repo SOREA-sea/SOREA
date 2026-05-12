@@ -12,7 +12,7 @@ import crypto from "crypto";
 export async function generateTwoFactorSecret(
   email: string,
   appName: string = 'SOREA'
-): Promise<{ manualEntryKey: string; qrCodeUrl: string; backupCodes: string[] }> {
+): Promise<{ manualEntryKey: string; qrCodeUrl: string; secret: string; qrCode: string; backupCodes: string[] }> {
   const secret = speakeasy.generateSecret({
     name: `${appName} (${email})`,
     issuer: appName,
@@ -32,6 +32,8 @@ export async function generateTwoFactorSecret(
   return {
     manualEntryKey: secret.base32,
     qrCodeUrl: qrCode,
+    secret: secret.base32,
+    qrCode,
     backupCodes,
   };
 }
