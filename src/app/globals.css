@@ -1,9 +1,11 @@
-@import "tailwindcss";
-:root {
-  --background: #faf7ff;
-  --foreground: #2a2340;
-}
 
+
+/* ─── Google Fonts (migré depuis GlobalStyle.ts) ─────────────────────────── */
+@import url('https://fonts.googleapis.com/css2?family=Inria+Sans:ital,wght@0,400;0,700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,400;0,800;0,900&display=swap');
+
+@import "tailwindcss";
+/* ─── Tailwind theme tokens ──────────────────────────────────────────────── */
 @theme {
   --color-sorea-violet: #9B8FD9;
   --color-sorea-lavande: #E2DCF9;
@@ -15,6 +17,271 @@
   --font-inria: var(--font-inria-sans);
 }
 
+/* ─── Root variables ─────────────────────────────────────────────────────── */
+:root {
+  /* ── App theme ── */
+  --background: #faf7ff;
+  --foreground: #2a2340;
+  --pastel-1: #f6eefc;
+  --pastel-2: #fff8f3;
+  --fg: #2b2540;
+  --accent: #8b5cf6;
+  --accent-2: #ec4899;
+  --surface: rgba(255, 255, 255, 0.76);
+  --surface-strong: rgba(255, 255, 255, 0.92);
+  --border: rgba(117, 94, 173, 0.16);
+  --shadow: 0 20px 60px rgba(67, 56, 114, 0.12);
+
+  /* ── Figma Variables (read-only, usage dans CoachingPage et composants Figma) ── */
+
+  /* Color */
+  --figma-criture: #212121;
+  --figma-sorea: #6a18a4;
+  --figma-black: #000;
+  --figma-darkslategray: #3a3a40;
+  --figma-dimgray-100: #4d4d57;
+  --figma-dimgray-200: rgba(127, 102, 116, 0.7);
+  --figma-gainsboro: #dadadd;
+  --figma-gray: rgba(255, 255, 255, 0.5);
+  --figma-indigo-100: #6d18a4;
+  --figma-indigo-200: rgba(106, 24, 164, 0.5);
+  --figma-mediumpurple: rgba(186, 152, 244, 0.2);
+  --figma-midnightblue: #280267;
+  --figma-orange: #ffb500;
+  --figma-slategray-100: #6f7d93;
+  --figma-slategray-200: #757682;
+  --figma-white: #fff;
+
+  /* Gradients */
+  --figma-gradient-1: linear-gradient(-90deg, #fbf7f2, #e2dbef);
+  --figma-gradient-2: linear-gradient(180deg, #e4d5be, #e1a662);
+  --figma-gradient-3: linear-gradient(90deg, rgba(75, 85, 99, 0.2), rgba(152, 173, 201, 0.2));
+  --figma-rubrique2: linear-gradient(259.12deg, #8b47ff, #f498c5);
+
+  /* Shadows */
+  --figma-shadow-drop: 0px 3px 3.1px #ba98f4;
+  --figma-shadow-drop-1: 0px 4px 4px rgba(0, 0, 0, 0.25);
+
+  /* Borders */
+  --figma-border-1: 1.3px solid #fff;
+
+  /* Typography */
+  --figma-font-inria: 'Inria Sans', sans-serif;
+  --figma-font-roboto: 'Roboto', sans-serif;
+
+  /* Font sizes */
+  --figma-fs-10: 10px;
+  --figma-fs-12: 12px;
+  --figma-fs-14: 14px;
+  --figma-fs-15: 15px;
+  --figma-fs-16: 16px;
+  --figma-fs-18: 18px;
+  --figma-fs-20: 20px;
+  --figma-fs-24: 24px;
+  --figma-fs-30: 30px;
+  --figma-fs-40: 40px;
+  --figma-fs-50: 50px;
+
+  /* Letter spacings */
+  --figma-ls-01: 0.1em;
+  --figma-ls-013: 0.13em;
+
+  /* Border radii */
+  --figma-br-10: 10px;
+  --figma-br-20: 20px;
+  --figma-br-165: 16.5px;
+  --figma-br-50: 50%;
+
+  /* Gaps */
+  --figma-gap-5: 5px;
+  --figma-gap-9: 9px;
+  --figma-gap-10: 10px;
+  --figma-gap-14: 14px;
+  --figma-gap-20: 20px;
+  --figma-gap-25: 25px;
+  --figma-gap-30: 30px;
+  --figma-gap-50: 50px;
+  --figma-gap-56: 56px;
+
+  /* Paddings */
+  --figma-p-5: 5px;
+  --figma-p-10: 10px;
+  --figma-p-15: 15px;
+  --figma-p-17: 17px;
+  --figma-p-20: 20px;
+  --figma-p-24: 24px;
+  --figma-p-82: 82px;
+  --figma-p-144: 144px;
+  --figma-p-150: 150px;
+  --figma-p-288: 288px;
+
+  /* Common widths */
+  --figma-w-210: 210px;
+  --figma-w-268: 268px;
+  --figma-w-300: 300px;
+  --figma-w-380: 380px;
+  --figma-w-805: 805px;
+  --figma-w-1231: 1231px;
+  --figma-w-1251: 1251px;
+
+  /* Common heights */
+  --figma-h-40: 40px;
+  --figma-h-49: 49px;
+  --figma-h-52: 52px;
+  --figma-h-60: 60px;
+  --figma-h-200: 200px;
+  --figma-h-300: 300px;
+  --figma-h-500: 500px;
+
+  /*coaching page*/ /* Colors */
+  --criture: var(--figma-criture);
+  --SOREA: var(--figma-sorea);
+  --color-black: var(--figma-black);
+  --color-white: var(--figma-white);
+  --color-darkslategray: var(--figma-darkslategray);
+  --color-dimgray-100: var(--figma-dimgray-100);
+  --color-dimgray-200: var(--figma-dimgray-200);
+  --color-gainsboro: var(--figma-gainsboro);
+  --color-gray: var(--figma-gray);
+  --color-indigo-100: var(--figma-indigo-100);
+  --color-indigo-200: var(--figma-indigo-200);
+  --color-mediumpurple: var(--figma-mediumpurple);
+  --color-midnightblue: var(--figma-midnightblue);
+  --color-orange: var(--figma-orange);
+  --color-slategray-100: var(--figma-slategray-100);
+  --color-slategray-200: var(--figma-slategray-200);
+ 
+  /* Gradients */
+  --gradient-1: var(--figma-gradient-1);
+  --gradient-2: var(--figma-gradient-2);
+  --gradient-3: var(--figma-gradient-3);
+  --rubrique2: var(--figma-rubrique2);
+ 
+  /* Shadows */
+  --shadow-drop: var(--figma-shadow-drop);
+  --shadow-drop-1: var(--figma-shadow-drop-1);
+ 
+  /* Borders */
+  --border-1: var(--figma-border-1);
+ 
+  /* Fonts */
+  --font-inria-sans: var(--figma-font-inria);
+  --fonts-family: var(--figma-font-roboto);
+ 
+  /* Font sizes */
+  --fs-10: var(--figma-fs-10);
+  --fs-12: var(--figma-fs-12);
+  --fs-14: var(--figma-fs-14);
+  --fs-15: var(--figma-fs-15);
+  --fs-16: var(--figma-fs-16);
+  --fs-18: var(--figma-fs-18);
+  --fs-20: var(--figma-fs-20);
+  --fs-24: var(--figma-fs-24);
+  --fs-30: var(--figma-fs-30);
+  --fs-40: var(--figma-fs-40);
+  --fs-50: var(--figma-fs-50);
+ 
+  /* Border radii */
+  --br-10: var(--figma-br-10);
+  --br-20: var(--figma-br-20);
+  --br-16_5: var(--figma-br-165);
+  --br-50: var(--figma-br-50);
+ 
+  /* Gaps */
+  --gap-0: 0px;
+  --gap-4: 4px;
+  --gap-5: var(--figma-gap-5);
+  --gap-9: var(--figma-gap-9);
+  --gap-10: var(--figma-gap-10);
+  --gap-11: 11px;
+  --gap-12: 12px;
+  --gap-14: var(--figma-gap-14);
+  --gap-16: 16px;
+  --gap-20: var(--figma-gap-20);
+  --gap-25: var(--figma-gap-25);
+  --gap-27: 27px;
+  --gap-28: 28px;
+  --gap-30: var(--figma-gap-30);
+  --gap-43: 43px;
+  --gap-47: 47px;
+  --gap-50: var(--figma-gap-50);
+  --gap-56: var(--figma-gap-56);
+ 
+  /* Paddings */
+  --padding-0: 0px;
+  --padding-01: 0px 1px;
+  --padding-5: var(--figma-p-5);
+  --padding-10: var(--figma-p-10);
+  --padding-12: var(--figma-p-12, 12px);
+  --padding-14: var(--figma-p-14, 14px);
+  --padding-15: var(--figma-p-15);
+  --padding-17: var(--figma-p-17);
+  --padding-20: var(--figma-p-20);
+  --padding-24: var(--figma-p-24);
+  --padding-82: var(--figma-p-82);
+  --padding-144: var(--figma-p-144);
+  --padding-150: var(--figma-p-150);
+  --padding-288: var(--figma-p-288);
+ 
+  /* Widths */
+  --width-8: 8px;
+  --width-15: 15px;
+  --width-21: 21px;
+  --width-22: 22px;
+  --width-23: 23px;
+  --width-24: 24px;
+  --width-25: 25px;
+  --width-28_9: 28.9px;
+  --width-40: 40px;
+  --width-63: 63px;
+  --width-69: 69px;
+  --width-73: 73px;
+  --width-102: 102px;
+  --width-121: 121px;
+  --width-124: 124px;
+  --width-170: 170px;
+  --width-204: 204px;
+  --width-209: 209px;
+  --width-210: var(--figma-w-210);
+  --width-244: 244px;
+  --width-268: var(--figma-w-268);
+  --width-273: 273px;
+  --width-292: 292px;
+  --width-300: var(--figma-w-300);
+  --width-305: 305px;
+  --width-380: var(--figma-w-380);
+  --width-397: 397px;
+  --width-805: var(--figma-w-805);
+  --width-1226: 1226px;
+  --width-1231: var(--figma-w-1231);
+  --width-1251: var(--figma-w-1251);
+  --width-6_2: 6.2px;
+  --width-12_4: 12.4px;
+ 
+  /* Heights */
+  --height-5: 5px;
+  --height-12: 12px;
+  --height-15: 15px;
+  --height-20: 20px;
+  --height-20_3: 20.3px;
+  --height-21: 21px;
+  --height-23: 23px;
+  --height-24: 24px;
+  --height-25: 25px;
+  --height-26_4: 26.4px;
+  --height-38: 38px;
+  --height-40: var(--figma-h-40);
+  --height-49: var(--figma-h-49);
+  --height-52: var(--figma-h-52);
+  --height-60: var(--figma-h-60);
+  --height-200: var(--figma-h-200);
+  --height-270: 270px;
+  --height-300: var(--figma-h-300);
+  --height-344: 344px;
+  --height-500: var(--figma-h-500);
+}
+
+/* ─── Dark mode (inchangé) ───────────────────────────────────────────────── */
 @media (prefers-color-scheme: dark) {
   :root {
     --background: #faf7ff;
@@ -22,11 +289,14 @@
   }
 }
 
+/* ─── Base ───────────────────────────────────────────────────────────────── */
 html {
   scroll-behavior: smooth;
 }
 
 body {
+  margin: 0;
+  line-height: normal;
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
@@ -37,37 +307,37 @@ body {
     linear-gradient(180deg, #fbf8ff 0%, #fffafd 42%, #fff7f1 100%);
 }
 
-:root {
-  --pastel-1: #f6eefc;
-  --pastel-2: #fff8f3;
-  --fg: #2b2540;
-  --accent: #8b5cf6;
-  --accent-2: #ec4899;
-  --surface: rgba(255, 255, 255, 0.76);
-  --surface-strong: rgba(255, 255, 255, 0.92);
-  --border: rgba(117, 94, 173, 0.16);
-  --shadow: 0 20px 60px rgba(67, 56, 114, 0.12);
-}
-
+/* ─── Animations ─────────────────────────────────────────────────────────── */
 @keyframes gradientWave {
-  0% { background-position: 0% 0%; }
-  33% { background-position: 100% 50%; }
-  66% { background-position: 50% 100%; }
+  0%   { background-position: 0% 0%; }
+  33%  { background-position: 100% 50%; }
+  66%  { background-position: 50% 100%; }
   100% { background-position: 0% 0%; }
 }
- 
+
+@keyframes blob {
+  0%   { transform: translate(0px, 0px) scale(1); }
+  33%  { transform: translate(30px, -50px) scale(1.1); }
+  66%  { transform: translate(-20px, 20px) scale(0.9); }
+  100% { transform: translate(0px, 0px) scale(1); }
+}
+
+.animation-blob { animation: blob 7s infinite; }
+.animation-delay-2000 { animation-delay: 2s; }
+
+/* ─── Buttons ────────────────────────────────────────────────────────────── */
 .btn-connexion {
   font-family: 'Roboto', sans-serif;
   background: #fdf8ff;
   color: var(--color-primary-dark);
-  box-shadow: 0px 3px 3.1px #BA98F4;
+  box-shadow: var(--figma-shadow-drop);
 }
-
 .btn-connexion:hover {
   background: linear-gradient(90deg, #8B47FF 0%, #BA98F4 100%);
   color: white;
   transform: translateY(-1px);
 }
+
 .btn-primary {
   background: linear-gradient(120deg, var(--accent), var(--accent-2), #d946ef, var(--accent));
   background-size: 300% 300%;
@@ -79,12 +349,12 @@ body {
   box-shadow: 0 14px 30px rgba(139, 92, 246, 0.25);
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
-
 .btn-primary:hover {
   transform: translateY(-1px) scale(1.02);
   box-shadow: 0 18px 36px rgba(139, 92, 246, 0.35);
 }
-.btn-ghost{
+
+.btn-ghost {
   background: rgba(255, 255, 255, 0.5);
   color: var(--fg);
   padding: 0.78rem 1.1rem;
@@ -92,7 +362,8 @@ body {
   border: 1px solid var(--border);
   backdrop-filter: blur(12px);
 }
-.btn-secondary{
+
+.btn-secondary {
   background: var(--surface-strong);
   border: 1px solid var(--border);
   color: var(--fg);
@@ -100,6 +371,7 @@ body {
   border-radius: 9999px;
 }
 
+/* ─── Cards ──────────────────────────────────────────────────────────────── */
 .card,
 .product-card,
 .testimonial {
@@ -109,24 +381,11 @@ body {
   box-shadow: var(--shadow);
   backdrop-filter: blur(18px);
 }
-
 .card,
-.testimonial {
-  padding: 1.25rem;
-}
+.testimonial { padding: 1.25rem; }
+.product-card { padding: 1rem; }
 
-.product-card {
-  padding: 1rem;
-}
-
-.from-pastel-1{ --tw-gradient-from: var(--pastel-1); }
-.to-pastel-2{ --tw-gradient-to: var(--pastel-2); }
-
-.text-foreground{ color: var(--fg); }
-.text-foreground\/70{ color: rgba(43,37,64,0.7); }
-.bg-pastel-1{ background: var(--pastel-1);} 
-.bg-pastel-2{ background: var(--pastel-2);} 
-
+/* ─── Glass / surfaces ───────────────────────────────────────────────────── */
 .glass-panel {
   background: linear-gradient(180deg, rgba(255,255,255,0.85), rgba(255,255,255,0.65));
   border: 1px solid var(--border);
@@ -134,19 +393,11 @@ body {
   backdrop-filter: blur(18px);
 }
 
-.section-title {
-  letter-spacing: -0.03em;
-}
-
-@keyframes blob {
-  0% { transform: translate(0px, 0px) scale(1); }
-  33% { transform: translate(30px, -50px) scale(1.1); }
-  66% { transform: translate(-20px, 20px) scale(0.9); }
-  100% { transform: translate(0px, 0px) scale(1); }
-}
-.animation-blob {
-  animation: blob 7s infinite;
-}
-.animation-delay-2000 {
-  animation-delay: 2s;
-}
+/* ─── Utilities ──────────────────────────────────────────────────────────── */
+.section-title       { letter-spacing: -0.03em; }
+.from-pastel-1       { --tw-gradient-from: var(--pastel-1); }
+.to-pastel-2         { --tw-gradient-to: var(--pastel-2); }
+.text-foreground     { color: var(--fg); }
+.text-foreground\/70 { color: rgba(43, 37, 64, 0.7); }
+.bg-pastel-1         { background: var(--pastel-1); }
+.bg-pastel-2         { background: var(--pastel-2); }
