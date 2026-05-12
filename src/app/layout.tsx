@@ -1,6 +1,18 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist, Geist_Mono, Inria_Sans, Roboto } from "next/font/google";
 import "./globals.css";
+
+const inriaSans = Inria_Sans({
+  variable: "--font-inria-sans",
+  subsets: ["latin"],
+  weight: ["300", "400", "700"],
+});
+
+const roboto = Roboto({
+  variable: "--font-roboto",
+  subsets: ["latin"],
+  weight: ["400", "700", "800", "900"],
+});
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -47,7 +59,7 @@ export default function RootLayout({
  return (
         <html
             lang="fr"
-            className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+            className={`${geistSans.variable} ${geistMono.variable} ${inriaSans.variable} ${roboto.variable} h-full antialiased`}
         >
             <head>
                 <link rel="stylesheet" href="https://www.dimdams.com/font-awesome/css/all.min.css" />

@@ -5,12 +5,20 @@ import Image from "next/image";
 import Link from "next/link";
 // on doit changer les # apresss
 const NAV_LINKS = [
+<<<<<<< HEAD
   { label: "Shopping", href: "/shop" },
   { label: "Coaching", href: "#sessions" },
   { label: "Devenir ambassadrice", href: "/ambassador" },
+=======
+
+  { label: "Shopping", href: "#products" },
+  { label: "Coaching", href: "/Coaching" },
+
+  { label: "Devenir ambassadrice", href: "/login?tab=inscription" },
+>>>>>>> e7c36faab196ecd7f4ba94d26b7347ba355c83b1
   { label: "Challenge", href: "#community" },
-  { label: "Vibe", href: "#" },
-  { label: "Mon carnet", href: "#" },
+  { label: "Vibe", href: "/vibe" },
+  { label: "Mon carnet", href: "/carnet" },
 ];
 
 export default function Navbar({ isLoggedIn = false }: { isLoggedIn?: boolean }) {
@@ -80,7 +88,7 @@ export default function Navbar({ isLoggedIn = false }: { isLoggedIn?: boolean })
         onMouseLeave={hide}
       >
         <Link href="/" style={{ display: "flex", alignItems: "center", textDecoration: "none", flexShrink: 0 }}>
-          <Image src="/images/logo_sorea.webp" alt="Logo SOREA" width={54} height={54} priority />
+          <Image src="/images/logo_sorea.webp" alt="Logo SOREA" width={84} height={84} priority />
         </Link>
 
         <nav className="sorea-navbar-nav">
@@ -106,7 +114,7 @@ export default function Navbar({ isLoggedIn = false }: { isLoggedIn?: boolean })
           z-index: 60;
           font-family: var(--font-inria-sans), serif;
           font-weight: 700;
-          font-size: 15px;
+          font-size: 20px;
           letter-spacing: 0.04em;
           border-radius: 20px;
           padding: 11px 28px;
@@ -160,7 +168,7 @@ export default function Navbar({ isLoggedIn = false }: { isLoggedIn?: boolean })
           position: fixed;
           top: 0; left: 0; right: 0;
           z-index: 40;
-          height: 84px;
+          height: 125px;
           display: flex;
           align-items: center;
           justify-content: space-between;
@@ -183,7 +191,7 @@ export default function Navbar({ isLoggedIn = false }: { isLoggedIn?: boolean })
         .sorea-navbar-nav {
           display: flex;
           align-items: center;
-          gap: 28px;
+          gap: 50px;
           position: absolute;
           left: 50%;
           transform: translateX(-50%);
@@ -193,14 +201,14 @@ export default function Navbar({ isLoggedIn = false }: { isLoggedIn?: boolean })
         .sorea-navbar-link {
           font-family: var(--font-inria-sans), serif;
           font-weight: 700;
-          font-size: 18px;
+          font-size: 20px;
           letter-spacing: 0.05em;
           text-decoration: none;
           white-space: nowrap;
           position: relative;
           padding: 4px 0;
           color: #fff;
-          -webkit-text-stroke: 2px var(--color-primary-dark);
+          -webkit-text-stroke: 3px var(--color-primary-dark);
           paint-order: stroke fill;
           transition: transform 0.18s ease, -webkit-text-stroke 0.2s ease;
           transform-origin: center;
