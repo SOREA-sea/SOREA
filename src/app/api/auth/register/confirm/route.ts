@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import prisma from "@/lib/prisma";
-import { verifyTwoFactorToken } from "@/utils/two-Factor";
+import { verifyTwoFactorToken } from "@/app/api/utils/two-factor";
 import crypto from "crypto";
 
 export async function POST(req: NextRequest) {

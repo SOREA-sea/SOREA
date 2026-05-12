@@ -8,7 +8,7 @@ interface TwoFactorSetupModalProps {
   isLoading: boolean;
   onClose: () => void;
   onComplete: () => void;
-}
+  pendingId: string | null;
 
 interface TwoFactorData {
   secret: string;
@@ -21,6 +21,7 @@ export default function TwoFactorSetupModal({
   isLoading,
   onClose,
   onComplete,
+  pendingId,
 }: TwoFactorSetupModalProps) {
   const [step, setStep] = useState<"setup" | "verify" | "backup">("setup");
   const [twoFactorData, setTwoFactorData] = useState<TwoFactorData | null>(null);
@@ -61,45 +62,36 @@ export default function TwoFactorSetupModal({
     }
   };
 
-  const handleVerifyCode = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError(null);
-    setVerifyLoading(true);
+const handleVerifyCode = async (e: React.FormEvent) => {
+  e.preventDefault();
+  setError(null);
+  setVerifyLoading(true);
 
-    try {
-      if (!twoFactorData) {
-        throw new Error("Données 2FA manquantes");
-      }
+  try {
+    const res = await fetch("/api/auth/register/confirm", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        pendingId: pendingId, // ID récupéré du cookie
+        totpCode: code,      // 'code' est ton state local, envoyé sous le nom 'totpCode'
+      }),
+    });
 
-      if (!code || code.length !== 6 || !/^\d+$/.test(code)) {
-        throw new Error("Le code doit être 6 chiffres");
-      }
+    const data = await res.json();
 
-      const res = await fetch("/api/auth/2fa/verify", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          secret: twoFactorData.secret,
-          code,
-          backupCodes: twoFactorData.backupCodes,
-        }),
-      });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        throw new Error(data.error || "Le code 2FA est incorrect");
-      }
-
-      // Success - show backup codes
-      setStep("backup");
-      setCode("");
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Erreur lors de la vérification");
-    } finally {
-      setVerifyLoading(false);
+    if (!res.ok) {
+      throw new Error(data.error || "Le code 2FA est incorrect");
     }
-  };
+
+    // Si ça marche, on passe aux codes de secours
+    setStep("backup");
+    setCode("");
+  } catch (err) {
+    setError(err instanceof Error ? err.message : "Erreur de vérification");
+  } finally {
+    setVerifyLoading(false);
+  }
+};
 
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);

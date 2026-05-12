@@ -202,4 +202,86 @@ export async function validateEmailDomain(email: string): Promise<{ valid: boole
   } catch {
     return { valid: false, message: "Impossible de valider le domaine de l'email." };
   }
+
+}
+// ─── VÉRIFICATION DNS MX RÉELLE ──────────────────────────────────────────────
+import dns from "dns/promises";
+
+export async function validateEmailDNS(email: string): Promise<{
+  valid: boolean;
+  reason?: string;
+}> {
+  try {
+    const domain = email.split("@")[1];
+    if (!domain) return { valid: false, reason: "Domaine manquant." };
+
+    const mxRecords = await dns.resolveMx(domain);
+    if (!mxRecords || mxRecords.length === 0) {
+      return { valid: false, reason: "Ce domaine ne peut pas recevoir d'emails." };
+    }
+    return { valid: true };
+  } catch {
+    return { valid: false, reason: "Ce domaine email n'existe pas." };
+  }
+}
+
+// ─── VÉRIFICATION ABSTRACT API ───────────────────────────────────────────────
+
+export async function validateEmailAbstractAPI(email: string): Promise<{
+  valid: boolean;
+  reason?: string;
+}> {
+  try {
+    const apiKey = process.env.ABSTRACT_API_KEY;
+    if (!apiKey) {
+      console.warn("[EMAIL CHECK] ABSTRACT_API_KEY manquante, skip.");
+      return { valid: true };
+    }
+
+    const res = await fetch(
+      `https://emailvalidation.abstractapi.com/v1/?api_key=${apiKey}&email=${encodeURIComponent(email)}`,
+      { signal: AbortSignal.timeout(5000) }
+    );
+
+    if (!res.ok) return { valid: true }; // Si API down, on ne bloque pas
+
+    const data = await res.json();
+
+    if (data.is_disposable_email?.value === true) {
+      return { valid: false, reason: "Les adresses email temporaires ne sont pas acceptées." };
+    }
+    if (data.deliverability === "UNDELIVERABLE") {
+      return { valid: false, reason: "Cette adresse email n'existe pas ou ne peut pas recevoir d'emails." };
+    }
+
+    return { valid: true };
+  } catch {
+    return { valid: true }; // Timeout ou erreur réseau → on ne bloque pas
+  }
+}
+
+// ─── VALIDATION COMPLÈTE (format + DNS + API) ─────────────────────────────────
+
+export async function validateEmailFull(email: string): Promise<{
+  valid: boolean;
+  error?: string;
+}> {
+  // Étape 1 — Format + domaines jetables (déjà dans ton validateEmailFormat)
+  if (!validateEmailFormat(email)) {
+    return { valid: false, error: "Format d'email invalide." };
+  }
+
+  // Étape 2 — DNS MX
+  const dnsCheck = await validateEmailDNS(email);
+  if (!dnsCheck.valid) {
+    return { valid: false, error: dnsCheck.reason };
+  }
+
+  // Étape 3 — Abstract API
+  const apiCheck = await validateEmailAbstractAPI(email);
+  if (!apiCheck.valid) {
+    return { valid: false, error: apiCheck.reason };
+  }
+
+  return { valid: true };
 }
