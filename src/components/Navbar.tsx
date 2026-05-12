@@ -5,17 +5,12 @@ import Image from "next/image";
 import Link from "next/link";
 // on doit changer les # apresss
 const NAV_LINKS = [
-<<<<<<< HEAD
-  { label: "Shopping", href: "/shop" },
-  { label: "Coaching", href: "#sessions" },
-  { label: "Devenir ambassadrice", href: "/ambassador" },
-=======
 
-  { label: "Shopping", href: "#products" },
+
+  { label: "Shopping", href: "/shop" },
   { label: "Coaching", href: "/Coaching" },
 
-  { label: "Devenir ambassadrice", href: "/login?tab=inscription" },
->>>>>>> e7c36faab196ecd7f4ba94d26b7347ba355c83b1
+  { label: "Devenir ambassadrice", href: "/ambassador" },
   { label: "Challenge", href: "#community" },
   { label: "Vibe", href: "/vibe" },
   { label: "Mon carnet", href: "/carnet" },
