@@ -10,7 +10,7 @@ export default function Footer() {
     const navLinks = [
         { href: '/', label: 'Accueil' },
         { href: '/#products', label: 'Shopping' },
-        { href: '/#sessions', label: 'Coaching' },
+        { href: '/Coaching', label: 'Coaching' },
         { href: '/#community', label: 'Challenge' },
         { href: '/vibe', label: 'Vibe' },
         { href: '/carnet', label: 'Mon carnet' },
