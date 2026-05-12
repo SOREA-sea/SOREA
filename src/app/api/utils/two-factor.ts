@@ -12,7 +12,7 @@ import crypto from "crypto";
 export async function generateTwoFactorSecret(
   email: string,
   appName: string = 'SOREA'
-): Promise<{ secret: string; qrCode: string; backupCodes: string[] }> {
+): Promise<{ manualEntryKey: string; qrCodeUrl: string; backupCodes: string[] }> {
   const secret = speakeasy.generateSecret({
     name: `${appName} (${email})`,
     issuer: appName,
@@ -30,8 +30,8 @@ export async function generateTwoFactorSecret(
   const backupCodes = generateBackupCodes(10);
 
   return {
-    secret: secret.base32,
-    qrCode,
+    manualEntryKey: secret.base32,
+    qrCodeUrl: qrCode,
     backupCodes,
   };
 }
@@ -68,21 +68,22 @@ export function verifyTwoFactorToken(
 export function verifyBackupCode(code: string, usedBackupCodes: string[]): boolean {
   // Codes are hashed in database, so we compare hashes
   // This function assumes codes are already hashed
-  return !usedBackupCodes.includes(code);
+return usedBackupCodes.includes(
+   code.trim().toUpperCase() );
 }
 
 
 /**
  * Generate backup codes
  */
-function generateBackupCodes(
+export function generateBackupCodes(
   count: number = 10
 ): string[] {
   const codes: string[] = [];
 
   for (let i = 0; i < count; i++) {
     const code = crypto
-      .randomBytes(5)
+      .randomBytes(4)
       .toString("hex")
       .toUpperCase();
 
