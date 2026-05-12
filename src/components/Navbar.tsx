@@ -5,8 +5,10 @@ import Image from "next/image";
 import Link from "next/link";
 // on doit changer les # apresss
 const NAV_LINKS = [
+
   { label: "Shopping", href: "#products" },
   { label: "Coaching", href: "/Coaching" },
+
   { label: "Devenir ambassadrice", href: "/login?tab=inscription" },
   { label: "Challenge", href: "#community" },
   { label: "Vibe", href: "/vibe" },
