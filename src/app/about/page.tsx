@@ -14,8 +14,8 @@ export default function AboutPage() {
           <div className="bg-white rounded-2xl p-8 shadow-sm border border-purple-100 relative">
             <ul className="space-y-6 text-sm md:text-base leading-relaxed list-disc list-inside marker:text-purple-300">
               <li>Description storytelling</li>
-              <li>SOREA est née du désir de créer un espace dédié au bien-être et à l'épanouissement personnel, pour aider chacun à cultiver la sérénité dans son quotidien.</li>
-              <li>Notre mission est d'accompagner chacun sur son chemin de développement personnel à travers des produits et outils inspirants.</li>
+              <li>SOREA est née du désir de créer un espace dédié au bien-être et à l&apos;épanouissement personnel, pour aider chacun à cultiver la sérénité dans son quotidien.</li>
+              <li>Notre mission est d&apos;accompagner chacun sur son chemin de développement personnel à travers des produits et outils inspirants.</li>
             </ul>
             <button className="absolute bottom-4 right-8 text-[#7b2fbf] font-bold text-xs hover:underline">Lire plus</button>
           </div>
@@ -51,7 +51,7 @@ export default function AboutPage() {
               <ul className="space-y-6 text-sm list-disc list-inside marker:text-purple-300">
                 <li><strong>SEA</strong> : Sérénité, Équilibre et Alignement sont au coeur de notre approche, guidant chacune de nos actions et créations.</li>
                 <li>“SOREA”, pourquoi ce nom ?</li>
-                <li>L'équipe : Derrière SOREA se trouve une équipe passionnée par le bien-être, composée d'experts et de créateurs partageant une vision commune.</li>
+                <li>L&apos;équipe : Derrière SOREA se trouve une équipe passionnée par le bien-être, composée d&apos;experts et de créateurs partageant une vision commune.</li>
               </ul>
               <button className="absolute bottom-4 right-8 text-[#7b2fbf] font-bold text-xs hover:underline">En savoir plus</button>
             </div>
@@ -98,7 +98,7 @@ export default function AboutPage() {
               </select>
             </div>
             <div className="md:col-span-2">
-              <textarea className="w-full bg-[#f3f0f7] border border-purple-200 rounded-2xl p-4 outline-none focus:border-[#7b2fbf] min-h-[150px]"></textarea>
+              <textarea className="w-full bg-[#f3f0f7] border border-purple-200 rounded-2xl p-4 outline-none focus:border-[#7b2fbf]"></textarea>
             </div>
           </form>
         </section>
