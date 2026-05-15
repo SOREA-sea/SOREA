@@ -1,12 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { Suspense, useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 
-export default function LoginPage() {
+function LoginContent() {
     const router = useRouter();
     const searchParams = useSearchParams();
     const defaultTab = searchParams.get("tab") === "inscription" ? "inscription" : "connexion";
@@ -609,5 +609,13 @@ const confirm2FALogin = async () => {
             </main>
             <Footer />
         </div>
+    );
+}
+
+export default function LoginPage() {
+    return (
+        <Suspense fallback={<div>Chargement...</div>}>
+            <LoginContent />
+        </Suspense>
     );
 }
