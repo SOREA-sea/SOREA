@@ -1,19 +1,5 @@
-import Header from "@/components/ambassador/Header";
-import Bubble from "@/components/ambassador/Bubble";
-import Timeline from "@/components/ambassador/Timeline";
-import Footer from "@/components/Footer";
-import "./ambassador.css";
+import Ambassador from "@/components/Ambassador";
 
-export default function Ambassador() {
-  return (
-    <>
-      <main className="ambassador-main">
-        <Header />
-        <Bubble />
-        <Timeline />
-      </main>
-
-      <Footer />
-    </>
-  );
+export default function AmbassadorPage() {
+  return <Ambassador />;
 }
