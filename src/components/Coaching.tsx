@@ -1091,9 +1091,24 @@ const CoachingPage: NextPage = () => {
       .catch(() => {});
   }, [authState]);
 
+  const ensureAuthenticated = useCallback(async () => {
+    if (authState === "connected") return true;
+    try {
+      const res = await fetch("/api/auth/me", { credentials: "include" });
+      if (!res.ok) return false;
+      const data = await res.json();
+      if (!data?.user) return false;
+      setAuthState("connected");
+      return true;
+    } catch {
+      return false;
+    }
+  }, [authState]);
+
   // ── Toggle favori ──────────────────────────────────────────────────────────
   const handleToggleFavorite = useCallback(async (id: number) => {
-    if (authState === "disconnected") {
+    const isAuthenticated = await ensureAuthenticated();
+    if (!isAuthenticated) {
       setShowLoginModal(true);
       return;
     }
@@ -1128,10 +1143,9 @@ const CoachingPage: NextPage = () => {
         return next;
       });
     }
-  }, [authState, favorites]);
+  }, [ensureAuthenticated, favorites]);
 
   const visibleCoaches = showAll ? coaches : coaches.slice(0, INITIAL_VISIBLE);
-
   return (
     <>
       <GlobalStyle />
