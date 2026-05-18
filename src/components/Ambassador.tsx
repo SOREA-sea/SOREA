@@ -16,7 +16,7 @@ const SectionHero = () => (
       </div>
       <div className="w-0 h-0 border-l-[45px] border-l-transparent border-r-[0px] border-r-transparent border-t-[60px] border-t-white absolute top-full left-[55%] z-[1]" />
       <div className="w-full max-w-[516px] h-[220px] bg-gradient-to-br from-[#e2dbef] to-[#f4c0d1] rounded-z-[16px] rounded-[16px] flex items-center justify-content: center justify-center text-[#6a18a4] text-[16px] font-bold tracking-[0.1em] mt-5">
-        Photo ambassadrice
+        <img src="\image_ambassadrice_svg\ImageBulle.svg" alt="ambassadrice" />
       </div>
     </div>
   </section>
@@ -53,6 +53,7 @@ const SectionPour = () => (
 
       {/* Row 1 : dot + carte à droite */}
       <div className="flex items-center relative z-[1] min-h-[60px]">
+
         <div className="w-[calc(50%-60px)] flex justify-end pr-5" />
         <div className="w-[120px] flex-shrink-0 flex justify-center items-center z-[2]"><FriseDot /></div>
         <div className="w-[calc(50%-60px)] flex justify-start pl-5">
@@ -79,7 +80,7 @@ const SectionPour = () => (
             </p>
           </div>
         </div>
-        <div className="w-[120px] flex-shrink-0 flex justify-center items-center z-[2]"><FriseDot /></div>
+        <div className="w-[120px] flex-shrink-0 flex justify-center items-center z-[2]"><FriseDot /></div>  
         <div className="w-[calc(50%-60px)] flex justify-start pl-5" />
       </div>
 
@@ -119,7 +120,7 @@ const SectionPour = () => (
         <div className="w-[120px] flex-shrink-0 flex justify-center items-center z-[2]"><FriseDot /></div>
         <div className="w-[calc(50%-60px)] flex justify-start pl-5">
           <div className="z-[1] relative max-w-[280px]">
-            <div className="w-full h-[60px] bg-gradient-to-br from-[#e2dbef] to-[#bea7e3] rounded-[10px] flex items-center justify-center text-[12px] text-[#6a18a4]">🌸</div>
+            <div className="w-full h-[60px] bg-gradient-to-br from-[#e2dbef] to-[#bea7e3] rounded-[10px] flex items-center justify-center text-[12px] text-[#6a18a4]"><img src="/image_ambassadrice_svg/TimeLine4.svg" alt="TimeLine4" /></div>
             <h2 className="text-[22px] font-bold tracking-[0.1em] text-[#6a18a4] text-center leading-[1.4] mt-2.5">Rejoignez une communauté qui cultive la sérénité.</h2>
           </div>
         </div>
@@ -129,7 +130,7 @@ const SectionPour = () => (
       <div className="flex items-center relative z-[1] min-h-[60px]">
         <div className="w-[calc(50%-60px)] flex justify-end pr-5">
           <div className="z-[1] relative max-w-[280px] text-right">
-            <div className="w-full h-[60px] bg-gradient-to-br from-[#e2dbef] to-[#bea7e3] rounded-[10px] flex items-center justify-center text-[12px] text-[#6a18a4]">✈️</div>
+            <div className="w-full h-[60px] bg-gradient-to-br from-[#e2dbef] to-[#bea7e3] rounded-[10px] flex items-center justify-center text-[12px] text-[#6a18a4]"><img src="/image_ambassadrice_svg/TimeLine3.svg" alt="TimeLine3" /></div>
             <h2 className="text-[22px] font-bold tracking-[0.1em] text-[#6a18a4] text-center leading-[1.4] mt-2.5">Vivez votre passion du bien-être sous toutes ses formes</h2>
           </div>
         </div>
@@ -143,7 +144,7 @@ const SectionPour = () => (
         <div className="w-[120px] flex-shrink-0 flex justify-center items-center z-[2]"><FriseDot /></div>
         <div className="w-[calc(50%-60px)] flex justify-start pl-5">
           <div className="z-[1] relative max-w-[280px]">
-            <div className="w-full h-[60px] bg-gradient-to-br from-[#e2dbef] to-[#bea7e3] rounded-[10px] flex items-center justify-center text-[12px] text-[#6a18a4]">🎁</div>
+            <div className="w-full h-[60px] bg-gradient-to-br from-[#e2dbef] to-[#bea7e3] rounded-[10px] flex items-center justify-center text-[12px] text-[#6a18a4]"><img src="/image_ambassadrice_svg/TimeLine2.svg" alt="TimeLine2" /></div>
             <h2 className="text-[22px] font-bold tracking-[0.1em] text-[#6a18a4] text-center leading-[1.4] mt-2.5">Votre engagement est récompensé</h2>
           </div>
         </div>
@@ -153,7 +154,7 @@ const SectionPour = () => (
       <div className="flex items-center relative z-[1] min-h-[60px]">
         <div className="w-[calc(50%-60px)] flex justify-end pr-5">
           <div className="z-[1] relative max-w-[280px] text-right">
-            <div className="w-full h-[60px] bg-gradient-to-br from-[#e2dbef] to-[#bea7e3] rounded-[10px] flex items-center justify-center text-[12px] text-[#6a18a4]">🎯</div>
+            <div className="w-full h-[60px] bg-gradient-to-br from-[#e2dbef] to-[#bea7e3] rounded-[10px] flex items-center justify-center text-[12px] text-[#6a18a4]"><img src="/image_ambassadrice_svg/TimeLine1.svg" alt="TimeLine1" /></div>
             <h2 className="text-[22px] font-bold tracking-[0.1em] text-[#6a18a4] text-center leading-[1.4] mt-2.5">Devenez une source d'inspiration et de sérénité.</h2>
           </div>
         </div>
