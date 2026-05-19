@@ -11,7 +11,7 @@ export default function AboutPage() {
         <section>
           <h1 className="text-center md:text-5xl font-bold text-[#000000] mb-4 mid underline tracking-wider">À propos</h1>
           <h2 className="flex justify-center items-center">
-          <Image src="/image_about_svg/Photo_profil.png" alt="À propos" className="object-contain" width={360} height={360} />
+          <Image src="/image_about_svg/Fleur_Fond 1.svg" alt="À propos" className="object-contain" width={360} height={360} />
           </h2>
         </section>
         {/* --- SECTION 1 : NOTRE HISTOIRE --- */}
