@@ -39,55 +39,115 @@ async function main() {
   const coaches = await Promise.all([
     prisma.user.create({
       data: {
-        firstName: 'Lina',
-        lastName: 'Moreau',
-        email: 'lina.moreau@sorea.local',
+        firstName: 'Naïma',
+        lastName: '',
+        email: 'naima@sorea.local',
         password: coachPassword,
         role: 'coach',
-        avatarUrl: '/images/illustration_community.webp',
-        isActive: true,
-      },
-    }),
-    prisma.user.create({
-      data: {
-        firstName: 'Nora',
-        lastName: 'Benali',
-        email: 'nora.benali@sorea.local',
-        password: coachPassword,
-        role: 'coach',
-        avatarUrl: '/images/hero_cover.webp',
+        avatarUrl: '/images/C1@2x.png',
         isActive: true,
       },
     }),
     prisma.user.create({
       data: {
         firstName: 'Camille',
-        lastName: 'Rossi',
-        email: 'camille.rossi@sorea.local',
+        lastName: '',
+        email: 'camille@sorea.local',
         password: coachPassword,
         role: 'coach',
-        avatarUrl: '/images/illustration_features.webp',
+        avatarUrl: '/images/image-2@2x.png',
+        isActive: true,
+      },
+    }),
+    prisma.user.create({
+      data: {
+        firstName: 'Léna',
+        lastName: '',
+        email: 'lena@sorea.local',
+        password: coachPassword,
+        role: 'coach',
+        avatarUrl: '/images/image-1@2x.png',
+        isActive: true,
+      },
+    }),
+    prisma.user.create({
+      data: {
+        firstName: 'Jade',
+        lastName: '',
+        email: 'jade@sorea.local',
+        password: coachPassword,
+        role: 'coach',
+        avatarUrl: '/images/C6@2x.png',
+        isActive: true,
+      },
+    }),
+    prisma.user.create({
+      data: {
+        firstName: 'Chelsey',
+        lastName: '',
+        email: 'chelsey@sorea.local',
+        password: coachPassword,
+        role: 'coach',
+        avatarUrl: '/images/C2@2x.png',
+        isActive: true,
+      },
+    }),
+    prisma.user.create({
+      data: {
+        firstName: 'Mathilde',
+        lastName: '',
+        email: 'mathilde@sorea.local',
+        password: coachPassword,
+        role: 'coach',
+        avatarUrl: '/images/image-6@2x.png',
+        isActive: true,
+      },
+    }),
+    prisma.user.create({
+      data: {
+        firstName: 'Loic',
+        lastName: '',
+        email: 'loic@sorea.local',
+        password: coachPassword,
+        role: 'coach',
+        avatarUrl: '/images/hermione-pear-qvok07iY5QI-unsplash-1@2x.png',
+        isActive: true,
+      },
+    }),
+    prisma.user.create({
+      data: {
+        firstName: 'Magalie',
+        lastName: '',
+        email: 'magalie@sorea.local',
+        password: coachPassword,
+        role: 'coach',
+        avatarUrl: '/images/C3@2x.png',
         isActive: true,
       },
     }),
   ]);
+
+  const coachProfilesData = [
+    { bio: "Ancienne cadre reconvertie, je t'aide a t'exprimer avec authenticite et assurance.", specialty: "Coach en confiance et expression de soi", hourlyRate: 60, averageRating: 4.8 },
+    { bio: "Specialisee en renforcement profond et respiration consciente.", specialty: "Kine et Prof de Pilate", hourlyRate: 50, averageRating: 4.9 },
+    { bio: "Coaching sportif et bienveillant pour renforcer le corps sans pression.", specialty: "Coach sportive et equilibre du corps", hourlyRate: 55, averageRating: 5 },
+    { bio: "Specialisee dans la respiration consciente et la gestion du stress.", specialty: "Coach en meditation et relaxation", hourlyRate: 45, averageRating: 4.7 },
+    { bio: "Transitions de vie, objectifs structures avec methode et bienveillance.", specialty: "Coach en motivation et performance douce", hourlyRate: 50, averageRating: 5 },
+    { bio: "Yoga doux et meditatif pour liberer les tensions.", specialty: "Prof de Yoga et plein conscience", hourlyRate: 45, averageRating: 4.9 },
+    { bio: "Exercices pratiques pour te reconnecter a ta force interieure.", specialty: "Coach en developpement personnel", hourlyRate: 50, averageRating: 4.8 },
+    { bio: "Sophrologie et visualisation positive pour apaiser le stress.", specialty: "Sophrologue et accompagnatrice bien-etre", hourlyRate: 40, averageRating: 4.9 },
+  ];
 
   const coachProfiles = await Promise.all(
     coaches.map((coach, index) =>
       prisma.coachProfile.create({
         data: {
           userId: coach.id,
-          bio:
-            index === 0
-              ? 'Coach bien-être spécialisée dans les routines anti-stress et les micro-rituels du quotidien. Lorem ipsum dolor sit amet, consectetur adipiscing elit.'
-              : index === 1
-                ? 'Accompagnement respiration et recentrage. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor.'
-                : 'Coach douceur & équilibre avec une approche sensorielle. Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
-          specialty:
-            index === 0 ? 'Gestion du stress' : index === 1 ? 'Respiration & énergie' : 'Équilibre émotionnel',
+          bio: coachProfilesData[index].bio,
+          specialty: coachProfilesData[index].specialty,
           experienceYears: 4 + index,
-          hourlyRate: index === 0 ? 55 : index === 1 ? 65 : 50,
-          averageRating: index === 0 ? 4.9 : index === 1 ? 4.8 : 4.7,
+          hourlyRate: coachProfilesData[index].hourlyRate,
+          averageRating: coachProfilesData[index].averageRating,
           verified: true,
         },
       })
