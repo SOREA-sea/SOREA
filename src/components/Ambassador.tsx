@@ -1,6 +1,10 @@
+"use client";
 import React from "react";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
+import Image from "next/image";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 
 /* ─── Section 1 : Hero ─── */
 const SectionHero = () => (
@@ -16,7 +20,7 @@ const SectionHero = () => (
       </div>
       <div className="w-0 h-0 border-l-[45px] border-l-transparent border-r-[0px] border-r-transparent border-t-[60px] border-t-white absolute top-full left-[55%] z-[1]" />
       <div className="w-full max-w-[516px] h-[220px] bg-gradient-to-br from-[#e2dbef] to-[#f4c0d1] rounded-z-[16px] rounded-[16px] flex items-center justify-content: center justify-center text-[#6a18a4] text-[16px] font-bold tracking-[0.1em] mt-5">
-        Photo ambassadrice
+        <img src="\image_ambassadrice_svg\ImageBulle.svg" alt="ambassadrice" />
       </div>
     </div>
   </section>
@@ -30,6 +34,98 @@ const FriseDot = () => (
     </div>
   </div>
 );
+/* Bouton de son (en haut à droite) */
+const SoundButton = () => {
+  const [muted, setMuted] = useState(false);
+
+  return (
+    <button
+      onClick={() => setMuted(!muted)}
+      title={muted ? "Activer le son" : "Couper le son"}
+      className="
+        fixed top-[90px] right-6 z-[999]
+        w-18 h-24 bg-transparent border-none cursor-pointer
+        flex items-center justify-center
+        transition-all duration-200
+        hover:scale-[1.12]
+        hover:drop-shadow-[0_0_15px_rgba(0,229,209,0.9)] 
+        hover:drop-shadow-[0_0_15px_rgba(0,229,209,0.6)]
+      "
+    >
+      {muted ? (
+        /* pas de son */
+        <Image 
+          src="/image_ambassadrice_svg/no_audio.png" 
+          alt="pas de son" 
+          width={50}
+          height={50}
+          className="object-contain"
+        />
+      ) : (
+        /* son activé */
+        <Image 
+          src="/image_ambassadrice_svg/audio.png" 
+          alt="son activé" 
+          width={50}
+          height={50}
+          className="object-contain"
+        />
+      )}
+    </button>
+  );
+};
+
+/* le btn devenir ambassasdeur */
+
+
+function DevenirAmbassadriceBtn() {
+  const router = useRouter();
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleBecomeAmbassador = async () => {
+    setIsLoading(true);
+    try {
+      const res = await fetch("/api/auth/me");
+      
+      if (res.ok) {
+        const data = await res.json();
+        const user = data.user;
+
+        if (user.role === "COACH" || user.role === "AMBASSADEUR") {
+          router.push("/dashboard");
+          return;
+        } else {
+          await fetch("/api/auth/logout", { method: "POST" }); 
+          sessionStorage.clear();
+          router.push("/login?tab=inscription");
+          router.refresh();
+          return;
+        }
+      }
+    } catch (error) {
+      console.error("Erreur lors de la vérification du statut SOREA:", error);
+    }
+
+    router.push("/login?tab=inscription");
+    setIsLoading(false);
+  };
+
+  //  ICI : J'ai mis  le bouton avec les classes CSS !
+  return (
+    <button
+      onClick={handleBecomeAmbassador}
+      disabled={isLoading}
+      className="border-none px-7 h-[50px] bg-white shadow-[0_3px_3.1px_rgba(186,152,244,0.7)] 
+      rounded-[10px] cursor-pointer font-['Roboto',sans-serif] font-black text-[16px] tracking-[0.1em] 
+      text-[#6a18a4] transition-[box-shadow,transform] duration-200 hover:shadow-[0_6px_16px_rgba(186,152,244,0.9)] 
+      hover:-translate-y-0.5 hover:bg-gradient-to-r hover:from-[#8B47FF] hover:to-[#BA98F4] hover:text-white 
+      hover:shadow-[0_0_0_4px_rgba(59,7,100,0.25),0_0_18px_rgba(59,7,100,0.5)] whitespace-nowrap disabled:opacity-50"
+    >
+      {isLoading ? "Vérification..." : "Je veux être membre de SOREA !"}
+    </button>
+  );
+}
+
 
 /* ─── Section 2 : Je deviens ambassadrice pour ─── */
 const SectionPour = () => (
@@ -42,17 +138,10 @@ const SectionPour = () => (
       {/* Ligne de la frise */}
       <div className="absolute top-0 bottom-0 left-[calc(50%-10px)] w-[21px] bg-[#6A18A4] rounded-[10px] z-0" />
 
-      {/* Rayonne (centré) */}
-      <div className="flex justify-center relative z-[1]">
-        <div className="text-[42px] font-bold tracking-[0.13em] text-white [text-shadow:-7px_-5px_10.8px_#280267,7px_5px_10.8px_#280267] flex items-center gap-3 py-5 px-[30px]">
-          <div className="w-10 h-10 lg:w-[60px] lg:h-[60px] bg-gradient-to-br from-[#9B6FD9] to-[#f498c5] rounded-full flex items-center justify-center flex-shrink-0" />
-          Rayonne
-          <div className="w-10 h-10 lg:w-[60px] lg:h-[60px] bg-gradient-to-br from-[#9B6FD9] to-[#f498c5] rounded-full flex items-center justify-center flex-shrink-0" />
-        </div>
-      </div>
 
       {/* Row 1 : dot + carte à droite */}
       <div className="flex items-center relative z-[1] min-h-[60px]">
+
         <div className="w-[calc(50%-60px)] flex justify-end pr-5" />
         <div className="w-[120px] flex-shrink-0 flex justify-center items-center z-[2]"><FriseDot /></div>
         <div className="w-[calc(50%-60px)] flex justify-start pl-5">
@@ -79,7 +168,7 @@ const SectionPour = () => (
             </p>
           </div>
         </div>
-        <div className="w-[120px] flex-shrink-0 flex justify-center items-center z-[2]"><FriseDot /></div>
+        <div className="w-[120px] flex-shrink-0 flex justify-center items-center z-[2]"><FriseDot /></div>  
         <div className="w-[calc(50%-60px)] flex justify-start pl-5" />
       </div>
 
@@ -119,7 +208,7 @@ const SectionPour = () => (
         <div className="w-[120px] flex-shrink-0 flex justify-center items-center z-[2]"><FriseDot /></div>
         <div className="w-[calc(50%-60px)] flex justify-start pl-5">
           <div className="z-[1] relative max-w-[280px]">
-            <div className="w-full h-[60px] bg-gradient-to-br from-[#e2dbef] to-[#bea7e3] rounded-[10px] flex items-center justify-center text-[12px] text-[#6a18a4]">🌸</div>
+            <div className="w-full h-[60px] bg-gradient-to-br from-[#e2dbef] to-[#bea7e3] rounded-[10px] flex items-center justify-center text-[12px] text-[#6a18a4]"><img src="/image_ambassadrice_svg/TimeLine4.svg" alt="TimeLine4" /></div>
             <h2 className="text-[22px] font-bold tracking-[0.1em] text-[#6a18a4] text-center leading-[1.4] mt-2.5">Rejoignez une communauté qui cultive la sérénité.</h2>
           </div>
         </div>
@@ -129,7 +218,7 @@ const SectionPour = () => (
       <div className="flex items-center relative z-[1] min-h-[60px]">
         <div className="w-[calc(50%-60px)] flex justify-end pr-5">
           <div className="z-[1] relative max-w-[280px] text-right">
-            <div className="w-full h-[60px] bg-gradient-to-br from-[#e2dbef] to-[#bea7e3] rounded-[10px] flex items-center justify-center text-[12px] text-[#6a18a4]">✈️</div>
+            <div className="w-full h-[60px] bg-gradient-to-br from-[#e2dbef] to-[#bea7e3] rounded-[10px] flex items-center justify-center text-[12px] text-[#6a18a4]"><img src="/image_ambassadrice_svg/TimeLine3.svg" alt="TimeLine3" /></div>
             <h2 className="text-[22px] font-bold tracking-[0.1em] text-[#6a18a4] text-center leading-[1.4] mt-2.5">Vivez votre passion du bien-être sous toutes ses formes</h2>
           </div>
         </div>
@@ -143,7 +232,7 @@ const SectionPour = () => (
         <div className="w-[120px] flex-shrink-0 flex justify-center items-center z-[2]"><FriseDot /></div>
         <div className="w-[calc(50%-60px)] flex justify-start pl-5">
           <div className="z-[1] relative max-w-[280px]">
-            <div className="w-full h-[60px] bg-gradient-to-br from-[#e2dbef] to-[#bea7e3] rounded-[10px] flex items-center justify-center text-[12px] text-[#6a18a4]">🎁</div>
+            <div className="w-full h-[60px] bg-gradient-to-br from-[#e2dbef] to-[#bea7e3] rounded-[10px] flex items-center justify-center text-[12px] text-[#6a18a4]"><img src="/image_ambassadrice_svg/TimeLine2.svg" alt="TimeLine2" /></div>
             <h2 className="text-[22px] font-bold tracking-[0.1em] text-[#6a18a4] text-center leading-[1.4] mt-2.5">Votre engagement est récompensé</h2>
           </div>
         </div>
@@ -153,7 +242,7 @@ const SectionPour = () => (
       <div className="flex items-center relative z-[1] min-h-[60px]">
         <div className="w-[calc(50%-60px)] flex justify-end pr-5">
           <div className="z-[1] relative max-w-[280px] text-right">
-            <div className="w-full h-[60px] bg-gradient-to-br from-[#e2dbef] to-[#bea7e3] rounded-[10px] flex items-center justify-center text-[12px] text-[#6a18a4]">🎯</div>
+            <div className="w-full h-[60px] bg-gradient-to-br from-[#e2dbef] to-[#bea7e3] rounded-[10px] flex items-center justify-center text-[12px] text-[#6a18a4]"><img src="/image_ambassadrice_svg/TimeLine1.svg" alt="TimeLine1" /></div>
             <h2 className="text-[22px] font-bold tracking-[0.1em] text-[#6a18a4] text-center leading-[1.4] mt-2.5">Devenez une source d'inspiration et de sérénité.</h2>
           </div>
         </div>
@@ -162,10 +251,16 @@ const SectionPour = () => (
       </div>
 
     </div>
-
-    <button className="border-none px-7 h-[50px] bg-white shadow-[0_3px_3.1px_rgba(186,152,244,0.7)] rounded-[10px] cursor-pointer font-['Roboto',sans-serif] font-black text-[16px] tracking-[0.1em] text-[#6a18a4] transition-[box-shadow,transform] duration-200 hover:shadow-[0_6px_16px_rgba(186,152,244,0.9)] hover:-translate-y-0.5 whitespace-nowrap">
-      Je veux être membre de SOREA !
-    </button>
+    
+      {/* Rayonne (centré) */}
+      <div className="flex justify-center relative z-[1]">
+        <div className="text-[42px] font-bold tracking-[0.13em] text-white [text-shadow:-7px_-5px_10.8px_#280267,7px_5px_10.8px_#280267] flex items-center gap-3 py-5 px-[30px]">
+          <div className="w-10 h-10 lg:w-[60px] lg:h-[60px] bg-gradient-to-br from-[#9B6FD9] to-[#f498c5] rounded-full flex items-center justify-center flex-shrink-0" />
+          Rayonne
+          <div className="w-10 h-10 lg:w-[60px] lg:h-[60px] bg-gradient-to-br from-[#9B6FD9] to-[#f498c5] rounded-full flex items-center justify-center flex-shrink-0" />
+        </div>
+      </div>
+     <DevenirAmbassadriceBtn />
   </section>
 );
 
@@ -198,9 +293,7 @@ const SectionRejoindre = () => (
           ))}
         </div>
         <div>
-          <button className="border-none px-7 h-[50px] bg-white shadow-[0_3px_3.1px_rgba(186,152,244,0.7)] rounded-[10px] cursor-pointer font-['Roboto',sans-serif] font-black text-[16px] tracking-[0.1em] text-[#6a18a4] transition-[box-shadow,transform] duration-200 hover:shadow-[0_6px_16px_rgba(186,152,244,0.9)] hover:-translate-y-0.5 whitespace-nowrap">
-            Je veux être membre de SOREA !
-          </button>
+           <DevenirAmbassadriceBtn />
         </div>
       </div>
       <div className="flex-shrink-0 w-[420px] flex items-stretch">
@@ -218,8 +311,8 @@ const AmbassadriceSOREA = () => (
     
     
     <Navbar />
-    
-    <div className="w-full pt-[40px] flex flex-col items-center overflow-x-hidden bg-gradient-to-r from-[#FBF7F2] to-[#E2DBEF] font-['Inria_Sans',sans-serif] text-[#1a0533]">
+        <SoundButton />
+    <div className="w-full  pt-[40px] flex flex-col items-center overflow-x-hidden bg-gradient-to-r from-[#FBF7F2] to-[#E2DBEF] font-['Inria_Sans',sans-serif] text-[#1a0533]">
       <main className="w-full max-w-[1440px] flex flex-col items-center gap-[120px] py-[80px] px-0">
         <SectionHero />
         <SectionPour />
