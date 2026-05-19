@@ -3,6 +3,7 @@ import type { NextPage } from "next";
 import { useState, useEffect, useCallback, useRef } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
+import Link from "next/link";
 import styled, { createGlobalStyle } from "styled-components";
 
 import Navbar from "../components/Navbar";
@@ -522,12 +523,14 @@ const FavBtn = styled.button<{ $liked: boolean }>`
 // =============================================================================
 // COACH CARD (identique, adapté aux données DB)
 // =============================================================================
-const CardRoot = styled.div`
+const CardRoot = styled(Link)`
   width: 300px; height: 500px; position: relative;
   border-radius: 20px; background: #fff; overflow: hidden; flex-shrink: 0;
   font-family: var(--font-inria-sans);
   box-shadow: 0 4px 20px rgba(0,0,0,0.09);
   transition: transform 0.2s, box-shadow 0.2s;
+  text-decoration: none;
+  display: block;
   &:hover { transform: translateY(-5px); box-shadow: 0 10px 36px rgba(106,24,164,0.16); }
 `;
 const CardImageWrapper = styled.div`width: 100%; height: 300px; position: relative; overflow: hidden;`;
@@ -600,7 +603,7 @@ const CoachCard = ({ coach, isFavorite, onToggleFavorite }: CoachCardProps) => {
   const avatarSrc = coach.user.avatarUrl ?? "/placeholder-coach.png";
 
   return (
-    <CardRoot>
+    <CardRoot href={`/coach/${coach.id}`}>
       <CardImageWrapper>
         <Image
           src={avatarSrc}
@@ -613,7 +616,7 @@ const CoachCard = ({ coach, isFavorite, onToggleFavorite }: CoachCardProps) => {
 
       <FavBtn
         $liked={isFavorite}
-        onClick={e => { e.preventDefault(); onToggleFavorite(coach.id); }}
+        onClick={e => { e.preventDefault(); e.stopPropagation(); onToggleFavorite(coach.id); }}
         aria-label={isFavorite ? "Retirer des favoris" : "Ajouter aux favoris"}
       >
         <HeartIcon filled={isFavorite} size={22} />

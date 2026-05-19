@@ -4,7 +4,7 @@ import CoachingPage from '@/components/Coaching';
 export default function CoachingRoute() {
   return (
     <Suspense fallback={<div>Chargement...</div>}>
-      <CoachingPage />
+      <CoachingPage /> 
     </Suspense>
   );
 }
