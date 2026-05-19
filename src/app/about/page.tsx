@@ -100,7 +100,10 @@ export default function AboutPage() {
             <div className="flex flex-col gap-2">
               <label className="text-sm font-bold text-[#9080aa]">Vous êtes ?</label>
               <select className="bg-[#f3f0f7] border border-purple-200 rounded-xl p-3 outline-none focus:border-[#7b2fbf] appearance-none">
-                <option>Choisis ton statut</option>
+                <option value="" disabled hidden>Choisis ton statut</option>
+                <option>Particulier</option>
+                <option>Professionnel</option>
+                <option>Entreprise</option>
               </select>
             </div>
             <div className="md:col-span-2">
