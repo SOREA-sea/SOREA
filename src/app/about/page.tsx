@@ -1,5 +1,6 @@
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import Image from "next/image";
 
 export default function AboutPage() {
   return (
@@ -10,7 +11,8 @@ export default function AboutPage() {
         <section>
           <h1 className="text-center md:text-5xl font-bold text-[#000000] mb-4 mid underline tracking-wider">À propos</h1>
           <h2 className="flex justify-center items-center">
-          <img src="/image_about_svg/Photo_profil.png" alt="À propos" className="object-contain" /></h2>
+          <Image src="/image_about_svg/Photo_profil.png" alt="À propos" className="object-contain" width={360} height={360} />
+          </h2>
         </section>
         {/* --- SECTION 1 : NOTRE HISTOIRE --- */}
         <section>
@@ -37,7 +39,7 @@ export default function AboutPage() {
             ].map((item, idx) => (
               <div key={idx} className={`bg-white rounded-2xl p-6 shadow-sm border border-purple-100 flex flex-col items-start gap-4 transition-all duration-500 cursor-default ${item.hoverClass}`}>
                 <div className="w-12 h-12 bg-[#c4a8e8]/30 rounded-xl flex items-center justify-center text-2xl">
-                  {item.image && <img src={item.image} alt={item.title} className="w-full h-full object-contain" />}
+                  {item.image && <Image src={item.image} alt={item.title} className="w-full h-full object-contain" width={48} height={48} />}
                 </div>
                 <h3 className="font-bold text-[#7b2fbf] text-lg">{item.title}</h3>
                 <p className="text-xs leading-relaxed text-[#9080aa]">{item.text}</p>
@@ -68,7 +70,7 @@ export default function AboutPage() {
               <p className="text-sm list-disc list-inside text-left w-full transition-transform duration-500 ease-out group-hover:translate-y-2">
                 Nous nous engageons à adopter une démarche éthique et responsable, que ce soit dans le choix des matériaux, nos processus ou nos partenaires.
               </p>
-              <div className="text-5xl opacity-50"><img src="/image_about_svg/Vector.svg" alt="Engagement" className="w-full h-full object-contain" /></div>
+              <div className="text-5xl opacity-50"><Image src="/image_about_svg/Vector.svg" alt="Engagement" className="w-full h-full object-contain" width={120} height={120} /></div>
               <button className="absolute bottom-4 right-8 text-[#7b2fbf] font-bold text-xs hover:underline">En savoir plus</button>
             </div>
           </section>
