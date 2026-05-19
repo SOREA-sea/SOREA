@@ -298,7 +298,7 @@ export default function CarnetG({ onClose }: { onClose?: () => void }) {
                     <p>
                       En cultivant cette attitude du bien-être, vous stimulez
                       naturellement votre sérotonine, cette précieuse molécule
-                      du bonheur qui éclaire l'esprit et apaise le coeur.
+                      du bonheur qui éclaire l&apos;esprit et apaise le coeur.
                     </p>
                   </div>
                 )}

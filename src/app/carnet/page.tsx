@@ -24,7 +24,7 @@ export default function AboutPage() {
                                 className="p-0 bg-transparent border-0 cursor-pointer"
                                 aria-label="Ouvrir le carnet"
                             >
-                                <Image src="/image_carnet/carnet_entier.svg" alt="Carnet" className="object-contain" width={800} height={600} />
+                                <Image src="/image_carnet/carnet_2.svg" alt="Carnet" className="object-contain" width={200} height={150} />
                             </button>
                         </div>
                     ) : (
