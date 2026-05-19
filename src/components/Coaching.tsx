@@ -66,7 +66,6 @@ type DBCoach = {
 };
 
 type AuthState = "connected" | "disconnected";
-type DataSource = "db" | "fake";
 
 const INITIAL_VISIBLE = 4;
 
@@ -114,97 +113,6 @@ const MAJOR_FRENCH_CITIES = [
   "Poitiers",
   "Clermont-Ferrand",
 ] as const;
-
-const FAKE_COACHES: DBCoach[] = [
-  {
-    id: 1001,
-    bio: "Ancienne cadre reconvertie, je t'aide a t'exprimer avec authenticite et assurance.",
-    specialty: "Coach en confiance et expression de soi",
-    hourlyRate: 60,
-    averageRating: 4.8,
-    verified: true,
-    ambassador: true,
-    user: { id: 1001, firstName: "Naima", lastName: "", avatarUrl: "/images/C1@2x.png", city: "Paris 20" },
-    _count: { coachReviews: 15 },
-  },
-  {
-    id: 1002,
-    bio: "Specialisee en renforcement profond et respiration consciente.",
-    specialty: "Kine et Prof de Pilate",
-    hourlyRate: 50,
-    averageRating: 4.9,
-    verified: true,
-    ambassador: false,
-    user: { id: 1002, firstName: "Camille", lastName: "", avatarUrl: "/images/image-2@2x.png", city: "Paris 20" },
-    _count: { coachReviews: 18 },
-  },
-  {
-    id: 1003,
-    bio: "Coaching sportif et bienveillant pour renforcer le corps sans pression.",
-    specialty: "Coach sportive et equilibre du corps",
-    hourlyRate: 55,
-    averageRating: 5,
-    verified: true,
-    ambassador: true,
-    user: { id: 1003, firstName: "Lena", lastName: "", avatarUrl: "/images/image-1@2x.png", city: "Paris 20" },
-    _count: { coachReviews: 20 },
-  },
-  {
-    id: 1004,
-    bio: "Specialisee dans la respiration consciente et la gestion du stress.",
-    specialty: "Coach en meditation et relaxation",
-    hourlyRate: 45,
-    averageRating: 4.7,
-    verified: true,
-    ambassador: false,
-    user: { id: 1004, firstName: "Jade", lastName: "", avatarUrl: "/images/C6@2x.png", city: "Paris 20" },
-    _count: { coachReviews: 10 },
-  },
-  {
-    id: 1005,
-    bio: "Transitions de vie, objectifs structures avec methode et bienveillance.",
-    specialty: "Coach en motivation et performance douce",
-    hourlyRate: 50,
-    averageRating: 5,
-    verified: true,
-    ambassador: true,
-    user: { id: 1005, firstName: "Chelsey", lastName: "", avatarUrl: "/images/C2@2x.png", city: "Paris 20" },
-    _count: { coachReviews: 22 },
-  },
-  {
-    id: 1006,
-    bio: "Yoga doux et meditatif pour liberer les tensions.",
-    specialty: "Prof de Yoga et plein conscience",
-    hourlyRate: 45,
-    averageRating: 4.9,
-    verified: true,
-    ambassador: true,
-    user: { id: 1006, firstName: "Mathilde", lastName: "", avatarUrl: "/images/image-6@2x.png", city: "Paris 20" },
-    _count: { coachReviews: 14 },
-  },
-  {
-    id: 1007,
-    bio: "Exercices pratiques pour te reconnecter a ta force interieure.",
-    specialty: "Coach en developpement personnel",
-    hourlyRate: 50,
-    averageRating: 4.8,
-    verified: true,
-    ambassador: false,
-    user: { id: 1007, firstName: "Loic", lastName: "", avatarUrl: "/images/hermione-pear-qvok07iY5QI-unsplash-1@2x.png", city: "Paris 20" },
-    _count: { coachReviews: 16 },
-  },
-  {
-    id: 1008,
-    bio: "Sophrologie et visualisation positive pour apaiser le stress.",
-    specialty: "Sophrologue et accompagnatrice bien-etre",
-    hourlyRate: 40,
-    averageRating: 4.9,
-    verified: true,
-    ambassador: true,
-    user: { id: 1008, firstName: "Magalie", lastName: "", avatarUrl: "/images/C3@2x.png", city: "Paris 20" },
-    _count: { coachReviews: 11 },
-  },
-];
 
 // =============================================================================
 // SVG ICONS (identiques)
@@ -877,30 +785,6 @@ const SearchRight = styled.div`
   }
 `;
 
-const SourceToggle = styled.div`
-  display: inline-flex;
-  align-items: center;
-  background: rgba(255, 250, 240, 0.35);
-  border: 0.83px solid rgba(127, 102, 116, 0.35);
-  border-radius: 999px;
-  padding: 3px;
-  margin-top: 40px;
-`;
-
-const SourceBtn = styled.button<{ $active: boolean }>`
-  border: none;
-  background: ${p => p.$active ? "#6a18a4" : "transparent"};
-  color: ${p => p.$active ? "#fff" : "#7f6674"};
-  font-family: var(--font-inria-sans);
-  font-size: 16px;
-  letter-spacing: 0.08em;
-  height: 28px;
-  min-width: 64px;
-  border-radius: 999px;
-  cursor: pointer;
-  padding: 0 10px;
-`;
-
 const GlobalFavCounter = styled.div<{ $hasFavs: boolean }>`
   display: flex;
   align-items: center;
@@ -960,10 +844,8 @@ const ResultsCount = styled.div`
 // =============================================================================
 const CoachingPage: NextPage = () => {
   const router = useRouter();
-  const pathname = usePathname();
   const searchParams = useSearchParams();
   const [authState, setAuthState] = useState<AuthState>("disconnected");
-  const dataSource: DataSource = searchParams.get("source") === "fake" ? "fake" : "db";
 
   // Coaches depuis la DB
   const [coaches, setCoaches] = useState<DBCoach[]>([]);
@@ -1013,24 +895,6 @@ const CoachingPage: NextPage = () => {
     if (domainFilter !== "Tous les domaines") params.set("domain", domainFilter);
     if (queryFilter) params.set("query", queryFilter);
 
-    if (dataSource === "fake") {
-      const q = queryFilter.trim().toLowerCase();
-      const filtered = FAKE_COACHES.filter((coach) => {
-        const byCity = cityFilter === "Toutes les villes" || (coach.user.city ?? "") === cityFilter;
-        const byDomain = domainFilter === "Tous les domaines" || (coach.specialty ?? "").toLowerCase().includes(domainFilter.toLowerCase());
-        const byQuery =
-          !q ||
-          coach.user.firstName.toLowerCase().includes(q) ||
-          (coach.user.lastName ?? "").toLowerCase().includes(q) ||
-          (coach.specialty ?? "").toLowerCase().includes(q) ||
-          (coach.bio ?? "").toLowerCase().includes(q);
-        return byCity && byDomain && byQuery;
-      });
-      setCoaches(filtered);
-      setLoading(false);
-      return;
-    }
-
     try {
       const res = await fetch(`/api/coaches?${params.toString()}`);
       const data = await res.json();
@@ -1040,7 +904,7 @@ const CoachingPage: NextPage = () => {
     } finally {
       setLoading(false);
     }
-  }, [cityFilter, domainFilter, queryFilter, dataSource]);
+  }, [cityFilter, domainFilter, queryFilter]);
 
   // Chargement initial
   useEffect(() => {
@@ -1064,18 +928,6 @@ const CoachingPage: NextPage = () => {
     setShowAll(false);
     setQueryFilter(value);
   }, []);
-
-  const handleDataSourceChange = useCallback((source: DataSource) => {
-    setShowAll(false);
-    const params = new URLSearchParams(searchParams.toString());
-    if (source === "fake") {
-      params.set("source", "fake");
-    } else {
-      params.delete("source");
-    }
-    const query = params.toString();
-    router.replace(query ? `${pathname}?${query}` : pathname);
-  }, [pathname, router, searchParams]);
 
   // ── Chargement des favoris ─────────────────────────────────────────────────
   useEffect(() => {
@@ -1168,10 +1020,6 @@ const CoachingPage: NextPage = () => {
             onSearch={fetchCoaches}
           />
           <SearchRight>
-            <SourceToggle>
-              <SourceBtn $active={dataSource === "db"} onClick={() => handleDataSourceChange("db")}>DB</SourceBtn>
-              <SourceBtn $active={dataSource === "fake"} onClick={() => handleDataSourceChange("fake")}>FAKE</SourceBtn>
-            </SourceToggle>
             <GlobalFavCounter $hasFavs={favorites.size > 0}>
               <span>{favorites.size}</span>
               <HeartIcon filled={favorites.size > 0} size={80} />
