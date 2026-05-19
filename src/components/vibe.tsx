@@ -5,97 +5,104 @@ import Navbar from "@/components/Navbar";
 
 const COLORS = {
   purple: "#7B3FE4",
-  purpleHover: "#F6F1FF",
+  purpleGlow: "rgba(123, 63, 228, 0.4)",
   teal: "#38D9C0",
-  tealHover: "#E8F9F6",
+  tealGlow: "rgba(56, 217, 192, 0.4)",
   textDark: "#2D2255",
-  textGray: "#B8B1D1",
+  textGray: "#9B92B8",
 };
 
-// --- Composant Carte ---
-function VibeCard({ children, hoverBg, activeBorder }) {
+// --- Composant Carte avec l'effet Glow des images ---
+function VibeCard({ children, activeColor, glowColor }) {
   const [isHovered, setIsHovered] = useState(false);
+
   return (
     <div 
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       style={{
-        background: isHovered ? hoverBg : "#FFFFFF",
+        background: "#FFFFFF",
         borderRadius: "4px",
-        padding: "24px",
-        height: "220px",
-        display: "flex",
-        transition: "all 0.3s ease",
+        padding: "2px", // Espace pour la bordure colorée
+        height: "230px",
+        transition: "all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)",
         cursor: "pointer",
-        border: `1.5px solid ${isHovered ? activeBorder : "#F0F0F0"}`,
-        boxShadow: isHovered ? "0 12px 24px rgba(0,0,0,0.06)" : "0 2px 10px rgba(0,0,0,0.02)",
+        position: "relative",
+        boxShadow: isHovered 
+          ? `0 0 25px ${glowColor}, 0 10px 15px -3px rgba(0, 0, 0, 0.1)` 
+          : "0 4px 12px rgba(0,0,0,0.03)",
+        border: `1.5px solid ${isHovered ? activeColor : "#F0F0F0"}`,
       }}
     >
-      {children}
+      <div style={{
+        background: "#FFF",
+        height: "100%",
+        width: "100%",
+        padding: "24px",
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "space-between"
+      }}>
+        {children}
+      </div>
     </div>
   );
 }
 
-// --- ONGLET NEWS (Image 2 : Sommeil + Météo) ---
+// --- ONGLET NEWS (Contenu Image 2 : Sommeil + Météo) ---
 function NewsContent() {
-  const [weatherData, setWeatherData] = useState({ temp: "--", city: "Paris", icon: "☀️" });
+  const [temp, setTemp] = useState("--");
   const today = new Date().toLocaleDateString('fr-FR');
-  const currentTime = new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+  const time = new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
 
   useEffect(() => {
-    // Récupération météo réelle (Paris par défaut, change lat/lon pour ta ville)
-    fetch("https://api.open-meteo.com/v1/forecast?latitude=48.8566&longitude=2.3522&current_weather=true")
-      .then(res => res.json())
-      .then(data => {
-        setWeatherData({
-          temp: Math.round(data.current_weather.temperature),
-          city: "Paris",
-          icon: data.current_weather.temperature > 15 ? "☀️" : "☁️"
-        });
-      });
+    fetch("https://api.open-meteo.com/v1/forecast?latitude=48.85&longitude=2.35&current_weather=true")
+      .then(r => r.json()).then(d => setTemp(Math.round(d.current_weather.temperature)));
   }, []);
 
   return (
-    <div style={{ display: "grid", gridTemplateColumns: "1.2fr 0.8fr", gap: "24px", maxWidth: "1100px", margin: "0 auto" }}>
+    <div style={{ display: "grid", gridTemplateColumns: "1.2fr 0.8fr", gap: "30px", maxWidth: "1150px", margin: "0 auto" }}>
       <section>
-        <h3 style={{ color: COLORS.textGray, fontSize: "11px", fontWeight: 800, marginBottom: "12px", textTransform: "uppercase" }}>News</h3>
-        <VibeCard hoverBg={COLORS.purpleHover} activeBorder={COLORS.purple}>
-          <div style={{ display: "flex", alignItems: "center", width: "100%" }}>
-            <div style={{ width: "40%", background: "#E9DFFF", height: "160px", display: "flex", alignItems: "center", justifyContent: "center", borderRadius: "4px" }}>
-              <span style={{ fontSize: "65px" }}>🛌</span>
+        <h3 style={{ color: COLORS.textGray, fontSize: "12px", fontWeight: 700, marginBottom: "15px", textTransform: "uppercase" }}>News</h3>
+        <VibeCard activeColor={COLORS.purple} glowColor={COLORS.purpleGlow}>
+          <div style={{ display: "flex", alignItems: "center", gap: "20px" }}>
+            <div style={{ width: "45%", background: "#E9DFFF", height: "160px", borderRadius: "4px", display: "flex", alignItems: "center", justifyContent: "center" }}>
+              <span style={{ fontSize: "70px" }}>🛌</span>
             </div>
-            <div style={{ width: "60%", paddingLeft: "25px", position: "relative" }}>
-              <span style={{ position: "absolute", top: "-15px", right: "0", color: COLORS.purple, fontSize: "11px", fontWeight: 800 }}>{today}</span>
-              <h4 style={{ fontWeight: 950, fontSize: "18px", color: COLORS.textDark, marginBottom: "10px", lineHeight: 1.2 }}>Cinq habitudes matinales pour s'éveiller en douceur</h4>
-              <p style={{ fontSize: "12px", color: "#666", lineHeight: 1.5 }}>Commence ta journée sereinement grâce à ces étapes apaisantes.</p>
+            <div style={{ width: "55%", position: "relative" }}>
+              <span style={{ position: "absolute", top: "-35px", right: "0", color: COLORS.purple, fontSize: "11px", fontWeight: 800 }}>{today}</span>
+              <h4 style={{ fontWeight: 900, fontSize: "18px", color: COLORS.textDark, lineHeight: 1.2, marginBottom: "10px" }}>Cinq habitudes matinales pour s'éveiller en douceur</h4>
+              <p style={{ fontSize: "12px", color: "#666" }}>Commence ta journée sereinement grâce à ces étapes apaisantes.</p>
+              <div style={{ display: "flex", justifyContent: "space-between", marginTop: "15px", color: COLORS.purple, fontSize: "24px" }}>
+                <span>‹</span><span>›</span>
+              </div>
             </div>
           </div>
         </VibeCard>
       </section>
 
       <section>
-        <h3 style={{ color: COLORS.textGray, fontSize: "11px", fontWeight: 800, marginBottom: "12px", textTransform: "uppercase" }}>Météo</h3>
-        <VibeCard hoverBg={COLORS.tealHover} activeBorder={COLORS.teal}>
-          <div style={{ width: "100%" }}>
-            <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "25px" }}>
-              <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                <span style={{ fontSize: "40px" }}>{weatherData.icon}</span>
-                <span style={{ fontSize: "35px", fontWeight: 950 }}>{weatherData.temp}°C</span>
-              </div>
-              <div style={{ textAlign: "right" }}>
-                <div style={{ fontWeight: 950, color: COLORS.purple, fontSize: "14px" }}>Aujourd'hui {currentTime}</div>
-                <div style={{ color: COLORS.textGray, fontSize: "11px", fontWeight: 700 }}>{today}</div>
-              </div>
+        <h3 style={{ color: COLORS.textGray, fontSize: "12px", fontWeight: 700, marginBottom: "15px", textTransform: "uppercase" }}>Météo</h3>
+        <VibeCard activeColor={COLORS.teal} glowColor={COLORS.tealGlow}>
+          <div style={{ display: "flex", justifyContent: "space-between" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+              <span style={{ fontSize: "40px" }}>☀️</span>
+              <span style={{ fontSize: "38px", fontWeight: 950 }}>{temp}°C</span>
             </div>
-            <div style={{ display: "flex", gap: "8px" }}>
-              {['Ven', 'Sam', 'Dim'].map((d, i) => (
-                <div key={d} style={{ flex: 1, background: "#F7F5FF", padding: "10px", borderRadius: "4px", textAlign: "center" }}>
-                  <div style={{ fontSize: "10px", fontWeight: 800, color: COLORS.textGray }}>{d}</div>
-                  <div style={{ fontSize: "20px", margin: "5px 0" }}>☀️</div>
-                  <div style={{ fontSize: "10px", fontWeight: 900 }}>23°C</div>
-                </div>
-              ))}
+            <div style={{ textAlign: "right" }}>
+              <div style={{ fontWeight: 900, color: COLORS.purple, fontSize: "15px" }}>Aujourd'hui {time}</div>
+              <div style={{ color: COLORS.textGray, fontSize: "12px" }}>{today}</div>
             </div>
+          </div>
+          <div style={{ display: "flex", gap: "10px", marginTop: "20px" }}>
+            {['Ven', 'Sam', 'Dim'].map((d) => (
+              <div key={d} style={{ flex: 1, background: "#F8F7FF", padding: "10px", borderRadius: "8px", textAlign: "center" }}>
+                <div style={{ fontSize: "11px", fontWeight: 800, color: COLORS.textGray }}>{d}</div>
+                <div style={{ fontSize: "22px" }}>☀️</div>
+                <div style={{ fontSize: "11px", fontWeight: 900 }}>23°C</div>
+              </div>
+            ))}
+            <span style={{ alignSelf: "center", color: COLORS.purple, fontWeight: 900, cursor: "pointer" }}>›</span>
           </div>
         </VibeCard>
       </section>
@@ -103,43 +110,43 @@ function NewsContent() {
   );
 }
 
-// --- ONGLET NOW (Image 1 : Yoga + Visualisation) ---
+// --- ONGLET NOW (Contenu Image 1 : Yoga + Cadeau) ---
 function NowContent() {
   const today = new Date().toLocaleDateString('fr-FR');
   return (
-    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "24px", maxWidth: "1100px", margin: "0 auto" }}>
+    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "30px", maxWidth: "1150px", margin: "0 auto" }}>
       <section>
-        <h3 style={{ color: COLORS.textGray, fontSize: "11px", fontWeight: 800, marginBottom: "12px", textTransform: "uppercase" }}>Pour ton univers</h3>
-        <VibeCard hoverBg={COLORS.purpleHover} activeBorder={COLORS.purple}>
-          <div style={{ width: "100%" }}>
-            <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "20px" }}>
-              <span style={{ fontWeight: 950, fontSize: "14px" }}>POUR TOI</span>
-              <span style={{ color: COLORS.purple, fontSize: "10px", fontWeight: 800 }}>{today}</span>
+        <h3 style={{ color: COLORS.textGray, fontSize: "12px", fontWeight: 700, marginBottom: "15px", textTransform: "uppercase" }}>Pour ton univers</h3>
+        <VibeCard activeColor={COLORS.purple} glowColor={COLORS.purpleGlow}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            <span style={{ fontWeight: 950, fontSize: "15px", letterSpacing: "1px" }}>POUR TOI</span>
+            <span style={{ color: COLORS.purple, fontSize: "11px", fontWeight: 800 }}>{today}</span>
+          </div>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flex: 1 }}>
+            <span style={{ color: COLORS.purple, fontSize: "35px" }}>‹</span>
+            <div style={{ textAlign: "center" }}>
+              <div style={{ fontSize: "65px", marginBottom: "10px" }}>🎀</div>
+              <h4 style={{ fontWeight: 900, fontSize: "19px", maxWidth: "200px" }}>Prendre un moment pour soi avec SEED</h4>
             </div>
-            <div style={{ display: "flex", alignItems: "center", gap: "15px" }}>
-              <button style={{ background: "none", border: "none", color: COLORS.purple, fontSize: "35px", cursor: "pointer" }}>‹</button>
-              <div style={{ flex: 1, textAlign: "center" }}>
-                <div style={{ fontSize: "55px", marginBottom: "10px" }}>🎀</div>
-                <h4 style={{ fontWeight: 950, fontSize: "18px", color: COLORS.textDark, lineHeight: 1.2 }}>Moment pour soi avec SEED</h4>
-              </div>
-              <button style={{ background: "none", border: "none", color: COLORS.purple, fontSize: "35px", cursor: "pointer" }}>›</button>
-            </div>
+            <span style={{ color: COLORS.purple, fontSize: "35px" }}>›</span>
           </div>
         </VibeCard>
       </section>
 
       <section>
-        <h3 style={{ color: COLORS.textGray, fontSize: "11px", fontWeight: 800, marginBottom: "12px", textTransform: "uppercase" }}>Directe</h3>
-        <VibeCard hoverBg={COLORS.tealHover} activeBorder={COLORS.teal}>
-          <div style={{ display: "flex", width: "100%" }}>
-            <div style={{ width: "45%", background: "#E9DFFF", display: "flex", alignItems: "center", justifyContent: "center", borderRadius: "4px", height: "160px" }}>
-              <span style={{ fontSize: "70px" }}>🧘‍♀️</span>
+        <h3 style={{ color: COLORS.textGray, fontSize: "12px", fontWeight: 700, marginBottom: "15px", textTransform: "uppercase" }}>Directe</h3>
+        <VibeCard activeColor={COLORS.teal} glowColor={COLORS.tealGlow}>
+          <div style={{ display: "flex", gap: "20px", height: "100%" }}>
+            <div style={{ width: "45%", background: "#E9DFFF", borderRadius: "4px", display: "flex", alignItems: "center", justifyContent: "center" }}>
+              <span style={{ fontSize: "75px" }}>🧘‍♀️</span>
             </div>
-            <div style={{ width: "55%", paddingLeft: "20px", display: "flex", flexDirection: "column", justifyContent: "center" }}>
-              <span style={{ fontWeight: 950, fontSize: "14px" }}>LIVE</span>
-              <p style={{ color: COLORS.textGray, fontSize: "11px", margin: "4px 0 12px", fontWeight: 700 }}>Coach Mila</p>
-              <h4 style={{ fontWeight: 950, fontSize: "19px", color: COLORS.purple, marginBottom: "15px", lineHeight: 1.2 }}>Respiration & Ancrage</h4>
-              <button style={{ background: COLORS.purple, color: "white", border: "none", padding: "10px 20px", borderRadius: "25px", fontWeight: 900, fontSize: "12px", cursor: "pointer", width: "fit-content" }}>Rejoindre</button>
+            <div style={{ width: "55%", display: "flex", flexDirection: "column", justifyContent: "center" }}>
+              <span style={{ fontWeight: 950, fontSize: "15px" }}>LIVE</span>
+              <p style={{ color: COLORS.textGray, fontSize: "12px", margin: "5px 0" }}>Coach Mila</p>
+              <h4 style={{ fontWeight: 900, fontSize: "20px", color: COLORS.purple, lineHeight: 1.2, marginBottom: "15px" }}>Respiration zen et ancrage</h4>
+              <button style={{ background: COLORS.purple, color: "white", border: "none", padding: "12px 20px", borderRadius: "30px", fontWeight: 900, cursor: "pointer", fontSize: "12px" }}>
+                En direct - Rejoindre
+              </button>
             </div>
           </div>
         </VibeCard>
@@ -149,24 +156,27 @@ function NowContent() {
 }
 
 export default function SoreaVibe() {
-  const [activeTab, setActiveTab] = useState("news");
+  const [tab, setTab] = useState("now");
 
   return (
-    <div style={{ minHeight: "100vh", background: "linear-gradient(135deg, #F5F1FF 0%, #FFFFFF 50%, #E8F9F6 100%)", fontFamily: "'Inter', sans-serif" }}>
+    <div style={{ minHeight: "100vh", background: "linear-gradient(135deg, #F5F1FF 0%, #FFFFFF 100%)", fontFamily: "'Inter', sans-serif" }}>
       <Navbar />
       <main style={{ padding: "60px 20px" }}>
-        <h1 style={{ textAlign: "center", fontSize: "42px", fontWeight: 950, color: COLORS.textDark, marginBottom: "10px" }}>SOREA Vibe</h1>
-        <p style={{ textAlign: "center", color: COLORS.textDark, fontSize: "18px", marginBottom: "50px", fontWeight: 600 }}>Inspiration, conseils bien-être et nouveautés SOREA au quotidien.</p>
+        <h1 style={{ textAlign: "center", fontSize: "48px", fontWeight: 950, color: COLORS.textDark, marginBottom: "10px" }}>SOREA Vibe</h1>
+        <p style={{ textAlign: "center", fontSize: "18px", marginBottom: "60px", color: COLORS.textDark, fontWeight: 500 }}>Inspiration, conseils bien-être et nouveautés SOREA au quotidien.</p>
 
-        <div style={{ maxWidth: "800px", margin: "0 auto 40px", borderBottom: `2px solid #EEE`, display: "flex" }}>
-          <button onClick={() => setActiveTab("news")} style={{ flex: 1, padding: "20px", background: "none", border: "none", cursor: "pointer", fontSize: "16px", fontWeight: 900, color: activeTab === "news" ? COLORS.purple : COLORS.textGray, borderBottom: activeTab === "news" ? `4px solid ${COLORS.purple}` : "4px solid transparent", textTransform: "uppercase" }}>News</button>
-          <button onClick={() => setActiveTab("now")} style={{ flex: 1, padding: "20px", background: "none", border: "none", cursor: "pointer", fontSize: "16px", fontWeight: 900, color: activeTab === "now" ? COLORS.teal : COLORS.textGray, borderBottom: activeTab === "now" ? `4px solid ${COLORS.teal}` : "4px solid transparent", textTransform: "uppercase" }}>Now</button>
+        <div style={{ maxWidth: "900px", margin: "0 auto 50px", display: "flex", position: "relative" }}>
+           <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: "2px", background: "#EEE" }} />
+           <button onClick={() => setTab("news")} style={{ flex: 1, padding: "20px", background: "none", border: "none", cursor: "pointer", fontSize: "16px", fontWeight: 900, color: tab === "news" ? COLORS.purple : COLORS.textGray, borderBottom: tab === "news" ? `4px solid ${COLORS.purple}` : "4px solid transparent", zIndex: 1 }}>NEWS</button>
+           <button onClick={() => setTab("now")} style={{ flex: 1, padding: "20px", background: "none", border: "none", cursor: "pointer", fontSize: "16px", fontWeight: 900, color: tab === "now" ? COLORS.teal : COLORS.textGray, borderBottom: tab === "now" ? `4px solid ${COLORS.teal}` : "4px solid transparent", zIndex: 1 }}>NOW</button>
         </div>
 
-        {activeTab === "news" ? <NewsContent /> : <NowContent />}
+        {tab === "news" ? <NewsContent /> : <NowContent />}
 
         <div style={{ textAlign: "center", marginTop: "80px" }}>
-          <button style={{ background: "#FFF", color: COLORS.purple, border: `2.5px solid ${COLORS.purple}`, padding: "15px 45px", borderRadius: "35px", fontWeight: 950, cursor: "pointer", fontSize: "16px" }}>Recevoir mon magazine</button>
+          <button style={{ background: "#FFF", color: COLORS.purple, border: `2.5px solid ${COLORS.purple}`, padding: "15px 45px", borderRadius: "40px", fontWeight: 950, cursor: "pointer", fontSize: "16px", boxShadow: "0 4px 15px rgba(123, 63, 228, 0.15)" }}>
+            Recevoir mon magazine
+          </button>
         </div>
       </main>
       <Footer />
