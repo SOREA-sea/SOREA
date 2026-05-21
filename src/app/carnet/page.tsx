@@ -3,10 +3,11 @@ import { useState } from "react";
 import Image from "next/image";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import CarnetC from "@/components/CarnetC";
 import CarnetG from "@/components/CarnetG";
 
 export default function AboutPage() {
-    const [open, setOpen] = useState(false);
+    const [openCarnet, setOpenCarnet] = useState<string | null>(null);
 
     return (
         <div className="bg-[#e8e0f0] min-h-screen font-nunito text-[#2A2340]">
@@ -17,19 +18,29 @@ export default function AboutPage() {
                 </section>
 
                 <section>
-                    {!open ? (
+                    {openCarnet !== 'carnet1' ? (
                         <div className="flex justify-center">
-                            <button
-                                onClick={() => setOpen(true)}
-                                className="p-0 bg-transparent border-0 cursor-pointer"
-                                aria-label="Ouvrir le carnet"
-                            >
-                                <Image src="/image_carnet/carnet_2.svg" alt="Carnet" className="object-contain" width={200} height={150} />
+                            <button onClick={() => setOpenCarnet('carnet1')}>
+                                <Image src="/image_carnet/carnet_1.svg" alt="Carnet" width={200} height={150} />
                             </button>
                         </div>
                     ) : (
                         <div className="flex justify-center">
-                            <CarnetG onClose={() => setOpen(false)} />
+                            <CarnetC onClose={() => setOpenCarnet(null)} />
+                        </div>
+                    )}
+                </section>
+
+                <section>
+                    {openCarnet !== 'carnet2' ? (
+                        <div className="flex justify-center">
+                            <button onClick={() => setOpenCarnet('carnet2')}>
+                                <Image src="/image_carnet/carnet_2.svg" alt="Carnet" width={200} height={150} />
+                            </button>
+                        </div>
+                    ) : (
+                        <div className="flex justify-center">
+                            <CarnetG onClose={() => setOpenCarnet(null)} />
                         </div>
                     )}
                 </section>
