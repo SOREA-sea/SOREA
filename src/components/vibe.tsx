@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, type ReactNode } from "react";
 import Footer from "@/components/Footer";
 import Navbar from "@/components/Navbar";
 
@@ -13,7 +13,7 @@ const COLORS = {
 };
 
 // --- Composant Carte avec l'effet Glow des images ---
-function VibeCard({ children, activeColor, glowColor }) {
+function VibeCard({ children, activeColor, glowColor }: { children: ReactNode; activeColor: string; glowColor: string }) {
   const [isHovered, setIsHovered] = useState(false);
 
   return (
@@ -57,7 +57,7 @@ function NewsContent() {
 
   useEffect(() => {
     fetch("https://api.open-meteo.com/v1/forecast?latitude=48.85&longitude=2.35&current_weather=true")
-      .then(r => r.json()).then(d => setTemp(Math.round(d.current_weather.temperature)));
+      .then(r => r.json()).then(d => setTemp(String(Math.round(d.current_weather.temperature))));
   }, []);
 
   return (
