@@ -1,9 +1,5 @@
 "use client";
-<<<<<<< HEAD
 import { useState, useEffect, useRef } from "react";
-=======
-import { useState, useEffect, type ReactNode } from "react";
->>>>>>> c0ece81995534894c38e8a007b3a83730386ad08
 import Footer from "@/components/Footer";
 import Navbar from "@/components/Navbar";
 import Image from "next/image";
@@ -24,7 +20,6 @@ const C = {
   border:      "#EDEAF7",
 };
 
-<<<<<<< HEAD
 // ─────────────────────────────────────────────
 // SHARED STYLES
 // ─────────────────────────────────────────────
@@ -53,11 +48,7 @@ function VibeCard({ children, variant = "purple", style = {} }: VibeCardProps) {
   const gradientBorder = variant === "purple"
     ? "linear-gradient(135deg, #E879F9 0%, #38D9C0 100%)"
     : "linear-gradient(135deg, #38D9C0 0%, #E879F9 100%)";
-=======
-// --- Composant Carte avec l'effet Glow des images ---
-function VibeCard({ children, activeColor, glowColor }: { children: ReactNode; activeColor: string; glowColor: string }) {
-  const [isHovered, setIsHovered] = useState(false);
->>>>>>> c0ece81995534894c38e8a007b3a83730386ad08
+
 
   return (
     <div
@@ -192,15 +183,7 @@ function NewsContent() {
   const [showModal,  setShowModal]  = useState(false);
   const [now,        setNow]        = useState(new Date());
 
-  useEffect(() => {
-<<<<<<< HEAD
-    const t = setInterval(() => setNow(new Date()), 1000);
-    return () => clearInterval(t);
-=======
-    fetch("https://api.open-meteo.com/v1/forecast?latitude=48.85&longitude=2.35&current_weather=true")
-      .then(r => r.json()).then(d => setTemp(String(Math.round(d.current_weather.temperature))));
->>>>>>> c0ece81995534894c38e8a007b3a83730386ad08
-  }, []);
+  
 
   useEffect(() => {
     const url = "https://api.open-meteo.com/v1/forecast?latitude=48.85&longitude=2.35&current_weather=true&daily=weathercode,temperature_2m_max,temperature_2m_min,precipitation_probability_max,windspeed_10m_max&hourly=temperature_2m,precipitation_probability&timezone=Europe%2FParis&forecast_days=7";
