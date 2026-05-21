@@ -70,7 +70,7 @@ function VibeCard({ children, variant = "purple", style = {} }: VibeCardProps) {
         borderRadius: 16,
         overflow: "hidden",
         height: "100%",
-        minHeight: (style as any).minHeight,
+        minHeight: style.minHeight,
       }}>
         {children}
       </div>
@@ -181,9 +181,7 @@ function NewsContent() {
   const [forecast3,  setForecast3]  = useState<DayForecast[]>([]);
   const [forecast7,  setForecast7]  = useState<DayForecast[]>([]);
   const [showModal,  setShowModal]  = useState(false);
-  const [now,        setNow]        = useState(new Date());
-
-  
+  const now = new Date();
 
   useEffect(() => {
     const url = "https://api.open-meteo.com/v1/forecast?latitude=48.85&longitude=2.35&current_weather=true&daily=weathercode,temperature_2m_max,temperature_2m_min,precipitation_probability_max,windspeed_10m_max&hourly=temperature_2m,precipitation_probability&timezone=Europe%2FParis&forecast_days=7";
@@ -219,7 +217,7 @@ function NewsContent() {
               <div style={{ width: "38%", flexShrink: 0, background: "linear-gradient(145deg,#C9A8FF 0%,#A87AFF 100%)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 86, minHeight: 280, position: "relative", overflow: "hidden" }}>
                 <div style={{ position: "absolute", width: 160, height: 160, borderRadius: "50%", background: "rgba(255,255,255,0.12)", top: -30, left: -30 }} />
                 {slide.img
-                  ? <img src={slide.img} alt={slide.imgAlt} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                  ? <Image src={slide.img} alt={slide.imgAlt} fill sizes="38vw" style={{ objectFit: "cover" }} />
                   : <span style={{ zIndex: 1 }}>{slide.emoji}</span>
                 }
                 {/* Flèche gauche — classe CSS pour le hover */}
@@ -273,7 +271,7 @@ function NewsContent() {
                   </div>
                 </div>
                 <div style={{ flex: 1, display: "flex", flexDirection: "column" as const, justifyContent: "center", paddingLeft: 4 }}>
-                  <div style={{ fontWeight: 900, color: C.purple, fontSize: 14, fontFamily: "'DM Sans', sans-serif", marginBottom: 2 }}>Aujourd'hui &nbsp; {time}</div>
+                  <div style={{ fontWeight: 900, color: C.purple, fontSize: 14, fontFamily: "'DM Sans', sans-serif", marginBottom: 2 }}>Aujourd&apos;hui &nbsp; {time}</div>
                   <div style={{ fontSize: 18, fontWeight: 950, color: C.purple, fontFamily: "'DM Sans', sans-serif", marginBottom: 10 }}>{today}</div>
                   {/* Bouton › météo — classe CSS pour le hover */}
                   <button onClick={() => setShowModal(true)} className="weather-more-btn" title="Voir les 7 prochains jours">›</button>
@@ -344,9 +342,9 @@ function NowContent() {
             </div>
             <div style={{ display: "flex", alignItems: "center", gap: 14, flex: 1 }}>
               <button onClick={() => setPtIdx((ptIdx - 1 + pourToiSlides.length) % pourToiSlides.length)} className="arrow-btn">‹</button>
-              <div style={{ width: 110, height: 110, borderRadius: 12, flexShrink: 0, background: "linear-gradient(145deg,#EDE6FF,#D9C6FF)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 56 }}>
+              <div style={{ width: 110, height: 110, borderRadius: 12, flexShrink: 0, background: "linear-gradient(145deg,#EDE6FF,#D9C6FF)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 56, position: "relative", overflow: "hidden" }}>
                 {ptSlide.img
-                  ? <img src={ptSlide.img} alt={ptSlide.imgAlt} style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: 12 }} />
+                  ? <Image src={ptSlide.img} alt={ptSlide.imgAlt} fill sizes="110px" style={{ objectFit: "cover" }} />
                   : ptSlide.emoji
                 }
               </div>
@@ -371,7 +369,7 @@ function NowContent() {
             <div style={{ width: "45%", flexShrink: 0, background: "linear-gradient(145deg,#E9DFFF,#D6C5FF)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 80, position: "relative", overflow: "hidden" }}>
               <div style={{ position: "absolute", width: 120, height: 120, borderRadius: "50%", background: "rgba(255,255,255,0.18)", bottom: -20, right: -20 }} />
               {dirSlide.img
-                ? <img src={dirSlide.img} alt={dirSlide.imgAlt} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                ? <Image src={dirSlide.img} alt={dirSlide.imgAlt} fill sizes="45vw" style={{ objectFit: "cover" }} />
                 : <span style={{ zIndex: 1 }}>{dirSlide.emoji}</span>
               }
             </div>
@@ -414,17 +412,6 @@ type TabKey = "news" | "now";
 export default function SoreaVibe() {
   const [tab,  setTab]  = useState<TabKey>("news");
   const navRef          = useRef<HTMLDivElement>(null);
-  const [navH, setNavH] = useState(0);
-
-  // Mesure dynamique de la hauteur de la Navbar
-  useEffect(() => {
-    const nav = navRef.current;
-    if (!nav) return;
-    const obs = new ResizeObserver(entries => setNavH(entries[0].contentRect.height));
-    obs.observe(nav);
-    setNavH(nav.getBoundingClientRect().height);
-    return () => obs.disconnect();
-  }, []);
 
   const isLoggedIn = false;
 
