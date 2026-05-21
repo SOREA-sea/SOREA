@@ -1,8 +1,7 @@
 "use client"
-import { useState } from "react";
+import { useState, memo } from "react";
 
 const styles = `
-
   .sorea-wrap {
     display: flex;
     align-items: center;
@@ -54,7 +53,6 @@ const styles = `
   }
   .sorea-btn-commander:hover { background: #F3EEFF; }
 
-  /* BOOK */
   .sorea-book {
     width: 640px;
     height: 420px;
@@ -134,67 +132,49 @@ const styles = `
     flex-shrink: 0;
   }
 
-  .sorea-savez-box {
+  /* MOOD BUBBLES */
+  .sorea-moods-area {
     flex: 1;
-    background: #FDF3E3;
-    border-radius: 10px;
-    cursor: pointer;
     position: relative;
-    overflow: hidden;
-    user-select: none;
   }
 
-  .sorea-blur-bg {
+  .sorea-mood-btn {
     position: absolute;
-    inset: 0;
-    background: rgba(210, 195, 235, 0.30);
-    backdrop-filter: blur(4px);
-    border-radius: 10px;
-    z-index: 1;
-  }
-
-  .sorea-savez-collapsed {
-    position: absolute;
-    inset: 0;
+    border-radius: 50%;
+    border: none;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 700;
+    font-family: 'Lora', Georgia, serif;
+    text-align: center;
     display: flex;
     align-items: center;
     justify-content: center;
-    z-index: 2;
+    padding: 8px;
+    line-height: 1.3;
+    width: 84px;
+    height: 84px;
+    transition: transform 0.15s ease;
   }
+  .sorea-mood-btn:hover { transform: translate(-50%, -50%) scale(1.08); }
 
-  .sorea-savez-collapsed-text {
-    font-weight: 700;
-    font-size: 15px;
-    color: #1A1A2E;
-    font-family: 'Lora', Georgia, serif;
-    text-align: center;
-  }
-
-  .sorea-savez-expanded {
-    position: absolute;
-    inset: 0;
-    padding: 16px;
+  .sorea-heart-area {
+    width: 100%;
+    height: 100%;
     display: flex;
     flex-direction: column;
-    z-index: 2;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    cursor: pointer;
   }
 
-  .sorea-savez-expanded-title {
-    font-weight: 700;
+  .sorea-heart-label {
     font-size: 14px;
-    color: #1A1A2E;
-    margin-bottom: 10px;
+    font-weight: 700;
     font-family: 'Lora', Georgia, serif;
+    margin-top: -8px;
   }
-
-  .sorea-savez-expanded p {
-    font-size: 12.5px;
-    line-height: 1.65;
-    color: #2D2D2D;
-    margin-bottom: 9px;
-    font-family: 'Lora', Georgia, serif;
-  }
-  .sorea-savez-expanded p:last-child { margin-bottom: 0; }
 
   /* RIGHT PAGE */
   .sorea-page-right {
@@ -203,7 +183,7 @@ const styles = `
     display: flex;
     flex-direction: column;
     justify-content: center;
-    gap: 14px;
+    gap: 24px;
   }
 
   .sorea-cat-card {
@@ -212,8 +192,8 @@ const styles = `
     display: flex;
     align-items: center;
     justify-content: center;
-    height: 72px;
-    font-size: 14px;
+    height: 60px;
+    font-size: 13px;
     font-weight: 700;
     font-family: 'Lora', Georgia, serif;
     border: none;
@@ -234,97 +214,123 @@ const styles = `
   }
   .sorea-cat-card.active:hover { transform: scale(1.02); }
 
-  .sorea-gratitude.active  { background: #C4B5E8; color: #3A1A7A; }
-  .sorea-journaling.active { background: #F5DEC8; color: #7A4010; }
-  .sorea-libre.active      { background: #7DE8E8; color: #0A5050; }
+  .sorea-challenge.active   { background: #C4B5E8; color: #3A1A7A; }
+  .sorea-blocnote.active    { background: #7DE8E8; color: #0A5050; }
+  .sorea-divertissement.active { background: #F5DEC8; color: #7A4010; }
 `;
 
+const moods = [
+  { label: "Très bien",    color: "#F5E18A", textColor: "#7A6010", top: "12%",  left: "52%" },
+  { label: "Bien",         color: "#A8D9B8", textColor: "#2E6B47", top: "38%",  left: "22%" },
+  { label: "Pas mal…",     color: "#C8B8E8", textColor: "#5A3D8A", top: "38%",  left: "72%" },
+  { label: "Mal",          color: "#F4A09A", textColor: "#8B2E2A", top: "72%",  left: "32%" },
+  { label: "Pas terrible", color: "#A8D0F0", textColor: "#1A5A8B", top: "72%",  left: "70%" },
+];
+
+const Heart = memo(({ color, text, textColor }: { color: string; text?: string; textColor?: string }) => (
+  <svg viewBox="0 0 100 90" width="150" height="150" xmlns="http://www.w3.org/2000/svg" role="img" aria-label={text ?? 'coeur'}>
+    <path
+      d="M50 85 C50 85 5 55 5 28 C5 13 17 3 30 3 C39 3 47 8 50 15 C53 8 61 3 70 3 C83 3 95 13 95 28 C95 55 50 85 50 85Z"
+      fill={color}
+    />
+    {text && (
+      <text
+        x="50%"
+        y="53%"
+        textAnchor="middle"
+        dominantBaseline="middle"
+        fontFamily="'Lora', Georgia, serif"
+        fontWeight={700}
+        fontSize={10}
+        fill={textColor || '#000'}
+        style={{ pointerEvents: 'none' }}
+      >
+        {text}
+      </text>
+    )}
+  </svg>
+));
+Heart.displayName = 'Heart';
+
 export default function CarnetC({ onClose }: { onClose?: () => void }) {
-    const [isOpen, setIsOpen] = useState(false);
+  const [selectedMood, setSelectedMood] = useState<string | null>(null);
 
-    const toggleSavez = () => setIsOpen((prev) => !prev);
+  const mood = moods.find((m) => m.label === selectedMood) ?? null;
+  const moodSelected = selectedMood !== null;
 
-    return (
-        <>
-            <style>{styles}</style>
-            <div className="sorea-wrap">
-                {/* Sidebar */}
-                <div className="sorea-sidebar">
-                    <button className="sorea-btn-retour btn-retour" onClick={onClose}>
-                        ← Retour
-                    </button>
-                    <button className="sorea-btn-commander btn-commander">
-                        Commander mon<br />Carnet Challenge
-                    </button>
-                </div>
+  return (
+    <>
+      <style>{styles}</style>
+      <div className="sorea-wrap">
+        {/* Sidebar */}
+        <div className="sorea-sidebar">
+          <button className="sorea-btn-retour" onClick={onClose}>
+            ← Retour
+          </button>
+          <button className="sorea-btn-commander">
+            Commander mon<br />Carnet Challenge
+          </button>
+        </div>
 
-                {/* Book */}
-                <div className="sorea-book">
-                    <div className="sorea-book-bg" />
-                    <div className="sorea-book-curl" />
-                    <div className="sorea-book-spine" />
-                    <div className="sorea-book-bump" />
+        {/* Book */}
+        <div className="sorea-book">
+          <div className="sorea-book-bg" />
+          <div className="sorea-book-curl" />
+          <div className="sorea-book-spine" />
+          <div className="sorea-book-bump" />
 
-                    <div className="sorea-book-inner">
-                        {/* Left Page */}
-                        <div className="sorea-page-left">
-                            <div className="sorea-page-title">Bonjour Prénom :-)<br /> Comment te sens-tu ?</div>
+          <div className="sorea-book-inner">
+            {/* Left Page */}
+            <div className="sorea-page-left">
+              <div className="sorea-page-title">
+                Bonjour Prénom :-)<br />Comment te sens-tu ?
+              </div>
 
-                            <div className="sorea-savez-box" onClick={toggleSavez}>
-                                {/* Blur background (collapsed only) */}
-                                {!isOpen && <div className="sorea-blur-bg" />}
+              <div className="sorea-moods-area">
+                {!moodSelected && moods.map((m) => (
+                  <button
+                    key={m.label}
+                    className="sorea-mood-btn"
+                    style={{
+                      top: m.top,
+                      left: m.left,
+                      transform: "translate(-50%, -50%)",
+                      backgroundColor: m.color,
+                      color: m.textColor,
+                    }}
+                    onClick={() => setSelectedMood(m.label)}
+                  >
+                    {m.label}
+                  </button>
+                ))}
 
-                                {/* Collapsed view */}
-                                {!isOpen && (
-                                    <div className="sorea-savez-collapsed">
-                                        <span className="sorea-savez-collapsed-text">
-                                            <u>Le saviez-vous</u> ?
-                                        </span>
-                                    </div>
-                                )}
-
-                                {/* Expanded view */}
-                                {isOpen && (
-                                    <div className="sorea-savez-expanded">
-                                        <div className="sorea-savez-expanded-title">
-                                            <u>Le saviez-vous</u> ?
-                                        </div>
-                                        <p>
-                                            Pratiquer la gratitude chaque jour réduit le stress,
-                                            améliore la qualité du sommeil et augmente le sentiment
-                                            de bonheur.
-                                        </p>
-                                        <p>
-                                            En cultivant cette attitude du bien-être, vous stimulez
-                                            naturellement votre sérotonine, cette précieuse molécule
-                                            du bonheur qui éclaire l&apos;esprit et apaise le coeur.
-                                        </p>
-                                    </div>
-                                )}
-                            </div>
-                        </div>
-
-                        {/* Right Page */}
-                        <div className="sorea-page-right">
-                            <div
-                                className={`sorea-cat-card sorea-challenge ${isOpen ? "active" : "inactive"}`}
-                            >
-                                Challenge-list
-                            </div>
-                            <div
-                                className={`sorea-cat-card sorea-blocnote ${isOpen ? "active" : "inactive"}`}
-                            >
-                                Bloc-note libre
-                            </div>
-                            <div
-                                className={`sorea-cat-card sorea-divertissement ${isOpen ? "active" : "inactive"}`}
-                            >
-                                Divertissement
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                {moodSelected && mood && (
+                  <div
+                    className="sorea-heart-area"
+                    onClick={() => setSelectedMood(null)}
+                    title="Changer d'humeur"
+                  >
+                    <Heart color={mood.color} text={mood.label} textColor={'#000'} />
+                  </div>
+                )}
+              </div>
             </div>
-        </>
-    );
+
+            {/* Right Page */}
+            <div className="sorea-page-right">
+              <div className={`sorea-cat-card sorea-challenge ${moodSelected ? "active" : "inactive"}`}>
+                Challenge-list
+              </div>
+              <div className={`sorea-cat-card sorea-blocnote ${moodSelected ? "active" : "inactive"}`}>
+                Bloc-note libre
+              </div>
+              <div className={`sorea-cat-card sorea-divertissement ${moodSelected ? "active" : "inactive"}`}>
+                Divertissement
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </>
+  );
 }
