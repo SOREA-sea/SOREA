@@ -53,11 +53,11 @@ export default async function CoachProfilePage({ params }: { params: Promise<{ i
           <h1 className="text-3xl font-semibold tracking-wide text-gray-900 mb-2">{name}</h1>
           <p className="text-xl text-gray-700 font-medium tracking-wider mb-8">{coach.specialty || "Coach certifié"}</p>
 
-          {/* Photo Hexagonale */}
+          {/* Photo Octogonale */}
           <div className="relative mb-4">
             <div 
               className="w-56 h-64 overflow-hidden relative shadow-lg"
-              style={{ clipPath: 'polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)' }}
+              style={{ clipPath: 'polygon(30% 0%, 70% 0%, 100% 30%, 100% 70%, 70% 100%, 30% 100%, 0% 70%, 0% 30%)' }}
             >
               <Image 
                 src={avatarSrc}
@@ -68,9 +68,12 @@ export default async function CoachProfilePage({ params }: { params: Promise<{ i
               />
               <div className="absolute inset-0 bg-black/10"></div>
             </div>
-            {/* Petit badge superposé */}
-            <div className="absolute top-2 -right-4 bg-[#b599d1] text-white rounded-full p-2 shadow-md">
-              <Star size={16} fill="white" />
+            {/* Petit badge superposé - Ambassadrice (extensible au survol) */}
+            <div className="group absolute top-[22px] left-[174px] bg-[#c1abf0] text-gray-900 rounded-full p-[6px] shadow-sm flex items-center transition-all duration-300 hover:pr-4 cursor-pointer z-10 box-border border-2 border-white/80">
+              <Star size={16} fill="white" className="text-white drop-shadow-sm flex-shrink-0" />
+              <span className="w-0 overflow-hidden whitespace-nowrap text-sm font-medium transition-all duration-300 group-hover:w-[96px] group-hover:ml-2">
+                Ambassadrice
+              </span>
             </div>
           </div>
 
