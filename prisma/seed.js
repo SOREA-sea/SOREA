@@ -125,6 +125,50 @@ async function main() {
         isActive: true,
       },
     }),
+    prisma.user.create({
+      data: {
+        firstName: 'Sarah',
+        lastName: '',
+        email: 'sarah@sorea.local',
+        password: coachPassword,
+        role: 'coach',
+        avatarUrl: '/uploads/coaches/coach-1.png',
+        isActive: true,
+      },
+    }),
+    prisma.user.create({
+      data: {
+        firstName: 'Thomas',
+        lastName: '',
+        email: 'thomas@sorea.local',
+        password: coachPassword,
+        role: 'coach',
+        avatarUrl: '/uploads/coaches/coach-7.png',
+        isActive: true,
+      },
+    }),
+    prisma.user.create({
+      data: {
+        firstName: 'Julia',
+        lastName: '',
+        email: 'julia@sorea.local',
+        password: coachPassword,
+        role: 'coach',
+        avatarUrl: '/uploads/coaches/coach-2.png',
+        isActive: true,
+      },
+    }),
+    prisma.user.create({
+      data: {
+        firstName: 'Antoine',
+        lastName: '',
+        email: 'antoine@sorea.local',
+        password: coachPassword,
+        role: 'coach',
+        avatarUrl: '/uploads/coaches/coach-3.png',
+        isActive: true,
+      },
+    }),
   ]);
 
   const coachProfilesData = [
@@ -136,6 +180,10 @@ async function main() {
     { bio: "Yoga doux et meditatif pour liberer les tensions.", specialty: "Prof de Yoga et plein conscience", hourlyRate: 45, averageRating: 4.9 },
     { bio: "Exercices pratiques pour te reconnecter a ta force interieure.", specialty: "Coach en developpement personnel", hourlyRate: 50, averageRating: 4.8 },
     { bio: "Sophrologie et visualisation positive pour apaiser le stress.", specialty: "Sophrologue et accompagnatrice bien-etre", hourlyRate: 40, averageRating: 4.9 },
+    { bio: "Vous accompagner vers un mode de vie sain avec bienveillance.", specialty: "Coach de vie globale", hourlyRate: 60, averageRating: 4.6 },
+    { bio: "Préparation mentale pour les défis personnels.", specialty: "Coach mental engagé", hourlyRate: 65, averageRating: 4.8 },
+    { bio: "Accompagnement diététique et rééquilibrage.", specialty: "Nutri-coach certifiée", hourlyRate: 55, averageRating: 4.9 },
+    { bio: "Ateliers collectifs sur la force tranquille.", specialty: "Coach de groupes et retraites", hourlyRate: 35, averageRating: 5.0 },
   ];
 
   const coachProfiles = await Promise.all(
