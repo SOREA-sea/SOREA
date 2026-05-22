@@ -3,6 +3,7 @@
 /* ─── Google Fonts (migré depuis GlobalStyle.ts) ─────────────────────────── */
 @import url('https://fonts.googleapis.com/css2?family=Inria+Sans:ital,wght@0,400;0,700&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,400;0,800;0,900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Homemade+Apple&display=swap');
 
 @import "tailwindcss";
 /* ─── Tailwind theme tokens ──────────────────────────────────────────────── */
@@ -333,6 +334,10 @@ body {
   background: #fdf8ff;
   color: var(--color-primary-dark);
   box-shadow: var(--figma-shadow-drop);
+}
+
+.homemade-apple {
+  font-family: 'Homemade Apple', cursive;
 }
 .btn-connexion:hover {
   background: linear-gradient(90deg, #8B47FF 0%, #BA98F4 100%);
