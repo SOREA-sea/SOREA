@@ -8,22 +8,59 @@ import NewsContent from "@/app/vibe/NewsContent";
 import NowContent from "@/app/vibe/NowContent";
 import { C } from "@/app/vibe/styles";
 import { WeatherData as VWeatherData, DayForecast as VDayForecast } from "@/app/vibe/types";
-// reverseGeocode kept locally to avoid cross-folder export issues
-async function reverseGeocode(lat: number, lon: number): Promise<string> {
-  try {
-    const url = `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lon}`;
-    const res = await fetch(url, { headers: { "User-Agent": "SOREA-App/1.0 (your-email@example.com)" } });
-    if (!res.ok) return "Localité inconnue";
-    const data = await res.json();
-    const addr = data?.address ?? {};
-    return addr.city || addr.town || addr.village || addr.hamlet || addr.county || addr.state || data?.display_name || "Localité inconnue";
-  } catch {
-    return "Localité inconnue";
-  }
-}
+import { reverseGeocode } from "@/app/vibe/helpers";
 
 const TABS = [{ key: "news", label: "News" }, { key: "now", label: "Now" }] as const;
 type TabKey = "news" | "now";
+const OWM_API_KEY = process.env.NEXT_PUBLIC_OPENWEATHERMAP_API_KEY;
+
+interface OpenWeatherCurrentResponse {
+  name: string;
+  weather: Array<{ id: number }>;
+  main: { temp: number };
+  wind: { speed: number };
+  coord: { lon: number; lat: number };
+}
+
+interface OpenWeatherOneCallResponse {
+  hourly?: Array<{ dt: number; temp: number }>;
+  daily: Array<{
+    dt: number;
+    temp: { max: number; min: number };
+    weather: Array<{ id: number }>;
+    pop?: number;
+    wind_speed?: number;
+  }>;
+}
+
+interface OpenMeteoResponse {
+  current_weather?: {
+    temperature?: number;
+    weathercode?: number;
+    windspeed?: number;
+  };
+  hourly?: {
+    temperature_2m?: number[];
+  };
+  daily?: {
+    time?: string[];
+    weathercode?: number[];
+    temperature_2m_max?: number[];
+    temperature_2m_min?: number[];
+    precipitation_probability_max?: number[];
+    windspeed_10m_max?: number[];
+  };
+}
+
+interface OpenWeatherReverseGeoItem {
+  name: string;
+  local_names?: Record<string, string>;
+}
+
+interface IpApiResponse {
+  latitude?: number;
+  longitude?: number;
+}
 
 export default function SoreaVibe() {
   const [tab, setTab] = useState<TabKey>("news");
@@ -32,41 +69,153 @@ export default function SoreaVibe() {
   const navRef = useRef<HTMLDivElement>(null);
   const isLoggedIn = false;
 
-  const fetchWeather = useCallback(async (lat: number, lon: number) => {
+  const fetchWeather = useCallback(async (): Promise<boolean> => {
     try {
-      const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true&daily=weathercode,temperature_2m_max,temperature_2m_min,precipitation_probability_max,windspeed_10m_max&hourly=temperature_2m&timezone=auto&forecast_days=7`;
-      const [res, city] = await Promise.all([fetch(url).then(r => r.json()), reverseGeocode(lat, lon)]);
-      const cw = res.current_weather;
-      const allHourly: number[] = res.hourly?.temperature_2m ?? [];
-      const todayHourly = allHourly.slice(0, 24).filter((_, i) => i % 3 === 0);
-      const days: VDayForecast[] = res.daily.time.map((dateStr: string, i: number) => ({
-        date: new Date(dateStr + "T12:00:00"), code: res.daily.weathercode[i],
-        maxTemp: Math.round(res.daily.temperature_2m_max[i]),
-        minTemp: Math.round(res.daily.temperature_2m_min[i]),
-        precipProb: res.daily.precipitation_probability_max[i] ?? 0,
-        windMax: Math.round(res.daily.windspeed_10m_max[i]),
-        hourlyTemps: i === 0 ? todayHourly : undefined,
-      }));
-      setWeatherData({
-        currentTemp: Math.round(cw.temperature),
-        currentCode: cw.weathercode,
-        windSpeed: Math.round(cw.windspeed),
-        cityName: city,
-        forecast7: days,
-      });
+      // Try navigator geolocation first (client-side) to get exact city
+      let lat: number | undefined;
+      let lon: number | undefined;
+      try {
+        const pos = await new Promise<GeolocationPosition>((resolve, reject) => {
+          if (!navigator?.geolocation) return reject(new Error("No geolocation"));
+          navigator.geolocation.getCurrentPosition(resolve, reject, {
+            enableHighAccuracy: true,
+            timeout: 10000,
+            maximumAge: 0,
+          });
+        });
+        lat = pos.coords.latitude;
+        lon = pos.coords.longitude;
+      } catch {
+        // ignore: will fallback to IP coords then city id
+      }
+
+      // Fallback without browser permission: approximate IP geolocation
+      if (typeof lat !== "number" || typeof lon !== "number") {
+        try {
+          const ipRes = await fetch("https://ipapi.co/json/");
+          if (ipRes.ok) {
+            const ipData: IpApiResponse = await ipRes.json();
+            if (typeof ipData.latitude === "number" && typeof ipData.longitude === "number") {
+              lat = ipData.latitude;
+              lon = ipData.longitude;
+            }
+          }
+        } catch {
+          // ignore: will fallback to city id
+        }
+      }
+
+      // No OpenWeather key: fallback to Open-Meteo (no key required) with real coords
+      if (!OWM_API_KEY) {
+        if (typeof lat !== "number" || typeof lon !== "number") {
+          return false;
+        }
+
+        const meteoUrl = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true&hourly=temperature_2m&daily=weathercode,temperature_2m_max,temperature_2m_min,precipitation_probability_max,windspeed_10m_max&timezone=auto`;
+        const meteoRes = await fetch(meteoUrl);
+        if (!meteoRes.ok) {
+          throw new Error(`Open-Meteo failed (${meteoRes.status})`);
+        }
+        const meteo: OpenMeteoResponse = await meteoRes.json();
+
+        const cityFromGeo = await reverseGeocode(lat, lon);
+        const cityName = cityFromGeo && cityFromGeo !== "Localité inconnue" ? cityFromGeo : "Ville inconnue";
+
+        const hourlyTemps = (meteo.hourly?.temperature_2m ?? []).slice(0, 24).filter((_, index) => index % 3 === 0);
+        const dailyTime = meteo.daily?.time ?? [];
+        const dailyCode = meteo.daily?.weathercode ?? [];
+        const dailyMax = meteo.daily?.temperature_2m_max ?? [];
+        const dailyMin = meteo.daily?.temperature_2m_min ?? [];
+        const dailyPrecip = meteo.daily?.precipitation_probability_max ?? [];
+        const dailyWind = meteo.daily?.windspeed_10m_max ?? [];
+
+        const days: VDayForecast[] = dailyTime.slice(0, 7).map((dateStr, index) => ({
+          date: new Date(dateStr),
+          code: dailyCode[index] ?? meteo.current_weather?.weathercode ?? 0,
+          maxTemp: Math.round(dailyMax[index] ?? meteo.current_weather?.temperature ?? 0),
+          minTemp: Math.round(dailyMin[index] ?? meteo.current_weather?.temperature ?? 0),
+          precipProb: Math.round(dailyPrecip[index] ?? 0),
+          windMax: Math.round(dailyWind[index] ?? meteo.current_weather?.windspeed ?? 0),
+          hourlyTemps: index === 0 ? hourlyTemps : undefined,
+        }));
+
+        setWeatherData({
+          currentTemp: Math.round(meteo.current_weather?.temperature ?? 0),
+          currentCode: meteo.current_weather?.weathercode ?? 0,
+          windSpeed: Math.round(meteo.current_weather?.windspeed ?? 0),
+          cityName,
+          lat,
+          lon,
+          forecast7: days,
+        });
+        return true;
+      }
+
+      if (typeof lat !== "number" || typeof lon !== "number") {
+        return false;
+      }
+
+      let current: OpenWeatherCurrentResponse;
+      {
+        const currentUrl = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${OWM_API_KEY}&units=metric&lang=fr`;
+        const currentRes = await fetch(currentUrl);
+        if (!currentRes.ok) throw new Error(`OpenWeatherMap current weather failed (${currentRes.status})`);
+        current = await currentRes.json();
+
+        const oneCallUrl = `https://api.openweathermap.org/data/2.5/onecall?lat=${lat}&lon=${lon}&appid=${OWM_API_KEY}&units=metric&lang=fr&exclude=minutely,alerts`;
+        const oneCallRes = await fetch(oneCallUrl);
+        if (!oneCallRes.ok) throw new Error(`OpenWeatherMap forecast failed (${oneCallRes.status})`);
+        const forecast: OpenWeatherOneCallResponse = await oneCallRes.json();
+
+        const hourlyTemps = (forecast.hourly ?? []).slice(0, 24).filter((_, index) => index % 3 === 0).map(hour => hour.temp);
+        const days: VDayForecast[] = (forecast.daily ?? []).slice(0, 7).map((day, index) => ({
+          date: new Date(day.dt * 1000),
+          code: day.weather?.[0]?.id ?? current.weather?.[0]?.id ?? 800,
+          maxTemp: Math.round(day.temp.max),
+          minTemp: Math.round(day.temp.min),
+          precipProb: Math.round((day.pop ?? 0) * 100),
+          windMax: Math.round(day.wind_speed ?? current.wind.speed),
+          hourlyTemps: index === 0 ? hourlyTemps : undefined,
+        }));
+
+        let cityName = current.name || "Ville inconnue";
+        try {
+          const reverseUrl = `https://api.openweathermap.org/geo/1.0/reverse?lat=${lat}&lon=${lon}&limit=1&appid=${OWM_API_KEY}`;
+          const reverseRes = await fetch(reverseUrl);
+          if (reverseRes.ok) {
+            const reverseItems: OpenWeatherReverseGeoItem[] = await reverseRes.json();
+            const top = reverseItems?.[0];
+            const preferred = top?.local_names?.fr || top?.name;
+            if (preferred) cityName = preferred;
+          }
+        } catch {
+          // ignore and fallback below
+        }
+
+        if (!cityName || cityName === "Ville inconnue") {
+          const geocodedCity = await reverseGeocode(lat, lon);
+          if (geocodedCity && geocodedCity !== "Localité inconnue") {
+            cityName = geocodedCity;
+          }
+        }
+
+        setWeatherData({
+          currentTemp: Math.round(current.main.temp),
+          currentCode: current.weather?.[0]?.id ?? 800,
+          windSpeed: Math.round(current.wind.speed),
+          cityName,
+          lat,
+          lon,
+          forecast7: days,
+        });
+        return true;
+      }
     } catch { /* fail silently */ }
+    return false;
   }, []);
 
   useEffect(() => {
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        pos => fetchWeather(pos.coords.latitude, pos.coords.longitude),
-        () => fetchWeather(48.85, 2.35),
-        { timeout: 8000 }
-      );
-    } else {
-      (async () => { await fetchWeather(48.85, 2.35); })();
-    }
+    (async () => { await fetchWeather(); })();
   }, [fetchWeather]);
 
   function handleMagazine() {
@@ -76,6 +225,7 @@ export default function SoreaVibe() {
   return (
     <>
       <style>{`
+        @import url('https://www.dimdams.com/font-awesome/css/all.min.css');
         @import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,700;0,9..40,900;1,9..40,400&display=swap');
         * { box-sizing: border-box; }
 
@@ -95,7 +245,7 @@ export default function SoreaVibe() {
       <div style={{ minHeight: "100vh", background: C.bg, fontFamily: "'DM Sans', sans-serif" }}>
         <div ref={navRef} className="sorea-navbar-wrapper"><Navbar /></div>
         <div className="weather-badge-wrapper"><WeatherBadge data={weatherData} onClick={() => setShowWeather(true)} /></div>
-        {showWeather && weatherData && <WeatherModal data={weatherData} onClose={() => setShowWeather(false)} />}
+        {showWeather && <WeatherModal data={weatherData} onClose={() => setShowWeather(false)} onRetry={fetchWeather} />}
 
         <main style={{ paddingTop: 80, paddingLeft: 32, paddingRight: 32, paddingBottom: 80 }}>
           <h1 style={{ textAlign: "center", fontSize: "clamp(28px,4vw,46px)", fontWeight: 950, color: C.textDark, margin: "40px 0 12px", letterSpacing: -0.5 }}>SOREA Vibe</h1>
