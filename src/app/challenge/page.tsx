@@ -1,7 +1,7 @@
 import Link from "next/link";
 import Navbar from '@/components/Navbar';
 import Footer from "@/components/Footer";
-import Wheeltest from "@/components/Wheeltest";
+import Wheeltestcopy from "@/components/Wheeltestcopy";
 
 export default function MiroirDesAffirmations() {
   return (
@@ -18,7 +18,7 @@ export default function MiroirDesAffirmations() {
         </h1>
       </main>
 
-    <Wheeltest />
+    <Wheeltestcopy />
 
 
 
