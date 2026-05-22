@@ -15,6 +15,8 @@ export interface WeatherData {
   currentCode: number;
   windSpeed: number;
   cityName: string;
+  lat?: number;
+  lon?: number;
   forecast7: DayForecast[];
 }
 
