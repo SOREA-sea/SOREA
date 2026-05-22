@@ -310,7 +310,11 @@ export default function CarnetC({ onClose }: { onClose?: () => void }) {
                     onClick={() => setSelectedMood(null)}
                     title="Changer d'humeur"
                   >
-                    <Heart color={mood.color} text={mood.label} textColor={'#000'} />
+                    <Heart
+                      color={mood.color}
+                      text={mood.label === 'Mal' ? undefined : mood.label}
+                      textColor={'#000'}
+                    />
                   </div>
                 )}
               </div>
