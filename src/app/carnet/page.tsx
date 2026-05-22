@@ -16,7 +16,7 @@ export default function AboutPage() {
                     <h2 className="text-center md:text-5xl font-Inria_Sans text-[#000000] mb-4 mid underline tracking-wide">Mon carnet</h2>
                     <h3 className="text-center text-[#000000] mb-6 tracking-wide">Ouvre ton coeur,trace ton chemin et aligne toi à ta valeur</h3>
                 </section>
-                <div className="flex flex-col md:flex-row justify-center gap-10">
+                <div className="flex flex-col md:flex-row justify-center items-center gap-10">
                     <section>
                         {/* On affiche le carnet 1 si il est sélectionné, sinon on affiche le bouton */}
                         {openCarnet === 'carnet1' ? (
@@ -33,6 +33,17 @@ export default function AboutPage() {
                                 </div>
                             )
                         )}
+                    </section>
+
+                    <section className="flex flex-col items-center justify-center gap-6">
+                        <div className="flex flex-col items-center gap-2">
+                            <span className="homemade-apple text-center text-[#6a18a4] font-semibold text-lg">Choisis moi</span>
+                            <Image src="/image_carnet/up-arrow 1.svg" alt="Flèche vers le carnet" width={56} height={56} />
+                        </div>
+                        <div className="flex flex-col items-center gap-2">
+                            <span className="homemade-apple text-center text-[#6a18a4] font-semibold text-lg">Plutôt moi !</span>
+                            <Image src="/image_carnet/scribble 1.svg" alt="Scribble décoratif" width={96} height={72} />
+                        </div>
                     </section>
 
                     <section>
