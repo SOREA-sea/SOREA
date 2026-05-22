@@ -82,7 +82,7 @@ export default function NowContent(){
                 <button className="directe-join" style={{ background: "var(--color-primary-dark)", color: "#fff", border: "none",
                     padding: "12px 20px", borderRadius: 30, fontWeight: 900, fontSize: 13,
                     cursor: "pointer", width: "100%", marginBottom: 12, fontFamily: "'DM Sans', sans-serif" }}>
-                  En direct — Rejoindre
+                  En direct - Rejoindre
                 </button>
                 <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
                   <button onClick={() => setDirIdx((dirIdx - 1 + directeSlides.length) % directeSlides.length)} className="arrow-btn">‹</button>
