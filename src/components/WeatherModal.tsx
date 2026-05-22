@@ -4,8 +4,41 @@ import { WeatherData } from "@/app/vibe/types";
 import { C } from "@/app/vibe/styles";
 import { wIcon, wLabel, shortDay } from "@/app/vibe/helpers";
 
-export default function WeatherModal({ data, onClose }:{ data: WeatherData; onClose: () => void }){
+export default function WeatherModal({ data, onClose, onRetry }:{ data?: WeatherData | null; onClose: () => void; onRetry?: () => void }){
+  if (!data) {
+    return (
+      <div onClick={onClose} style={{ position: "fixed", inset: 0, zIndex: 2000,
+          background: "rgba(45,34,85,0.4)", backdropFilter: "blur(8px)",
+          display: "flex", alignItems: "center", justifyContent: "center", padding: 16 }}>
+        <div onClick={e => e.stopPropagation()} style={{ background: "linear-gradient(145deg,#F5F0FF,#E8FAF8)",
+            borderRadius: 24, padding: "24px 28px", maxWidth: 520, width: "100%",
+            boxShadow: "0 24px 64px rgba(123,63,228,0.25)", border: "1.5px solid rgba(56,217,192,0.3)",
+            position: "relative" }}>
+          <button onClick={onClose} style={{ position: "absolute", top: 14, right: 16,
+              background: "none", border: "none", fontSize: 22, cursor: "pointer", color: C.textGray }}>
+            <i className="fa-solid fa-xmark" aria-hidden="true" />
+          </button>
+          <div style={{ padding: 24, textAlign: "center" }}>
+            <div style={{ fontSize: 22, fontWeight: 900, color: C.textDark, marginBottom: 8 }}>Météo indisponible</div>
+            <div style={{ color: C.textGray, marginBottom: 16 }}>Les données météo ne sont pas encore chargées ou la clé API est absente.</div>
+            <div style={{ display: "flex", gap: 8, justifyContent: "center" }}>
+              <button onClick={onRetry} style={{ padding: "10px 16px", borderRadius: 10, background: C.cardBg, border: "none", cursor: "pointer", fontWeight: 800, color: C.purple }}>Réessayer</button>
+              <button onClick={onClose} style={{ padding: "10px 16px", borderRadius: 10, background: "transparent", border: "1px solid #E6E2F8", cursor: "pointer" }}>Fermer</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   const { forecast7, cityName } = data;
+  const hasCoords = typeof data.lat === "number" && typeof data.lon === "number";
+  const bbox = hasCoords
+    ? `${(data.lon as number) - 0.03},${(data.lat as number) - 0.02},${(data.lon as number) + 0.03},${(data.lat as number) + 0.02}`
+    : "";
+  const mapSrc = hasCoords
+    ? `https://www.openstreetmap.org/export/embed.html?bbox=${encodeURIComponent(bbox)}&layer=mapnik&marker=${data.lat},${data.lon}`
+    : "";
   const today = forecast7[0];
   const hours = today?.hourlyTemps ?? [];
   const labels = ["0h","3h","6h","9h","12h","15h","18h","21h"];
@@ -24,16 +57,20 @@ export default function WeatherModal({ data, onClose }:{ data: WeatherData; onCl
           boxShadow: "0 24px 64px rgba(123,63,228,0.25)", border: "1.5px solid rgba(56,217,192,0.3)",
           position: "relative", maxHeight: "90vh", overflowY: "auto" }}>
         <button onClick={onClose} style={{ position: "absolute", top: 14, right: 16,
-            background: "none", border: "none", fontSize: 22, cursor: "pointer", color: C.textGray }}>✕</button>
+            background: "none", border: "none", fontSize: 22, cursor: "pointer", color: C.textGray }}>
+          <i className="fa-solid fa-xmark" aria-hidden="true" />
+        </button>
 
         <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 20 }}>
-          <span style={{ fontSize: 32 }}>{wIcon(data.currentCode)}</span>
+          <span style={{ fontSize: 32, color: C.purple }}>
+            <i className={wIcon(data.currentCode)} aria-hidden="true" />
+          </span>
           <div>
             <div style={{ fontWeight: 900, fontSize: 22, color: C.textDark, fontFamily: "'DM Sans', sans-serif" }}>
-              {data.currentTemp}°C — {wLabel(data.currentCode)}
+              {data.currentTemp}°C - {wLabel(data.currentCode)}
             </div>
             <div style={{ fontSize: 13, color: C.textGray, fontFamily: "'DM Sans', sans-serif" }}>
-              📍 {cityName} · Vent {data.windSpeed} km/h
+              <i className="fa-solid fa-location-dot" aria-hidden="true" /> {" "}{cityName} · Vent {data.windSpeed} km/h
             </div>
           </div>
         </div>
@@ -42,7 +79,7 @@ export default function WeatherModal({ data, onClose }:{ data: WeatherData; onCl
           <div style={{ background: "rgba(255,255,255,0.75)", borderRadius: 16, padding: "14px 16px", marginBottom: 16 }}>
             <div style={{ fontSize: 11, fontWeight: 800, color: C.textGray, fontFamily: "'DM Sans', sans-serif",
                 textTransform: "uppercase", letterSpacing: 1, marginBottom: 8 }}>
-              Température aujourd'hui
+              Température aujourd&apos;hui
             </div>
             <svg viewBox="0 0 300 110" width="100%" style={{ overflow: "visible" }}>
               {[0,25,50,75,100].map(y => (
@@ -73,15 +110,30 @@ export default function WeatherModal({ data, onClose }:{ data: WeatherData; onCl
         )}
 
         <div style={{ background: "linear-gradient(145deg,#E8F4FF,#EDE6FF)", borderRadius: 16,
-            height: 110, display: "flex", alignItems: "center", justifyContent: "center",
-            marginBottom: 16, border: "1px dashed #C9A8FF", flexDirection: "column", gap: 4 }}>
-          <span style={{ fontSize: 28 }}>🗺️</span>
-          <span style={{ fontSize: 12, color: C.textGray, fontFamily: "'DM Sans', sans-serif" }}>
-            📍 {cityName} — carte météo locale
-          </span>
-          <span style={{ fontSize: 10, color: "#C9A8FF", fontFamily: "'DM Sans', sans-serif" }}>
-            (intégrer ici : OpenWeatherMap map tiles ou Leaflet)
-          </span>
+            marginBottom: 16, border: "1px dashed #C9A8FF", overflow: "hidden" }}>
+          {hasCoords ? (
+            <>
+              <div style={{ padding: "8px 12px", fontSize: 12, color: C.textGray, fontFamily: "'DM Sans', sans-serif" }}>
+                <i className="fa-solid fa-location-dot" aria-hidden="true" /> {" "}{cityName}
+              </div>
+              <iframe
+                title={`Carte météo ${cityName}`}
+                src={mapSrc}
+                style={{ width: "100%", height: 180, border: 0, display: "block" }}
+                loading="lazy"
+                referrerPolicy="no-referrer-when-downgrade"
+              />
+            </>
+          ) : (
+            <div style={{ height: 110, display: "flex", alignItems: "center", justifyContent: "center", flexDirection: "column", gap: 4 }}>
+              <span style={{ fontSize: 28, color: C.purple }}>
+                <i className="fa-solid fa-map-location-dot" aria-hidden="true" />
+              </span>
+              <span style={{ fontSize: 12, color: C.textGray, fontFamily: "'DM Sans', sans-serif" }}>
+                Coordonnées indisponibles pour afficher la carte
+              </span>
+            </div>
+          )}
         </div>
 
         <div style={{ fontSize: 11, fontWeight: 800, color: C.textGray, fontFamily: "'DM Sans', sans-serif",
@@ -98,7 +150,9 @@ export default function WeatherModal({ data, onClose }:{ data: WeatherData; onCl
                 {i === 0 ? "Auj." : shortDay(day.date)}
               </div>
               <div style={{ display: "flex", alignItems: "center", gap: 7, flex: 1, marginLeft: 8 }}>
-                <span style={{ fontSize: 22 }}>{wIcon(day.code)}</span>
+                <span style={{ fontSize: 22, color: C.purple }}>
+                  <i className={wIcon(day.code)} aria-hidden="true" />
+                </span>
                 <span style={{ fontSize: 12, color: C.textGray, fontFamily: "'DM Sans', sans-serif" }}>{wLabel(day.code)}</span>
               </div>
               <div style={{ textAlign: "center", minWidth: 40 }}>
