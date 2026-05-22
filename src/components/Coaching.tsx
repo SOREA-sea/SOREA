@@ -340,14 +340,24 @@ const CoachSearchBar = ({
   const [showDropdown, setShowDropdown] = useState(false);
   const dropRef = useRef<HTMLDivElement>(null);
 
+  const [domainInput, setDomainInput] = useState(domainFilter === "Tous les domaines" ? "" : domainFilter);
+  const [showDomainDropdown, setShowDomainDropdown] = useState(false);
+  const domainDropRef = useRef<HTMLDivElement>(null);
+
   const filteredCities = cities.filter(c =>
     c !== "Toutes les villes" && c.toLowerCase().includes(cityInput.toLowerCase())
+  );
+
+  const filteredDomains = domains.filter(d =>
+    d !== "Tous les domaines" && d.toLowerCase().includes(domainInput.toLowerCase())
   );
 
   useEffect(() => {
     const handler = (e: MouseEvent) => {
       if (dropRef.current && !dropRef.current.contains(e.target as Node))
         setShowDropdown(false);
+      if (domainDropRef.current && !domainDropRef.current.contains(e.target as Node))
+        setShowDomainDropdown(false);
     };
     document.addEventListener("mousedown", handler);
     return () => document.removeEventListener("mousedown", handler);
@@ -357,6 +367,12 @@ const CoachSearchBar = ({
     setCityInput(city);
     setCityFilter(city === "" ? "Toutes les villes" : city);
     setShowDropdown(false);
+  };
+
+  const selectDomain = (domain: string) => {
+    setDomainInput(domain);
+    setDomainFilter(domain === "" ? "Tous les domaines" : domain);
+    setShowDomainDropdown(false);
   };
 
   return (
@@ -382,13 +398,25 @@ const CoachSearchBar = ({
           </DropdownList>
         </SearchField>
 
-        <SelectWrapper>
+        <SearchField ref={domainDropRef} style={{ position: "relative" }}>
           <IconGrid />
-          <StyledSelect value={domainFilter} onChange={e => setDomainFilter(e.target.value)}>
-            {domains.map(d => <option key={d} value={d}>{d}</option>)}
-          </StyledSelect>
-          <SelectChevron><IconChevron /></SelectChevron>
-        </SelectWrapper>
+          <SearchInput
+            placeholder="Tous les domaines"
+            value={domainInput}
+            onChange={e => { setDomainInput(e.target.value); setDomainFilter(e.target.value || "Tous les domaines"); setShowDomainDropdown(true); }}
+            onFocus={() => setShowDomainDropdown(true)}
+          />
+          <DropdownList $visible={showDomainDropdown && (filteredDomains.length > 0 || domainInput === "")}>
+            <DropdownItem onClick={() => selectDomain("")} $active={domainFilter === "Tous les domaines"}>
+              Tous les domaines
+            </DropdownItem>
+            {filteredDomains.map(d => (
+              <DropdownItem key={d} onClick={() => selectDomain(d)} $active={domainFilter === d}>
+                {d}
+              </DropdownItem>
+            ))}
+          </DropdownList>
+        </SearchField>
 
         <SearchField>
           <SearchInput

@@ -15,6 +15,8 @@
   --color-primary-dark: #6A18A4;
   --color-primary-darker: #280267;
   --font-inria: var(--font-inria-sans);
+  --btn--violet--degrade :  linear-gradient(93.09deg, #8B47FF 0%, #BA98F4 100%);
+
 }
 
 /* ─── Root variables ─────────────────────────────────────────────────────── */
@@ -352,6 +354,31 @@ body {
 .btn-primary:hover {
   transform: translateY(-1px) scale(1.02);
   box-shadow: 0 18px 36px rgba(139, 92, 246, 0.35);
+}
+
+.btn--color-degrade {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  background: #fff;
+  color: var(--color-primary-dark);
+  border: 1px solid rgba(139, 92, 246, 0.22);
+  box-shadow: 0 5px 0 rgba(154, 132, 204, 0.45), 0 10px 24px rgba(67, 56, 114, 0.12);
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.btn--color-degrade:hover {
+  background: var(--btn--violet--degrade);
+  color: white;
+  transform: translateY(-1px);
+  box-shadow: 0 8px 24px rgba(123, 63, 228, 0.28);
+}
+
+.btn--color-degrade:focus-visible {
+  outline: 2px solid rgba(123, 63, 228, 0.45);
+  outline-offset: 2px;
 }
 
 .btn-ghost {
