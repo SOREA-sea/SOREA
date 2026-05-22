@@ -34,7 +34,7 @@ export default function AboutPage() {
                             )
                         )}
                     </section>
-
+                        {/* Textes et flèches entre les carnets */}
                     <section className="flex flex-col items-center justify-center gap-6">
                         <div className="flex flex-col items-center gap-2">
                             <span className="homemade-apple text-center text-[#6a18a4] font-semibold text-lg">Choisis moi</span>
