@@ -3,10 +3,11 @@ import { useState } from "react";
 import Image from "next/image";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import CarnetC from "@/components/CarnetC";
 import CarnetG from "@/components/CarnetG";
 
 export default function AboutPage() {
-    const [open, setOpen] = useState(false);
+    const [openCarnet, setOpenCarnet] = useState<string | null>(null);
 
     return (
         <div className="bg-[#e8e0f0] min-h-screen font-nunito text-[#2A2340]">
@@ -15,25 +16,42 @@ export default function AboutPage() {
                     <h2 className="text-center md:text-5xl font-Inria_Sans text-[#000000] mb-4 mid underline tracking-wide">Mon carnet</h2>
                     <h3 className="text-center text-[#000000] mb-6 tracking-wide">Ouvre ton coeur,trace ton chemin et aligne toi à ta valeur</h3>
                 </section>
+                <div className="flex flex-col md:flex-row justify-center gap-10">
+                    <section>
+                        {/* On affiche le carnet 1 si il est sélectionné, sinon on affiche le bouton */}
+                        {openCarnet === 'carnet1' ? (
+                            <div className="flex justify-center">
+                                <CarnetC onClose={() => setOpenCarnet(null)} />
+                            </div>
+                        ) : (
+                            // On n'affiche le bouton QUE si aucun carnet n'est ouvert (null)
+                            openCarnet === null && (
+                                <div className="flex justify-center">
+                                    <button onClick={() => setOpenCarnet('carnet1')}>
+                                        <Image src="/image_carnet/carnet_1.svg" alt="Carnet" width={200} height={150} />
+                                    </button>
+                                </div>
+                            )
+                        )}
+                    </section>
 
-                <section>
-                    {!open ? (
-                        <div className="flex justify-center">
-                            <button
-                                onClick={() => setOpen(true)}
-                                className="p-0 bg-transparent border-0 cursor-pointer"
-                                aria-label="Ouvrir le carnet"
-                            >
-                                <Image src="/image_carnet/carnet_2.svg" alt="Carnet" className="object-contain" width={200} height={150} />
-                            </button>
-                        </div>
-                    ) : (
-                        <div className="flex justify-center">
-                            <CarnetG onClose={() => setOpen(false)} />
-                        </div>
-                    )}
-                </section>
-
+                    <section>
+                        {openCarnet === 'carnet2' ? (
+                            <div className="flex justify-center">
+                                <CarnetG onClose={() => setOpenCarnet(null)} />
+                            </div>
+                        ) : (
+                            // On n'affiche le bouton QUE si aucun carnet n'est ouvert (null)
+                            openCarnet === null && (
+                                <div className="flex justify-center">
+                                    <button onClick={() => setOpenCarnet('carnet2')}>
+                                        <Image src="/image_carnet/carnet_2.svg" alt="Carnet" width={200} height={150} />
+                                    </button>
+                                </div>
+                            )
+                        )}
+                    </section>
+                </div>
                 <section>
                     <h2 className="text-center md:text-5xl font-Inria_Sans text-[#000000] mb-4 mid underline tracking-wide">Suivre, écrire, progresser</h2>
                     <h3 className="text-center text-[#000000] mb-6 tracking-wide">Gratitude, Humeurs, Habitudes, Challenges et Coin divertissement</h3>

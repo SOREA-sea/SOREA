@@ -3,6 +3,8 @@
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 
+const gradientButtonClass = "btn--color-degrade";
+
 export default function ClientLandingPage() {
   const router = useRouter();
 
@@ -148,8 +150,8 @@ export default function ClientLandingPage() {
           
           <div className="mt-8 flex justify-center">
             <button 
-              onClick={() => router.push("/products")}
-              className="text-xs font-semibold border border-purple-300 text-[#665D8B] py-2 px-6 rounded-full bg-white hover:bg-purple-50 transition-colors"
+              onClick={() => router.push("/shop")}
+              className={`text-xs font-semibold border border-purple-300 text-[#665D8B] py-2 px-6 rounded-full bg-white hover:bg-purple-50 transition-colors ${gradientButtonClass}`}
             >
               Accéder à la boutique
             </button>
@@ -178,14 +180,14 @@ export default function ClientLandingPage() {
               </p>
               <div className="flex flex-col sm:flex-row gap-4">
                 <button 
-                  onClick={() => router.push("/dashboard?tab=challenges")}
-                  className="py-2.5 px-6 border border-[#2A2340] bg-white rounded-md text-xs font-semibold hover:bg-gray-50"
+                  onClick={() => router.push("/carnet")}
+                  className={`py-2.5 px-6 border border-[#2A2340] bg-white rounded-md text-xs font-semibold hover:bg-gray-50 ${gradientButtonClass}`}
                 >
                   Découvrir tous<br/>les défis SOREA
                 </button>
                 <button 
                   onClick={() => addToCart("Kit Défis SOREA", 49)}
-                  className="py-2.5 px-6 bg-[#A18FE3] border border-[#A18FE3] text-white rounded-md text-xs font-semibold hover:bg-[#8D7CD4]"
+                  className={`py-2.5 px-6 bg-[#A18FE3] border border-[#A18FE3] text-white rounded-md text-xs font-semibold hover:bg-[#8D7CD4] ${gradientButtonClass}`}
                 >
                   Recevoir mon kit<br/>à défis SOREA
                 </button>
@@ -215,14 +217,14 @@ export default function ClientLandingPage() {
 
           <div className="flex gap-4">
             <button 
-              onClick={() => router.push("/dashboard?tab=diary")}
-              className="py-2 px-6 border border-[#2A2340] bg-white rounded-md text-xs font-semibold hover:bg-gray-50"
+              onClick={() => router.push("/carnet")}
+              className={`py-2 px-6 border border-[#2A2340] bg-white rounded-md text-xs font-semibold hover:bg-gray-50 ${gradientButtonClass}`}
             >
               Découvrir mon Carnet
             </button>
             <button 
               onClick={() => addToCart("Carnet Challenge SOREA", 39)}
-              className="py-2 px-6 border border-[#2A2340] bg-white rounded-md text-xs font-semibold hover:bg-gray-50"
+              className={`py-2 px-6 border border-[#2A2340] bg-white rounded-md text-xs font-semibold hover:bg-gray-50 ${gradientButtonClass}`}
             >
               Commander mon Carnet Challenge
             </button>
@@ -242,7 +244,7 @@ export default function ClientLandingPage() {
           <div className="w-full bg-[#FAF8FC] border border-purple-50 flex flex-col md:flex-row items-center mb-8 shadow-sm">
             <div className="w-full md:w-1/2 relative aspect-video md:aspect-auto md:h-[400px]">
               <Image src="/images/coaching_pilate.webp" alt="Coaching" fill sizes="(min-width: 768px) 50vw, 100vw" className="object-cover" />
-              <button className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 bg-white/50 backdrop-blur rounded-full flex items-center justify-center hover:bg-white text-gray-700">
+              <button onClick={() => router.push("/coaching")} className={`absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 bg-white/50 backdrop-blur rounded-full flex items-center justify-center hover:bg-white text-gray-700 ${gradientButtonClass}`}>
                 <i className="fa-solid fa-chevron-left"></i>
               </button>
             </div>
@@ -268,14 +270,14 @@ export default function ClientLandingPage() {
 
           <div className="flex gap-4">
             <button 
-              onClick={() => router.push("/dashboard?tab=sessions")}
-              className="py-2.5 px-8 text-[#584D7C] bg-[#F2EBF9] rounded-md text-xs font-semibold hover:bg-purple-100 transition-colors"
+              onClick={() => router.push("/dashboard/sessions")}
+              className={`py-2.5 px-8 text-[#584D7C] bg-[#F2EBF9] rounded-md text-xs font-semibold hover:bg-purple-100 transition-colors ${gradientButtonClass}`}
             >
               Je réserve ma séance
             </button>
             <button 
-              onClick={() => router.push("/dashboard/coach?action=create")}
-              className="py-2.5 px-8 text-[#584D7C] bg-[#F2EBF9] rounded-md text-xs font-semibold hover:bg-purple-100 transition-colors"
+              onClick={() => router.push("/dashboard")}
+              className={`py-2.5 px-8 text-[#584D7C] bg-[#F2EBF9] rounded-md text-xs font-semibold hover:bg-purple-100 transition-colors ${gradientButtonClass}`}
             >
               Proposer une séance
             </button>
@@ -284,7 +286,7 @@ export default function ClientLandingPage() {
       </section>
 
       {/* 7. ELLES PARLENT DE SOREA */}
-      <section className="w-full py-16 px-4 bg-[linear-gradient(90deg,#d3cced_0%,#fbf7f2_100%)]">
+      <section id="review" className="w-full py-16 px-4 bg-[linear-gradient(90deg,#d3cced_0%,#fbf7f2_100%)]">
         <div className="max-w-6xl mx-auto flex flex-col items-center">
           <div className="flex flex-col items-center mb-6">
             <h2 className="text-2xl md:text-3xl font-medium tracking-wide">Elles parlent de SOREA !</h2>
@@ -348,14 +350,14 @@ export default function ClientLandingPage() {
 
           <div className="flex gap-4">
             <button 
-              onClick={() => router.push("/dashboard?tab=news")}
-              className="py-2.5 px-6 border border-purple-200 text-[#665D8B] bg-white rounded-md text-xs font-semibold hover:bg-purple-50 transition-colors"
+              onClick={() => router.push("/vibe")}
+              className={`py-2.5 px-6 border border-purple-200 text-[#665D8B] bg-white rounded-md text-xs font-semibold hover:bg-purple-50 transition-colors ${gradientButtonClass}`}
             >
               Découvrir SOREA News
             </button>
             <button 
-              onClick={() => router.push("/dashboard?tab=newsletter")}
-              className="py-2.5 px-6 border border-purple-200 text-[#665D8B] bg-white rounded-md text-xs font-semibold hover:bg-purple-50 transition-colors"
+              onClick={() => router.push("/vibe")}
+              className={`py-2.5 px-6 border border-purple-200 text-[#665D8B] bg-white rounded-md text-xs font-semibold hover:bg-purple-50 transition-colors ${gradientButtonClass}`}
             >
               Recevoir mon magazine
             </button>
@@ -408,8 +410,8 @@ export default function ClientLandingPage() {
 
                 <div className="mt-4 flex justify-center md:justify-start">
                   <button 
-                    onClick={() => router.push("/register?tab=inscription")}
-                    className="py-2.5 px-6 bg-white border border-purple-200 text-[#665D8B] rounded-md text-xs font-bold hover:bg-purple-50 shadow-sm transition-all"
+                    onClick={() => router.push("/ambassador")}
+                    className={`py-2.5 px-6 bg-white border border-purple-200 text-[#665D8B] rounded-md text-xs font-bold hover:bg-purple-50 shadow-sm transition-all ${gradientButtonClass}`}
                   >
                     Je veux être membre de SOREA !
                   </button>
