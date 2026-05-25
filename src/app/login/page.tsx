@@ -489,7 +489,7 @@ const confirm2FALogin = async () => {
                                                 required
                                                 value={formData.fullName}
                                                 onChange={(e) => setFormData((p) => ({ ...p, fullName: e.target.value }))}
-                                                placeholder="Votre nom"
+                                                placeholder="NOM Prénom"
                                                 className="w-full h-[55px] px-4 rounded-[15px] border border-[rgba(127,102,116,0.7)] text-xl tracking-[0.1em] text-[#7F6674] font-['Inria_Sans'] outline-none focus:border-[#6A18A4] transition-colors"
                                                 style={{ background: "rgba(255, 250, 240, 0.2)" }}
                                             />
