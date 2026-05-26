@@ -12,13 +12,11 @@ export default function Footer() {
         { href: '/shop', label: 'Shopping' },
         { href: '/coaching', label: 'Coaching' },
         { href: '/#community', label: 'Challenge' },
-        { href: '/vibe', label: 'Vibe' },
         { href: '/carnet', label: 'Mon carnet' },
 
     ];
 
     const infoLinks = [
-        { href: '/ambassador', label: 'Devenir ambassadrice' },
         { href: '/about', label: 'À propos' },
         { href: '/termandprivacy', label: 'Politique de confidentialité' },
         { href: '/termandprivacy', label: 'CGU' },
