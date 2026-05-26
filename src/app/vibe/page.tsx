@@ -1,5 +1,5 @@
-import Vibe from "@/components/vibe";
+import { notFound } from "next/navigation";
 
 export default function VibePage() {
-  return <Vibe />;
+  notFound();
 }
