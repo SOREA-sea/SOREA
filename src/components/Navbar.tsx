@@ -9,10 +9,7 @@ const NAV_LINKS = [
 
   { label: "Shopping", href: "/shop" },
   { label: "Coaching", href: "/coaching" },
-
-  { label: "Devenir ambassadrice", href: "/ambassador" },
   { label: "Challenge", href: "/challenge" },
-  { label: "Vibe", href: "/vibe" },
   { label: "Mon carnet", href: "/carnet" },
 ];
 
