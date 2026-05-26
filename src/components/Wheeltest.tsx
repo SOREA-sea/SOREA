@@ -16,6 +16,7 @@ const tasks = [
     { text: "Lire quelques pages d'un livre", icon: "menu_book" }
 ];
 
+
 const colors = ["#b291db", "#ffffff"];
 const numSlices = tasks.length;
 
