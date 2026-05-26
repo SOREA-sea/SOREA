@@ -349,14 +349,14 @@ export default function ClientLandingPage() {
           </div>
 
           <div className="flex gap-4">
-            <button 
-              onClick={() => router.push("/vibe")}
+            <button
+              onClick={() => router.push("/vibe-bientot")}
               className={`py-2.5 px-6 border border-purple-200 text-[#665D8B] bg-white rounded-md text-xs font-semibold hover:bg-purple-50 transition-colors ${gradientButtonClass}`}
             >
               Découvrir SOREA News
             </button>
-            <button 
-              onClick={() => router.push("/vibe")}
+            <button
+              onClick={() => router.push("/ambassadrice-bientot")}
               className={`py-2.5 px-6 border border-purple-200 text-[#665D8B] bg-white rounded-md text-xs font-semibold hover:bg-purple-50 transition-colors ${gradientButtonClass}`}
             >
               Recevoir mon magazine
@@ -409,8 +409,8 @@ export default function ClientLandingPage() {
                 ))}
 
                 <div className="mt-4 flex justify-center md:justify-start">
-                  <button 
-                    onClick={() => router.push("/ambassador")}
+                  <button
+                    onClick={() => router.push("/ambassador-bientot")}
                     className={`py-2.5 px-6 bg-white border border-purple-200 text-[#665D8B] rounded-md text-xs font-bold hover:bg-purple-50 shadow-sm transition-all ${gradientButtonClass}`}
                   >
                     Je veux être membre de SOREA !
