@@ -52,9 +52,31 @@ export default function AboutPage() {
                         )}
                     </section>
                 </div>
+
                 <section>
                     <h2 className="text-center md:text-5xl font-Inria_Sans text-[#000000] mb-4 mid underline tracking-wide">Suivre, écrire, progresser</h2>
                     <h3 className="text-center text-[#000000] mb-6 tracking-wide">Gratitude, Humeurs, Habitudes, Challenges et Coin divertissement</h3>
+                    <section className="flex justify-center my-10">
+                        {/* On définit la taille désirée ici (par exemple 200px ou plus) */}
+                        <div className="relative group w-[400px] h-[120px] mx-auto flex items-center justify-center">
+
+                            {/* Image par défaut */}
+                            <Image
+                                src="/image_carnet/Stylo_gold_SOREA_sansprix.png"
+                                alt="Pen (No Text)"
+                                className="absolute bottom-0 z-20 w-full h-auto object-contain object-bottom opacity-100 transition-opacity duration-200 group-hover:opacity-0 group-hover:scale-100"
+                                fill
+                            />
+
+                            {/* Image de survol */}
+                            <Image
+                                src="/image_carnet/Stylo_gold_SOREA_avecprix.png"
+                                alt="Pen with Text and Price"
+                                className="absolute bottom-0 z-20 w-full h-auto object-contain object-bottom opacity-0 transition-opacity duration-200 group-hover:opacity-100 group-hover:scale-100"
+                                fill
+                            />
+                        </div>
+                    </section>
                     <Image src="/image_carnet/Diary_SOREA.svg" alt="Stylo" className="object-contain mx-auto" width={600} height={200} />
                     <div className="flex justify-center gap-8 mt-8">
                         <button className="w-50 h-12 bg-white cursor-pointer rounded-md border-0 border-[#9748FF] shadow-[inset_0px_0px_0px_1px_#9748FF] group hover:bg-[#9748FF] transition duration-450 ease-in-out"><span className="font-medium text-[#6a18a4] group-hover:text-white">Découvrir mon carnet</span></button>
