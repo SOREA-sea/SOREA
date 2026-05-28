@@ -4,7 +4,6 @@ import prisma from "@/lib/prisma";
 import bcrypt from "bcrypt";
 import crypto from "crypto";
 import { validateEmailFormat, validatePassword } from "@/app/api//utils/validation";
-import { generateTwoFactorSecret, generateBackupCodes } from "@/app/api//utils/two-factor";
 
 export async function POST(req: NextRequest) {
   try {
@@ -44,41 +43,41 @@ export async function POST(req: NextRequest) {
     // ── 5. Hash du mot de passe ──────────────────────────────────────────────
     const passwordHash = await bcrypt.hash(password, 12);
 
-    // ── 6. Génération 2FA ────────────────────────────────────────────────────
-    const twoFactorSetup = await generateTwoFactorSecret(email);
-    const backupCodes = generateBackupCodes(8);
+    // Create the user directly (registration does not force 2FA)
 
-    // ── 7. Cookie temporaire (compte PAS encore créé) ────────────────────────
-    const pendingId = crypto.randomUUID();
-    const pendingData = {
-      firstName: firstName.trim(),
-      lastName: lastName.trim(),
-      email: email.toLowerCase().trim(),
-      passwordHash,
-      role: isCoach ? "coach" : "user",
-      birthDate: birthDate ?? null,
-      totpSecret: twoFactorSetup.manualEntryKey,
-      backupCodes,             // en clair ici, hashés dans confirm
-      expiresAt: Date.now() + 10 * 60 * 1000, // 10 minutes
-    };
+    // If 2FA not requested, create the user directly (2FA optional)
+    const user = await prisma.user.create({
+      data: {
+        firstName: firstName.trim(),
+        lastName: lastName.trim(),
+        email: email.toLowerCase().trim(),
+        password: passwordHash,
+        role: isCoach ? "coach" : "user",
+        birthDate: birthDate ?? null,
+        twoFactorEnabled: false,
+      },
+    });
 
-    const cookieStore = await cookies();
-    cookieStore.set(`pending_register_${pendingId}`, JSON.stringify(pendingData), {
+    // create CoachProfile if needed
+    if (isCoach) {
+      await prisma.coachProfile.create({ data: { userId: user.id } });
+    }
+
+    // create session
+    const session = await prisma.userSession.create({
+      data: { userId: user.id, expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000) },
+    });
+
+    const cookieStore2 = await cookies();
+    cookieStore2.set("sorea_session", session.id, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "strict",
-      maxAge: 10 * 60, // 10 minutes
+      maxAge: 30 * 24 * 60 * 60,
       path: "/",
     });
 
-    // ── 8. Retourner QR code (compte non créé, en attente de confirmation) ───
-    return NextResponse.json({
-      pendingId,
-      qrCodeUrl: twoFactorSetup.qrCodeUrl,
-      manualEntryKey: twoFactorSetup.manualEntryKey,
-      backupCodes,
-      message: "Scannez le QR code avec Google Authenticator puis entrez le code.",
-    }, { status: 200 });
+    return NextResponse.json({ success: true }, { status: 200 });
 
   } catch (error) {
     console.error("[REGISTER ERROR]", error);
