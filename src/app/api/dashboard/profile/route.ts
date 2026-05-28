@@ -16,6 +16,7 @@ export async function GET() {
       lastName: user.lastName,
       email: user.email,
       avatarUrl: user.avatarUrl,
+      twoFactorEnabled: user.twoFactorEnabled,
       role: user.role,
       createdAt: user.createdAt,
     });

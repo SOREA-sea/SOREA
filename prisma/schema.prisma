@@ -35,6 +35,9 @@ model User {
 
   sessions   UserSession[]
   coachProfile CoachProfile?
+  suppliers   Supplier[]
+  payments    Payment[]
+  orders      Order[]
   carts        Cart[]
   bookings     SessionBooking[]
   coachReviews CoachReview[]
@@ -55,6 +58,8 @@ model CoachProfile {
   hourlyRate     Float?
   averageRating  Float?  @default(0)
   verified       Boolean @default(false)
+  ambassador     Boolean @default(false)
+  stripeAccountId String?
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 
@@ -78,6 +83,23 @@ model ShopProduct {
 
   cartItems CartItem[]
   favoriteProducts FavoriteProduct[]
+  orderItems OrderItem[]
+  supplierId Int?
+  supplier Supplier? @relation(fields: [supplierId], references: [id], onDelete: Cascade)
+}
+
+model Supplier {
+  id Int @id @default(autoincrement())
+  userId Int @unique
+  companyName String?
+  contactEmail String?
+  stripeAccountId String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  products ShopProduct[]
+  orders Order[]
 }
 
 model CoachSession {
@@ -108,9 +130,16 @@ model SessionBooking {
   userId Int
   status String @default("pending")
   bookedAt DateTime @default(now())
-
   session CoachSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Payment / confirmation workflow (coach + user must confirm to release payment)
+  coachConfirmed Boolean @default(false)
+  userConfirmed  Boolean @default(false)
+  paymentReleased Boolean @default(false)
+
+  paymentId Int? @unique
+  payment Payment? @relation(fields: [paymentId], references: [id])
 }
 
 model CoachReview {
@@ -221,4 +250,91 @@ model UserSession {
   createdAt DateTime @default(now())
 
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+/// Payments and marketplace accounting
+model Payment {
+  id            Int      @id @default(autoincrement())
+  amount        Float
+  currency      String   @default("EUR")
+  status        String   @default("pending") // pending, succeeded, refunded, failed
+  method        String?  // e.g., card
+  stripeId      String?  @unique
+  commissionPercentage Float?
+  userId        Int
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  // Optional links
+  sessionBooking SessionBooking? @relation()
+  order Order? @relation(fields: [orderId], references: [id])
+  orderId Int? @unique
+
+  commissions Commission[]
+  refunds     Refund[]
+  disputes    Dispute[]
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Order {
+  id Int @id @default(autoincrement())
+  userId Int
+  supplierId Int
+  total Float
+  currency String @default("EUR")
+  status String @default("pending") // pending, paid, shipped, delivered, cancelled
+  trackingNumber String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  supplier Supplier @relation(fields: [supplierId], references: [id], onDelete: Cascade)
+  items OrderItem[]
+  payment Payment?
+}
+
+model OrderItem {
+  id Int @id @default(autoincrement())
+  orderId Int
+  productId Int
+  quantity Int
+  unitPrice Float
+
+  order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product ShopProduct @relation(fields: [productId], references: [id], onDelete: Cascade)
+}
+
+model Commission {
+  id Int @id @default(autoincrement())
+  paymentId Int
+  platformAmount Float
+  recipientAmount Float
+  percentage Float
+  createdAt DateTime @default(now())
+
+  payment Payment @relation(fields: [paymentId], references: [id], onDelete: Cascade)
+}
+
+model Refund {
+  id Int @id @default(autoincrement())
+  paymentId Int
+  amount Float
+  reason String?
+  status String @default("pending") // pending, processed, failed
+  processedBy Int?
+  createdAt DateTime @default(now())
+
+  payment Payment @relation(fields: [paymentId], references: [id], onDelete: Cascade)
+}
+
+model Dispute {
+  id Int @id @default(autoincrement())
+  paymentId Int
+  reason String
+  status String @default("open") // open, resolved, rejected
+  adminDecision String?
+  createdAt DateTime @default(now())
+
+  payment Payment @relation(fields: [paymentId], references: [id], onDelete: Cascade)
 }
