@@ -7,7 +7,7 @@ import crypto from "crypto";
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { email, password, isPostRegistration } = body;
+    const { email, password } = body;
 
     if (!email || !password) {
       return NextResponse.json(
@@ -47,8 +47,8 @@ export async function POST(request: Request) {
       );
     }
 
-    // Si c'est un auto-login post-inscription OU si 2FA est activée, créer une session temporaire
-    if (isPostRegistration || user.twoFactorEnabled) {
+    // Si 2FA est activée, créer une session temporaire
+    if (user.twoFactorEnabled) {
       const tempSessionId = crypto.randomBytes(16).toString('hex');
       const tempSessionData = JSON.stringify({ userId: user.id });
 
@@ -62,20 +62,17 @@ export async function POST(request: Request) {
         path: "/",
       });
 
-      return NextResponse.json(
-        {
-          message: "Authentification à deux facteurs requise",
-          requiresTwoFactor: true,
-          tempSessionId,
-          user: {
-            id: user.id,
-            email: user.email,
-            firstName: user.firstName,
-            lastName: user.lastName,
-          },
+      return NextResponse.json({
+        message: "Authentification à deux facteurs requise",
+        requiresTwoFactor: true,
+        tempSessionId,
+        user: {
+          id: user.id,
+          email: user.email,
+          firstName: user.firstName,
+          lastName: user.lastName,
         },
-        { status: 206 } // 206 = Partial Content
-      );
+      }, { status: 206 });
     }
 
     // Créer la session en base de données (expire dans 7 jours)
