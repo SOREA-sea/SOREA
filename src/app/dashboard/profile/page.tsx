@@ -10,6 +10,7 @@ interface ProfileData {
   avatarUrl: string | null;
   role: string;
   createdAt: string;
+  twoFactorEnabled?: boolean;
 }
 
 export default function ProfilePage() {
@@ -22,6 +23,16 @@ export default function ProfilePage() {
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
+  const [twoFactorSetupState, setTwoFactorSetupState] = useState<{
+    secret?: string;
+    qrCode?: string;
+    backupCodes?: string[];
+    showing?: boolean;
+  }>({});
+  const [twoFactorProcessing, setTwoFactorProcessing] = useState(false);
+  const [showDisableModal, setShowDisableModal] = useState(false);
+  const [disablePassword, setDisablePassword] = useState("");
+  const [disableError, setDisableError] = useState<string | null>(null);
 
   useEffect(() => {
     fetchProfile();
@@ -190,6 +201,133 @@ export default function ProfilePage() {
           </button>
         </div>
       </form>
+
+      {/* 2FA Controls */}
+      <div className="glass-panel rounded-3xl p-8 space-y-4">
+        <h2 className="text-xl font-bold">Authentification à deux facteurs (2FA)</h2>
+        {profile && (
+          <p className="text-sm">Statut actuel: <strong>{profile.twoFactorEnabled ? 'Activée' : 'Désactivée'}</strong></p>
+        )}
+
+        {!profile?.twoFactorEnabled ? (
+          <div className="space-y-3">
+            {!twoFactorSetupState.showing ? (
+              <button
+                onClick={async () => {
+                  setTwoFactorProcessing(true);
+                  try {
+                    const res = await fetch('/api/auth/2fa/setup');
+                    const data = await res.json();
+                    if (!res.ok) throw new Error(data.error || 'Impossible de générer le secret 2FA');
+                    setTwoFactorSetupState({ secret: data.secret, qrCode: data.qrCode, backupCodes: data.backupCodes, showing: true });
+                  } catch (err: any) {
+                    setMessage({ type: 'error', text: err.message || 'Erreur' });
+                  } finally { setTwoFactorProcessing(false); }
+                }}
+                className="btn-primary px-6 py-2"
+                disabled={twoFactorProcessing}
+              >{twoFactorProcessing ? 'Génération...' : 'Activer la 2FA'}</button>
+            ) : (
+              <div className="space-y-3">
+                {twoFactorSetupState.qrCode && (
+                  <img src={twoFactorSetupState.qrCode} alt="QR" className="w-36 h-36 border" />
+                )}
+                <p className="text-sm">Scannez le QR code avec votre application 2FA et entrez le code ci-dessous :</p>
+                <input id="twofa_code" className="p-3 rounded border w-48" placeholder="000000" />
+                <div className="flex gap-3">
+                  <button onClick={async () => {
+                    const el = document.getElementById('twofa_code') as HTMLInputElement | null;
+                    const code = el?.value?.trim();
+                    if (!code || !/^\d{6}$/.test(code)) { setMessage({ type: 'error', text: 'Entrez un code valide de 6 chiffres.' }); return; }
+                    setTwoFactorProcessing(true);
+                    try {
+                      const res = await fetch('/api/auth/2fa/verify', {
+                        method: 'POST', headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ secret: twoFactorSetupState.secret, code, backupCodes: twoFactorSetupState.backupCodes || [] })
+                      });
+                      const data = await res.json();
+                      if (!res.ok) throw new Error(data.error || 'Erreur activation 2FA');
+                      setMessage({ type: 'success', text: '2FA activée avec succès.' });
+                      setProfile(prev => prev ? { ...prev, twoFactorEnabled: true } : prev);
+                      setTwoFactorSetupState({});
+                    } catch (err: any) { setMessage({ type: 'error', text: err.message || 'Erreur' }); }
+                    finally { setTwoFactorProcessing(false); }
+                  }} className="btn-primary px-4 py-2" disabled={twoFactorProcessing}>Vérifier et activer</button>
+                  <button onClick={() => setTwoFactorSetupState({})} className="px-4 py-2 bg-gray-200 rounded">Annuler</button>
+                </div>
+                {twoFactorSetupState.backupCodes && (
+                  <div className="text-sm text-foreground/60">Codes de secours: {twoFactorSetupState.backupCodes.join(', ')}</div>
+                )}
+              </div>
+            )}
+          </div>
+        ) : (
+          <div className="space-y-3">
+            <button
+              className="btn-primary px-6 py-2"
+              onClick={() => {
+                setDisablePassword("");
+                setDisableError(null);
+                setShowDisableModal(true);
+              }}
+              disabled={twoFactorProcessing}
+            >{twoFactorProcessing ? 'Traitement...' : 'Désactiver la 2FA'}</button>
+
+            {/* Disable confirmation modal */}
+            {showDisableModal && (
+              <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+                <div className="bg-white rounded-2xl p-6 w-full max-w-md">
+                  <h3 className="text-lg font-bold mb-2">Confirmer la désactivation</h3>
+                  <p className="text-sm text-foreground/60 mb-4">Entrez votre mot de passe pour confirmer la désactivation de l'authentification à deux facteurs.</p>
+
+                  {disableError && (
+                    <div className="p-3 mb-3 text-sm text-red-600 bg-red-50 border border-red-200 rounded">{disableError}</div>
+                  )}
+
+                  <input
+                    type="password"
+                    value={disablePassword}
+                    onChange={(e) => setDisablePassword(e.target.value)}
+                    placeholder="Mot de passe"
+                    className="w-full p-3 rounded-full border mb-4"
+                  />
+
+                  <div className="flex justify-end gap-3">
+                    <button
+                      onClick={() => { setShowDisableModal(false); setDisablePassword(""); setDisableError(null); }}
+                      className="px-4 py-2 bg-gray-200 rounded-full"
+                    >Annuler</button>
+                    <button
+                      onClick={async () => {
+                        setDisableError(null);
+                        if (!disablePassword) { setDisableError('Veuillez entrer votre mot de passe'); return; }
+                        setTwoFactorProcessing(true);
+                        try {
+                          const res = await fetch('/api/auth/2fa/disable', {
+                            method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ password: disablePassword })
+                          });
+                          const data = await res.json();
+                          if (!res.ok) throw new Error(data.error || 'Erreur lors de la désactivation');
+                          setMessage({ type: 'success', text: '2FA désactivée.' });
+                          setProfile(prev => prev ? { ...prev, twoFactorEnabled: false } : prev);
+                          setShowDisableModal(false);
+                        } catch (err: any) {
+                          setDisableError(err.message || 'Erreur');
+                        } finally {
+                          setTwoFactorProcessing(false);
+                          setDisablePassword("");
+                        }
+                      }}
+                      className="btn-primary px-4 py-2"
+                      disabled={twoFactorProcessing}
+                    >{twoFactorProcessing ? 'Traitement...' : 'Confirmer'}</button>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+      </div>
     </div>
   );
 }
