@@ -15,9 +15,10 @@ export default function MiroirDesAffirmations() {
                 <Navbar />
             </div>
 
+            {/* SECTION MIROIR */}
             <div className="flex flex-row items-center gap-2 mx-auto w-[1440px] px-[96px] py-16">
                 <div className="flex-shrink-0">
-                    <img src="/image_ambassadrice_svg/miroire.png" alt="miroir" style={{ width: "420px" }} />
+                    <img src="/image_ambassadrice_svg/Frame 29031.png" alt="miroir" style={{ width: "420px" }} />
                 </div>
                 <div className="flex flex-col border-2 border-[#8B47FF] rounded-2xl p-10 gap-6 flex-1"
                     style={{ background: "radial-gradient(ellipse at center, #FEF0F9 0%, #FFFFFF 100%)" }}>
@@ -28,9 +29,11 @@ export default function MiroirDesAffirmations() {
                         <span className="text-[#8B47FF] font-semibold">renforcer ta confiance et ton bien-être intérieur</span>.
                     </p>
                     <div className="flex flex-row gap-4 justify-center mt-2">
-                        <button className="bg-white text-[#8B47FF] font-bold px-8 py-5 rounded-2xl shadow-md transition-all duration-300 hover:scale-105 hover:shadow-xl text-sm text-center leading-tight cursor-pointer">
-                            Affirmer ma<br />lumière intérieur
-                        </button>
+                        <Link href="/miroir">
+                            <button className="bg-white text-[#8B47FF] font-bold px-8 py-5 rounded-2xl shadow-md transition-all duration-300 hover:scale-105 hover:shadow-xl text-sm text-center leading-tight cursor-pointer h-full">
+                                Affirmer ma<br />lumière intérieur
+                            </button>
+                        </Link>
                         <button
                             className="text-white font-bold px-8 py-5 rounded-2xl shadow-md transition-all duration-300 hover:scale-105 hover:shadow-xl text-sm text-center leading-tight cursor-pointer"
                             style={{ background: "linear-gradient(to right, #8B47FF, #BA98F4)" }}
@@ -41,6 +44,7 @@ export default function MiroirDesAffirmations() {
                 </div>
             </div>
 
+            {/* SECTION WIM HOF */}
             <div className="flex flex-row items-center gap-2 mx-auto w-[1440px] px-[96px] py-16">
                 <div className="flex-shrink-0 flex items-center justify-center" style={{ width: "420px", height: "420px" }}>
                     <img src="/image_ambassadrice_svg/Lotus.png" alt="wim hof" style={{ width: "200px" }} />
@@ -54,9 +58,11 @@ export default function MiroirDesAffirmations() {
                         et <span className="text-[#8B47FF] font-semibold">reconnecte-toi à ton équilibre intérieur</span>.
                     </p>
                     <div className="flex flex-row gap-4 justify-center mt-2">
-                        <button className="bg-white text-[#8B47FF] font-bold px-8 py-5 rounded-2xl shadow-md transition-all duration-300 hover:scale-105 hover:shadow-xl text-sm text-center leading-tight cursor-pointer">
-                            Je me lance<br />dans ma séance
-                        </button>
+                        <Link href="/wim-hof">
+                            <button className="bg-white text-[#8B47FF] font-bold px-8 py-5 rounded-2xl shadow-md transition-all duration-300 hover:scale-105 hover:shadow-xl text-sm text-center leading-tight cursor-pointer h-full">
+                                Je me lance<br />dans ma séance
+                            </button>
+                        </Link>
                         <button
                             className="text-white font-bold px-8 py-5 rounded-2xl shadow-md transition-all duration-300 hover:scale-105 hover:shadow-xl text-sm text-center leading-tight cursor-pointer"
                             style={{ background: "linear-gradient(to right, #8B47FF, #BA98F4)" }}
@@ -67,9 +73,10 @@ export default function MiroirDesAffirmations() {
                 </div>
             </div>
 
+            {/* SECTION VISUALISE TOI */}
             <div className="flex flex-row items-center gap-2 mx-auto w-[1440px] px-[96px] py-16">
                 <div className="flex-shrink-0">
-                    <img src="/image_ambassadrice_svg/appareilphoto.png" alt="visualise toi" style={{ width: "420px" }} />
+                    <img src="/images/Frame 29037.png" alt="visualise toi" style={{ width: "420px" }} />
                 </div>
                 <div className="flex flex-col border-2 border-[#8B47FF] rounded-2xl p-10 gap-6 flex-1"
                     style={{ background: "radial-gradient(ellipse at center, #FEF0F9 0%, #FFFFFF 100%)" }}>
@@ -81,9 +88,11 @@ export default function MiroirDesAffirmations() {
                         Nourris ta pellicule du bien-être, renforce ta visualisation et ancre toi dans le positif.
                     </p>
                     <div className="flex flex-row gap-4 justify-center mt-2">
-                        <button className="bg-white text-[#8B47FF] font-bold px-8 py-5 rounded-2xl shadow-md transition-all duration-300 hover:scale-105 hover:shadow-xl text-sm text-center leading-tight cursor-pointer">
-                            Visualisation<br />de mon idéal
-                        </button>
+                        <Link href="/visualisation">
+                            <button className="bg-white text-[#8B47FF] font-bold px-8 py-5 rounded-2xl shadow-md transition-all duration-300 hover:scale-105 hover:shadow-xl text-sm text-center leading-tight cursor-pointer h-full">
+                                Visualisation<br />de mon idéal
+                            </button>
+                        </Link>
                         <button
                             className="text-white font-bold px-8 py-5 rounded-2xl shadow-md transition-all duration-300 hover:scale-105 hover:shadow-xl text-sm text-center leading-tight cursor-pointer"
                             style={{ background: "linear-gradient(to right, #8B47FF, #BA98F4)" }}
@@ -94,9 +103,10 @@ export default function MiroirDesAffirmations() {
                 </div>
             </div>
 
+            {/* SECTION MOT À MOI */}
             <div className="flex flex-row items-center gap-2 mx-auto w-[1440px] px-[96px] py-16">
                 <div className="flex-shrink-0">
-                    <img src="/image_ambassadrice_svg/envelope.png" alt="mot à moi" style={{ width: "420px" }} />
+                    <img src="/image_ambassadrice_svg/Frame 29045.png" alt="mot à moi" style={{ width: "420px" }} />
                 </div>
                 <div className="flex flex-col border-2 border-[#8B47FF] rounded-2xl p-10 gap-6 flex-1"
                     style={{ background: "radial-gradient(ellipse at center, #FEF0F9 0%, #FFFFFF 100%)" }}>
@@ -107,9 +117,11 @@ export default function MiroirDesAffirmations() {
                         <span className="text-[#8B47FF] font-semibold">développera ta paix intérieur</span>.
                     </p>
                     <div className="flex flex-row gap-4 justify-center mt-2">
-                        <button className="bg-white text-[#8B47FF] font-bold px-8 py-5 rounded-2xl shadow-md transition-all duration-300 hover:scale-105 hover:shadow-xl text-sm text-center leading-tight cursor-pointer">
-                            Je laisse parler<br />ma plume
-                        </button>
+                        <Link href="/mot-a-moi">
+                            <button className="bg-white text-[#8B47FF] font-bold px-8 py-5 rounded-2xl shadow-md transition-all duration-300 hover:scale-105 hover:shadow-xl text-sm text-center leading-tight cursor-pointer h-full">
+                                Je laisse parler<br />ma plume
+                            </button>
+                        </Link>
                         <button
                             className="text-white font-bold px-8 py-5 rounded-2xl shadow-md transition-all duration-300 hover:scale-105 hover:shadow-xl text-sm text-center leading-tight cursor-pointer"
                             style={{ background: "linear-gradient(to right, #8B47FF, #BA98F4)" }}
@@ -120,6 +132,7 @@ export default function MiroirDesAffirmations() {
                 </div>
             </div>
 
+            {/* SECTION ROUE */}
             <main className="flex flex-row items-center gap-2 flex-grow mx-auto w-[1440px] px-[96px] py-16">
                 <div className="flex-shrink-0">
                     <img src="/images/wheelspinner.png" alt="roue" style={{ width: "420px" }} />
