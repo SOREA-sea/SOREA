@@ -7,6 +7,7 @@ const gradientButtonClass = "btn--color-degrade";
 
 export default function ClientLandingPage() {
   const router = useRouter();
+  const pageSectionClass = "w-full max-w-[1180px] mx-auto px-4 md:px-0";
 
   // Add product to cart
   const addToCart = async (productName: string, price: number) => {
@@ -28,10 +29,12 @@ export default function ClientLandingPage() {
 
   return (
     <>
+      <div className="w-full overflow-x-hidden bg-[linear-gradient(180deg,#fbf7f2_0%,#f5eefb_48%,#fbf7f2_100%)] text-[#1a0533] font-['Inria_Sans',sans-serif]">
+        <main className="w-full max-w-[1440px] mx-auto flex flex-col items-center gap-[72px] py-[64px] px-4 md:px-0">
       {/* 1. HERO SECTION */}
-      <section className="w-full flex flex-col md:flex-row items-center justify-between max-w-6xl mx-auto pt-32 pb-16 px-4">
+      <section className={`${pageSectionClass} flex flex-col md:flex-row items-center justify-between gap-12 lg:gap-20 pt-16 pb-4`}>
         {/* Left Side: Text */}
-        <div className="w-full md:w-1/2 flex flex-col items-center text-center mb-12 md:mb-0">
+        <div className="w-full md:w-1/2 flex flex-col items-center text-center mb-12 md:mb-0 max-w-[540px] mx-auto md:mx-0">
           <p className="text-lg tracking-[0.5em] mb-4 font-normal text-[#2A2340]">SOREA</p>
           <h1 className="text-3xl md:text-4xl lg:text-5xl leading-tight font-semibold mb-8 text-[#2A2340]">
             Votre bulle de sérénité<br />
@@ -52,7 +55,7 @@ export default function ClientLandingPage() {
             alt="Yoga" 
             width={600} 
             height={600} 
-            className="w-full max-w-[400px] lg:max-w-[500px] h-auto mix-blend-multiply object-contain"
+            className="w-full max-w-[360px] lg:max-w-[460px] h-auto mix-blend-multiply object-contain"
             priority
           />
         </div>
@@ -60,7 +63,7 @@ export default function ClientLandingPage() {
 
       {/* 2. L'UNIVERS QUE VOUS PROPOSE SOREA */}
       <section className="w-full py-16 px-4 bg-[linear-gradient(90deg,#d3cced_0%,#fbf7f2_100%)]">
-        <div className="max-w-5xl mx-auto">
+        <div className={pageSectionClass}>
           <div className="flex flex-col items-center mb-12">
             <h2 className="text-2xl md:text-3xl font-medium tracking-wide">L&apos;univers que vous propose SOREA</h2>
             <div className="h-px bg-[#2A2340] w-full max-w-[400px] mt-2 mb-8"></div>
@@ -77,7 +80,7 @@ export default function ClientLandingPage() {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 xl:gap-8">
             <div className="bg-white rounded-[2rem] p-6 shadow-sm border border-purple-100 flex flex-col items-center text-center">
               <div className="w-full aspect-square rounded-[1.5rem] bg-[#EAE5F8] mb-6 overflow-hidden relative border-4 border-white shadow-sm">
                 <Image src="/images/product_3.webp" alt="Kit personnalisé" fill sizes="(min-width: 768px) 33vw, 100vw" className="object-cover" />
@@ -117,10 +120,10 @@ export default function ClientLandingPage() {
 
       {/* 3. NOS ESSENTIELS BIEN-ETRE */}
       <section className="w-full py-16 px-4 bg-[linear-gradient(90deg,#d3cced_0%,#fbf7f2_100%)]">
-        <div className="max-w-6xl mx-auto">
+        <div className="w-full max-w-[1180px] mx-auto px-4">
           <div className="flex flex-col items-center mb-10">
             <h2 className="text-2xl md:text-3xl font-medium tracking-wide">Nos essentiels bien-être</h2>
-            <div className="h-px bg-[linear-gradient(90deg,#d3cced_0%,#fbf7f2_100%)]"></div>
+            <div className="h-px bg-[linear-gradient(90deg,#d3cced_0%,#fbf7f2_100%)] w-full max-w-[260px] mt-2 mb-4"></div>
             <p className="text-center italic font-light text-lg">Des objectifs doux & beaux, sélectionnés<br />pour vous accompagner chaque jour.</p>
           </div>
           
@@ -161,7 +164,7 @@ export default function ClientLandingPage() {
 
       {/* 4. NOS CHALLENGES SURPRISES */}
       <section className="w-full py-16 px-4 bg-[linear-gradient(90deg,#d3cced_0%,#fbf7f2_100%)] overflow-hidden">
-        <div className="max-w-5xl mx-auto flex flex-col items-center">
+        <div className={pageSectionClass + " flex flex-col items-center"}>
           <div className="flex flex-col items-center mb-16">
             <h2 className="text-2xl md:text-3xl font-medium tracking-wide text-center">Nos challenges<br />surprises</h2>
             <div className="h-px bg-[linear-gradient(90deg,#d3cced_0%,#fbf7f2_100%)] w-[200px] mt-2"></div>
@@ -204,7 +207,7 @@ export default function ClientLandingPage() {
 
       {/* 5. SUIVRE, ECRIRE, PROGRESSER */}
       <section className="w-full py-16 px-4 bg-[linear-gradient(90deg,#d3cced_0%,#fbf7f2_100%)]">
-        <div className="max-w-4xl mx-auto flex flex-col items-center">
+        <div className="w-full max-w-[1080px] mx-auto flex flex-col items-center">
           <div className="flex flex-col items-center mb-6">
             <h2 className="text-2xl md:text-3xl font-medium tracking-wide">Suivre, écrire, progresser</h2>
             <div className="h-px bg-[linear-gradient(90deg,#d3cced_0%,#fbf7f2_100%)] w-full max-w-[300px] mt-2 mb-4"></div>
@@ -212,7 +215,7 @@ export default function ClientLandingPage() {
           <p className="text-sm tracking-wider uppercase mb-16 text-center">Notes, Humeurs, Habitudes, Challenges et<br />Coin divertissement</p>
 
           <div>
-            <Image src="/images/Diary_SOREA.png" alt="Carnet SOREA" width={1200} height={800} className="w-full max-w-[1200px] h-auto object-cover" />
+            <Image src="/images/Diary_SOREA.png" alt="Carnet SOREA" width={1200} height={800} className="w-full max-w-[1080px] h-auto object-cover" />
           </div>
 
           <div className="flex gap-4">
@@ -234,7 +237,7 @@ export default function ClientLandingPage() {
 
       {/* 6. COACHING */}
       <section className="w-full py-16 px-4 bg-[linear-gradient(90deg,#d3cced_0%,#fbf7f2_100%)]">
-        <div className="max-w-6xl mx-auto flex flex-col items-center">
+        <div className="w-full max-w-[1180px] mx-auto flex flex-col items-center">
           <div className="flex flex-col items-center mb-8">
             <h2 className="text-2xl md:text-3xl font-medium tracking-wide">Coaching</h2>
             <div className="h-px bg-[linear-gradient(90deg,#d3cced_0%,#fbf7f2_100%)] w-[120px] mt-2 mb-4"></div>
@@ -287,7 +290,7 @@ export default function ClientLandingPage() {
 
       {/* 7. ELLES PARLENT DE SOREA */}
       <section id="review" className="w-full py-16 px-4 bg-[linear-gradient(90deg,#d3cced_0%,#fbf7f2_100%)]">
-        <div className="max-w-6xl mx-auto flex flex-col items-center">
+        <div className="w-full max-w-[1180px] mx-auto flex flex-col items-center">
           <div className="flex flex-col items-center mb-6">
             <h2 className="text-2xl md:text-3xl font-medium tracking-wide">Elles parlent de SOREA !</h2>
             <div className="h-px bg-[linear-gradient(90deg,#d3cced_0%,#fbf7f2_100%)] w-full max-w-[280px] mt-2 mb-4"></div>
@@ -334,7 +337,7 @@ export default function ClientLandingPage() {
 
       {/* 8. SOREA NEWS */}
       <section className="w-full py-16 px-4 bg-[linear-gradient(90deg,#d3cced_0%,#fbf7f2_100%)]">
-        <div className="max-w-5xl mx-auto flex flex-col items-center">
+        <div className="w-full max-w-[1120px] mx-auto flex flex-col items-center">
           <div className="flex flex-col items-center mb-6">
             <h2 className="text-2xl md:text-3xl font-medium tracking-wide">SOREA NEWS</h2>
             <div className="h-px bg-[linear-gradient(90deg,#d3cced_0%,#fbf7f2_100%)] w-[180px] mt-2 mb-4"></div>
@@ -344,11 +347,11 @@ export default function ClientLandingPage() {
             Inspirez-vous, informez-vous, vivez l&apos;instant.
           </p>
 
-          <div className="w-full max-w-4xl relative aspect-video md:aspect-[21/9] mb-12">
+          <div className="w-full max-w-[920px] relative aspect-[16/7] md:aspect-[21/9] mb-12">
             <Image src="/images/News_landing.png" alt="SOREA News Collage" fill sizes="(min-width: 1024px) 896px, 100vw" className="object-contain" />
           </div>
 
-          <div className="flex gap-4">
+          <div className="flex flex-col sm:flex-row gap-4 items-center justify-center">
             <button
               onClick={() => router.push("/vibe-bientot")}
               className={`py-2.5 px-6 border border-purple-200 text-[#665D8B] bg-white rounded-md text-xs font-semibold hover:bg-purple-50 transition-colors ${gradientButtonClass}`}
@@ -367,16 +370,16 @@ export default function ClientLandingPage() {
 
       {/* 9. REJOINS L'AVENTURE SOREA */}
       <section className="w-full py-16 px-4 bg-[linear-gradient(90deg,#d3cced_0%,#fbf7f2_100%)]">
-        <div className="flex flex-col items-center mb-6">
+        <div className="w-full max-w-[1120px] mx-auto flex flex-col items-center mb-6">
           <h2 className="text-2xl md:text-3xl font-medium tracking-wide">Rejoindre la communauté SOREA</h2>
           <div className="h-px bg-[linear-gradient(90deg,#d3cced_0%,#fbf7f2_100%)] w-[180px] mt-2 mb-4"></div>
         </div>
-        <p className="text-base text-center italic font-light mb-12">
+        <p className="text-base text-center italic font-light mb-12 max-w-[720px] mx-auto">
           Rejoins nous et incarne nos valeurs <br />
           en tant qu&apos; ambassadrice.
         </p>
-        <div className="max-w-4xl mx-auto flex flex-col items-center text-center">
-          <div className="relative w-full max-w-7xl mx-auto px-6 py-12 min-h-[500px]">
+        <div className="w-full max-w-[1120px] mx-auto flex flex-col items-center text-center">
+          <div className="relative w-full rounded-[28px] overflow-hidden px-6 md:px-10 py-10 md:py-12 min-h-[500px]">
             {/* Background */}
             <div 
               className="absolute inset-0 z-0 bg-[linear-gradient(180deg,#fadcce_0%,#fbddcf_100%)]"
@@ -387,10 +390,10 @@ export default function ClientLandingPage() {
             />
 
             {/* Content */}
-            <div className="relative z-10 flex flex-col md:flex-row items-center gap-12">
+            <div className="relative z-10 flex flex-col md:flex-row items-center gap-10 lg:gap-12">
               
               {/* Left Block: Text */}
-              <div className="w-full md:w-1/2 flex flex-col gap-8">
+              <div className="w-full md:w-1/2 flex flex-col gap-7">
                 {[
                   "Développe ton activité et transforme ta passion pour le bien-être en véritable opportunité",
                   "Partage avec tes proches l'univers des soins naturels SOREA",
@@ -402,7 +405,7 @@ export default function ClientLandingPage() {
                     <div className="text-purple-300 text-2xl mt-0.5">
                       <Image src="/images/fleur.png" alt="Fleur" width={30} height={30} />
                     </div>
-                    <p className="text-sm leading-relaxed max-w-[300px] text-[#2A2340] font-medium">
+                    <p className="text-sm leading-relaxed max-w-[340px] text-[#2A2340] font-medium">
                       {text}
                     </p>
                   </div>
@@ -431,7 +434,7 @@ export default function ClientLandingPage() {
                   alt="Communauté SOREA" 
                   width={400} 
                   height={400} 
-                  className="w-[85%] h-auto mt-8 mix-blend-multiply" 
+                  className="w-full max-w-[420px] h-auto mt-8 mix-blend-multiply object-contain" 
                 />
               </div>
             </div>
@@ -440,11 +443,13 @@ export default function ClientLandingPage() {
       </section>
 
       {/* Footer Text */}
-      <div>
+      <div className="w-full max-w-[1180px] mx-auto px-4">
         <h2 className="text-2xl md:text-3xl font-medium tracking-wide text-center mb-6"><strong>S</strong>érénité, <strong>É</strong>quilibre et <strong>A</strong>lignement. SOREA ton bien-être au quotidien.</h2>
       </div>
-      <div>
+      <div className="pb-8">
         <Image src="/images/etoile1.png" alt="Etoile" width={60} height={60} className="mx-auto" />
+      </div>
+        </main>
       </div>
     </>
   );
