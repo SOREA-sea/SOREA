@@ -9,7 +9,7 @@ export default function NouvellePage() {
       </div>
 
       <main className="flex-grow flex items-center justify-center">
-        <h1 className="text-4xl font-bold text-[#8B47FF]">Future page Miroire</h1>
+        <h1 className="text-4xl font-bold text-[#8B47FF]">Future page Miroir</h1>
       </main>
 
       <div className="w-[1440px] pr-[96px] pl-[96px] mx-auto pb-[24px]">
