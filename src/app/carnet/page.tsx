@@ -1,5 +1,6 @@
 "use client"
 import { useState } from "react";
+import Link from "next/link";
 import Image from "next/image";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -95,6 +96,9 @@ export default function AboutPage() {
                         <button className="w-75 h-12 bg-white cursor-pointer rounded-md border-0 border-[#9748FF] shadow-[inset_0px_0px_0px_1px_#9748FF] group hover:bg-[#9748FF] transition duration-450 ease-in-out"><span className="font-medium text-[#6a18a4] group-hover:text-white">Commander mon Carnet Challenge</span></button>
                     </div>
                 </section>
+                <Link href="/carnet_contenu" className="inline-block">
+                    <button className="w-50 h-12 bg-[#9748FF] text-white cursor-pointer rounded-md border-0 shadow-sm">Accéder au carnet</button>
+                </Link>
             </main>
             <Navbar />
             <Footer />
