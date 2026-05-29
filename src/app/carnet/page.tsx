@@ -34,7 +34,7 @@ export default function AboutPage() {
                             )
                         )}
                     </section>
-                        {/* Textes et flèches entre les carnets */}
+                    {/* Textes et flèches entre les carnets */}
                     <section className="flex flex-col items-center justify-center gap-6">
                         <div className="flex flex-col items-center gap-2">
                             <span className="homemade-apple text-center text-[#6a18a4] font-semibold text-lg">Choisis moi</span>
@@ -88,7 +88,8 @@ export default function AboutPage() {
                             />
                         </div>
                     </section>
-                    <Image src="/image_carnet/Diary_SOREA.svg" alt="Stylo" className="object-contain mx-auto" width={600} height={200} />
+
+                    <Image src="/image_carnet/carnet_3.svg" alt="Stylo" className="object-contain mx-auto" width={400} height={100} />
                     <div className="flex justify-center gap-8 mt-8">
                         <button className="w-50 h-12 bg-white cursor-pointer rounded-md border-0 border-[#9748FF] shadow-[inset_0px_0px_0px_1px_#9748FF] group hover:bg-[#9748FF] transition duration-450 ease-in-out"><span className="font-medium text-[#6a18a4] group-hover:text-white">Découvrir mon carnet</span></button>
                         <button className="w-75 h-12 bg-white cursor-pointer rounded-md border-0 border-[#9748FF] shadow-[inset_0px_0px_0px_1px_#9748FF] group hover:bg-[#9748FF] transition duration-450 ease-in-out"><span className="font-medium text-[#6a18a4] group-hover:text-white">Commander mon Carnet Challenge</span></button>

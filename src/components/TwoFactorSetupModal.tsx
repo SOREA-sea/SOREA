@@ -8,7 +8,7 @@ interface TwoFactorSetupModalProps {
   isLoading: boolean;
   onClose: () => void;
   onComplete: () => void;
-  pendingId: string | null;
+  mandatory?: boolean;
 }
 
 interface TwoFactorData {
@@ -22,7 +22,7 @@ export default function TwoFactorSetupModal({
   isLoading,
   onClose,
   onComplete,
-  pendingId,
+  mandatory = false,
 }: TwoFactorSetupModalProps) {
   const [step, setStep] = useState<"setup" | "verify" | "backup">("setup");
   const [twoFactorData, setTwoFactorData] = useState<TwoFactorData | null>(null);
@@ -32,36 +32,38 @@ export default function TwoFactorSetupModal({
   const [showBackupCodes, setShowBackupCodes] = useState(false);
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
 
-  // Fetch 2FA setup data
+  // Fetch 2FA setup data when opening the modal
   useEffect(() => {
-    if (isOpen && step === "setup" && !twoFactorData) {
-      fetchSetupData();
-    }
-  }, [isOpen, step]);
+    if (!(isOpen && step === "setup" && !twoFactorData)) return;
 
-  const fetchSetupData = async () => {
-    try {
-      const res = await fetch("/api/auth/2fa/setup", {
-        method: "GET",
-        headers: { "Content-Type": "application/json" },
-      });
+    let mounted = true;
+    (async () => {
+      try {
+        const res = await fetch("/api/auth/2fa/setup", {
+          method: "GET",
+          headers: { "Content-Type": "application/json" },
+        });
 
-      if (!res.ok) {
-        const data = await res.json();
-        // 2FA might already be enabled or other error - skip setup
-        if (res.status === 400) {
-          onComplete();
-          return;
+        if (!res.ok) {
+          const data = await res.json();
+          if (res.status === 400) {
+            onComplete();
+            return;
+          }
+          throw new Error(data.error || "Erreur lors de la génération du secret 2FA");
         }
-        throw new Error(data.error || "Erreur lors de la génération du secret 2FA");
-      }
 
-      const data = await res.json();
-      setTwoFactorData(data);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Erreur lors de la génération du secret");
-    }
-  };
+        const data = await res.json();
+        if (mounted) setTwoFactorData(data);
+      } catch (err) {
+        if (mounted) setError(err instanceof Error ? err.message : "Erreur lors de la génération du secret");
+      }
+    })();
+
+    return () => {
+      mounted = false;
+    };
+  }, [isOpen, step, twoFactorData, onComplete]);
 
 const handleVerifyCode = async (e: React.FormEvent) => {
   e.preventDefault();
@@ -69,22 +71,16 @@ const handleVerifyCode = async (e: React.FormEvent) => {
   setVerifyLoading(true);
 
   try {
-    const res = await fetch("/api/auth/register/confirm", {
+    const res = await fetch("/api/auth/2fa/verify", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        pendingId: pendingId, // ID récupéré du cookie
-        totpCode: code,      // 'code' est ton state local, envoyé sous le nom 'totpCode'
-      }),
+      body: JSON.stringify({ code }),
     });
 
     const data = await res.json();
+    if (!res.ok) throw new Error(data.error || "Le code 2FA est incorrect");
 
-    if (!res.ok) {
-      throw new Error(data.error || "Le code 2FA est incorrect");
-    }
-
-    // Si ça marche, on passe aux codes de secours
+    // success -> show backup codes
     setStep("backup");
     setCode("");
   } catch (err) {
@@ -101,14 +97,18 @@ const handleVerifyCode = async (e: React.FormEvent) => {
   };
 
   const handleClose = () => {
-    // During registration, 2FA setup is MANDATORY - cannot close
-    // Only allow closing after verification is complete
-    if (step === "backup" && showBackupCodes) {
-      onComplete();
-    } else if (step === "setup" || step === "verify") {
-      // Prevent closing during setup or verification
-      alert("La configuration de l'authentification à deux facteurs est obligatoire pour sécuriser votre compte.");
+    // If mandatory (e.g., forced during registration), restrict closing until completed
+    if (mandatory) {
+      if (step === "backup" && showBackupCodes) {
+        onComplete();
+      } else if (step === "setup" || step === "verify") {
+        alert("La configuration de l&apos;authentification à deux facteurs est obligatoire pour sécuriser votre compte.");
+      }
+      return;
     }
+
+    // Not mandatory: allow closing at any step
+    onClose();
   };
 
   if (!isOpen) return null;
@@ -143,7 +143,7 @@ const handleVerifyCode = async (e: React.FormEvent) => {
                   Authentification à deux facteurs (2FA)
                 </h3>
                 <p className="text-gray-600 mb-4">
-                  Renforcez la sécurité de votre compte avec l'authentification à deux facteurs. Vous devrez entrer
+                  Renforcez la sécurité de votre compte avec l&apos;authentification à deux facteurs. Vous devrez entrer
                   un code 6 chiffres en plus de votre mot de passe à chaque connexion.
                 </p>
               </div>
@@ -162,7 +162,7 @@ const handleVerifyCode = async (e: React.FormEvent) => {
               <div className="flex justify-center">
                 <div className="bg-white border-4 border-gray-200 rounded-[10px] p-4">
                   {twoFactorData.qrCode && (
-                    <img
+                    <Image
                       src={twoFactorData.qrCode}
                       alt="QR Code"
                       width={250}
@@ -199,7 +199,7 @@ const handleVerifyCode = async (e: React.FormEvent) => {
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
                   </svg>
-                ) : "J'ai scannné le code"}
+                ) : "J&apos;i scanné le code"}
               </button>
             </div>
           )}
@@ -212,7 +212,7 @@ const handleVerifyCode = async (e: React.FormEvent) => {
                   Vérifiez votre code 2FA
                 </h3>
                 <p className="text-gray-600 text-sm">
-                  Entrez le code 6 chiffres de votre application d'authentification
+                  Entrez le code 6 chiffres de votre application d&apos;authentification
                 </p>
               </div>
 
@@ -318,7 +318,7 @@ const handleVerifyCode = async (e: React.FormEvent) => {
                   checked={!showBackupCodes}
                 />
                 <label htmlFor="backup-ack" className="text-sm text-gray-600 cursor-pointer">
-                  J'ai conservé mes codes de secours dans un endroit sûr
+                  J&apos;ai conservé mes codes de secours dans un endroit sûr
                 </label>
               </div>
 
