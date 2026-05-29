@@ -1,8 +1,7 @@
 "use client";
 
-import { Suspense, useState, useEffect } from "react";
+import { Suspense, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import Image from "next/image";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 
@@ -26,11 +25,8 @@ function LoginContent() {
     const [registerLoadingType, setRegisterLoadingType] = useState<"member" | "coach" | null>(null);
     
     // 2FA states
-    const [show2FA, setShow2FA] = useState(false);
     const [show2FALogin, setShow2FALogin] = useState(false);
-    const [qrCodeUrl, setQrCodeUrl] = useState("");
     const [twoFactorCode, setTwoFactorCode] = useState("");
-    const [pendingId, setPendingId] = useState("");
     const [tempSessionId, setTempSessionId] = useState("");
 
     // Reset states when switching tabs
@@ -45,7 +41,6 @@ function LoginContent() {
         setRegisterError(null);
         setRegisterLoading(false);
         setRegisterLoadingType(null);
-        setShow2FA(false);
     }; 
     const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -130,9 +125,9 @@ const submitRegister = async (asCoach: boolean) => {
         const data = await res.json();
         if (!res.ok) throw new Error(data.error || "Une erreur est survenue");
 
-        setQrCodeUrl(data.qrCodeUrl);
-        setPendingId(data.pendingId);
-        setShow2FA(true);
+        // registration completed
+        router.push("/dashboard");
+        router.refresh();
 
     } catch (err) {
         setRegisterError(err instanceof Error ? err.message : "Erreur d'inscription");
@@ -142,41 +137,7 @@ const submitRegister = async (asCoach: boolean) => {
     }
 };
 
-// Confirm 2FA for registration
-const confirm2FA = async () => {
-    setRegisterError(null);
-    
-    if (!twoFactorCode.trim()) {
-        setRegisterError("Veuillez entrer le code 6 chiffres.");
-        return;
-    }
-    if (!/^\d{6}$/.test(twoFactorCode.trim())) {
-        setRegisterError("Le code doit être exactement 6 chiffres.");
-        return;
-    }
-    
-    setRegisterLoading(true);
-    try {
-        const res = await fetch("/api/auth/register/confirm", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ 
-                totpCode: twoFactorCode.trim(), 
-                pendingId: pendingId 
-            }),
-        });
-
-        const data = await res.json();
-        if (!res.ok) throw new Error(data.error || "Code invalide");
-
-        router.push("/dashboard");
-        router.refresh();
-    } catch (err) {
-        setRegisterError(err instanceof Error ? err.message : "Le code entré est incorrect.");
-    } finally {
-        setRegisterLoading(false);
-    }
-};
+// (registration no longer includes 2FA confirmation)
 
 // Confirm 2FA for login
 const confirm2FALogin = async () => {
@@ -261,209 +222,58 @@ const confirm2FALogin = async () => {
 
                             {activeTab === "connexion" ? (
                                 <>
-                                    {/* 2FA Login Modal */}
                                     {show2FALogin ? (
                                         <>
                                             <div className="flex flex-col gap-4">
-                                                <h2 className="text-2xl font-bold tracking-[0.13em] underline text-[#212121] font-['Inria_Sans']">
-                                                    Vérification 2FA
-                                                </h2>
-                                                <p className="text-xl tracking-[0.1em] text-[#7F6674] font-['Inria_Sans']">
-                                                    Entrez le code 6 chiffres de votre authenticateur.
-                                                </p>
+                                                <h2 className="text-2xl font-bold tracking-[0.13em] underline text-[#212121] font-['Inria_Sans']">Vérification 2FA</h2>
+                                                <p className="text-xl tracking-[0.1em] text-[#7F6674] font-['Inria_Sans']">Entrez le code 6 chiffres de votre authenticateur.</p>
                                             </div>
 
                                             <form onSubmit={(e) => { e.preventDefault(); confirm2FALogin(); }} className="flex flex-col gap-5">
-                                                {loginError && (
-                                                    <div className="p-3 text-sm text-red-500 bg-red-50/50 border border-red-200 rounded-[15px] text-center">
-                                                        {loginError}
-                                                    </div>
-                                                )}
+                                                {loginError && <div className="p-3 text-sm text-red-500 bg-red-50/50 border border-red-200 rounded-[15px] text-center">{loginError}</div>}
 
                                                 <div className="flex flex-col gap-4">
-                                                    <label className="text-xl font-bold tracking-[0.1em] text-[#212121] font-['Inria_Sans']">
-                                                        Code 2FA
-                                                    </label>
-                                                    <input
-                                                        type="text"
-                                                        required
-                                                        maxLength={6}
-                                                        value={twoFactorCode}
-                                                        onChange={(e) => setTwoFactorCode(e.target.value.replace(/\D/g, ''))}
-                                                        placeholder="000000"
-                                                        className="w-full h-[55px] px-4 rounded-[15px] border border-[rgba(127,102,116,0.7)] text-xl tracking-[0.1em] text-[#7F6674] font-['Inria_Sans'] outline-none focus:border-[#6A18A4] transition-colors text-center text-2xl tracking-widest"
-                                                        style={{ background: "rgba(255, 250, 240, 0.2)" }}
-                                                    />
+                                                    <label className="text-xl font-bold tracking-[0.1em] text-[#212121] font-['Inria_Sans']">Code 2FA</label>
+                                                    <input type="text" required maxLength={6} value={twoFactorCode} onChange={(e) => setTwoFactorCode(e.target.value.replace(/\D/g, ''))} placeholder="000000" className="w-full h-[55px] px-4 rounded-[15px] border border-[rgba(127,102,116,0.7)] text-xl tracking-[0.1em] text-[#7F6674] font-['Inria_Sans'] outline-none focus:border-[#6A18A4] transition-colors text-center text-2xl tracking-widest" style={{ background: "rgba(255, 250, 240, 0.2)" }} />
                                                 </div>
 
-                                                <button
-                                                    type="submit"
-                                                    disabled={loginLoading}
-                                                    className="w-full h-[50px] btn-connexion bg-white rounded-[10px] text-xl font-black tracking-[0.1em] text-[#6A18A4] font-['Roboto'] hover:opacity-80 transition-opacity disabled:opacity-50 cursor-pointer"
-                                                    style={{ boxShadow: "0px 3px 3.1px #BA98F4" }}
-                                                >
-                                                    {loginLoading ? (
-                                                        <svg className="animate-spin mx-auto h-5 w-5 text-[#6A18A4]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                                                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-                                                        </svg>
-                                                    ) : "Vérifier"}
-                                                </button>
+                                                <button type="submit" disabled={loginLoading} className="w-full h-[50px] btn-connexion bg-white rounded-[10px] text-xl font-black tracking-[0.1em] text-[#6A18A4] font-['Roboto'] hover:opacity-80 transition-opacity disabled:opacity-50 cursor-pointer" style={{ boxShadow: "0px 3px 3.1px #BA98F4" }}>{loginLoading ? <svg className="animate-spin mx-auto h-5 w-5 text-[#6A18A4]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" /></svg> : "Vérifier"}</button>
 
-                                                <button
-                                                    type="button"
-                                                    onClick={() => { setShow2FALogin(false); setTwoFactorCode(""); setLoginError(null); }}
-                                                    className="w-full h-[50px] bg-gray-200 rounded-[10px] text-xl font-black tracking-[0.1em] text-[#212121] font-['Roboto'] hover:opacity-80 transition-opacity cursor-pointer"
-                                                >
-                                                    Annuler
-                                                </button>
+                                                <button type="button" onClick={() => { setShow2FALogin(false); setTwoFactorCode(""); setLoginError(null); }} className="w-full h-[50px] bg-gray-200 rounded-[10px] text-xl font-black tracking-[0.1em] text-[#212121] font-['Roboto'] hover:opacity-80 transition-opacity cursor-pointer">Annuler</button>
                                             </form>
                                         </>
                                     ) : (
                                         <>
-                                            {/* Header connexion */}
                                             <div className="flex flex-col gap-4">
-                                                <h2 className="text-2xl font-bold tracking-[0.13em] underline text-[#212121] font-['Inria_Sans']">
-                                                    Connectez-vous
-                                                </h2>
-                                                <p className="text-xl tracking-[0.1em] text-[#7F6674] font-['Inria_Sans']">
-                                                    Entrez vos identifiants pour accéder à votre compte.
-                                                </p>
+                                                <h2 className="text-2xl font-bold tracking-[0.13em] underline text-[#212121] font-['Inria_Sans']">Connectez-vous</h2>
+                                                <p className="text-xl tracking-[0.1em] text-[#7F6674] font-['Inria_Sans']">Entrez vos identifiants pour accéder à votre compte.</p>
                                             </div>
 
                                             <form onSubmit={handleLogin} className="flex flex-col gap-5">
-                                        {loginError && (
-                                            <div className="p-3 text-sm text-red-500 bg-red-50/50 border border-red-200 rounded-[15px] text-center">
-                                                {loginError}
-                                            </div>
-                                        )}
+                                                {loginError && <div className="p-3 text-sm text-red-500 bg-red-50/50 border border-red-200 rounded-[15px] text-center">{loginError}</div>}
 
-                                        {/* Email */}
-                                        <div className="flex flex-col gap-4">
-                                            <label className="text-xl font-bold tracking-[0.1em] text-[#212121] font-['Inria_Sans']">
-                                                Adresse e-mail
-                                            </label>
-                                            <input
-                                                type="email"
-                                                required
-                                                value={loginEmail}
-                                                onChange={(e) => setLoginEmail(e.target.value)}
-                                                placeholder="exemple@domaine.com"
-                                                className="w-full h-[55px] px-4 rounded-[15px] border border-[rgba(127,102,116,0.7)] text-xl tracking-[0.1em] text-[#7F6674] font-['Inria_Sans'] outline-none focus:border-[#6A18A4] transition-colors"
-                                                style={{ background: "rgba(255, 250, 240, 0.2)" }}
-                                            />
-                                        </div>
+                                                <div className="flex flex-col gap-4">
+                                                    <label className="text-xl font-bold tracking-[0.1em] text-[#212121] font-['Inria_Sans']">Adresse e-mail</label>
+                                                    <input type="email" required value={loginEmail} onChange={(e) => setLoginEmail(e.target.value)} placeholder="exemple@domaine.com" className="w-full h-[55px] px-4 rounded-[15px] border border-[rgba(127,102,116,0.7)] text-xl tracking-[0.1em] text-[#7F6674] font-['Inria_Sans'] outline-none focus:border-[#6A18A4] transition-colors" style={{ background: "rgba(255, 250, 240, 0.2)" }} />
+                                                </div>
 
-                                        {/* Mot de passe */}
-                                        <div className="flex flex-col gap-4">
-                                            <label className="text-xl font-bold tracking-[0.1em] text-[#212121] font-['Inria_Sans']">
-                                                Mot de passe
-                                            </label>
-                                            <input
-                                                type="password"
-                                                required
-                                                value={loginPassword}
-                                                onChange={(e) => setLoginPassword(e.target.value)}
-                                                placeholder="••••••••••••••••••"
-                                                className="w-full h-[55px] px-4 rounded-[15px] border border-[rgba(127,102,116,0.7)] text-xl tracking-[0.1em] text-[#7F6674] font-['Inria_Sans'] outline-none focus:border-[#6A18A4] transition-colors"
-                                                style={{ background: "rgba(255, 250, 240, 0.2)" }}
-                                            />
-                                        </div>
+                                                <div className="flex flex-col gap-4">
+                                                    <label className="text-xl font-bold tracking-[0.1em] text-[#212121] font-['Inria_Sans']">Mot de passe</label>
+                                                    <input type="password" required value={loginPassword} onChange={(e) => setLoginPassword(e.target.value)} placeholder="••••••••••••••••••" className="w-full h-[55px] px-4 rounded-[15px] border border-[rgba(127,102,116,0.7)] text-xl tracking-[0.1em] text-[#7F6674] font-['Inria_Sans'] outline-none focus:border-[#6A18A4] transition-colors" style={{ background: "rgba(255, 250, 240, 0.2)" }} />
+                                                </div>
 
-                                        {/* Mot de passe oublié */}
-                                        <div className="flex justify-end">
-                                            <a href="#" className="text-xl font-bold tracking-[0.1em] text-[#6A18A4] font-['Inria_Sans'] hover:opacity-70 transition-opacity">
-                                                Mot de passe oublié ?
-                                            </a>
-                                        </div>
+                                                <div className="flex justify-end">
+                                                    <a href="#" className="text-xl font-bold tracking-[0.1em] text-[#6A18A4] font-['Inria_Sans'] hover:opacity-70 transition-opacity">Mot de passe oublié ?</a>
+                                                </div>
 
-                                        {/* Bouton */}
-                                        <button
-                                            type="submit"
-                                            disabled={loginLoading}
-                                            className= " btn-connexion w-full h-[50px] bg-white rounded-[10px] text-xl font-black tracking-[0.1em] text-[#6A18A4] font-['Roboto'] hover:opacity-80 transition-opacity disabled:opacity-50 cursor-pointer"
-                                            style={{ boxShadow: "0px 3px 3.1px #BA98F4" }}
-                                        >
-                                            {loginLoading ? (
-                                                <svg className="animate-spin mx-auto h-5 w-5 text-[#6A18A4]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-                                                </svg>
-                                            ) : "Se connecter"}
-                                        </button>
-                                    </form>
+                                                <button type="submit" disabled={loginLoading} className=" btn-connexion w-full h-[50px] bg-white rounded-[10px] text-xl font-black tracking-[0.1em] text-[#6A18A4] font-['Roboto'] hover:opacity-80 transition-opacity disabled:opacity-50 cursor-pointer" style={{ boxShadow: "0px 3px 3.1px #BA98F4" }}>{loginLoading ? <svg className="animate-spin mx-auto h-5 w-5 text-[#6A18A4]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" /></svg> : "Se connecter"}</button>
+                                            </form>
                                         </>
                                     )}
                                 </>
                             ) : (
                                 <>
-                                    {/* 2FA Registration Modal */}
-                                    {show2FA ? (
-                                        <>
-                                            <div className="flex flex-col gap-4">
-                                                <h2 className="text-2xl font-bold tracking-[0.13em] underline text-[#212121] font-['Inria_Sans']">
-                                                    Authentification 2FA
-                                                </h2>
-                                                <p className="text-xl tracking-[0.1em] text-[#7F6674] font-['Inria_Sans']">
-                                                    Scannez le code QR avec Google Authenticator ou une application similaire.
-                                                </p>
-                                            </div>
-
-                                            <div className="flex flex-col items-center gap-6">
-                                                {qrCodeUrl && (
-                                                    <Image src={qrCodeUrl} alt="QR Code" width={256} height={256} className="border-4 border-[#6A18A4] rounded-lg" />
-                                                )}
-
-                                                <form onSubmit={(e) => { e.preventDefault(); confirm2FA(); }} className="w-full flex flex-col gap-5">
-                                                    {registerError && (
-                                                        <div className="p-3 text-sm text-red-500 bg-red-50/50 border border-red-200 rounded-[15px] text-center">
-                                                            {registerError}
-                                                        </div>
-                                                    )}
-
-                                                    <div className="flex flex-col gap-4">
-                                                        <label className="text-xl font-bold tracking-[0.1em] text-[#212121] font-['Inria_Sans']">
-                                                            Entrez le code 6 chiffres
-                                                        </label>
-                                                        <input
-                                                            type="text"
-                                                            required
-                                                            maxLength={6}
-                                                            value={twoFactorCode}
-                                                            onChange={(e) => setTwoFactorCode(e.target.value.replace(/\D/g, ''))}
-                                                            placeholder="000000"
-                                                            className="w-full h-[55px] px-4 rounded-[15px] border border-[rgba(127,102,116,0.7)] text-xl tracking-[0.1em] text-[#7F6674] font-['Inria_Sans'] outline-none focus:border-[#6A18A4] transition-colors text-center text-2xl tracking-widest"
-                                                            style={{ background: "rgba(255, 250, 240, 0.2)" }}
-                                                        />
-                                                    </div>
-
-                                                    <button
-                                                        type="submit"
-                                                        disabled={registerLoading}
-                                                        className="w-full h-[50px] btn-connexion bg-white rounded-[10px] text-xl font-black tracking-[0.1em] text-[#6A18A4] font-['Roboto'] hover:opacity-80 transition-opacity disabled:opacity-50 cursor-pointer"
-                                                        style={{ boxShadow: "0px 3px 3.1px #BA98F4" }}
-                                                    >
-                                                        {registerLoading ? (
-                                                            <svg className="animate-spin mx-auto h-5 w-5 text-[#6A18A4]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                                                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-                                                            </svg>
-                                                        ) : "Vérifier le code"}
-                                                    </button>
-
-                                                    <button
-                                                        type="button"
-                                                        onClick={() => { setShow2FA(false); setTwoFactorCode(""); setRegisterError(null); }}
-                                                        className="w-full h-[50px] bg-gray-200 rounded-[10px] text-xl font-black tracking-[0.1em] text-[#212121] font-['Roboto'] hover:opacity-80 transition-opacity cursor-pointer"
-                                                    >
-                                                        Annuler
-                                                    </button>
-                                                </form>
-                                            </div>
-                                        </>
-                                    ) : (
-                                        <>
-                                            {/* Header inscription */}
+                                    {/* Header inscription */}
                                     <div className="flex flex-col gap-4">
                                         <h2 className="text-2xl font-bold tracking-[0.13em] underline text-[#212121] font-['Inria_Sans']">
                                             Créer un compte
@@ -583,6 +393,8 @@ const confirm2FALogin = async () => {
                                             </span>
                                         </label>
 
+                                        {/* 2FA opt-in removed from registration — activation available in profile */}
+
                                         <button
                                             type="button"
                                             disabled={registerLoading}
@@ -598,11 +410,10 @@ const confirm2FALogin = async () => {
                                                 "S'inscrire"
                                             )}
                                         </button>
-                                    </form>
-                                        </>
-                                    )}
-                                </>
-                            )}
+                                        </form>
+                                    </>
+                                )
+                            }
                         </div>
                     </div>
                 </div>

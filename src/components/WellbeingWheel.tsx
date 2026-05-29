@@ -193,7 +193,6 @@ export default function WellbeingWheel() {
 
   return (
     <div className="w-full flex flex-col justify-center items-center py-12 relative z-10" style={{ fontFamily: "'Poppins', sans-serif" }}>
-        {/* Load Icons inside Next.js safely using normal link */}
         <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" />
         <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet" />
         
