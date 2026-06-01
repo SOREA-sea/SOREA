@@ -7,7 +7,7 @@ import Footer from "@/components/Footer";
 export default function MiroirDesAffirmations() {
     const sections = [
         {
-            img: "/image_ambassadrice_svg/Frame 29031.png",
+            img: "/image_ambassadrice_svg/miroire.png",
             alt: "miroir",
             imgWidth: "280px",
             title: "Miroir mon beau miroir",
@@ -37,7 +37,7 @@ export default function MiroirDesAffirmations() {
             href: "/wim-hof",
         },
         {
-            img: "/images/Frame 29037.png",
+            img: "/image_ambassadrice_svg/appareilphoto.png",
             alt: "visualise toi",
             imgWidth: "280px",
             title: "Visualise toi, projète toi",
@@ -53,7 +53,7 @@ export default function MiroirDesAffirmations() {
             href: "/visualisation",
         },
         {
-            img: "/image_ambassadrice_svg/Frame 29045.png",
+            img: "/image_ambassadrice_svg/envelope.png",
             alt: "mot à moi",
             imgWidth: "280px",
             title: "Mot à moi",
