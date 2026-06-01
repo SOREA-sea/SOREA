@@ -10,6 +10,7 @@ export default function NouvellePage() {
         <Navbar />
       </div>
 
+<<<<<<< HEAD
       <main className="flex flex-col flex-grow items-center mx-auto w-[1440px] pt-[150px] pr-[96px] pb-[24px] pl-[96px]">
         
         <div className="w-full mb-6">
@@ -23,6 +24,10 @@ export default function NouvellePage() {
         <div className="flex-grow flex items-center justify-center min-h-[300px]">
           <h1 className="text-4xl font-bold text-[#8B47FF]">Future page Miroire</h1>
         </div>
+=======
+      <main className="flex-grow flex items-center justify-center">
+        <h1 className="text-4xl font-bold text-[#8B47FF]">Future page Miroir</h1>
+>>>>>>> 16dd74ac0eaab3cc843354e9a35de4cf305ae57c
       </main>
 
       <div className="w-[1440px] pr-[96px] pl-[96px] mx-auto pb-[24px]">
