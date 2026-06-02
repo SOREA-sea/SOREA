@@ -1,8 +1,10 @@
 "use client";
 
+/* ── IMPORTATIONS ── */
 import React, { useRef, useState, useEffect } from "react";
 import confetti from "canvas-confetti";
 
+/* ── DONNÉES & CONSTANTES ── */
 const listeDeTaches = [
     { text: "Écrire 3 phrases positives sur une feuille" },
     { text: "Prendre 5 minutes pour méditer" },
@@ -35,6 +37,7 @@ const centreY = 151.5;
 const rayonRoue = 140;
 const couleursCases = ["#FEF0F9", "#BA98F4"];
 
+/* ── FONCTIONS UTILITAIRES ── */
 function effetRalentissement(progression: number) {
     return 1 - Math.pow(1 - progression, 4);
 }
@@ -65,49 +68,27 @@ function calculerPositionImage(index: number) {
 
 function lancerConfettis() {
     const couleursConfettis = ["#BA98F4", "#DBCEEF", "#ffffff", "#f9c6e8", "#c084fc", "#e879f9"];
-
     confetti({ particleCount: 80, angle: 60, spread: 70, origin: { x: 0, y: 0.6 }, colors: couleursConfettis, scalar: 1.1, zIndex: 9999 });
     confetti({ particleCount: 80, angle: 120, spread: 70, origin: { x: 1, y: 0.6 }, colors: couleursConfettis, scalar: 1.1, zIndex: 9999 });
     confetti({ particleCount: 60, spread: 90, origin: { x: 0.5, y: 0.5 }, colors: couleursConfettis, scalar: 0.9, zIndex: 9999 });
-
-    setTimeout(() => {
-        confetti({ particleCount: 50, angle: 75, spread: 60, origin: { x: 0.1, y: 0.5 }, colors: couleursConfettis, scalar: 1.2, zIndex: 9999 });
-        confetti({ particleCount: 50, angle: 105, spread: 60, origin: { x: 0.9, y: 0.5 }, colors: couleursConfettis, scalar: 1.2, zIndex: 9999 });
-    }, 300);
-
-    setTimeout(() => {
-        confetti({ particleCount: 40, spread: 100, origin: { x: 0.5, y: 0.4 }, colors: couleursConfettis, startVelocity: 20, gravity: 0.6, scalar: 0.8, zIndex: 9999 });
-    }, 600);
 }
 
+/* ── COMPOSANT PRINCIPAL ── */
 export default function RoueDuBienEtre() {
+    
     const referenceRoue = useRef<HTMLDivElement>(null);
     const referencePointeur = useRef<HTMLDivElement>(null);
     
     const [estEnTrainDeTourner, setEstEnTrainDeTourner] = useState(false);
     const [afficherFenetreResultat, setAfficherFenetreResultat] = useState(false);
-    const [tacheGagnante, setTacheGagnante] = useState<{ text: string } | null>(null);
-    
+    const [tacheGagnante, setTacheGagnante] = useState<{ text: string, icon: string } | null>(null);
     const [indexMiseEnValeur, setIndexMiseEnValeur] = useState<number | null>(null);
+    
+    // État pour gérer le choix de l'utilisateur sur la carte
+    const [choixUtilisateur, setChoixUtilisateur] = useState<'attente' | 'oui' | 'non'>('attente');
 
     const angleActuel = useRef(0);
     const minuteurAnimationRebond = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-    useEffect(() => {
-        let idAnimation: number;
-        const animerAttente = () => {
-            if (!estEnTrainDeTourner && indexMiseEnValeur === null) {
-                angleActuel.current += 0.1; 
-                if (referenceRoue.current) {
-                    referenceRoue.current.style.transform = `rotate(${angleActuel.current}deg)`;
-                }
-            }
-            idAnimation = requestAnimationFrame(animerAttente);
-        };
-        idAnimation = requestAnimationFrame(animerAttente);
-        
-        return () => cancelAnimationFrame(idAnimation);
-    }, [estEnTrainDeTourner, indexMiseEnValeur]);
 
     const tournerLaRoue = () => {
         if (estEnTrainDeTourner) return;
@@ -115,6 +96,7 @@ export default function RoueDuBienEtre() {
         setEstEnTrainDeTourner(true);
         setAfficherFenetreResultat(false);
         setIndexMiseEnValeur(null);
+        setChoixUtilisateur('attente'); // Réinitialiser le choix
 
         const degresTotaux = (5 + Math.random() * 5) * 360 + Math.random() * 360;
         const degresDeDepart = angleActuel.current;
@@ -155,27 +137,36 @@ export default function RoueDuBienEtre() {
             } else {
                 setEstEnTrainDeTourner(false);
                 
-                // CORRECTION DU CALCUL ICI : On trouve exactement la case qui est tout en haut
                 let rotationReelle = angleActuel.current % 360;
-                if (rotationReelle < 0) rotationReelle += 360; // Sécurité si l'angle est négatif
+                if (rotationReelle < 0) rotationReelle += 360; 
                 
                 const indexGagnant = Math.floor((360 - rotationReelle) / (360 / nombreDeCases)) % nombreDeCases;
                 
+                // Mettre en gris les autres cases
                 setIndexMiseEnValeur(indexGagnant);
                 
                 setTimeout(() => {
-                    setTacheGagnante(listeDeTaches[indexGagnant]);
+                    setTacheGagnante({
+                        text: listeDeTaches[indexGagnant].text,
+                        icon: listeImages[indexGagnant]
+                    });
                     setAfficherFenetreResultat(true);
                     lancerConfettis();
-                }, 1200);
+                }, 1000);
             }
         };
 
         requestAnimationFrame(animerLaRoue);
     };
 
+    const reinitialiserJeu = () => {
+        setAfficherFenetreResultat(false);
+        setIndexMiseEnValeur(null);
+        setChoixUtilisateur('attente');
+    };
+
     return (
-        <div className="w-full flex flex-col items-center py-12" style={{ fontFamily: "'Poppins', sans-serif" }}>
+        <div className="w-full flex flex-col items-center py-12 overflow-x-hidden" style={{ fontFamily: "'Poppins', sans-serif" }}>
             <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400&family=Poppins:wght@400;600;700&display=swap" rel="stylesheet" />
 
             <style>{`
@@ -184,240 +175,311 @@ export default function RoueDuBienEtre() {
                 .pointer-circle { width: 16px; height: 16px; background: #DBCEEF; border-radius: 50%; margin: 0 auto; border: 3px solid #fff; box-shadow: 0 2px 6px rgba(0,0,0,0.2); position: relative; z-index: 2; }
                 .pointer-tri { width: 0; height: 0; border-left: 10px solid transparent; border-right: 10px solid transparent; border-top: 26px solid #BA98F4; margin: -4px auto 0; filter: drop-shadow(0 2px 3px rgba(0,0,0,0.15)); }
                 
-                .modal-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background-color: rgba(255,255,255,0.78); backdrop-filter: blur(6px); z-index: 1000; display: flex; justify-content: center; align-items: center; }
-                .modal-box { background: #fff; padding: 44px 40px; border-radius: 20px; text-align: center; box-shadow: 0 12px 40px rgba(186,152,244,0.3); border: 2px solid #e9d5ff; max-width: 380px; animation: popIn 0.3s cubic-bezier(0.17,0.67,0.1,1); }
-                @keyframes popIn { 0% { transform: scale(0.8); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+                @keyframes slideInRight { 
+                    0% { transform: translateX(50px); opacity: 0; } 
+                    100% { transform: translateX(0); opacity: 1; } 
+                }
+                .card-resultat {
+                    animation: slideInRight 0.5s cubic-bezier(0.17,0.67,0.1,1) forwards;
+                }
             `}</style>
 
-            <div style={{ position: "relative", zIndex: 10 }}>
+            {/* Grille pour garder la roue au centre parfait, et la carte à droite */}
+            <div className="w-full max-w-[1100px] grid grid-cols-3 items-center">
                 
-                <div className="pointer-wrap" ref={referencePointeur}>
-                    <div className="pointer-circle" />
-                    <div className="pointer-tri" />
-                </div>
+                {/* Colonne gauche vide pour équilibrer */}
+                <div className="col-span-1"></div>
 
-                <div
-                    ref={referenceRoue}
-                    onClick={tournerLaRoue}
-                    style={{
-                        width: "303px",
-                        height: "303px",
-                        position: "relative",
-                        cursor: estEnTrainDeTourner ? "default" : "pointer",
-                        transformOrigin: "center center",
-                        willChange: "transform",
-                        borderRadius: "50%",
-                        overflow: "hidden",
-                    }}
-                >
-                    <svg width="303" height="303" style={{ position: "absolute", top: 0, left: 0 }}>
-                        {Array.from({ length: nombreDeCases }).map((_, i) => {
-                            const estAssombri = indexMiseEnValeur !== null && indexMiseEnValeur !== i;
-                            
-                            return (
-                                <path 
-                                    key={i} 
-                                    d={dessinerUneCase(i)} 
-                                    fill={couleursCases[i % 2]}
-                                    style={{
-                                        transition: "all 0.6s ease",
-                                        opacity: estAssombri ? 0.3 : 1,
-                                        filter: estAssombri ? "grayscale(100%)" : "none"
-                                    }}
-                                />
-                            );
-                        })}
-                    </svg>
-
-                    <svg width="303" height="303" style={{ position: "absolute", top: 0, left: 0, zIndex: 1 }}>
-                        <defs>
-                            <radialGradient id="innerShadow" cx="50%" cy="50%" r="50%">
-                                <stop offset="70%" stopColor="transparent" />
-                                <stop offset="100%" stopColor="rgba(80,40,120,0.3)" />
-                            </radialGradient>
-                        </defs>
-                        <circle cx="151.5" cy="151.5" r="133" fill="url(#innerShadow)" style={{ transition: "opacity 0.6s ease", opacity: indexMiseEnValeur !== null ? 0.5 : 1 }} />
-                    </svg>
-
-                    {listeImages.map((cheminImage, i) => {
-                        const { x, y } = calculerPositionImage(i);
-                        const estAssombri = indexMiseEnValeur !== null && indexMiseEnValeur !== i;
-                        
-                        return (
-                            <img
-                                key={i}
-                                src={cheminImage}
-                                alt=""
-                                style={{
-                                    position: "absolute",
-                                    width: "28px",
-                                    height: "28px",
-                                    left: `${x - 14}px`,
-                                    top: `${y - 14}px`,
-                                    zIndex: 2,
-                                    objectFit: "contain" as const,
-                                    transition: "all 0.6s ease",
-                                    opacity: estAssombri ? 0.2 : 1,
-                                    filter: estAssombri ? "grayscale(100%)" : "none",
-                                    transform: indexMiseEnValeur === i ? "scale(1.2)" : "scale(1)" 
-                                }}
-                            />
-                        );
-                    })}
-                </div>
-
-                <div style={{ position: "absolute", top: 0, left: 0, width: "303px", height: "303px", pointerEvents: "none" }}>
+                {/* Colonne centrale : La Roue et le Socle */}
+                <div className="col-span-1 flex flex-col items-center justify-center">
                     
-                    <div style={{
-                        position: "absolute",
-                        width: "100%",
-                        height: "100%",
-                        borderRadius: "50%",
-                        border: "18px solid #DBCEEF",
-                        boxSizing: "border-box",
-                        zIndex: 3,
-                        boxShadow: "0 4px 15px rgba(0,0,0,0.25), inset 0 0 10px rgba(0,0,0,0.08)",
-                    }} />
-                    
-                    {Array.from({ length: nombreDeCases }).map((_, i) => {
-                        const angle = (i * 360) / nombreDeCases;
-                        const radians = (angle * Math.PI) / 180;
-                        const x = Math.round(centreX + 145 * Math.sin(radians) - 4);
-                        const y = Math.round(centreY - 145 * Math.cos(radians) - 4);
-                        return (
+                    {/* ── BLOC ROUE ── */}
+                    <div style={{ position: "relative", zIndex: 10 }}>
+                        <div className="pointer-wrap" ref={referencePointeur}>
+                            <div className="pointer-circle" />
+                            <div className="pointer-tri" />
+                        </div>
+
+                        <div className="rounded-full shadow-[0_6px_18px_rgba(0,0,0,0.32),0_2px_6px_rgba(0,0,0,0.18)]">
                             <div
-                                key={i}
+                                ref={referenceRoue}
+                                onClick={tournerLaRoue}
                                 style={{
-                                    position: "absolute",
-                                    width: "8px",
-                                    height: "8px",
+                                    width: "303px",
+                                    height: "303px",
+                                    position: "relative",
+                                    cursor: estEnTrainDeTourner ? "default" : "pointer",
+                                    transformOrigin: "center center",
+                                    willChange: "transform",
                                     borderRadius: "50%",
-                                    border: "1px solid #9d6bf5",
-                                    background: "radial-gradient(circle, #ffffff, #8B47FF)",
-                                    boxSizing: "border-box",
-                                    left: `${x}px`,
-                                    top: `${y}px`,
-                                    zIndex: 4,
+                                    overflow: "hidden",
                                 }}
-                            />
-                        );
-                    })}
+                            >
+                                <svg width="303" height="303" style={{ position: "absolute", top: 0, left: 0 }}>
+                                    {Array.from({ length: nombreDeCases }).map((_, i) => {
+                                        const estAssombri = indexMiseEnValeur !== null && indexMiseEnValeur !== i;
+                                        return (
+                                            <path 
+                                                key={i} 
+                                                d={dessinerUneCase(i)} 
+                                                fill={couleursCases[i % 2]}
+                                                style={{
+                                                    transition: "all 0.6s ease",
+                                                    opacity: estAssombri ? 0.3 : 1,
+                                                    filter: estAssombri ? "grayscale(100%)" : "none"
+                                                }}
+                                            />
+                                        );
+                                    })}
+                                </svg>
 
-                    <div style={{
-                        position: "absolute",
-                        width: "20px",
-                        height: "20px",
-                        borderRadius: "50%",
-                        background: "radial-gradient(circle, #ffffff, #BA98F4)",
-                        border: "2px solid #fff",
-                        boxShadow: "0 0 6px rgba(0,0,0,0.2)",
-                        left: `${centreX - 10}px`,
-                        top: `${centreY - 10}px`,
-                        zIndex: 5,
-                    }} />
+                                <svg width="303" height="303" style={{ position: "absolute", top: 0, left: 0, zIndex: 1 }}>
+                                    <defs>
+                                        <radialGradient id="innerShadow" cx="50%" cy="50%" r="50%">
+                                            <stop offset="70%" stopColor="transparent" />
+                                            <stop offset="100%" stopColor="rgba(80,40,120,0.3)" />
+                                        </radialGradient>
+                                    </defs>
+                                    <circle cx="151.5" cy="151.5" r="133" fill="url(#innerShadow)" style={{ transition: "opacity 0.6s ease", opacity: indexMiseEnValeur !== null ? 0.5 : 1 }} />
+                                </svg>
+
+                                {listeImages.map((cheminImage, i) => {
+                                    const { x, y } = calculerPositionImage(i);
+                                    const estAssombri = indexMiseEnValeur !== null && indexMiseEnValeur !== i;
+                                    return (
+                                        <img
+                                            key={i}
+                                            src={cheminImage}
+                                            alt=""
+                                            style={{
+                                                position: "absolute",
+                                                width: "28px",
+                                                height: "28px",
+                                                left: `${x - 14}px`,
+                                                top: `${y - 14}px`,
+                                                zIndex: 2,
+                                                objectFit: "contain" as const,
+                                                transition: "all 0.6s ease",
+                                                opacity: estAssombri ? 0.2 : 1,
+                                                filter: estAssombri ? "grayscale(100%)" : "none",
+                                                transform: indexMiseEnValeur === i ? "scale(1.2)" : "scale(1)"
+                                            }}
+                                        />
+                                    );
+                                })}
+                            </div>
+                        </div>
+
+                        <div style={{ position: "absolute", top: 0, left: 0, width: "303px", height: "303px", pointerEvents: "none" }}>
+                            <div style={{
+                                position: "absolute",
+                                width: "100%",
+                                height: "100%",
+                                borderRadius: "50%",
+                                border: "18px solid #DBCEEF",
+                                boxSizing: "border-box",
+                                zIndex: 3,
+                                boxShadow: "0 0 0 2px rgba(0,0,0,0.08), 0 4px 12px rgba(0,0,0,0.3), inset 0 0 10px rgba(0,0,0,0.08)",
+                            }} />
+                            
+                            {Array.from({ length: nombreDeCases }).map((_, i) => {
+                                const angle = (i * 360) / nombreDeCases;
+                                const radians = (angle * Math.PI) / 180;
+                                const x = Math.round(centreX + 145 * Math.sin(radians) - 4);
+                                const y = Math.round(centreY - 145 * Math.cos(radians) - 4);
+                                return (
+                                    <div
+                                        key={i}
+                                        style={{
+                                            position: "absolute",
+                                            width: "8px",
+                                            height: "8px",
+                                            borderRadius: "50%",
+                                            border: "1px solid #9d6bf5",
+                                            background: "radial-gradient(circle, #ffffff, #8B47FF)",
+                                            boxSizing: "border-box",
+                                            left: `${x}px`,
+                                            top: `${y}px`,
+                                            zIndex: 4,
+                                        }}
+                                    />
+                                );
+                            })}
+
+                            <div style={{
+                                position: "absolute",
+                                width: "20px",
+                                height: "20px",
+                                borderRadius: "50%",
+                                background: "radial-gradient(circle, #ffffff, #BA98F4)",
+                                border: "2px solid #fff",
+                                boxShadow: "0 0 6px rgba(0,0,0,0.2)",
+                                left: `${centreX - 10}px`,
+                                top: `${centreY - 10}px`,
+                                zIndex: 5,
+                            }} />
+                        </div>
+                    </div>
+
+                    {/* ── SOCLE ── */}
+                    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", marginTop: "-65px", zIndex: 1, position: "relative" }}>
+                        <div style={{ position: "relative", width: "162px", height: "150px" }}>
+                            <svg width="162" height="150" viewBox="0 0 162 150" style={{ position: "absolute", top: 0, left: 0 }}>
+                                <defs>
+                                    <linearGradient id="shadowLeft" x1="0%" y1="0%" x2="100%" y2="0%">
+                                        <stop offset="0%" stopColor="rgba(0,0,0,0.22)" />
+                                        <stop offset="45%" stopColor="rgba(0,0,0,0)" />
+                                    </linearGradient>
+                                    <linearGradient id="shadowRight" x1="0%" y1="0%" x2="100%" y2="0%">
+                                        <stop offset="55%" stopColor="rgba(0,0,0,0)" />
+                                        <stop offset="100%" stopColor="rgba(0,0,0,0.22)" />
+                                    </linearGradient>
+                                </defs>
+                                <polygon points="55,0 107,0 162,150 0,150" fill="#DBCEEF" />
+                                <polygon points="55,0 107,0 162,150 0,150" fill="url(#shadowLeft)" />
+                                <polygon points="55,0 107,0 162,150 0,150" fill="url(#shadowRight)" />
+                            </svg>
+
+                            <div style={{
+                                position: "absolute",
+                                bottom: "12px",
+                                width: "100%",
+                                textAlign: "center",
+                                fontFamily: "'Inter', sans-serif",
+                                fontSize: "20px",
+                                fontWeight: 400,
+                                letterSpacing: "0.44em",
+                                color: "#FFFFFF",
+                                WebkitTextStroke: "1px #9b93a6",
+                                textShadow: "0px 2px 4px rgba(0,0,0,0.15)",
+                                paddingLeft: "0.44em",
+                            }}>
+                                SOREA
+                            </div>
+                        </div>
+
+                        <div style={{
+                            width: "168px",
+                            height: "27px",
+                            backgroundColor: "#DBCEEF",
+                            boxShadow: "inset 0px 6px 10px rgba(0,0,0,0.18), inset 6px 0px 8px rgba(0,0,0,0.1), inset -6px 0px 8px rgba(0,0,0,0.1)",
+                        }} />
+                    </div>
+
+                    
+                </div>
+
+                {/* Colonne droite : La Carte de résultat  */}
+                <div className="col-span-1 flex justify-start pl-8 relative z-20">
+                    {afficherFenetreResultat && tacheGagnante && (
+                        <div className="card-resultat bg-white p-8 rounded-3xl text-center shadow-[0_12px_40px_rgba(186,152,244,0.3)] border-2 border-[#e9d5ff] w-[340px]">
+                            
+                           
+                            <div className="flex flex-col items-center mb-6">
+                                <div className="w-16 h-16 bg-[#FEF0F9] rounded-full flex items-center justify-center mb-4 shadow-sm border border-[#e9d5ff]">
+                                    <img src={tacheGagnante.icon} alt="Thème" className="w-8 h-8 object-contain" />
+                                </div>
+                                <h2 style={{ color: "#BA98F4", fontSize: 20, fontWeight: 700, margin: 0 }}>
+                                    Défi Bien-être
+                                </h2>
+                            </div>
+                            
+                            {/* Texte du défi */}
+                            <p style={{ color: "#4b3b5c", fontSize: 17, fontWeight: 600, margin: "0 0 28px", lineHeight: 1.5 }}>
+                                {tacheGagnante.text}
+                            </p>
+                            
+                            {/* Logique des boutons de choix */}
+                            {choixUtilisateur === 'attente' && (
+                                <div className="flex flex-col gap-4">
+                                    <button
+                                        onClick={() => setChoixUtilisateur('oui')}
+                                        style={{
+                                            background: "linear-gradient(135deg, #DBCEEF, #BA98F4)",
+                                            color: "#fff",
+                                            border: "none",
+                                            borderRadius: 50,
+                                            padding: "12px 24px",
+                                            fontSize: 14,
+                                            fontWeight: 700,
+                                            cursor: "pointer",
+                                            boxShadow: "0 4px 14px rgba(186,152,244,0.35)",
+                                        }}
+                                    >
+                                        Je peux le faire
+                                    </button>
+                                    <button
+                                        onClick={() => setChoixUtilisateur('non')}
+                                        style={{
+                                            background: "transparent",
+                                            color: "#BA98F4",
+                                            border: "2px solid #DBCEEF",
+                                            borderRadius: 50,
+                                            padding: "10px 24px",
+                                            fontSize: 14,
+                                            fontWeight: 700,
+                                            cursor: "pointer",
+                                            transition: "all 0.2s ease"
+                                        }}
+                                        onMouseOver={(e) => e.currentTarget.style.background = "#FEF0F9"}
+                                        onMouseOut={(e) => e.currentTarget.style.background = "transparent"}
+                                    >
+                                        Je ne peux pas le faire
+                                    </button>
+                                </div>
+                            )}
+
+                            {choixUtilisateur === 'non' && (
+                                <div className="flex flex-col gap-3 animate-fade-in text-left">
+                                    <label className="text-[#4b3b5c] text-sm font-semibold ml-2">Dites-nous pourquoi :</label>
+                                    <textarea 
+                                        className="w-full border-2 border-[#e9d5ff] rounded-xl p-3 text-sm focus:outline-none focus:border-[#BA98F4] resize-none"
+                                        rows={4}
+                                        placeholder="Ex: Je n'ai pas le matériel, je manque de temps..."
+                                    ></textarea>
+                                    <button
+                                        onClick={reinitialiserJeu}
+                                        style={{
+                                            background: "#4b3b5c",
+                                            color: "#fff",
+                                            border: "none",
+                                            borderRadius: 50,
+                                            padding: "10px",
+                                            fontSize: 14,
+                                            fontWeight: 700,
+                                            cursor: "pointer",
+                                            marginTop: "8px"
+                                        }}
+                                    >
+                                        Envoyer et fermer
+                                    </button>
+                                </div>
+                            )}
+
+                            {choixUtilisateur === 'oui' && (
+                                <div className="flex flex-col gap-4 animate-fade-in">
+                                    <p className="text-[#BA98F4] font-bold text-lg">Super ! Bon défi 🎉</p>
+                                    <button
+                                        onClick={reinitialiserJeu}
+                                        style={{
+                                            background: "transparent",
+                                            color: "#4b3b5c",
+                                            textDecoration: "underline",
+                                            border: "none",
+                                            fontSize: 14,
+                                            fontWeight: 600,
+                                            cursor: "pointer",
+                                        }}
+                                    >
+                                        Fermer
+                                    </button>
+                                </div>
+                            )}
+
+                        </div>
+                    )}
                 </div>
             </div>
-
-            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", marginTop: "-65px", zIndex: 1, position: "relative" }}>
-                
-                <div style={{ position: "relative", width: "162px", height: "150px" }}>
-                    <svg width="162" height="150" viewBox="0 0 162 150" style={{ position: "absolute", top: 0, left: 0 }}>
-                        <defs>
-                            <linearGradient id="shadowLeft" x1="0%" y1="0%" x2="100%" y2="0%">
-                                <stop offset="0%" stopColor="rgba(0,0,0,0.22)" />
-                                <stop offset="45%" stopColor="rgba(0,0,0,0)" />
-                            </linearGradient>
-                            <linearGradient id="shadowRight" x1="0%" y1="0%" x2="100%" y2="0%">
-                                <stop offset="55%" stopColor="rgba(0,0,0,0)" />
-                                <stop offset="100%" stopColor="rgba(0,0,0,0.22)" />
-                            </linearGradient>
-                        </defs>
-                        <polygon points="55,0 107,0 162,150 0,150" fill="#DBCEEF" />
-                        <polygon points="55,0 107,0 162,150 0,150" fill="url(#shadowLeft)" />
-                        <polygon points="55,0 107,0 162,150 0,150" fill="url(#shadowRight)" />
-                    </svg>
-
-                    <div style={{
-                        position: "absolute",
-                        bottom: "12px",
-                        width: "100%",
-                        textAlign: "center",
-                        fontFamily: "'Inter', sans-serif",
-                        fontSize: "20px",
-                        fontWeight: 400,
-                        letterSpacing: "0.44em",
-                        color: "#FFFFFF",
-                        WebkitTextStroke: "1px #9b93a6",
-                        textShadow: "0px 2px 4px rgba(0,0,0,0.15)",
-                        paddingLeft: "0.44em",
-                    }}>
-                        SOREA
-                    </div>
-                </div>
-
-                <div style={{
-                    width: "168px",
-                    height: "27px",
-                    backgroundColor: "#DBCEEF",
-                    boxShadow: "inset 0px 6px 10px rgba(0,0,0,0.18), inset 6px 0px 8px rgba(0,0,0,0.1), inset -6px 0px 8px rgba(0,0,0,0.1)",
-                }} />
-            </div>
-
-            <button
-                onClick={tournerLaRoue}
-                disabled={estEnTrainDeTourner}
-                style={{
-                    marginTop: "40px",
-                    background: "linear-gradient(135deg, #DBCEEF, #BA98F4)",
-                    color: "#fff",
-                    border: "none",
-                    borderRadius: 50,
-                    padding: "14px 44px",
-                    fontSize: 16,
-                    fontWeight: 700,
-                    letterSpacing: 2,
-                    textTransform: "uppercase",
-                    cursor: estEnTrainDeTourner ? "default" : "pointer",
-                    opacity: estEnTrainDeTourner ? 0.7 : 1,
-                    boxShadow: "0 6px 20px rgba(186,152,244,0.45)",
-                    fontFamily: "'Poppins', sans-serif",
-                }}
-            >
-                Tourner la roue
-            </button>
-
-            {afficherFenetreResultat && tacheGagnante && (
-                <div className="modal-overlay">
-                    <div className="modal-box">
-                        <h2 style={{ color: "#BA98F4", fontSize: 22, fontWeight: 700, margin: "0 0 12px" }}>
-                            Votre tâche bien-être
-                        </h2>
-                        <p style={{ color: "#4b3b5c", fontSize: 17, fontWeight: 600, margin: "0 0 28px", lineHeight: 1.5 }}>
-                            {tacheGagnante.text}
-                        </p>
-                        <button
-                            onClick={() => {
-                                setAfficherFenetreResultat(false);
-                                setIndexMiseEnValeur(null);
-                            }}
-                            style={{
-                                background: "linear-gradient(135deg, #DBCEEF, #BA98F4)",
-                                color: "#fff",
-                                border: "none",
-                                borderRadius: 50,
-                                padding: "12px 36px",
-                                fontSize: 15,
-                                fontWeight: 700,
-                                cursor: "pointer",
-                                fontFamily: "'Poppins', sans-serif",
-                                boxShadow: "0 4px 14px rgba(186,152,244,0.35)",
-                            }}
-                        >
-                            C'est parti !
-                        </button>
-                    </div>
-                </div>
-            )}
         </div>
     );
 }
