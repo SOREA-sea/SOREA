@@ -61,10 +61,10 @@ export default function NouvellePage() {
             <div 
               className="absolute z-10 overflow-hidden bg-black"
               style={{ 
-                width: "212px",       
-                height: "305px",      
+                width: "203px",       
+                height: "270px",      
                 borderRadius: "50%", 
-                top: "50%",
+                top: "48%",
                 left: "50%",
                 transform: "translate(-50%, -50%)",
                 marginTop: "12px"
@@ -81,7 +81,7 @@ export default function NouvellePage() {
 
           </div>
           
-          <h1 className="text-4xl font-bold text-[#8B47FF]">Miroir mon beau miroir</h1>
+          
         </div>
       </main>
 
