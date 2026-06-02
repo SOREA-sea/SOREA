@@ -7,7 +7,7 @@ import Footer from "@/components/Footer";
 export default function MiroirDesAffirmations() {
     const sections = [
         {
-            img: "/image_ambassadrice_svg/Frame 29031.png",
+            img: "/image_ambassadrice_svg/miroire.png",
             alt: "miroir",
             imgWidth: "280px",
             title: "Miroir mon beau miroir",
@@ -22,7 +22,7 @@ export default function MiroirDesAffirmations() {
             href: "/miroir",
         },
         {
-            img: "/image_ambassadrice_svg/Lotus.png",
+            img: "/image_ambassadrice_svg/lotus.png",
             alt: "wim hof",
             imgWidth: "180px",
             title: "Wim Hof féminine",
@@ -37,7 +37,7 @@ export default function MiroirDesAffirmations() {
             href: "/wim-hof",
         },
         {
-            img: "/images/Frame 29037.png",
+            img: "/image_ambassadrice_svg/appareilphoto.png",
             alt: "visualise toi",
             imgWidth: "280px",
             title: "Visualise toi, projète toi",
@@ -53,7 +53,7 @@ export default function MiroirDesAffirmations() {
             href: "/visualisation",
         },
         {
-            img: "/image_ambassadrice_svg/Frame 29045.png",
+            img: "/image_ambassadrice_svg/envelope.png",
             alt: "mot à moi",
             imgWidth: "280px",
             title: "Mot à moi",
@@ -98,19 +98,13 @@ export default function MiroirDesAffirmations() {
                 rel="stylesheet"
             />
 
-            {/* Navbar */}
             <div className="w-[1440px] pr-[96px] pl-[96px] mx-auto pb-[24px] gap-[50px]">
                 <Navbar />
             </div>
 
-            {/* Sections */}
             <div className="flex flex-col mx-auto w-[1440px] px-[96px] gap-[64px] py-16">
                 {sections.map((section, i) => (
-                    <div
-                        key={i}
-                        className="flex flex-row items-center gap-12"
-                    >
-                        {/* Image container — fixed width so all cards align consistently */}
+                    <div key={i} className="flex flex-row items-center gap-12">
                         <div
                             className="flex-shrink-0 flex items-center justify-center"
                             style={{ width: "320px" }}
@@ -122,12 +116,10 @@ export default function MiroirDesAffirmations() {
                             />
                         </div>
 
-                        {/* Card */}
                         <div
                             className="flex flex-col border-2 border-[#8B47FF] rounded-2xl p-10 gap-6 flex-1"
                             style={{
-                                background:
-                                    "radial-gradient(ellipse at center, #FEF0F9 0%, #FFFFFF 100%)",
+                                background: "radial-gradient(ellipse at center, #FEF0F9 0%, #FFFFFF 100%)",
                             }}
                         >
                             <h2 className="text-3xl font-bold underline text-black text-center">
@@ -148,7 +140,6 @@ export default function MiroirDesAffirmations() {
                 ))}
             </div>
 
-            {/* Footer */}
             <div className="w-[1440px] pr-[96px] pl-[96px] mx-auto pb-[24px]">
                 <Footer />
             </div>
