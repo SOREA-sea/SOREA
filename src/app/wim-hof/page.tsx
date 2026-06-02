@@ -20,7 +20,12 @@ export default function NouvellePage() {
           </Link>
         </div>
 
-        <div className="flex-grow flex items-center justify-center min-h-[300px]">
+        <div className="flex-grow flex flex-col items-center justify-center min-h-[300px] gap-8">
+          <img 
+            src="/image_ambassadrice_svg/lotus.png" 
+            alt="lotus" 
+            style={{ width: "350px" }} 
+          />
           <h1 className="text-4xl font-bold text-[#8B47FF]">Future page wim-hof</h1>
         </div>
       </main>
