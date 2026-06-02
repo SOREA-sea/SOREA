@@ -1,10 +1,8 @@
 "use client";
 
-/* ── IMPORTATIONS ── */
-import React, { useRef, useState } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import confetti from "canvas-confetti";
 
-/* ── DONNÉES & CONSTANTES ── */
 const listeDeTaches = [
     { text: "Écrire 3 phrases positives sur une feuille" },
     { text: "Prendre 5 minutes pour méditer" },
@@ -37,7 +35,6 @@ const centreY = 151.5;
 const rayonRoue = 140;
 const couleursCases = ["#FEF0F9", "#BA98F4"];
 
-/* ── FONCTIONS UTILITAIRES ── */
 function effetRalentissement(progression: number) {
     return 1 - Math.pow(1 - progression, 4);
 }
@@ -69,90 +66,55 @@ function calculerPositionImage(index: number) {
 function lancerConfettis() {
     const couleursConfettis = ["#BA98F4", "#DBCEEF", "#ffffff", "#f9c6e8", "#c084fc", "#e879f9"];
 
-    confetti({
-        particleCount: 80,
-        angle: 60,
-        spread: 70,
-        origin: { x: 0, y: 0.6 },
-        colors: couleursConfettis,
-        scalar: 1.1,
-        zIndex: 9999,
-    });
-
-    confetti({
-        particleCount: 80,
-        angle: 120,
-        spread: 70,
-        origin: { x: 1, y: 0.6 },
-        colors: couleursConfettis,
-        scalar: 1.1,
-        zIndex: 9999,
-    });
-
-    confetti({
-        particleCount: 60,
-        spread: 90,
-        origin: { x: 0.5, y: 0.5 },
-        colors: couleursConfettis,
-        scalar: 0.9,
-        zIndex: 9999,
-    });
+    confetti({ particleCount: 80, angle: 60, spread: 70, origin: { x: 0, y: 0.6 }, colors: couleursConfettis, scalar: 1.1, zIndex: 9999 });
+    confetti({ particleCount: 80, angle: 120, spread: 70, origin: { x: 1, y: 0.6 }, colors: couleursConfettis, scalar: 1.1, zIndex: 9999 });
+    confetti({ particleCount: 60, spread: 90, origin: { x: 0.5, y: 0.5 }, colors: couleursConfettis, scalar: 0.9, zIndex: 9999 });
 
     setTimeout(() => {
-        confetti({
-            particleCount: 50,
-            angle: 75,
-            spread: 60,
-            origin: { x: 0.1, y: 0.5 },
-            colors: couleursConfettis,
-            scalar: 1.2,
-            zIndex: 9999,
-        });
-        confetti({
-            particleCount: 50,
-            angle: 105,
-            spread: 60,
-            origin: { x: 0.9, y: 0.5 },
-            colors: couleursConfettis,
-            scalar: 1.2,
-            zIndex: 9999,
-        });
+        confetti({ particleCount: 50, angle: 75, spread: 60, origin: { x: 0.1, y: 0.5 }, colors: couleursConfettis, scalar: 1.2, zIndex: 9999 });
+        confetti({ particleCount: 50, angle: 105, spread: 60, origin: { x: 0.9, y: 0.5 }, colors: couleursConfettis, scalar: 1.2, zIndex: 9999 });
     }, 300);
 
     setTimeout(() => {
-        confetti({
-            particleCount: 40,
-            spread: 100,
-            origin: { x: 0.5, y: 0.4 },
-            colors: couleursConfettis,
-            startVelocity: 20,
-            gravity: 0.6,
-            scalar: 0.8,
-            zIndex: 9999,
-        });
+        confetti({ particleCount: 40, spread: 100, origin: { x: 0.5, y: 0.4 }, colors: couleursConfettis, startVelocity: 20, gravity: 0.6, scalar: 0.8, zIndex: 9999 });
     }, 600);
 }
 
-/* ── COMPOSANT PRINCIPAL ── */
 export default function RoueDuBienEtre() {
-    
-    /* ── ÉTATS ET RÉFÉRENCES ── */
     const referenceRoue = useRef<HTMLDivElement>(null);
     const referencePointeur = useRef<HTMLDivElement>(null);
     
     const [estEnTrainDeTourner, setEstEnTrainDeTourner] = useState(false);
     const [afficherFenetreResultat, setAfficherFenetreResultat] = useState(false);
     const [tacheGagnante, setTacheGagnante] = useState<{ text: string } | null>(null);
+    
+    const [indexMiseEnValeur, setIndexMiseEnValeur] = useState<number | null>(null);
 
     const angleActuel = useRef(0);
     const minuteurAnimationRebond = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-    /* ── LOGIQUE D'ANIMATION ── */
+    useEffect(() => {
+        let idAnimation: number;
+        const animerAttente = () => {
+            if (!estEnTrainDeTourner && indexMiseEnValeur === null) {
+                angleActuel.current += 0.1; 
+                if (referenceRoue.current) {
+                    referenceRoue.current.style.transform = `rotate(${angleActuel.current}deg)`;
+                }
+            }
+            idAnimation = requestAnimationFrame(animerAttente);
+        };
+        idAnimation = requestAnimationFrame(animerAttente);
+        
+        return () => cancelAnimationFrame(idAnimation);
+    }, [estEnTrainDeTourner, indexMiseEnValeur]);
+
     const tournerLaRoue = () => {
         if (estEnTrainDeTourner) return;
         
         setEstEnTrainDeTourner(true);
         setAfficherFenetreResultat(false);
+        setIndexMiseEnValeur(null);
 
         const degresTotaux = (5 + Math.random() * 5) * 360 + Math.random() * 360;
         const degresDeDepart = angleActuel.current;
@@ -193,135 +155,130 @@ export default function RoueDuBienEtre() {
             } else {
                 setEstEnTrainDeTourner(false);
                 
-                const degreFinalModifie = angleActuel.current % 360;
-                let angleEnHaut = (270 - degreFinalModifie) % 360;
-                if (angleEnHaut < 0) angleEnHaut += 360;
+                // CORRECTION DU CALCUL ICI : On trouve exactement la case qui est tout en haut
+                let rotationReelle = angleActuel.current % 360;
+                if (rotationReelle < 0) rotationReelle += 360; // Sécurité si l'angle est négatif
                 
-                const indexGagnant = Math.floor(angleEnHaut / (360 / nombreDeCases)) % nombreDeCases;
+                const indexGagnant = Math.floor((360 - rotationReelle) / (360 / nombreDeCases)) % nombreDeCases;
+                
+                setIndexMiseEnValeur(indexGagnant);
                 
                 setTimeout(() => {
                     setTacheGagnante(listeDeTaches[indexGagnant]);
                     setAfficherFenetreResultat(true);
                     lancerConfettis();
-                }, 400);
+                }, 1200);
             }
         };
 
         requestAnimationFrame(animerLaRoue);
     };
 
-    /* ── RENDU VISUEL ── */
     return (
         <div className="w-full flex flex-col items-center py-12" style={{ fontFamily: "'Poppins', sans-serif" }}>
             <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400&family=Poppins:wght@400;600;700&display=swap" rel="stylesheet" />
 
-            {/* ── STYLES GLOBAUX ── */}
             <style>{`
                 .pointer-wrap { position: absolute; top: -24px; left: 50%; margin-left: -12px; width: 24px; height: 54px; z-index: 20; transform-origin: 12px 8px; transition: transform 0.05s ease-out; }
                 .pointer-wrap.bump { transform: rotate(-28deg); }
                 .pointer-circle { width: 16px; height: 16px; background: #DBCEEF; border-radius: 50%; margin: 0 auto; border: 3px solid #fff; box-shadow: 0 2px 6px rgba(0,0,0,0.2); position: relative; z-index: 2; }
                 .pointer-tri { width: 0; height: 0; border-left: 10px solid transparent; border-right: 10px solid transparent; border-top: 26px solid #BA98F4; margin: -4px auto 0; filter: drop-shadow(0 2px 3px rgba(0,0,0,0.15)); }
+                
                 .modal-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background-color: rgba(255,255,255,0.78); backdrop-filter: blur(6px); z-index: 1000; display: flex; justify-content: center; align-items: center; }
                 .modal-box { background: #fff; padding: 44px 40px; border-radius: 20px; text-align: center; box-shadow: 0 12px 40px rgba(186,152,244,0.3); border: 2px solid #e9d5ff; max-width: 380px; animation: popIn 0.3s cubic-bezier(0.17,0.67,0.1,1); }
                 @keyframes popIn { 0% { transform: scale(0.8); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
-                .wheel-ring {
-                    position: absolute;
-                    width: 100%;
-                    height: 100%;
-                    border-radius: 50%;
-                    border: 18px solid #DBCEEF;
-                    box-sizing: border-box;
-                    z-index: 3;
-                    box-shadow:
-                        0 0 0 2px rgba(0,0,0,0.08),
-                        0 4px 12px rgba(0,0,0,0.3),
-                        0 8px 24px rgba(0,0,0,0.2),
-                        0 12px 36px rgba(0,0,0,0.12),
-                        inset 0 0 10px rgba(0,0,0,0.08);
-                }
-                .wheel-shadow-wrapper {
-                    border-radius: 50%;
-                    box-shadow:
-                        0 6px 18px rgba(0,0,0,0.32),
-                        0 2px 6px rgba(0,0,0,0.18);
-                }
             `}</style>
 
-            {/* ── BLOC ROUE GLOBALE ── */}
             <div style={{ position: "relative", zIndex: 10 }}>
                 
-                {/* ── POINTEUR HAUT ── */}
                 <div className="pointer-wrap" ref={referencePointeur}>
                     <div className="pointer-circle" />
                     <div className="pointer-tri" />
                 </div>
 
-                {/* ── SUPPORT ROTATIF OMBRÉ ── */}
-                <div className="wheel-shadow-wrapper">
-                    
-                    {/* ── CERCLE DE LA ROUE ── */}
-                    <div
-                        ref={referenceRoue}
-                        onClick={tournerLaRoue}
-                        style={{
-                            width: "303px",
-                            height: "303px",
-                            position: "relative",
-                            cursor: estEnTrainDeTourner ? "default" : "pointer",
-                            transformOrigin: "center center",
-                            willChange: "transform",
-                            borderRadius: "50%",
-                            overflow: "hidden",
-                        }}
-                    >
-                        {/* ── PARTS DE LA ROUE ── */}
-                        <svg width="303" height="303" style={{ position: "absolute", top: 0, left: 0 }}>
-                            {Array.from({ length: nombreDeCases }).map((_, i) => (
-                                <path key={i} d={dessinerUneCase(i)} fill={couleursCases[i % 2]} />
-                            ))}
-                        </svg>
-
-                        {/* ── DÉGRADÉ CENTRAL ── */}
-                        <svg width="303" height="303" style={{ position: "absolute", top: 0, left: 0, zIndex: 1 }}>
-                            <defs>
-                                <radialGradient id="innerShadow" cx="50%" cy="50%" r="50%">
-                                    <stop offset="70%" stopColor="transparent" />
-                                    <stop offset="100%" stopColor="rgba(80,40,120,0.3)" />
-                                </radialGradient>
-                            </defs>
-                            <circle cx="151.5" cy="151.5" r="133" fill="url(#innerShadow)" />
-                        </svg>
-
-                        {/* ── ICÔNES DES PARTS ── */}
-                        {listeImages.map((cheminImage, index) => {
-                            const { x, y } = calculerPositionImage(index);
+                <div
+                    ref={referenceRoue}
+                    onClick={tournerLaRoue}
+                    style={{
+                        width: "303px",
+                        height: "303px",
+                        position: "relative",
+                        cursor: estEnTrainDeTourner ? "default" : "pointer",
+                        transformOrigin: "center center",
+                        willChange: "transform",
+                        borderRadius: "50%",
+                        overflow: "hidden",
+                    }}
+                >
+                    <svg width="303" height="303" style={{ position: "absolute", top: 0, left: 0 }}>
+                        {Array.from({ length: nombreDeCases }).map((_, i) => {
+                            const estAssombri = indexMiseEnValeur !== null && indexMiseEnValeur !== i;
+                            
                             return (
-                                <img
-                                    key={index}
-                                    src={cheminImage}
-                                    alt=""
+                                <path 
+                                    key={i} 
+                                    d={dessinerUneCase(i)} 
+                                    fill={couleursCases[i % 2]}
                                     style={{
-                                        position: "absolute",
-                                        width: "28px",
-                                        height: "28px",
-                                        left: `${x - 14}px`,
-                                        top: `${y - 14}px`,
-                                        zIndex: 2,
-                                        objectFit: "contain" as const,
+                                        transition: "all 0.6s ease",
+                                        opacity: estAssombri ? 0.3 : 1,
+                                        filter: estAssombri ? "grayscale(100%)" : "none"
                                     }}
                                 />
                             );
                         })}
-                    </div>
+                    </svg>
+
+                    <svg width="303" height="303" style={{ position: "absolute", top: 0, left: 0, zIndex: 1 }}>
+                        <defs>
+                            <radialGradient id="innerShadow" cx="50%" cy="50%" r="50%">
+                                <stop offset="70%" stopColor="transparent" />
+                                <stop offset="100%" stopColor="rgba(80,40,120,0.3)" />
+                            </radialGradient>
+                        </defs>
+                        <circle cx="151.5" cy="151.5" r="133" fill="url(#innerShadow)" style={{ transition: "opacity 0.6s ease", opacity: indexMiseEnValeur !== null ? 0.5 : 1 }} />
+                    </svg>
+
+                    {listeImages.map((cheminImage, i) => {
+                        const { x, y } = calculerPositionImage(i);
+                        const estAssombri = indexMiseEnValeur !== null && indexMiseEnValeur !== i;
+                        
+                        return (
+                            <img
+                                key={i}
+                                src={cheminImage}
+                                alt=""
+                                style={{
+                                    position: "absolute",
+                                    width: "28px",
+                                    height: "28px",
+                                    left: `${x - 14}px`,
+                                    top: `${y - 14}px`,
+                                    zIndex: 2,
+                                    objectFit: "contain" as const,
+                                    transition: "all 0.6s ease",
+                                    opacity: estAssombri ? 0.2 : 1,
+                                    filter: estAssombri ? "grayscale(100%)" : "none",
+                                    transform: indexMiseEnValeur === i ? "scale(1.2)" : "scale(1)" 
+                                }}
+                            />
+                        );
+                    })}
                 </div>
 
-                {/* ── ELEMENTS FIXES SUR LA ROUE ── */}
                 <div style={{ position: "absolute", top: 0, left: 0, width: "303px", height: "303px", pointerEvents: "none" }}>
                     
-                    {/* ── ANNEAU EXTERIEUR ── */}
-                    <div className="wheel-ring" />
+                    <div style={{
+                        position: "absolute",
+                        width: "100%",
+                        height: "100%",
+                        borderRadius: "50%",
+                        border: "18px solid #DBCEEF",
+                        boxSizing: "border-box",
+                        zIndex: 3,
+                        boxShadow: "0 4px 15px rgba(0,0,0,0.25), inset 0 0 10px rgba(0,0,0,0.08)",
+                    }} />
                     
-                    {/* ── RIVETS AUTOUR DE L'ANNEAU ── */}
                     {Array.from({ length: nombreDeCases }).map((_, i) => {
                         const angle = (i * 360) / nombreDeCases;
                         const radians = (angle * Math.PI) / 180;
@@ -346,7 +303,6 @@ export default function RoueDuBienEtre() {
                         );
                     })}
 
-                    {/* ── BOUTON CENTRAL DÉCORATIF ── */}
                     <div style={{
                         position: "absolute",
                         width: "20px",
@@ -362,10 +318,8 @@ export default function RoueDuBienEtre() {
                 </div>
             </div>
 
-            {/* ── SOCLE ── */}
             <div style={{ display: "flex", flexDirection: "column", alignItems: "center", marginTop: "-65px", zIndex: 1, position: "relative" }}>
                 
-                {/* ── TRAPÈZE DU SOCLE ── */}
                 <div style={{ position: "relative", width: "162px", height: "150px" }}>
                     <svg width="162" height="150" viewBox="0 0 162 150" style={{ position: "absolute", top: 0, left: 0 }}>
                         <defs>
@@ -383,7 +337,6 @@ export default function RoueDuBienEtre() {
                         <polygon points="55,0 107,0 162,150 0,150" fill="url(#shadowRight)" />
                     </svg>
 
-                    {/* ── TEXTE DU SOCLE ── */}
                     <div style={{
                         position: "absolute",
                         bottom: "12px",
@@ -402,7 +355,6 @@ export default function RoueDuBienEtre() {
                     </div>
                 </div>
 
-                {/* ── BASE DU SOCLE ── */}
                 <div style={{
                     width: "168px",
                     height: "27px",
@@ -411,7 +363,6 @@ export default function RoueDuBienEtre() {
                 }} />
             </div>
 
-            {/* ── BOUTON D'ACTION ── */}
             <button
                 onClick={tournerLaRoue}
                 disabled={estEnTrainDeTourner}
@@ -424,10 +375,10 @@ export default function RoueDuBienEtre() {
                     padding: "14px 44px",
                     fontSize: 16,
                     fontWeight: 700,
-                    letterSpacing: 3,
+                    letterSpacing: 2,
                     textTransform: "uppercase",
                     cursor: estEnTrainDeTourner ? "default" : "pointer",
-                    opacity: estEnTrainDeTourner ? 0.6 : 1,
+                    opacity: estEnTrainDeTourner ? 0.7 : 1,
                     boxShadow: "0 6px 20px rgba(186,152,244,0.45)",
                     fontFamily: "'Poppins', sans-serif",
                 }}
@@ -435,24 +386,20 @@ export default function RoueDuBienEtre() {
                 Tourner la roue
             </button>
 
-            {/* ── MODAL DE RÉSULTAT ── */}
             {afficherFenetreResultat && tacheGagnante && (
                 <div className="modal-overlay">
                     <div className="modal-box">
-                        
-                        {/* ── TITRE MODAL ── */}
                         <h2 style={{ color: "#BA98F4", fontSize: 22, fontWeight: 700, margin: "0 0 12px" }}>
                             Votre tâche bien-être
                         </h2>
-                        
-                        {/* ── TEXTE GAGNANT ── */}
                         <p style={{ color: "#4b3b5c", fontSize: 17, fontWeight: 600, margin: "0 0 28px", lineHeight: 1.5 }}>
                             {tacheGagnante.text}
                         </p>
-                        
-                        {/* ── BOUTON FERMER MODAL ── */}
                         <button
-                            onClick={() => setAfficherFenetreResultat(false)}
+                            onClick={() => {
+                                setAfficherFenetreResultat(false);
+                                setIndexMiseEnValeur(null);
+                            }}
                             style={{
                                 background: "linear-gradient(135deg, #DBCEEF, #BA98F4)",
                                 color: "#fff",
