@@ -1,7 +1,7 @@
 "use client";
 
 /* ── IMPORTATIONS ── */
-import React, { useRef, useState, useEffect } from "react";
+import React, { useRef, useState } from "react";
 import confetti from "canvas-confetti";
 
 /* ── DONNÉES & CONSTANTES ── */
@@ -36,6 +36,11 @@ const centreX = 151.5;
 const centreY = 151.5;
 const rayonRoue = 140;
 const couleursCases = ["#FEF0F9", "#BA98F4"];
+const raisonsIndisponibilite = [
+    "Je manque de temps aujourd'hui",
+    "Je ne me sens pas assez en forme",
+    "Ce défi ne correspond pas à mon énergie du moment",
+];
 
 /* ── FONCTIONS UTILITAIRES ── */
 function effetRalentissement(progression: number) {
@@ -82,6 +87,8 @@ export default function RoueDuBienEtre() {
     const [estEnTrainDeTourner, setEstEnTrainDeTourner] = useState(false);
     const [afficherFenetreResultat, setAfficherFenetreResultat] = useState(false);
     const [tacheGagnante, setTacheGagnante] = useState<{ text: string, icon: string } | null>(null);
+    const [raisonSelectionnee, setRaisonSelectionnee] = useState("");
+    const [raisonPersonnalisee, setRaisonPersonnalisee] = useState("");
     const [indexMiseEnValeur, setIndexMiseEnValeur] = useState<number | null>(null);
     
     // État pour gérer le choix de l'utilisateur sur la carte
@@ -95,6 +102,8 @@ export default function RoueDuBienEtre() {
         
         setEstEnTrainDeTourner(true);
         setAfficherFenetreResultat(false);
+        setRaisonSelectionnee("");
+        setRaisonPersonnalisee("");
         setIndexMiseEnValeur(null);
         setChoixUtilisateur('attente'); // Réinitialiser le choix
 
@@ -406,7 +415,7 @@ export default function RoueDuBienEtre() {
                                             boxShadow: "0 4px 14px rgba(186,152,244,0.35)",
                                         }}
                                     >
-                                        Je peux le faire
+                                        {"C'est parti"}
                                     </button>
                                     <button
                                         onClick={() => setChoixUtilisateur('non')}
@@ -431,14 +440,39 @@ export default function RoueDuBienEtre() {
 
                             {choixUtilisateur === 'non' && (
                                 <div className="flex flex-col gap-3 animate-fade-in text-left">
-                                    <label className="text-[#4b3b5c] text-sm font-semibold ml-2">Dites-nous pourquoi :</label>
+                                    <label className="text-[#4b3b5c] text-sm font-semibold ml-2">
+                                        Tu peux choisir une raison ou écrire la tienne :
+                                    </label>
+                                    <div className="flex flex-col gap-2">
+                                        {raisonsIndisponibilite.map((raison) => (
+                                            <button
+                                                key={raison}
+                                                type="button"
+                                                onClick={() => setRaisonSelectionnee(raison)}
+                                                className="rounded-xl px-3 py-2 text-left text-sm font-semibold"
+                                                style={{
+                                                    background: raisonSelectionnee === raison ? "#FEF0F9" : "#fff",
+                                                    color: "#4b3b5c",
+                                                    border: raisonSelectionnee === raison ? "2px solid #BA98F4" : "1px solid #DBCEEF",
+                                                }}
+                                            >
+                                                {raison}
+                                            </button>
+                                        ))}
+                                    </div>
                                     <textarea 
+                                        value={raisonPersonnalisee}
+                                        onChange={(event) => setRaisonPersonnalisee(event.target.value)}
                                         className="w-full border-2 border-[#e9d5ff] rounded-xl p-3 text-sm focus:outline-none focus:border-[#BA98F4] resize-none"
                                         rows={4}
-                                        placeholder="Ex: Je n'ai pas le matériel, je manque de temps..."
+                                        placeholder="Écris ici pourquoi tu ne peux pas le faire..."
                                     ></textarea>
                                     <button
-                                        onClick={reinitialiserJeu}
+                                        onClick={() => {
+                                            setRaisonSelectionnee("");
+                                            setRaisonPersonnalisee("");
+                                            reinitialiserJeu();
+                                        }}
                                         style={{
                                             background: "#4b3b5c",
                                             color: "#fff",
@@ -451,7 +485,7 @@ export default function RoueDuBienEtre() {
                                             marginTop: "8px"
                                         }}
                                     >
-                                        Envoyer et fermer
+                                        Valider
                                     </button>
                                 </div>
                             )}
