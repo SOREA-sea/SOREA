@@ -1,5 +1,7 @@
 "use client"
 import { useState } from "react";
+import Carnet_bn from "./Carnet_bn";
+import Carnet_planning from "./Carnet_planning";
 
 const styles = `
 
@@ -222,27 +224,89 @@ const styles = `
     flex-shrink: 0;
   }
 
-  .sorea-cat-card.inactive {
+  .sorea-cat-card:disabled {
     background: #D8D8D8;
     color: #aaa;
     filter: blur(1.5px);
+    cursor: not-allowed;
   }
 
-  .sorea-cat-card.active {
+  .sorea-cat-card:not(:disabled) {
     cursor: pointer;
     filter: none;
   }
-  .sorea-cat-card.active:hover { transform: scale(1.02); }
+  .sorea-cat-card:not(:disabled):hover { transform: scale(1.02); }
 
-  .sorea-gratitude.active  { background: #C4B5E8; color: #3A1A7A; }
-  .sorea-journaling.active { background: #F5DEC8; color: #7A4010; }
-  .sorea-libre.active      { background: #7DE8E8; color: #0A5050; }
+  .sorea-gratitude:not(:disabled) { background: #C4B5E8; color: #3A1A7A; }
+  .sorea-journaling:not(:disabled) { background: #F5DEC8; color: #7A4010; }
+
+  .sorea-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.45);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    z-index: 999;
+  }
+
+  .sorea-overlay-inner {
+    position: relative;
+    max-width: 760px;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100px;
+  }
+
+  .sorea-overlay-close {
+    position: absolute;
+    top: -12px;
+    right: -12px;
+    width: 38px;
+    height: 38px;
+    border-radius: 999px;
+    border: none;
+    background: white;
+    color: #7c3aed;
+    font-size: 24px;
+    line-height: 1;
+    cursor: pointer;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
+  }
 `;
 
 export default function CarnetG({ onClose }: { onClose?: () => void }) {
   const [isOpen, setIsOpen] = useState(false);
+  const [openedComponent, setOpenedComponent] = useState<string | null>(null);
 
   const toggleSavez = () => setIsOpen((prev) => !prev);
+
+  // Si un composant est ouvert, l'afficher au centre
+  if (openedComponent) {
+    return (
+      <>
+        <style>{styles}</style>
+        <div className="sorea-overlay" onClick={() => setOpenedComponent(null)}>
+          {/* <div className="sorea-overlay-inner" onClick={(e) => e.stopPropagation()}> */}
+          <div className="sorea-overlay-inner" onClick={(e) => e.stopPropagation()}>
+            <button
+              type="button"
+              className="sorea-overlay-close"
+              onClick={() => setOpenedComponent(null)}
+              aria-label="Fermer"
+            >
+
+            </button>
+            {openedComponent === "journaling" && <Carnet_bn />}
+            {openedComponent === "gratitude" && <Carnet_planning />}
+          </div>
+        </div>
+      </>
+    );
+  }
 
   return (
     <>
@@ -307,21 +371,20 @@ export default function CarnetG({ onClose }: { onClose?: () => void }) {
 
             {/* Right Page */}
             <div className="sorea-page-right">
-              <div
+              <button
+                onClick={() => setOpenedComponent("gratitude")}
                 className={`sorea-cat-card sorea-gratitude ${isOpen ? "active" : "inactive"}`}
+                disabled={!isOpen}
               >
                 Gratitude
-              </div>
-              <div
+              </button>
+              <button
+                onClick={() => setOpenedComponent("journaling")}
                 className={`sorea-cat-card sorea-journaling ${isOpen ? "active" : "inactive"}`}
+                disabled={!isOpen}
               >
                 Journaling
-              </div>
-              <div
-                className={`sorea-cat-card sorea-libre ${isOpen ? "active" : "inactive"}`}
-              >
-                Libre
-              </div>
+              </button>
             </div>
           </div>
         </div>
