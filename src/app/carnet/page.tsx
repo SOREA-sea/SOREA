@@ -36,16 +36,18 @@ export default function AboutPage() {
                         )}
                     </section>
                     {/* Textes et flèches entre les carnets */}
-                    <section className="flex flex-col items-center justify-center gap-6">
-                        <div className="flex flex-col items-center gap-2">
-                            <span className="homemade-apple text-center text-[#6a18a4] font-semibold text-lg">Choisis moi</span>
-                            <Image src="/image_carnet/up-arrow 1.svg" alt="Flèche vers le carnet" width={56} height={56} />
-                        </div>
-                        <div className="flex flex-col items-center gap-2">
-                            <span className="homemade-apple text-center text-[#6a18a4] font-semibold text-lg">Plutôt moi !</span>
-                            <Image src="/image_carnet/scribble 1.svg" alt="Scribble décoratif" width={96} height={72} />
-                        </div>
-                    </section>
+                    {openCarnet === null && (
+                        <section className="flex flex-col items-center justify-center gap-6">
+                            <div className="flex flex-col items-center gap-2">
+                                <span className="homemade-apple text-center text-[#6a18a4] font-semibold text-lg">Choisis moi</span>
+                                <Image src="/image_carnet/up-arrow 1.svg" alt="Flèche vers le carnet" width={56} height={56} />
+                            </div>
+                            <div className="flex flex-col items-center gap-2">
+                                <span className="homemade-apple text-center text-[#6a18a4] font-semibold text-lg">Plutôt moi !</span>
+                                <Image src="/image_carnet/scribble 1.svg" alt="Scribble décoratif" width={96} height={72} />
+                            </div>
+                        </section>
+                    )}
 
                     <section>
                         {openCarnet === 'carnet2' ? (
