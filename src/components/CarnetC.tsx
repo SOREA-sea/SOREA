@@ -1,5 +1,8 @@
 "use client"
 import { useState, memo } from "react";
+import CarnetChallenge from "@/components/Carnet_challenge";
+import CarnetDivertissement from "@/components/Carnet_divertissement";
+import CarnetBN from "@/components/Carnet_bn";
 
 const styles = `
   .sorea-wrap {
@@ -213,10 +216,50 @@ const styles = `
     filter: none;
   }
   .sorea-cat-card.active:hover { transform: scale(1.02); }
+  .sorea-cat-card:disabled {
+    cursor: default;
+  }
 
   .sorea-challenge.active   { background: #C4B5E8; color: #3A1A7A; }
   .sorea-blocnote.active    { background: #7DE8E8; color: #0A5050; }
   .sorea-divertissement.active { background: #F5DEC8; color: #7A4010; }
+
+  .sorea-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.45);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    z-index: 999;
+  }
+
+  .sorea-overlay-inner {
+    position: relative;
+    max-width: 760px;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100px;
+  }
+
+  .sorea-overlay-close {
+    position: absolute;
+    top: -12px;
+    right: -12px;
+    width: 38px;
+    height: 38px;
+    border-radius: 999px;
+    border: none;
+    background: white;
+    color: #7c3aed;
+    font-size: 24px;
+    line-height: 1;
+    cursor: pointer;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
+  }
 `;
 
 const moods = [
@@ -254,6 +297,7 @@ Heart.displayName = 'Heart';
 
 export default function CarnetC({ onClose }: { onClose?: () => void }) {
   const [selectedMood, setSelectedMood] = useState<string | null>(null);
+  const [openRightModule, setOpenRightModule] = useState<"divertissement" | "blocnote" | "challenge" | null>(null);
 
   const mood = moods.find((m) => m.label === selectedMood) ?? null;
   const moodSelected = selectedMood !== null;
@@ -322,19 +366,50 @@ export default function CarnetC({ onClose }: { onClose?: () => void }) {
 
             {/* Right Page */}
             <div className="sorea-page-right">
-              <div className={`sorea-cat-card sorea-challenge ${moodSelected ? "active" : "inactive"}`}>
+              <button
+                type="button"
+                className={`sorea-cat-card sorea-challenge ${moodSelected ? "active" : "inactive"}`}
+                onClick={() => moodSelected && setOpenRightModule("challenge")}
+                disabled={!moodSelected}
+              >
                 Challenge-list
-              </div>
-              <div className={`sorea-cat-card sorea-blocnote ${moodSelected ? "active" : "inactive"}`}>
+              </button>
+              <button
+                type="button"
+                className={`sorea-cat-card sorea-blocnote ${moodSelected ? "active" : "inactive"}`}
+                onClick={() => moodSelected && setOpenRightModule("blocnote")}
+                disabled={!moodSelected}
+              >
                 Bloc-note libre
-              </div>
-              <div className={`sorea-cat-card sorea-divertissement ${moodSelected ? "active" : "inactive"}`}>
+              </button>
+              <button
+                type="button"
+                className={`sorea-cat-card sorea-divertissement ${moodSelected ? "active" : "inactive"}`}
+                onClick={() => moodSelected && setOpenRightModule("divertissement")}
+                disabled={!moodSelected}
+              >
                 Divertissement
-              </div>
+              </button>
             </div>
           </div>
         </div>
       </div>
+
+      {openRightModule !== null && (
+        <div className="sorea-overlay" onClick={() => setOpenRightModule(null)}>
+          <div className="sorea-overlay-inner" onClick={(e) => e.stopPropagation()}>
+            <button
+              type="button"
+              className="sorea-overlay-close"
+              onClick={() => setOpenRightModule(null)}
+              aria-label="Fermer"
+            >
+              ×
+            </button>
+            {openRightModule === "challenge" ? <CarnetChallenge /> : openRightModule === "divertissement" ? <CarnetDivertissement /> : <CarnetBN />}
+          </div>
+        </div>
+      )}
     </>
   );
 }
