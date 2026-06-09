@@ -3,6 +3,7 @@
 import Link from "next/link";
 import Navbar from '@/components/Navbar';
 import Footer from "@/components/Footer";
+import StreakTracker from "@/components/StreakTracker";
 
 export default function MiroirDesAffirmations() {
     const sections = [
@@ -98,8 +99,13 @@ export default function MiroirDesAffirmations() {
                 rel="stylesheet"
             />
 
-            <div className="w-[1440px] pr-[96px] pl-[96px] mx-auto pb-[24px] gap-[50px]">
+            <div className="w-[1440px] pr-[96px] pl-[96px] mx-auto pb-[24px] gap-[50px] pt-8">
                 <Navbar />
+            </div>
+
+            
+            <div className="w-full flex justify-center">
+                <StreakTracker />
             </div>
 
             <div className="flex flex-col mx-auto w-[1440px] px-[96px] gap-[64px] py-16">
