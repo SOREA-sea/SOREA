@@ -1,10 +1,36 @@
 "use client"
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Carnet_bn from "./Carnet_bn";
 import Carnet_planning from "./Carnet_planning";
 
-const styles = `
+interface SavezVousText {
+  title: string;
+  paragraphs: string[];
+}
 
+const FALLBACK: SavezVousText = {
+  title: "Le saviez-vous ?",
+  paragraphs: [
+    "Pratiquer la gratitude chaque jour réduit le stress et améliore la qualité du sommeil.",
+    "En cultivant cette attitude, vous stimulez naturellement votre sérotonine, la molécule du bonheur.",
+  ],
+};
+
+function getSecondsUntilMidnight(): number {
+  const now = new Date();
+  const midnight = new Date();
+  midnight.setHours(24, 0, 0, 0);
+  return Math.floor((midnight.getTime() - now.getTime()) / 1000);
+}
+
+function formatCountdown(seconds: number): string {
+  const h = Math.floor(seconds / 3600);
+  const m = Math.floor((seconds % 3600) / 60);
+  const s = seconds % 60;
+  return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
+}
+
+const styles = `
   .sorea-wrap {
     display: flex;
     align-items: center;
@@ -56,7 +82,6 @@ const styles = `
   }
   .sorea-btn-commander:hover { background: #F3EEFF; }
 
-  /* BOOK */
   .sorea-book {
     width: 640px;
     height: 420px;
@@ -119,7 +144,6 @@ const styles = `
     z-index: 2;
   }
 
-  /* LEFT PAGE */
   .sorea-page-left {
     flex: 1;
     padding: 24px 20px 20px 24px;
@@ -185,8 +209,11 @@ const styles = `
     font-weight: 700;
     font-size: 14px;
     color: #1A1A2E;
-    margin-bottom: 10px;
+    margin-bottom: 6px;
     font-family: 'Lora', Georgia, serif;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
   }
 
   .sorea-savez-expanded p {
@@ -198,7 +225,47 @@ const styles = `
   }
   .sorea-savez-expanded p:last-child { margin-bottom: 0; }
 
-  /* RIGHT PAGE */
+  .sorea-progress-bar-bg {
+    height: 3px;
+    background: #E0D8F0;
+    border-radius: 4px;
+    margin-bottom: 10px;
+    flex-shrink: 0;
+  }
+
+  .sorea-countdown-label {
+    font-size: 10px;
+    color: #9B7DD4;
+    font-family: 'Lora', Georgia, serif;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+  }
+
+  .sorea-loading {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2;
+  }
+
+  .sorea-loading-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #9B7DD4;
+    margin: 0 3px;
+    animation: sorea-bounce 1.2s infinite ease-in-out;
+  }
+  .sorea-loading-dot:nth-child(2) { animation-delay: 0.2s; }
+  .sorea-loading-dot:nth-child(3) { animation-delay: 0.4s; }
+
+  @keyframes sorea-bounce {
+    0%, 80%, 100% { transform: scale(0.7); opacity: 0.4; }
+    40% { transform: scale(1); opacity: 1; }
+  }
+
   .sorea-page-right {
     flex: 1;
     padding: 24px 24px 20px 20px;
@@ -231,10 +298,7 @@ const styles = `
     cursor: not-allowed;
   }
 
-  .sorea-cat-card:not(:disabled) {
-    cursor: pointer;
-    filter: none;
-  }
+  .sorea-cat-card:not(:disabled) { cursor: pointer; filter: none; }
   .sorea-cat-card:not(:disabled):hover { transform: scale(1.02); }
 
   .sorea-gratitude:not(:disabled) { background: #C4B5E8; color: #3A1A7A; }
@@ -281,16 +345,45 @@ const styles = `
 export default function CarnetG({ onClose }: { onClose?: () => void }) {
   const [isOpen, setIsOpen] = useState(false);
   const [openedComponent, setOpenedComponent] = useState<string | null>(null);
+  const [currentText, setCurrentText] = useState<SavezVousText>(FALLBACK);
+  const [loading, setLoading] = useState(true);
+  const [secondsLeft, setSecondsLeft] = useState(getSecondsUntilMidnight());
 
+  // Fetch citation bien-être du jour
+  useEffect(() => {
+    fetch("/api/savez-vous")
+      .then((r) => r.json())
+      .then((data) => setCurrentText(data))
+      .catch(() => setCurrentText(FALLBACK))
+      .finally(() => setLoading(false));
+  }, []);
+
+  // Chronomètre jusqu'à minuit
+  useEffect(() => {
+    const timer = setInterval(() => {
+      const secs = getSecondsUntilMidnight();
+      setSecondsLeft(secs);
+      if (secs === 0) {
+        setLoading(true);
+        fetch("/api/savez-vous")
+          .then((r) => r.json())
+          .then((data) => setCurrentText(data))
+          .catch(() => setCurrentText(FALLBACK))
+          .finally(() => setLoading(false));
+      }
+    }, 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+  const totalSecondsInDay = 24 * 60 * 60;
+  const progressPercent = ((totalSecondsInDay - secondsLeft) / totalSecondsInDay) * 100;
   const toggleSavez = () => setIsOpen((prev) => !prev);
 
-  // Si un composant est ouvert, l'afficher au centre
   if (openedComponent) {
     return (
       <>
         <style>{styles}</style>
         <div className="sorea-overlay" onClick={() => setOpenedComponent(null)}>
-          {/* <div className="sorea-overlay-inner" onClick={(e) => e.stopPropagation()}> */}
           <div className="sorea-overlay-inner" onClick={(e) => e.stopPropagation()}>
             <button
               type="button"
@@ -298,7 +391,7 @@ export default function CarnetG({ onClose }: { onClose?: () => void }) {
               onClick={() => setOpenedComponent(null)}
               aria-label="Fermer"
             >
-
+              ×
             </button>
             {openedComponent === "journaling" && <Carnet_bn />}
             {openedComponent === "gratitude" && <Carnet_planning />}
@@ -313,17 +406,13 @@ export default function CarnetG({ onClose }: { onClose?: () => void }) {
       <style>{styles}</style>
 
       <div className="sorea-wrap">
-        {/* Sidebar */}
         <div className="sorea-sidebar">
-          <button className="sorea-btn-retour btn-retour" onClick={onClose}>
-            ← Retour
-          </button>
-          <button className="sorea-btn-commander btn-commander">
+          <button className="sorea-btn-retour" onClick={onClose}>← Retour</button>
+          <button className="sorea-btn-commander">
             Commander mon<br />Carnet Gratitude
           </button>
         </div>
 
-        {/* Book */}
         <div className="sorea-book">
           <div className="sorea-book-bg" />
           <div className="sorea-book-curl" />
@@ -331,56 +420,70 @@ export default function CarnetG({ onClose }: { onClose?: () => void }) {
           <div className="sorea-book-bump" />
 
           <div className="sorea-book-inner">
-            {/* Left Page */}
             <div className="sorea-page-left">
               <div className="sorea-page-title">Bonjour Prénom :-)</div>
 
-              <div className="sorea-savez-box" onClick={toggleSavez}>
-                {/* Blur background (collapsed only) */}
+              <div className="sorea-savez-box" onClick={!loading ? toggleSavez : undefined}>
                 {!isOpen && <div className="sorea-blur-bg" />}
 
-                {/* Collapsed view */}
-                {!isOpen && (
+                {/* Loading */}
+                {loading && (
+                  <div className="sorea-loading">
+                    <div className="sorea-loading-dot" />
+                    <div className="sorea-loading-dot" />
+                    <div className="sorea-loading-dot" />
+                  </div>
+                )}
+
+                {/* Collapsed */}
+                {!loading && !isOpen && (
                   <div className="sorea-savez-collapsed">
                     <span className="sorea-savez-collapsed-text">
-                      <u>Le saviez-vous</u> ?
+                      <u>{currentText.title}</u>
+                      <span style={{ display: "block", fontSize: "10px", color: "#9B7DD4", marginTop: 6 }}>
+                        Prochain dans {formatCountdown(secondsLeft)}
+                      </span>
                     </span>
                   </div>
                 )}
 
-                {/* Expanded view */}
-                {isOpen && (
+                {/* Expanded */}
+                {!loading && isOpen && (
                   <div className="sorea-savez-expanded">
                     <div className="sorea-savez-expanded-title">
-                      <u>Le saviez-vous</u> ?
+                      <u>{currentText.title}</u>
+                      <span className="sorea-countdown-label">
+                        Prochain dans {formatCountdown(secondsLeft)}
+                      </span>
                     </div>
-                    <p>
-                      Pratiquer la gratitude chaque jour réduit le stress,
-                      améliore la qualité du sommeil et augmente le sentiment
-                      de bonheur.
-                    </p>
-                    <p>
-                      En cultivant cette attitude du bien-être, vous stimulez
-                      naturellement votre sérotonine, cette précieuse molécule
-                      du bonheur qui éclaire l&apos;esprit et apaise le coeur.
-                    </p>
+                    <div className="sorea-progress-bar-bg">
+                      <div style={{
+                        height: "100%",
+                        background: "#7B4FC8",
+                        borderRadius: 4,
+                        width: `${progressPercent}%`,
+                        transition: "width 1s linear",
+                      }} />
+                    </div>
+                    {currentText.paragraphs.map((p, i) => (
+                      <p key={i}>{p}</p>
+                    ))}
                   </div>
                 )}
               </div>
             </div>
 
-            {/* Right Page */}
             <div className="sorea-page-right">
               <button
                 onClick={() => setOpenedComponent("gratitude")}
-                className={`sorea-cat-card sorea-gratitude ${isOpen ? "active" : "inactive"}`}
+                className="sorea-cat-card sorea-gratitude"
                 disabled={!isOpen}
               >
                 Gratitude
               </button>
               <button
                 onClick={() => setOpenedComponent("journaling")}
-                className={`sorea-cat-card sorea-journaling ${isOpen ? "active" : "inactive"}`}
+                className="sorea-cat-card sorea-journaling"
                 disabled={!isOpen}
               >
                 Journaling
