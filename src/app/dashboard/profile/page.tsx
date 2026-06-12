@@ -11,6 +11,7 @@ interface ProfileData {
   role: string;
   createdAt: string;
   twoFactorEnabled?: boolean;
+  timezone?: string;
 }
 
 export default function ProfilePage() {
@@ -19,6 +20,7 @@ export default function ProfilePage() {
     firstName: "",
     lastName: "",
     email: "",
+    timezone: "Europe/Paris",
   });
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
@@ -48,6 +50,7 @@ export default function ProfilePage() {
         firstName: data.firstName,
         lastName: data.lastName,
         email: data.email,
+        timezone: data.timezone || "Europe/Paris",
       });
     } catch (error) {
       setMessage({ type: "error", text: "Impossible de charger le profil" });
@@ -86,7 +89,7 @@ export default function ProfilePage() {
     }
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
@@ -179,6 +182,24 @@ export default function ProfilePage() {
             onChange={handleChange}
             className="w-full p-4 rounded-full border border-white/80 bg-white/75 shadow-[inset_0_2px_4px_rgba(0,0,0,0.02)] outline-none focus:ring-2 focus:ring-purple-300 transition-all placeholder:text-gray-400"
           />
+        </div>
+
+        <div className="space-y-1.5">
+          <label className="text-sm font-medium ml-1">Fuseau horaire</label>
+          <select
+            name="timezone"
+            value={formData.timezone}
+            onChange={handleChange}
+            className="w-full p-4 rounded-full border border-white/80 bg-white/75 shadow-[inset_0_2px_4px_rgba(0,0,0,0.02)] outline-none focus:ring-2 focus:ring-purple-300 transition-all text-gray-800"
+          >
+            <option value="Europe/Paris">Heure d'Europe Centrale (Paris, Bruxelles, etc.)</option>
+            <option value="America/Montreal">Heure de l'Est (Montréal, New York, etc.)</option>
+            <option value="Europe/London">Heure de Greenwich (Londres, etc.)</option>
+            <option value="Indian/Reunion">Heure de La Réunion</option>
+            <option value="America/Guadeloupe">Heure de la Guadeloupe / Martinique</option>
+            <option value="Pacific/Noumea">Heure de Nouvelle-Calédonie</option>
+            <option value="Pacific/Tahiti">Heure de Tahiti</option>
+          </select>
         </div>
 
         <div className="flex justify-end">
