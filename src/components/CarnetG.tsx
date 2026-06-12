@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import Carnet_bn from "./Carnet_bn";
 import Carnet_planning from "./Carnet_planning";
+import Carnet_journal from "./Carnet_journal";
 
 interface SavezVousText {
   title: string;
@@ -393,7 +394,7 @@ export default function CarnetG({ onClose }: { onClose?: () => void }) {
             >
               ×
             </button>
-            {openedComponent === "journaling" && <Carnet_bn />}
+            {openedComponent === "journaling" && <Carnet_journal recherche="" setRecherche={() => { }} notesFiltrees={[]} onSupprimerNote={() => { }} />}
             {openedComponent === "gratitude" && <Carnet_planning />}
           </div>
         </div>
@@ -487,6 +488,13 @@ export default function CarnetG({ onClose }: { onClose?: () => void }) {
                 disabled={!isOpen}
               >
                 Journaling
+              </button>
+              <button
+                onClick={() => setOpenedComponent("libre")}
+                className="sorea-cat-card sorea-libre"
+                disabled={!isOpen}
+              >
+                Libre
               </button>
             </div>
           </div>
