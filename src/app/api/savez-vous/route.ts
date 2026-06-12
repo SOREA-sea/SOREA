@@ -952,7 +952,7 @@ const CITATIONS_BIEN_ETRE = [
 ];
 
 export async function GET() {
-const dayIndex = Math.floor((Date.now() + 86400000*80) / 86400000) % CITATIONS_BIEN_ETRE.length;
+const dayIndex = Math.floor((Date.now() + 86400000) / 86400000) % CITATIONS_BIEN_ETRE.length;
   const citation = CITATIONS_BIEN_ETRE[dayIndex];
 
   return NextResponse.json(citation, {
