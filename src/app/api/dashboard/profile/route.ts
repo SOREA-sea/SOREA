@@ -19,6 +19,7 @@ export async function GET() {
       twoFactorEnabled: user.twoFactorEnabled,
       role: user.role,
       createdAt: user.createdAt,
+      timezone: user.timezone,
     });
   } catch (error) {
     console.error("Erreur dashboard/profile GET:", error);
@@ -35,12 +36,12 @@ export async function PATCH(request: Request) {
     }
 
     const body = await request.json();
-    const { firstName, lastName, email } = body;
+    const { firstName, lastName, email, timezone } = body;
 
     // Validation basique
-    if (!firstName && !lastName && !email) {
+    if (!firstName && !lastName && !email && !timezone) {
       return NextResponse.json(
-        { error: "Au moins un champ à modifier est requis (firstName, lastName, email)" },
+        { error: "Au moins un champ à modifier est requis (firstName, lastName, email, timezone)" },
         { status: 400 }
       );
     }
@@ -60,6 +61,7 @@ export async function PATCH(request: Request) {
     if (firstName) updateData.firstName = firstName;
     if (lastName) updateData.lastName = lastName;
     if (email) updateData.email = email;
+    if (timezone) updateData.timezone = timezone;
 
     const updatedUser = await prisma.user.update({
       where: { id: user.id },
@@ -72,6 +74,7 @@ export async function PATCH(request: Request) {
         avatarUrl: true,
         role: true,
         createdAt: true,
+        timezone: true,
       },
     });
 
