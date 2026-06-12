@@ -4,6 +4,7 @@ import CarnetPlanning from "@/components/Carnet_planning";
 import CarnetBN from "@/components/Carnet_bn";
 import CarnetChallenge from "@/components/Carnet_challenge";
 import CarnetDivertissement from "@/components/Carnet_divertissement";
+import MonJournal from "@/components/Carnet_journal";
 
 export default function AboutPage() {
     const router = useRouter();
@@ -24,6 +25,9 @@ export default function AboutPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 <div>
                     <CarnetBN />
+                </div>
+                <div>
+                    <MonJournal recherche="" setRecherche={() => { }} notesFiltrees={[]} onSupprimerNote={() => { }} />
                 </div>
                 <div>
                     <CarnetPlanning />
