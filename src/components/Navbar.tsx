@@ -8,7 +8,7 @@ const NAV_LINKS = [
 
 
   { label: "Shopping", href: "/shop" },
-  { label: "Coaching", href: "/Coaching" },
+  { label: "Coaching", href: "/coaching" },
   { label: "Challenge", href: "/challenge" },
   { label: "Mon carnet", href: "/carnet" },
 ];
