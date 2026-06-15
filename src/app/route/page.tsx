@@ -7,12 +7,10 @@ import Footer from "@/components/Footer";
 import Wheeltestcopy from "@/components/Wheeltestcopy";
 
 export default function RouteDesDefis() {
-  // Configuration de la chaîne de suivi (Streak Tracker)
+  
   const joursSemaineBase = ['L', 'M', 'M', 'J', 'V', 'S', 'D'];
-  const joursConsecutifs = 3; // Modifie ce nombre pour tester la progression (0 à 7)
+  const joursConsecutifs = 3; 
 
-  // Logique pour décaler dynamiquement les jours
-  // 2 correspond au Mercredi (0 = Lundi, 1 = Mardi, 2 = Mercredi)
   const jourDeDepartIndex = 2; 
   const joursAffiches = [
     ...joursSemaineBase.slice(jourDeDepartIndex), 
@@ -40,7 +38,6 @@ export default function RouteDesDefis() {
           Relève tes défis bien-être avec SOREA
         </h1>
 
-        {/* --- COMPOSANT CHAÎNE DE SUIVI SÉCURISÉ --- */}
         <div className="w-full max-w-3xl flex flex-col items-center mb-16 z-10">
           <p className="text-center text-[#4b3b5c] text-xl mb-1">
             Bienvenue dans ton parcours d'équilibre ! Challenge toi et débloque d'incroyables défis bien-être.
@@ -53,13 +50,13 @@ export default function RouteDesDefis() {
             {/* Ligne grise de fond (fixe) */}
             <div className="absolute top-[40px] left-[8%] right-[8%] h-[4px] bg-[#E5E7EB] z-0 -translate-y-1/2 rounded-full"></div>
             
-            {/* Ligne violette de progression (dynamique) */}
+            
             <div 
               className="absolute top-[40px] left-[8%] h-[4px] bg-[#BA98F4] z-0 -translate-y-1/2 transition-all duration-500 rounded-full"
               style={{ width: `${Math.min((Math.max(joursConsecutifs - 1, 0)) * (84 / 6), 84)}%` }} 
             ></div>
 
-            {/* Cercles des jours */}
+            
             {joursAffiches.map((jour, index) => {
               const estComplete = index < joursConsecutifs;
               return (
@@ -84,11 +81,11 @@ export default function RouteDesDefis() {
             </p>
           </div>
         </div>
-        {/* --- FIN DU COMPOSANT CHAÎNE DE SUIVI --- */}
+        
 
       </main>
 
-      {/* La roue est placée en dessous du tracker */}
+      
       <Wheeltestcopy />
 
       <div className="w-[1440px] pr-[96px] pl-[96px] mx-auto pb-[24px]">
