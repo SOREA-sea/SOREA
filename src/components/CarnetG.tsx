@@ -1,5 +1,6 @@
 "use client"
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import Carnet_bn from "./Carnet_bn";
 import Carnet_planning from "./Carnet_planning";
 import Carnet_journal from "./Carnet_journal";
@@ -343,7 +344,8 @@ const styles = `
   }
 `;
 
-export default function CarnetG({ onClose }: { onClose?: () => void }) {
+export default function CarnetG({ onClose, isDedicated = false }: { onClose?: () => void; isDedicated?: boolean }) {
+  const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
   const [openedComponent, setOpenedComponent] = useState<string | null>(null);
   const [currentText, setCurrentText] = useState<SavezVousText>(FALLBACK);
@@ -396,6 +398,7 @@ export default function CarnetG({ onClose }: { onClose?: () => void }) {
             </button>
             {openedComponent === "journaling" && <Carnet_journal recherche="" setRecherche={() => { }} notesFiltrees={[]} onSupprimerNote={() => { }} />}
             {openedComponent === "gratitude" && <Carnet_planning />}
+            {openedComponent === "libre" && <Carnet_bn />}
           </div>
         </div>
       </>
@@ -476,21 +479,39 @@ export default function CarnetG({ onClose }: { onClose?: () => void }) {
 
             <div className="sorea-page-right">
               <button
-                onClick={() => setOpenedComponent("gratitude")}
+                onClick={() => {
+                  if (isDedicated) {
+                    setOpenedComponent("gratitude");
+                  } else {
+                    router.push("/carnet/2");
+                  }
+                }}
                 className="sorea-cat-card sorea-gratitude"
                 disabled={!isOpen}
               >
                 Gratitude
               </button>
               <button
-                onClick={() => setOpenedComponent("journaling")}
+                onClick={() => {
+                  if (isDedicated) {
+                    setOpenedComponent("journaling");
+                  } else {
+                    router.push("/carnet/2");
+                  }
+                }}
                 className="sorea-cat-card sorea-journaling"
                 disabled={!isOpen}
               >
                 Journaling
               </button>
               <button
-                onClick={() => setOpenedComponent("libre")}
+                onClick={() => {
+                  if (isDedicated) {
+                    setOpenedComponent("libre");
+                  } else {
+                    router.push("/carnet/2");
+                  }
+                }}
                 className="sorea-cat-card sorea-libre"
                 disabled={!isOpen}
               >
