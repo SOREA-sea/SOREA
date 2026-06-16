@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { PrismaClient } from "@prisma/client";
 
-const prisma = new PrismaClient();
+const prisma = new PrismaClient() as any;
 
 // ─── BANQUE LOCALE DE SECOURS ──────────────────
 const LOCAL_FALLBACKS = [
@@ -11,6 +11,7 @@ const LOCAL_FALLBACKS = [
     paragraphs: [
       "Pratiquer la gratitude chaque jour réduit le niveau de cortisol et améliore la qualité du sommeil profond.",
       "Avant de dormir ce soir, notez trois petites victoires de votre journée pour apaiser votre esprit.",
+      "« La gratitude est la mémoire du cœur. » — Hans Christian Andersen",
     ],
   },
   {
@@ -18,6 +19,7 @@ const LOCAL_FALLBACKS = [
     paragraphs: [
       "Écrire ses pensées à la main active des zones cérébrales liées à la régulation émotionnelle que le clavier ne stimule pas.",
       "Prenez cinq minutes aujourd'hui pour poser vos ressentis sur papier sans chercher à vous censurer.",
+      "« Écrire, c'est une façon de parler sans être interrompu. » — Jules Renard",
     ],
   },
   {
@@ -25,6 +27,7 @@ const LOCAL_FALLBACKS = [
     paragraphs: [
       "Marcher seulement vingt minutes dans un espace vert suffit à faire chuter drastiquement l'hormone du stress.",
       "Profitez de votre prochaine pause pour vous rapprocher de la nature et vous reconnecter à vos sens.",
+      "« Regardez profondément dans la nature, et alors vous comprendrez tout mieux. » — Albert Einstein",
     ],
   },
   {
@@ -32,6 +35,7 @@ const LOCAL_FALLBACKS = [
     paragraphs: [
       "Sourire, même de manière forcée, envoie un signal positif au cerveau qui libère instantanément de la dopamine.",
       "Relevez les coins de vos lèvres pendant quelques secondes et observez le changement en vous.",
+      "« Le sourire que vous envoyez revient vers vous. » — Proverbe hindou",
     ],
   },
   {
@@ -39,6 +43,7 @@ const LOCAL_FALLBACKS = [
     paragraphs: [
       "Une sieste de 20 minutes améliore la vigilance et les performances cognitives sans provoquer d'inertie du sommeil.",
       "Si vous sentez un coup de fatigue l'après-midi, accordez-vous une courte pause les yeux fermés.",
+      "« Le repos fait partie du travail. » — Proverbe africain",
     ],
   },
   {
@@ -46,6 +51,7 @@ const LOCAL_FALLBACKS = [
     paragraphs: [
       "Boire un verre d'eau dès le réveil réhydrate le corps après plusieurs heures de sommeil et booste l'énergie matinale.",
       "Gardez un verre d'eau sur votre table de nuit et buvez-le avant même de regarder votre téléphone.",
+      "« L'eau est la force motrice de toute la nature. » — Léonard de Vinci",
     ],
   },
 ];
@@ -90,7 +96,7 @@ export async function GET() {
       console.log(" Trouvé en base, on sert depuis la DB");
       return NextResponse.json({
         title: existing.title,
-        paragraphs: [existing.paragraph1, existing.paragraph2],
+        paragraphs: [existing.paragraph1, existing.paragraph2, existing.paragraph3],
       });
     }
 
@@ -116,9 +122,10 @@ export async function GET() {
         },
       });
 
-      const prompt = `Tu es un rédacteur bien-être. Génère un JSON strict avec un titre et exactement 2 paragraphes.
+      const prompt = `Tu es un rédacteur bien-être. Génère un JSON strict avec un titre et exactement 3 paragraphes.
 - Paragraphe 1 : UN fait court sur la psychologie ou la santé (une seule phrase).
 - Paragraphe 2 : 1 ou 2 phrases max avec "vous" pour appliquer ce fait aujourd'hui.
+- Paragraphe 3 : Une citation avec l'auteur qui est en rapport avec les deux paragraphes précédents.
 Format attendu UNIQUEMENT : {"title": "Le saviez-vous ?", "paragraphs": ["P1", "P2"]}`;
 
       const result = await model.generateContent(prompt);
@@ -139,6 +146,7 @@ Format attendu UNIQUEMENT : {"title": "Le saviez-vous ?", "paragraphs": ["P1", "
           title,
           paragraph1: paragraphs[0],
           paragraph2: paragraphs[1],
+          paragraph3: paragraphs[2],
         },
       });
       console.log(" Sauvegardé en base !");
@@ -166,6 +174,7 @@ Format attendu UNIQUEMENT : {"title": "Le saviez-vous ?", "paragraphs": ["P1", "
         title: fallback.title,
         paragraph1: fallback.paragraphs[0],
         paragraph2: fallback.paragraphs[1],
+        paragraph3: fallback.paragraphs[2],
       },
     });
   } catch (err) {
