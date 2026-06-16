@@ -1,5 +1,6 @@
 "use client"
 import { useState, memo } from "react";
+import { useRouter } from "next/navigation";
 import CarnetChallenge from "@/components/Carnet_challenge";
 import CarnetDivertissement from "@/components/Carnet_divertissement";
 import CarnetBN from "@/components/Carnet_bn";
@@ -263,11 +264,11 @@ const styles = `
 `;
 
 const moods = [
-  { label: "Très bien",    color: "#F5E18A", textColor: "#7A6010", top: "12%",  left: "52%" },
-  { label: "Bien",         color: "#A8D9B8", textColor: "#2E6B47", top: "38%",  left: "22%" },
-  { label: "Pas mal…",     color: "#C8B8E8", textColor: "#5A3D8A", top: "38%",  left: "72%" },
-  { label: "Mal",          color: "#F4A09A", textColor: "#8B2E2A", top: "72%",  left: "32%" },
-  { label: "Pas terrible", color: "#A8D0F0", textColor: "#1A5A8B", top: "72%",  left: "70%" },
+  { label: "Très bien", color: "#F5E18A", textColor: "#7A6010", top: "12%", left: "52%" },
+  { label: "Bien", color: "#A8D9B8", textColor: "#2E6B47", top: "38%", left: "22%" },
+  { label: "Pas mal…", color: "#C8B8E8", textColor: "#5A3D8A", top: "38%", left: "72%" },
+  { label: "Mal", color: "#F4A09A", textColor: "#8B2E2A", top: "72%", left: "32%" },
+  { label: "Pas terrible", color: "#A8D0F0", textColor: "#1A5A8B", top: "72%", left: "70%" },
 ];
 
 const Heart = memo(({ color, text, textColor }: { color: string; text?: string; textColor?: string }) => (
@@ -295,7 +296,8 @@ const Heart = memo(({ color, text, textColor }: { color: string; text?: string; 
 ));
 Heart.displayName = 'Heart';
 
-export default function CarnetC({ onClose }: { onClose?: () => void }) {
+export default function CarnetC({ onClose, isDedicated = false }: { onClose?: () => void; isDedicated?: boolean }) {
+  const router = useRouter();
   const [selectedMood, setSelectedMood] = useState<string | null>(null);
   const [openRightModule, setOpenRightModule] = useState<"divertissement" | "blocnote" | "challenge" | null>(null);
 
@@ -369,7 +371,13 @@ export default function CarnetC({ onClose }: { onClose?: () => void }) {
               <button
                 type="button"
                 className={`sorea-cat-card sorea-challenge ${moodSelected ? "active" : "inactive"}`}
-                onClick={() => moodSelected && setOpenRightModule("challenge")}
+                onClick={() => {
+                  if (isDedicated) {
+                    if (moodSelected) setOpenRightModule("challenge");
+                  } else if (moodSelected) {
+                    router.push("/carnet/1");
+                  }
+                }}
                 disabled={!moodSelected}
               >
                 Challenge-list
@@ -377,7 +385,13 @@ export default function CarnetC({ onClose }: { onClose?: () => void }) {
               <button
                 type="button"
                 className={`sorea-cat-card sorea-blocnote ${moodSelected ? "active" : "inactive"}`}
-                onClick={() => moodSelected && setOpenRightModule("blocnote")}
+                onClick={() => {
+                  if (isDedicated) {
+                    if (moodSelected) setOpenRightModule("blocnote");
+                  } else if (moodSelected) {
+                    router.push("/carnet/1");
+                  }
+                }}
                 disabled={!moodSelected}
               >
                 Bloc-note libre
@@ -385,7 +399,13 @@ export default function CarnetC({ onClose }: { onClose?: () => void }) {
               <button
                 type="button"
                 className={`sorea-cat-card sorea-divertissement ${moodSelected ? "active" : "inactive"}`}
-                onClick={() => moodSelected && setOpenRightModule("divertissement")}
+                onClick={() => {
+                  if (isDedicated) {
+                    if (moodSelected) setOpenRightModule("divertissement");
+                  } else if (moodSelected) {
+                    router.push("/carnet/1");
+                  }
+                }}
                 disabled={!moodSelected}
               >
                 Divertissement
