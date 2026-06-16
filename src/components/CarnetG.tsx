@@ -1,4 +1,4 @@
-"use client"
+"use client";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Carnet_bn from "./Carnet_bn";
@@ -305,6 +305,7 @@ const styles = `
 
   .sorea-gratitude:not(:disabled) { background: #C4B5E8; color: #3A1A7A; }
   .sorea-journaling:not(:disabled) { background: #F5DEC8; color: #7A4010; }
+  .sorea-libre:not(:disabled) { background: #C8E8C4; color: #1A5A1A; }
 
   .sorea-overlay {
     position: fixed;
@@ -379,7 +380,8 @@ export default function CarnetG({ onClose, isDedicated = false }: { onClose?: ()
   }, []);
 
   const totalSecondsInDay = 24 * 60 * 60;
-  const progressPercent = ((totalSecondsInDay - secondsLeft) / totalSecondsInDay) * 100;
+  const progressPercent =
+    ((totalSecondsInDay - secondsLeft) / totalSecondsInDay) * 100;
   const toggleSavez = () => setIsOpen((prev) => !prev);
 
   if (openedComponent) {
@@ -387,7 +389,10 @@ export default function CarnetG({ onClose, isDedicated = false }: { onClose?: ()
       <>
         <style>{styles}</style>
         <div className="sorea-overlay" onClick={() => setOpenedComponent(null)}>
-          <div className="sorea-overlay-inner" onClick={(e) => e.stopPropagation()}>
+          <div
+            className="sorea-overlay-inner"
+            onClick={(e) => e.stopPropagation()}
+          >
             <button
               type="button"
               className="sorea-overlay-close"
@@ -396,8 +401,22 @@ export default function CarnetG({ onClose, isDedicated = false }: { onClose?: ()
             >
               ×
             </button>
-            {openedComponent === "journaling" && <Carnet_journal recherche="" setRecherche={() => { }} notesFiltrees={[]} onSupprimerNote={() => { }} />}
+
+            {/* ── Gratitude ── */}
             {openedComponent === "gratitude" && <Carnet_planning />}
+
+            {/* ── Journaling ── */}
+            {openedComponent === "journaling" && (
+              <Carnet_journal
+                recherche=""
+                setRecherche={() => { }}
+                notesFiltrees={[]}
+                onSupprimerNote={() => { }}
+              />
+            )}
+
+            {/* ── Libre ── remplace Carnet_bn par le composant approprié dans ton projet */}
+            {openedComponent === "libre" && <Carnet_bn />}
             {openedComponent === "libre" && <Carnet_bn />}
           </div>
         </div>
@@ -411,9 +430,13 @@ export default function CarnetG({ onClose, isDedicated = false }: { onClose?: ()
 
       <div className="sorea-wrap">
         <div className="sorea-sidebar">
-          <button className="sorea-btn-retour" onClick={onClose}>← Retour</button>
+          <button className="sorea-btn-retour" onClick={onClose}>
+            ← Retour
+          </button>
           <button className="sorea-btn-commander">
-            Commander mon<br />Carnet Gratitude
+            Commander mon
+            <br />
+            Carnet Gratitude
           </button>
         </div>
 
@@ -424,10 +447,14 @@ export default function CarnetG({ onClose, isDedicated = false }: { onClose?: ()
           <div className="sorea-book-bump" />
 
           <div className="sorea-book-inner">
+            {/* ── Page gauche ── */}
             <div className="sorea-page-left">
               <div className="sorea-page-title">Bonjour Prénom :-)</div>
 
-              <div className="sorea-savez-box" onClick={!loading ? toggleSavez : undefined}>
+              <div
+                className="sorea-savez-box"
+                onClick={!loading ? toggleSavez : undefined}
+              >
                 {!isOpen && <div className="sorea-blur-bg" />}
 
                 {/* Loading */}
@@ -444,7 +471,14 @@ export default function CarnetG({ onClose, isDedicated = false }: { onClose?: ()
                   <div className="sorea-savez-collapsed">
                     <span className="sorea-savez-collapsed-text">
                       <u>{currentText.title}</u>
-                      <span style={{ display: "block", fontSize: "10px", color: "#9B7DD4", marginTop: 6 }}>
+                      <span
+                        style={{
+                          display: "block",
+                          fontSize: "10px",
+                          color: "#9B7DD4",
+                          marginTop: 6,
+                        }}
+                      >
                         Prochain dans {formatCountdown(secondsLeft)}
                       </span>
                     </span>
@@ -461,13 +495,15 @@ export default function CarnetG({ onClose, isDedicated = false }: { onClose?: ()
                       </span>
                     </div>
                     <div className="sorea-progress-bar-bg">
-                      <div style={{
-                        height: "100%",
-                        background: "#7B4FC8",
-                        borderRadius: 4,
-                        width: `${progressPercent}%`,
-                        transition: "width 1s linear",
-                      }} />
+                      <div
+                        style={{
+                          height: "100%",
+                          background: "#7B4FC8",
+                          borderRadius: 4,
+                          width: `${progressPercent}%`,
+                          transition: "width 1s linear",
+                        }}
+                      />
                     </div>
                     {currentText.paragraphs.map((p, i) => (
                       <p key={i}>{p}</p>
@@ -477,6 +513,7 @@ export default function CarnetG({ onClose, isDedicated = false }: { onClose?: ()
               </div>
             </div>
 
+            {/* ── Page droite ── */}
             <div className="sorea-page-right">
               <button
                 onClick={() => {
