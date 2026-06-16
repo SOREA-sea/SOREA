@@ -352,3 +352,12 @@ model Dispute {
 
   payment Payment @relation(fields: [paymentId], references: [id], onDelete: Cascade)
 }
+
+model SavezVous {
+  id         Int      @id @default(autoincrement())
+  date       String   @unique
+  title      String
+  paragraph1 String
+  paragraph2 String
+  createdAt  DateTime @default(now())
+}
