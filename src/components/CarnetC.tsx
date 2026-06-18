@@ -5,6 +5,14 @@ import CarnetChallenge from "@/components/Carnet_challenge";
 import CarnetDivertissement from "@/components/Carnet_divertissement";
 import CarnetBN from "@/components/Carnet_bn";
 
+type Section = "challenge" | "blocnote" | "divertissement" | null;
+
+const SECTION_LABELS: Record<string, string> = {
+  challenge: "Challenge-list",
+  blocnote: "Bloc-note libre",
+  divertissement: "Divertissement",
+};
+
 const styles = `
   .sorea-wrap {
     display: flex;
@@ -225,41 +233,134 @@ const styles = `
   .sorea-blocnote.active    { background: #7DE8E8; color: #0A5050; }
   .sorea-divertissement.active { background: #F5DEC8; color: #7A4010; }
 
-  .sorea-overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(0, 0, 0, 0.45);
+  /* ── ONGLETS : cachés par défaut, visibles quand section ouverte ── */
+  .sorea-tabs-row {
+    flex-shrink: 0;
     display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 24px;
-    z-index: 999;
-  }
-
-  .sorea-overlay-inner {
-    position: relative;
-    max-width: 760px;
-    width: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 100px;
-  }
-
-  .sorea-overlay-close {
-    position: absolute;
-    top: -12px;
-    right: -12px;
-    width: 38px;
-    height: 38px;
-    border-radius: 999px;
-    border: none;
+    flex-direction: row;
+    align-items: stretch;
+    gap: 3px;
+    padding: 6px 10px 0;
     background: white;
-    color: #7c3aed;
-    font-size: 24px;
-    line-height: 1;
+    border-bottom: 1.5px solid #E0D8F0;
+    /* Masqué par défaut */
+    max-height: 0;
+    overflow: hidden;
+    opacity: 0;
+    transition: max-height 0.2s ease, opacity 0.2s ease;
+  }
+
+  .sorea-tabs-row.sorea-tabs-visible {
+    max-height: 40px;
+    opacity: 1;
+  }
+
+  .sorea-tab {
+    font-size: 11px;
+    font-weight: 700;
+    font-family: 'Lora', Georgia, serif;
+    padding: 5px 14px;
+    border-radius: 7px 7px 0 0;
+    border: none;
     cursor: pointer;
-    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
+    transition: all 0.15s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0.55;
+  }
+
+  .sorea-tab-challenge      { background: #C4B5E8; color: #3A1A7A; }
+  .sorea-tab-blocnote       { background: #7DE8E8; color: #0A5050; }
+  .sorea-tab-divertissement { background: #F5DEC8; color: #7A4010; }
+
+  .sorea-tab-active { opacity: 1; box-shadow: inset 0 -2px 0 rgba(0,0,0,0.15); }
+  .sorea-tab:hover:not(.sorea-tab-active) { opacity: 0.8; }
+
+  /* ── CONTENU PAGE DROITE ── */
+  .sorea-right-content {
+    flex: 1;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Vue cartes */
+  .sorea-cards-view {
+    flex: 1;
+    padding: 20px 20px 20px 16px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 12px;
+  }
+
+  .sorea-cards-view .sorea-cat-card {
+    height: 72px;
+    font-size: 14px;
+  }
+
+  .sorea-cards-view .sorea-cat-card:disabled {
+    background: #D8D8D8;
+    color: #aaa;
+    filter: blur(1.5px);
+    cursor: not-allowed;
+  }
+  .sorea-cards-view .sorea-cat-card:not(:disabled) { cursor: pointer; filter: none; }
+  .sorea-cards-view .sorea-cat-card:not(:disabled):hover { transform: scale(1.02); }
+
+  .sorea-challenge:not(:disabled)      { background: #C4B5E8; color: #3A1A7A; }
+  .sorea-blocnote:not(:disabled)       { background: #7DE8E8; color: #0A5050; }
+  .sorea-divertissement:not(:disabled) { background: #F5DEC8; color: #7A4010; }
+
+  /* Vue section ouverte */
+  .sorea-section-view {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .sorea-section-header {
+    padding: 10px 16px 8px;
+    border-bottom: 1px solid #E0D8F0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-shrink: 0;
+  }
+
+  .sorea-section-title {
+    font-weight: 700;
+    font-size: 14px;
+    color: #1A1A2E;
+    font-family: 'Lora', Georgia, serif;
+  }
+
+  .sorea-section-back {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #7B4FC8;
+    font-size: 11px;
+    font-weight: 700;
+    font-family: 'Lora', Georgia, serif;
+  }
+  .sorea-section-back:hover { text-decoration: underline; }
+
+  .sorea-child-wrapper {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+  }
+
+  .sorea-child-wrapper > * {
+    min-height: 0 !important;
+    max-width: 100% !important;
+    width: 100% !important;
+    background: transparent !important;
+    padding: 8px !important;
+    margin: 0 !important;
   }
 `;
 
@@ -299,10 +400,28 @@ Heart.displayName = 'Heart';
 export default function CarnetC({ onClose, isDedicated = false }: { onClose?: () => void; isDedicated?: boolean }) {
   const router = useRouter();
   const [selectedMood, setSelectedMood] = useState<string | null>(null);
-  const [openRightModule, setOpenRightModule] = useState<"divertissement" | "blocnote" | "challenge" | null>(null);
+  const [activeSection, setActiveSection] = useState<Section>(null);
 
   const mood = moods.find((m) => m.label === selectedMood) ?? null;
   const moodSelected = selectedMood !== null;
+
+  const openSection = (section: Section) => {
+    if (!moodSelected) return;
+    if (isDedicated) {
+      setActiveSection(section);
+    } else {
+      router.push("/carnet/1");
+    }
+  };
+
+  const closeSection = () => setActiveSection(null);
+
+  const renderSectionContent = () => {
+    if (activeSection === "challenge") return <CarnetChallenge />;
+    if (activeSection === "blocnote") return <CarnetBN />;
+    if (activeSection === "divertissement") return <CarnetDivertissement />;
+    return null;
+  };
 
   return (
     <>
@@ -368,68 +487,74 @@ export default function CarnetC({ onClose, isDedicated = false }: { onClose?: ()
 
             {/* Right Page */}
             <div className="sorea-page-right">
-              <button
-                type="button"
-                className={`sorea-cat-card sorea-challenge ${moodSelected ? "active" : "inactive"}`}
-                onClick={() => {
-                  if (isDedicated) {
-                    if (moodSelected) setOpenRightModule("challenge");
-                  } else if (moodSelected) {
-                    router.push("/carnet/1");
-                  }
-                }}
-                disabled={!moodSelected}
-              >
-                Challenge-list
-              </button>
-              <button
-                type="button"
-                className={`sorea-cat-card sorea-blocnote ${moodSelected ? "active" : "inactive"}`}
-                onClick={() => {
-                  if (isDedicated) {
-                    if (moodSelected) setOpenRightModule("blocnote");
-                  } else if (moodSelected) {
-                    router.push("/carnet/1");
-                  }
-                }}
-                disabled={!moodSelected}
-              >
-                Bloc-note libre
-              </button>
-              <button
-                type="button"
-                className={`sorea-cat-card sorea-divertissement ${moodSelected ? "active" : "inactive"}`}
-                onClick={() => {
-                  if (isDedicated) {
-                    if (moodSelected) setOpenRightModule("divertissement");
-                  } else if (moodSelected) {
-                    router.push("/carnet/1");
-                  }
-                }}
-                disabled={!moodSelected}
-              >
-                Divertissement
-              </button>
+              {/* ONGLETS — apparaissent uniquement quand une section est ouverte */}
+              <div className={`sorea-tabs-row ${activeSection ? "sorea-tabs-visible" : ""}`}>
+                {(["challenge", "blocnote", "divertissement"] as const).map((key) => (
+                  <button
+                    key={key}
+                    onClick={() => openSection(key)}
+                    className={[
+                      "sorea-tab",
+                      `sorea-tab-${key}`,
+                      activeSection === key ? "sorea-tab-active" : "",
+                    ].join(" ")}
+                  >
+                    {SECTION_LABELS[key]}
+                  </button>
+                ))}
+              </div>
+
+              <div className="sorea-right-content">
+
+                {/* Vue cartes (aucune section ouverte) */}
+                {!activeSection && (
+                  <div className="sorea-cards-view">
+                    <button
+                      onClick={() => openSection("challenge")}
+                      className="sorea-cat-card sorea-challenge"
+                      disabled={!moodSelected}
+                    >
+                      Challenge-list
+                    </button>
+                    <button
+                      onClick={() => openSection("blocnote")}
+                      className="sorea-cat-card sorea-blocnote"
+                      disabled={!moodSelected}
+                    >
+                      Bloc-note libre
+                    </button>
+                    <button
+                      onClick={() => openSection("divertissement")}
+                      className="sorea-cat-card sorea-divertissement"
+                      disabled={!moodSelected}
+                    >
+                      Divertissement
+                    </button>
+                  </div>
+                )}
+
+                {/* Vue section ouverte */}
+                {activeSection && (
+                  <div className="sorea-section-view">
+                    <div className="sorea-section-header">
+                      <span className="sorea-section-title">
+                        {SECTION_LABELS[activeSection]}
+                      </span>
+                      <button className="sorea-section-back" onClick={closeSection}>
+                        Accueil ↩
+                      </button>
+                    </div>
+                    <div className="sorea-child-wrapper">
+                      {renderSectionContent()}
+                    </div>
+                  </div>
+                )}
+
+              </div>
             </div>
           </div>
         </div>
       </div>
-
-      {openRightModule !== null && (
-        <div className="sorea-overlay" onClick={() => setOpenRightModule(null)}>
-          <div className="sorea-overlay-inner" onClick={(e) => e.stopPropagation()}>
-            <button
-              type="button"
-              className="sorea-overlay-close"
-              onClick={() => setOpenRightModule(null)}
-              aria-label="Fermer"
-            >
-              ×
-            </button>
-            {openRightModule === "challenge" ? <CarnetChallenge /> : openRightModule === "divertissement" ? <CarnetDivertissement /> : <CarnetBN />}
-          </div>
-        </div>
-      )}
     </>
   );
 }
