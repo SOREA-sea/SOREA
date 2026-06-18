@@ -5,8 +5,6 @@ import Image from "next/image";
 import Link from "next/link";
 // on doit changer les # apresss
 const NAV_LINKS = [
-
-
   { label: "Shopping", href: "/shop" },
   { label: "Coaching", href: "/coaching" },
   { label: "Challenge", href: "/challenge" },
@@ -22,8 +20,22 @@ export default function Navbar({ isLoggedIn = false }: { isLoggedIn?: boolean })
 
   const show = () => { if (timerRef.current) clearTimeout(timerRef.current); setVisible(true); };
   const hide = () => { timerRef.current = setTimeout(() => setVisible(false), 250); };
+  const toggleVisibility = () => setVisible((prev) => !prev);
+
+  // Nettoyage du timer lors du démontage pour éviter les fuites de mémoire
+  useEffect(() => {
+    return () => {
+      if (timerRef.current) clearTimeout(timerRef.current);
+    };
+  }, []);
 
   useEffect(() => {
+    // Optimisation : on évite le fetch si le composant sait déjà qu'on est connecté
+    if (isLoggedIn) {
+      setSessionChecked(true);
+      return;
+    }
+
     let cancelled = false;
 
     const loadSession = async () => {
@@ -50,7 +62,7 @@ export default function Navbar({ isLoggedIn = false }: { isLoggedIn?: boolean })
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [isLoggedIn]);
 
   const isAuthenticated = isLoggedIn || !!sessionUser;
   const ctaLabel = isAuthenticated ? "Mon dossier personnel" : "Se connecter";
@@ -72,7 +84,13 @@ export default function Navbar({ isLoggedIn = false }: { isLoggedIn?: boolean })
         </Link>
       ) : null}
 
-      <div className="sorea-hotzone" onMouseEnter={show} onMouseLeave={hide} />
+      {/* Ajout d'un événement onClick pour les appareils mobiles */}
+      <div 
+        className="sorea-hotzone" 
+        onMouseEnter={show} 
+        onMouseLeave={hide} 
+        onClick={toggleVisibility}
+      />
 
       <header
         className={`sorea-navbar ${visible ? "sorea-navbar--visible" : ""}`}
@@ -99,6 +117,17 @@ export default function Navbar({ isLoggedIn = false }: { isLoggedIn?: boolean })
             {sessionChecked || isAuthenticated ? ctaLabel : "Se connecter"}
           </Link>
         ) : null}
+
+        {/* Bouton de fermeture pour mobile */}
+        {visible && (
+          <button 
+            className="sorea-mobile-close" 
+            onClick={hide}
+            aria-label="Fermer le menu"
+          >
+            ✕
+          </button>
+        )}
       </header>
 
       <style>{`
@@ -154,6 +183,8 @@ export default function Navbar({ isLoggedIn = false }: { isLoggedIn?: boolean })
           top: 0; left: 0; right: 0;
           height: 50px;
           z-index: 30;
+          cursor: pointer; /* Indique qu'on peut cliquer pour ouvrir (mobile) */
+          -webkit-tap-highlight-color: transparent; /* Retire le fond bleu natif sur mobile */
         }
 
         .sorea-navbar {
@@ -230,6 +261,50 @@ export default function Navbar({ isLoggedIn = false }: { isLoggedIn?: boolean })
 
         .sorea-navbar-link:hover::after {
           opacity: 1;
+        }
+
+        .sorea-mobile-close {
+          display: none;
+          background: none;
+          border: none;
+          font-size: 28px;
+          color: #9B6FD9;
+          cursor: pointer;
+          padding: 10px;
+          position: absolute;
+          right: 20px;
+          top: 50%;
+          transform: translateY(-50%);
+        }
+
+        @media (max-width: 768px) {
+          .sorea-navbar {
+            padding: 0 20px;
+            justify-content: flex-start;
+          }
+          
+          .sorea-navbar-nav {
+            gap: 20px;
+            position: relative;
+            left: 0;
+            transform: none;
+            margin-left: 20px;
+          }
+          
+          .sorea-mobile-close {
+            display: block;
+          }
+
+          .sorea-cta-btn--navbar {
+            display: none; /* Masqué sur petit écran */
+          }
+          
+          .sorea-cta-btn--floating {
+            top: 10px;
+            right: 10px;
+            font-size: 14px;
+            padding: 8px 16px;
+          }
         }
 
       `}</style>
