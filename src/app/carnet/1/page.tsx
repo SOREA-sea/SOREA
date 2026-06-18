@@ -1,11 +1,12 @@
 "use client"
 import { useRouter, useSearchParams } from "next/navigation";
+import { Suspense } from "react";
 import CarnetC from "@/components/CarnetC";
 
-export default function CarnetChallengePage() {
+function CarnetChallengeContent() {
     const router = useRouter();
     const searchParams = useSearchParams();
-    
+
     const initialMood = searchParams.get("mood") || null;
     const initialSection = searchParams.get("section") as any;
 
@@ -27,9 +28,23 @@ export default function CarnetChallengePage() {
                 </div>
 
                 <div className="rounded-[28px] bg-white shadow-xl p-6">
-                    <CarnetC onClose={() => router.push("/carnet")} isDedicated initialMood={initialMood} initialSection={initialSection} />
+                    <CarnetC
+                        onClose={() => router.push("/carnet")}
+                        isDedicated
+                        initialMood={initialMood}
+                        initialSection={initialSection}
+                    />
                 </div>
             </div>
         </div>
+    );
+}
+
+//  Suspense requis par Next.js pour useSearchParams dans un composant client
+export default function CarnetChallengePage() {
+    return (
+        <Suspense>
+            <CarnetChallengeContent />
+        </Suspense>
     );
 }
