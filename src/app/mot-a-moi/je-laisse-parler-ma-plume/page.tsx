@@ -112,20 +112,20 @@ export default function JeLaisseParleMaPlume() {
 
                             {showReveal && (
                                 <div className="w-full bg-yellow-50 border-2 border-yellow-400 rounded-2xl p-4">
-                                    <p className="text-sm font-semibold text-yellow-800 mb-2">📋 La phrase correcte :</p>
+                                    <p className="text-sm font-semibold text-yellow-800 mb-2"> La phrase correcte :</p>
                                     <p className="text-lg text-yellow-900">{currentSentence}</p>
                                 </div>
                             )}
 
                             {feedback === 'correct' && (
                                 <div className="w-full bg-green-50 border-2 border-green-400 rounded-2xl p-4 text-center">
-                                    <p className="text-lg font-bold text-green-700">✅ Bravo ! C'est correct !</p>
+                                    <p className="text-lg font-bold text-green-700">✅Bravo ! C'est correct !</p>
                                 </div>
                             )}
 
                             {feedback === 'incorrect' && !showReveal && (
                                 <div className="w-full bg-red-50 border-2 border-red-400 rounded-2xl p-4 text-center">
-                                    <p className="text-lg font-bold text-red-700">❌ Ce n'est pas tout à fait ça...</p>
+                                    <p className="text-lg font-bold text-red-700"> Ce n'est pas tout à fait ça...</p>
                                 </div>
                             )}
 
@@ -163,9 +163,9 @@ export default function JeLaisseParleMaPlume() {
                         </>
                     ) : (
                         <div className="flex flex-col items-center gap-6 text-center">
-                            <div className="text-6xl">🎉</div>
+                            <div className="text-6xl"></div>
                             <h2 className="text-3xl font-bold text-[#8B47FF]">Bravo !</h2>
-                            <p className="text-xl text-gray-700">Vous avez complété tous les défis ! 🌟</p>
+                            <p className="text-xl text-gray-700">Vous avez complété tous les défis ! </p>
                             <p className="text-gray-600">Vous avez réécrire {completedCount} phrases avec succès.</p>
 
                             <Link href="/mot-a-moi">
