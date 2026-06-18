@@ -1,5 +1,5 @@
-import { notFound } from "next/navigation";
+import SoreaVibe from "./common";
 
-export default function VibePage() {
-  notFound();
+export default function Page() {
+  return <SoreaVibe />;
 }

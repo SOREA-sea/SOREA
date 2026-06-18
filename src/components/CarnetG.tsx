@@ -439,13 +439,17 @@ const styles = `
 export default function CarnetG({
   onClose,
   isDedicated = false,
+  initialSection = null,
 }: {
   onClose?: () => void;
   isDedicated?: boolean;
+  initialSection?: Section;
 }) {
   const router = useRouter();
-  const [isOpen, setIsOpen] = useState(false);
-  const [activeSection, setActiveSection] = useState<Section>(null);
+  // ✅ En mode dédié, le "Saviez-vous" est ouvert par défaut (pas besoin de cliquer pour débloquer)
+  const [isOpen, setIsOpen] = useState(isDedicated);
+  // ✅ initialSection pré-sélectionne la bonne section dès le montage
+  const [activeSection, setActiveSection] = useState<Section>(initialSection);
   const [currentText, setCurrentText] = useState<SavezVousText>(FALLBACK);
   const [loading, setLoading] = useState(true);
   const [secondsLeft, setSecondsLeft] = useState(getSecondsUntilMidnight());
@@ -490,12 +494,12 @@ export default function CarnetG({
     if (!loading) setIsOpen((prev) => !prev);
   };
 
-  // FIX : if (!isOpen) return supprimé — redondant avec disabled={!isOpen}
   const openSection = (section: Section) => {
     if (isDedicated) {
       setActiveSection(section);
     } else {
-      router.push("/carnet/2");
+      // ✅ On passe la section dans l'URL pour que la page dédiée l'ouvre directement
+      router.push(`/carnet/2?section=${section}`);
     }
   };
 
@@ -594,7 +598,7 @@ export default function CarnetG({
           {/* ── PAGE DROITE ── */}
           <div className="sorea-page-right">
 
-            {/* Onglets — navigue directement via setActiveSection */}
+            {/* Onglets */}
             <div className={`sorea-tabs-row ${activeSection ? "sorea-tabs-visible" : ""}`}>
               {(["gratitude", "journaling", "libre"] as const).map((key) => (
                 <button
