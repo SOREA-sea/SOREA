@@ -20,7 +20,7 @@ export default async function DashboardPage() {
   // Coaches no longer have a separate dashboard page; keep showing the standard dashboard
 
   // Charger les stats direct côté serveur
-  const [favoriteProducts, favoriteCoaches, favoriteSessions, reservations, cart] =
+  const [favoriteProducts, favoriteCoaches, favoriteSessions, reservations, cart, motAMoiMessages] =
     await Promise.all([
       prisma.favoriteProduct.count({ where: { userId: user.id } }),
       prisma.favoriteCoach.count({ where: { userId: user.id } }),
@@ -30,6 +30,7 @@ export default async function DashboardPage() {
         where: { userId: user.id },
         include: { items: true },
       }),
+      prisma.motAMoiMessage.count({ where: { userId: user.id } }),
     ]);
 
   const cartItemsCount = cart?.items.reduce((sum, item) => sum + item.quantity, 0) ?? 0;
@@ -85,6 +86,17 @@ export default async function DashboardPage() {
       href: "/dashboard/reservations",
     },
     {
+      label: "Messages",
+      value: motAMoiMessages,
+      icon: (
+        <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+        </svg>
+      ),
+      color: "bg-fuchsia-100 text-fuchsia-600",
+      href: "/dashboard/messagerie",
+    },
+    {
       label: "Panier",
       value: cartItemsCount,
       icon: (
@@ -111,7 +123,7 @@ export default async function DashboardPage() {
       </header>
 
       {/* Stats cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5">
         {stats.map((stat) => (
           <Link
             key={stat.label}
@@ -232,6 +244,18 @@ export default async function DashboardPage() {
             <div>
               <p className="font-bold text-foreground">Modifier mon profil</p>
               <p className="text-foreground/50 text-sm">Gérez vos informations personnelles</p>
+            </div>
+          </Link>
+
+          <Link href="/dashboard/messagerie" className="glass-panel rounded-2xl p-5 flex items-center gap-4 hover:shadow-lg transition-all hover:scale-[1.01] group">
+            <div className="w-12 h-12 bg-fuchsia-100 rounded-xl flex items-center justify-center text-fuchsia-600 transition-transform group-hover:scale-110 shrink-0">
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+              </svg>
+            </div>
+            <div>
+              <p className="font-bold text-foreground">Ma messagerie</p>
+              <p className="text-foreground/50 text-sm">Recevez vos messages Mot à moi</p>
             </div>
           </Link>
 
