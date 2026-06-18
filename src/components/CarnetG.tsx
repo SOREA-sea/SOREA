@@ -32,6 +32,14 @@ function formatCountdown(seconds: number): string {
   return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
 }
 
+type Section = "gratitude" | "journaling" | "libre" | null;
+
+const SECTION_LABELS: Record<string, string> = {
+  gratitude: "Gratitude",
+  journaling: "Journaling",
+  libre: "Libre",
+};
+
 const styles = `
   .sorea-wrap {
     display: flex;
@@ -49,6 +57,7 @@ const styles = `
     gap: 12px;
     margin-right: 20px;
     align-items: flex-start;
+    flex-shrink: 0;
   }
 
   .sorea-btn-retour {
@@ -63,7 +72,6 @@ const styles = `
     align-items: center;
     gap: 7px;
     padding: 0;
-    transition: text-decoration 0.15s;
   }
   .sorea-btn-retour:hover { text-decoration: underline; }
 
@@ -80,10 +88,10 @@ const styles = `
     line-height: 1.5;
     text-align: center;
     width: 130px;
-    transition: background 0.2s;
   }
   .sorea-btn-commander:hover { background: #F3EEFF; }
 
+  /* ── BOOK ── */
   .sorea-book {
     width: 640px;
     height: 420px;
@@ -100,11 +108,8 @@ const styles = `
 
   .sorea-book-curl {
     position: absolute;
-    top: 0;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 68px;
-    height: 14px;
+    top: 0; left: 50%; transform: translateX(-50%);
+    width: 68px; height: 14px;
     background: #C4B0E0;
     border-radius: 0 0 34px 34px;
     z-index: 5;
@@ -112,10 +117,8 @@ const styles = `
 
   .sorea-book-spine {
     position: absolute;
-    left: 50%;
-    top: 8px;
-    bottom: 0;
-    width: 3px;
+    left: 50%; top: 8px;
+    width: 3px; height: 412px;
     background: #A890CC;
     z-index: 4;
     transform: translateX(-50%);
@@ -123,22 +126,18 @@ const styles = `
 
   .sorea-book-bump {
     position: absolute;
-    bottom: -7px;
-    left: 50%;
+    top: 413px; left: 50%;
     transform: translateX(-50%);
-    width: 52px;
-    height: 13px;
+    width: 52px; height: 13px;
     background: #B49DD4;
     border-radius: 0 0 9px 9px;
     z-index: 4;
   }
 
+  /* L'inner est en overflow:hidden pour que RIEN ne déborde du cahier */
   .sorea-book-inner {
     position: absolute;
-    top: 8px;
-    left: 8px;
-    right: 8px;
-    bottom: 6px;
+    top: 8px; left: 8px; right: 8px; bottom: 6px;
     background: white;
     border-radius: 10px;
     display: flex;
@@ -146,12 +145,15 @@ const styles = `
     z-index: 2;
   }
 
+  /* ── PAGE GAUCHE ── */
   .sorea-page-left {
-    flex: 1;
+    width: 50%;
+    flex-shrink: 0;
     padding: 24px 20px 20px 24px;
     border-right: 1.5px solid #E0D8F0;
     display: flex;
     flex-direction: column;
+    overflow: hidden;
   }
 
   .sorea-page-title {
@@ -170,6 +172,9 @@ const styles = `
     position: relative;
     overflow: hidden;
     user-select: none;
+    display: flex;
+    flex-direction: column;
+    padding: 14px;
   }
 
   .sorea-blur-bg {
@@ -179,15 +184,11 @@ const styles = `
     backdrop-filter: blur(4px);
     border-radius: 10px;
     z-index: 1;
-  }
-
-  .sorea-savez-collapsed {
-    position: absolute;
-    inset: 0;
     display: flex;
     align-items: center;
     justify-content: center;
-    z-index: 2;
+    flex-direction: column;
+    gap: 4px;
   }
 
   .sorea-savez-collapsed-text {
@@ -196,15 +197,6 @@ const styles = `
     color: #1A1A2E;
     font-family: 'Lora', Georgia, serif;
     text-align: center;
-  }
-
-  .sorea-savez-expanded {
-    position: absolute;
-    inset: 0;
-    padding: 16px;
-    display: flex;
-    flex-direction: column;
-    z-index: 2;
   }
 
   .sorea-savez-expanded-title {
@@ -216,6 +208,7 @@ const styles = `
     display: flex;
     justify-content: space-between;
     align-items: center;
+    flex-shrink: 0;
   }
 
   .sorea-savez-expanded p {
@@ -240,7 +233,6 @@ const styles = `
     color: #9B7DD4;
     font-family: 'Lora', Georgia, serif;
     font-weight: 600;
-    letter-spacing: 0.3px;
   }
 
   .sorea-loading {
@@ -253,8 +245,7 @@ const styles = `
   }
 
   .sorea-loading-dot {
-    width: 6px;
-    height: 6px;
+    width: 6px; height: 6px;
     border-radius: 50%;
     background: #9B7DD4;
     margin: 0 3px;
@@ -268,18 +259,80 @@ const styles = `
     40% { transform: scale(1); opacity: 1; }
   }
 
+  /* ── PAGE DROITE ── */
   .sorea-page-right {
+    width: 50%;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    position: relative;
+  }
+
+  /* ── ONGLETS : cachés par défaut, visibles quand section ouverte ── */
+  .sorea-tabs-row {
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: row;
+    align-items: stretch;
+    gap: 3px;
+    padding: 6px 10px 0;
+    background: white;
+    border-bottom: 1.5px solid #E0D8F0;
+    /* Masqué par défaut */
+    max-height: 0;
+    overflow: hidden;
+    opacity: 0;
+    transition: max-height 0.2s ease, opacity 0.2s ease;
+  }
+
+  .sorea-tabs-row.sorea-tabs-visible {
+    max-height: 40px;
+    opacity: 1;
+  }
+
+  .sorea-tab {
+    font-size: 11px;
+    font-weight: 700;
+    font-family: 'Lora', Georgia, serif;
+    padding: 5px 14px;
+    border-radius: 7px 7px 0 0;
+    border: none;
+    cursor: pointer;
+    transition: all 0.15s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0.55;
+  }
+
+  .sorea-tab-gratitude  { background: #C4B5E8; color: #3A1A7A; }
+  .sorea-tab-journaling { background: #F5DEC8; color: #7A4010; }
+  .sorea-tab-libre      { background: #C8E8C4; color: #1A5A1A; }
+
+  .sorea-tab-active { opacity: 1; box-shadow: inset 0 -2px 0 rgba(0,0,0,0.15); }
+  .sorea-tab:hover:not(.sorea-tab-active) { opacity: 0.8; }
+
+  /* ── CONTENU PAGE DROITE ── */
+  .sorea-right-content {
     flex: 1;
-    padding: 24px 24px 20px 20px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Vue cartes */
+  .sorea-cards-view {
+    flex: 1;
+    padding: 20px 20px 20px 16px;
     display: flex;
     flex-direction: column;
     justify-content: center;
-    gap: 14px;
+    gap: 12px;
   }
 
   .sorea-cat-card {
     border-radius: 10px;
-    padding: 0;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -288,72 +341,94 @@ const styles = `
     font-weight: 700;
     font-family: 'Lora', Georgia, serif;
     border: none;
-    cursor: default;
-    transition: background 0.35s, color 0.35s, filter 0.35s, transform 0.15s;
+    transition: all 0.2s;
     flex-shrink: 0;
   }
-
   .sorea-cat-card:disabled {
     background: #D8D8D8;
     color: #aaa;
     filter: blur(1.5px);
     cursor: not-allowed;
   }
-
   .sorea-cat-card:not(:disabled) { cursor: pointer; filter: none; }
   .sorea-cat-card:not(:disabled):hover { transform: scale(1.02); }
 
-  .sorea-gratitude:not(:disabled) { background: #C4B5E8; color: #3A1A7A; }
+  .sorea-gratitude:not(:disabled)  { background: #C4B5E8; color: #3A1A7A; }
   .sorea-journaling:not(:disabled) { background: #F5DEC8; color: #7A4010; }
-  .sorea-libre:not(:disabled) { background: #C8E8C4; color: #1A5A1A; }
+  .sorea-libre:not(:disabled)      { background: #C8E8C4; color: #1A5A1A; }
 
-  .sorea-overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(0, 0, 0, 0.45);
+  /* Vue section ouverte */
+  .sorea-section-view {
+    flex: 1;
     display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 24px;
-    z-index: 999;
+    flex-direction: column;
+    overflow: hidden;
   }
 
-  .sorea-overlay-inner {
-    position: relative;
-    max-width: 760px;
-    width: 100%;
+  .sorea-section-header {
+    padding: 10px 16px 8px;
+    border-bottom: 1px solid #E0D8F0;
     display: flex;
-    justify-content: center;
     align-items: center;
-    min-height: 100px;
+    justify-content: space-between;
+    flex-shrink: 0;
   }
 
-  .sorea-overlay-close {
-    position: absolute;
-    top: -12px;
-    right: -12px;
-    width: 38px;
-    height: 38px;
-    border-radius: 999px;
+  .sorea-section-title {
+    font-weight: 700;
+    font-size: 14px;
+    color: #1A1A2E;
+    font-family: 'Lora', Georgia, serif;
+  }
+
+  .sorea-section-back {
+    background: none;
     border: none;
-    background: white;
-    color: #7c3aed;
-    font-size: 24px;
-    line-height: 1;
     cursor: pointer;
-    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
+    color: #7B4FC8;
+    font-size: 11px;
+    font-weight: 700;
+    font-family: 'Lora', Georgia, serif;
+  }
+  .sorea-section-back:hover { text-decoration: underline; }
+
+  /*
+   * ── WRAPPER ENFANT ──
+   * Force le composant enfant à rester dans la page droite.
+   * Annule les styles "pleine page" de Carnet_planning
+   * (min-h-screen, max-w-2xl, p-4, bg-[#f3edf7]).
+   */
+  .sorea-child-wrapper {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+  }
+
+  /* Écrase les styles pleine-page du composant enfant */
+  .sorea-child-wrapper > * {
+    min-height: 0 !important;
+    max-width: 100% !important;
+    width: 100% !important;
+    background: transparent !important;
+    padding: 8px !important;
+    margin: 0 !important;
   }
 `;
 
-export default function CarnetG({ onClose, isDedicated = false }: { onClose?: () => void; isDedicated?: boolean }) {
+export default function CarnetG({
+  onClose,
+  isDedicated = false,
+}: {
+  onClose?: () => void;
+  isDedicated?: boolean;
+}) {
   const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
-  const [openedComponent, setOpenedComponent] = useState<string | null>(null);
+  const [activeSection, setActiveSection] = useState<Section>(null);
   const [currentText, setCurrentText] = useState<SavezVousText>(FALLBACK);
   const [loading, setLoading] = useState(true);
   const [secondsLeft, setSecondsLeft] = useState(getSecondsUntilMidnight());
 
-  // Fetch citation bien-être du jour
   useEffect(() => {
     fetch("/api/savez-vous")
       .then((r) => r.json())
@@ -362,7 +437,6 @@ export default function CarnetG({ onClose, isDedicated = false }: { onClose?: ()
       .finally(() => setLoading(false));
   }, []);
 
-  // Chronomètre jusqu'à minuit
   useEffect(() => {
     const timer = setInterval(() => {
       const secs = getSecondsUntilMidnight();
@@ -382,47 +456,36 @@ export default function CarnetG({ onClose, isDedicated = false }: { onClose?: ()
   const totalSecondsInDay = 24 * 60 * 60;
   const progressPercent =
     ((totalSecondsInDay - secondsLeft) / totalSecondsInDay) * 100;
-  const toggleSavez = () => setIsOpen((prev) => !prev);
 
-  if (openedComponent) {
-    return (
-      <>
-        <style>{styles}</style>
-        <div className="sorea-overlay" onClick={() => setOpenedComponent(null)}>
-          <div
-            className="sorea-overlay-inner"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <button
-              type="button"
-              className="sorea-overlay-close"
-              onClick={() => setOpenedComponent(null)}
-              aria-label="Fermer"
-            >
-              ×
-            </button>
+  const toggleSavez = () => {
+    if (!loading) setIsOpen((prev) => !prev);
+  };
 
-            {/* ── Gratitude ── */}
-            {openedComponent === "gratitude" && <Carnet_planning />}
+  const openSection = (section: Section) => {
+    if (!isOpen) return;
+    if (isDedicated) {
+      setActiveSection(section);
+    } else {
+      router.push("/carnet/2");
+    }
+  };
 
-            {/* ── Journaling ── */}
-            {openedComponent === "journaling" && (
-              <Carnet_journal
-                recherche=""
-                setRecherche={() => { }}
-                notesFiltrees={[]}
-                onSupprimerNote={() => { }}
-              />
-            )}
+  const closeSection = () => setActiveSection(null);
 
-            {/* ── Libre ── remplace Carnet_bn par le composant approprié dans ton projet */}
-            {openedComponent === "libre" && <Carnet_bn />}
-            {openedComponent === "libre" && <Carnet_bn />}
-          </div>
-        </div>
-      </>
-    );
-  }
+  const renderSectionContent = () => {
+    if (activeSection === "gratitude") return <Carnet_planning />;
+    if (activeSection === "journaling")
+      return (
+        <Carnet_journal
+          recherche=""
+          setRecherche={() => {}}
+          notesFiltrees={[]}
+          onSupprimerNote={() => {}}
+        />
+      );
+    if (activeSection === "libre") return <Carnet_bn />;
+    return null;
+  };
 
   return (
     <>
@@ -447,46 +510,36 @@ export default function CarnetG({ onClose, isDedicated = false }: { onClose?: ()
           <div className="sorea-book-bump" />
 
           <div className="sorea-book-inner">
-            {/* ── Page gauche ── */}
+
+            {/* ── PAGE GAUCHE ── */}
             <div className="sorea-page-left">
               <div className="sorea-page-title">Bonjour Prénom :-)</div>
 
-              <div
-                className="sorea-savez-box"
-                onClick={!loading ? toggleSavez : undefined}
-              >
-                {!isOpen && <div className="sorea-blur-bg" />}
-
-                {/* Loading */}
-                {loading && (
-                  <div className="sorea-loading">
-                    <div className="sorea-loading-dot" />
-                    <div className="sorea-loading-dot" />
-                    <div className="sorea-loading-dot" />
+              <div className="sorea-savez-box" onClick={toggleSavez}>
+                {/* Voile flou (collapsed) */}
+                {!isOpen && (
+                  <div className="sorea-blur-bg">
+                    {loading ? (
+                      <div className="sorea-loading">
+                        <div className="sorea-loading-dot" />
+                        <div className="sorea-loading-dot" />
+                        <div className="sorea-loading-dot" />
+                      </div>
+                    ) : (
+                      <>
+                        <span className="sorea-savez-collapsed-text">
+                          <u>{currentText.title}</u>
+                        </span>
+                        <span style={{ fontSize: "10px", color: "#9B7DD4", fontFamily: "'Lora', Georgia, serif" }}>
+                          Prochain dans {formatCountdown(secondsLeft)}
+                        </span>
+                      </>
+                    )}
                   </div>
                 )}
 
-                {/* Collapsed */}
-                {!loading && !isOpen && (
-                  <div className="sorea-savez-collapsed">
-                    <span className="sorea-savez-collapsed-text">
-                      <u>{currentText.title}</u>
-                      <span
-                        style={{
-                          display: "block",
-                          fontSize: "10px",
-                          color: "#9B7DD4",
-                          marginTop: 6,
-                        }}
-                      >
-                        Prochain dans {formatCountdown(secondsLeft)}
-                      </span>
-                    </span>
-                  </div>
-                )}
-
-                {/* Expanded */}
-                {!loading && isOpen && (
+                {/* Contenu expanded */}
+                {isOpen && (
                   <div className="sorea-savez-expanded">
                     <div className="sorea-savez-expanded-title">
                       <u>{currentText.title}</u>
@@ -513,48 +566,81 @@ export default function CarnetG({ onClose, isDedicated = false }: { onClose?: ()
               </div>
             </div>
 
-            {/* ── Page droite ── */}
+            {/* ── PAGE DROITE ── */}
             <div className="sorea-page-right">
-              <button
-                onClick={() => {
-                  if (isDedicated) {
-                    setOpenedComponent("gratitude");
-                  } else {
-                    router.push("/carnet/2");
-                  }
-                }}
-                className="sorea-cat-card sorea-gratitude"
-                disabled={!isOpen}
-              >
-                Gratitude
-              </button>
-              <button
-                onClick={() => {
-                  if (isDedicated) {
-                    setOpenedComponent("journaling");
-                  } else {
-                    router.push("/carnet/2");
-                  }
-                }}
-                className="sorea-cat-card sorea-journaling"
-                disabled={!isOpen}
-              >
-                Journaling
-              </button>
-              <button
-                onClick={() => {
-                  if (isDedicated) {
-                    setOpenedComponent("libre");
-                  } else {
-                    router.push("/carnet/2");
-                  }
-                }}
-                className="sorea-cat-card sorea-libre"
-                disabled={!isOpen}
-              >
-                Libre
-              </button>
+
+              {/* ONGLETS — apparaissent uniquement quand une section est ouverte */}
+              <div className={`sorea-tabs-row ${activeSection ? "sorea-tabs-visible" : ""}`}>
+                {(["gratitude", "journaling", "libre"] as const).map((key) => (
+                  <button
+                    key={key}
+                    onClick={() => openSection(key)}
+                    className={[
+                      "sorea-tab",
+                      `sorea-tab-${key}`,
+                      activeSection === key ? "sorea-tab-active" : "",
+                    ].join(" ")}
+                  >
+                    {SECTION_LABELS[key]}
+                  </button>
+                ))}
+              </div>
+
+              <div className="sorea-right-content">
+
+                {/* Vue cartes (aucune section ouverte) */}
+                {!activeSection && (
+                  <div className="sorea-cards-view">
+                    <button
+                      onClick={() => openSection("gratitude")}
+                      className="sorea-cat-card sorea-gratitude"
+                      disabled={!isOpen}
+                    >
+                      Gratitude
+                    </button>
+                    <button
+                      onClick={() => openSection("journaling")}
+                      className="sorea-cat-card sorea-journaling"
+                      disabled={!isOpen}
+                    >
+                      Journaling
+                    </button>
+                    <button
+                      onClick={() => openSection("libre")}
+                      className="sorea-cat-card sorea-libre"
+                      disabled={!isOpen}
+                    >
+                      Libre
+                    </button>
+                  </div>
+                )}
+
+                {/* Vue section ouverte */}
+                {activeSection && (
+                  <div className="sorea-section-view">
+                    <div className="sorea-section-header">
+                      <span className="sorea-section-title">
+                        {SECTION_LABELS[activeSection]}
+                      </span>
+                      <button className="sorea-section-back" onClick={closeSection}>
+                        Accueil ↩
+                      </button>
+                    </div>
+                    {/*
+                      sorea-child-wrapper :
+                      - overflow-y: auto  → scroll interne, pas de débordement
+                      - overflow-x: hidden → rien ne dépasse à gauche
+                      - Les styles > * écrasent min-h-screen / max-w-2xl / bg du composant enfant
+                    */}
+                    <div className="sorea-child-wrapper">
+                      {renderSectionContent()}
+                    </div>
+                  </div>
+                )}
+
+              </div>
             </div>
+
           </div>
         </div>
       </div>
