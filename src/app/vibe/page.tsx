@@ -1,5 +1,5 @@
-import SoreaVibe from "./common";
+// import SoreaVibe from "./common";
 
 export default function Page() {
-  return <SoreaVibe />;
+  return null; // Page désactivée (return <SoreaVibe />;)
 }
