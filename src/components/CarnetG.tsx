@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useInsertionEffect } from "react";
 import { useRouter } from "next/navigation";
 import Carnet_bn from "./Carnet_bn";
 import Carnet_planning from "./Carnet_planning";
@@ -40,6 +40,7 @@ const SECTION_LABELS: Record<string, string> = {
   libre: "Libre",
 };
 
+const STYLE_ID = "carnet-g-styles";
 const styles = `
   .sorea-wrap {
     display: flex;
@@ -47,8 +48,18 @@ const styles = `
     justify-content: center;
     font-family: 'Lora', Georgia, serif;
     position: relative;
+    width: 100%;
+  }
+
+  /* En mode normal (widget embarqué) : dimensions compactes */
+  .sorea-wrap:not(.sorea-dedicated) {
     min-height: 520px;
     padding: 32px 40px;
+  }
+
+  /* En mode dédié (page /carnet/2) : le livre prend toute la largeur du conteneur blanc */
+  .sorea-wrap.sorea-dedicated {
+    padding: 0;
   }
 
   .sorea-sidebar {
@@ -58,6 +69,11 @@ const styles = `
     margin-right: 20px;
     align-items: flex-start;
     flex-shrink: 0;
+  }
+
+  /* Sidebar cachée en mode dédié : la page a déjà son propre bouton retour */
+  .sorea-dedicated .sorea-sidebar {
+    display: none;
   }
 
   .sorea-btn-retour {
@@ -91,12 +107,21 @@ const styles = `
   }
   .sorea-btn-commander:hover { background: #F3EEFF; }
 
-  /* ── BOOK ── */
+  /* ── BOOK – mode normal ── */
   .sorea-book {
-    width: 640px;
-    height: 420px;
     position: relative;
     flex-shrink: 0;
+  }
+
+  .sorea-wrap:not(.sorea-dedicated) .sorea-book {
+    width: 640px;
+    height: 420px;
+  }
+
+  /* ── BOOK – mode dédié : grand, occupe toute la largeur disponible ── */
+  .sorea-wrap.sorea-dedicated .sorea-book {
+    width: 100%;
+    height: 620px;
   }
 
   .sorea-book-bg {
@@ -118,15 +143,18 @@ const styles = `
   .sorea-book-spine {
     position: absolute;
     left: 50%; top: 8px;
-    width: 3px; height: 412px;
+    width: 3px;
     background: #A890CC;
     z-index: 4;
     transform: translateX(-50%);
   }
 
+  .sorea-wrap:not(.sorea-dedicated) .sorea-book-spine { height: 412px; }
+  .sorea-wrap.sorea-dedicated        .sorea-book-spine { height: 612px; }
+
   .sorea-book-bump {
     position: absolute;
-    top: 413px; left: 50%;
+    left: 50%;
     transform: translateX(-50%);
     width: 52px; height: 13px;
     background: #B49DD4;
@@ -134,7 +162,9 @@ const styles = `
     z-index: 4;
   }
 
-  /* L'inner est en overflow:hidden pour que RIEN ne déborde du cahier */
+  .sorea-wrap:not(.sorea-dedicated) .sorea-book-bump { top: 413px; }
+  .sorea-wrap.sorea-dedicated        .sorea-book-bump { top: 613px; }
+
   .sorea-book-inner {
     position: absolute;
     top: 8px; left: 8px; right: 8px; bottom: 6px;
@@ -158,11 +188,13 @@ const styles = `
 
   .sorea-page-title {
     font-weight: 800;
-    font-size: 17px;
     color: #1A1A2E;
     margin-bottom: 14px;
     flex-shrink: 0;
   }
+
+  .sorea-wrap:not(.sorea-dedicated) .sorea-page-title { font-size: 17px; }
+  .sorea-wrap.sorea-dedicated        .sorea-page-title { font-size: 22px; }
 
   .sorea-savez-box {
     flex: 1;
@@ -269,7 +301,6 @@ const styles = `
     position: relative;
   }
 
-  /* ── ONGLETS : cachés par défaut, visibles quand section ouverte ── */
   .sorea-tabs-row {
     flex-shrink: 0;
     display: flex;
@@ -279,7 +310,6 @@ const styles = `
     padding: 6px 10px 0;
     background: white;
     border-bottom: 1.5px solid #E0D8F0;
-    /* Masqué par défaut */
     max-height: 0;
     overflow: hidden;
     opacity: 0;
@@ -321,7 +351,6 @@ const styles = `
     flex-direction: column;
   }
 
-  /* Vue cartes */
   .sorea-cards-view {
     flex: 1;
     padding: 20px 20px 20px 16px;
@@ -336,28 +365,27 @@ const styles = `
     display: flex;
     align-items: center;
     justify-content: center;
-    height: 72px;
-    font-size: 14px;
     font-weight: 700;
     font-family: 'Lora', Georgia, serif;
     border: none;
-    transition: all 0.2s;
+    transition: opacity 0.2s, transform 0.2s;
     flex-shrink: 0;
   }
+
+  .sorea-wrap:not(.sorea-dedicated) .sorea-cat-card { height: 72px;  font-size: 14px; }
+  .sorea-wrap.sorea-dedicated        .sorea-cat-card { height: 110px; font-size: 18px; }
+
   .sorea-cat-card:disabled {
-    background: #D8D8D8;
-    color: #aaa;
-    filter: blur(1.5px);
+    opacity: 0.45;
     cursor: not-allowed;
   }
-  .sorea-cat-card:not(:disabled) { cursor: pointer; filter: none; }
+  .sorea-cat-card:not(:disabled) { cursor: pointer; }
   .sorea-cat-card:not(:disabled):hover { transform: scale(1.02); }
 
-  .sorea-gratitude:not(:disabled)  { background: #C4B5E8; color: #3A1A7A; }
-  .sorea-journaling:not(:disabled) { background: #F5DEC8; color: #7A4010; }
-  .sorea-libre:not(:disabled)      { background: #C8E8C4; color: #1A5A1A; }
+  .sorea-gratitude  { background: #C4B5E8; color: #3A1A7A; }
+  .sorea-journaling { background: #F5DEC8; color: #7A4010; }
+  .sorea-libre      { background: #C8E8C4; color: #1A5A1A; }
 
-  /* Vue section ouverte */
   .sorea-section-view {
     flex: 1;
     display: flex;
@@ -392,19 +420,12 @@ const styles = `
   }
   .sorea-section-back:hover { text-decoration: underline; }
 
-  /*
-   * ── WRAPPER ENFANT ──
-   * Force le composant enfant à rester dans la page droite.
-   * Annule les styles "pleine page" de Carnet_planning
-   * (min-h-screen, max-w-2xl, p-4, bg-[#f3edf7]).
-   */
   .sorea-child-wrapper {
     flex: 1;
     overflow-y: auto;
     overflow-x: hidden;
   }
 
-  /* Écrase les styles pleine-page du composant enfant */
   .sorea-child-wrapper > * {
     min-height: 0 !important;
     max-width: 100% !important;
@@ -428,6 +449,14 @@ export default function CarnetG({
   const [currentText, setCurrentText] = useState<SavezVousText>(FALLBACK);
   const [loading, setLoading] = useState(true);
   const [secondsLeft, setSecondsLeft] = useState(getSecondsUntilMidnight());
+
+  useInsertionEffect(() => {
+    if (document.getElementById(STYLE_ID)) return;
+    const tag = document.createElement("style");
+    tag.id = STYLE_ID;
+    tag.textContent = styles;
+    document.head.appendChild(tag);
+  }, []);
 
   useEffect(() => {
     fetch("/api/savez-vous")
@@ -461,8 +490,8 @@ export default function CarnetG({
     if (!loading) setIsOpen((prev) => !prev);
   };
 
+  // FIX : if (!isOpen) return supprimé — redondant avec disabled={!isOpen}
   const openSection = (section: Section) => {
-    if (!isOpen) return;
     if (isDedicated) {
       setActiveSection(section);
     } else {
@@ -488,162 +517,149 @@ export default function CarnetG({
   };
 
   return (
-    <>
-      <style>{styles}</style>
+    <div className={`sorea-wrap${isDedicated ? " sorea-dedicated" : ""}`}>
+      {/* Sidebar visible uniquement en mode widget */}
+      <div className="sorea-sidebar">
+        <button className="sorea-btn-retour" onClick={onClose}>
+          ← Retour
+        </button>
+        <button className="sorea-btn-commander">
+          Commander mon
+          <br />
+          Carnet Gratitude
+        </button>
+      </div>
 
-      <div className="sorea-wrap">
-        <div className="sorea-sidebar">
-          <button className="sorea-btn-retour" onClick={onClose}>
-            ← Retour
-          </button>
-          <button className="sorea-btn-commander">
-            Commander mon
-            <br />
-            Carnet Gratitude
-          </button>
-        </div>
+      <div className="sorea-book">
+        <div className="sorea-book-bg" />
+        <div className="sorea-book-curl" />
+        <div className="sorea-book-spine" />
+        <div className="sorea-book-bump" />
 
-        <div className="sorea-book">
-          <div className="sorea-book-bg" />
-          <div className="sorea-book-curl" />
-          <div className="sorea-book-spine" />
-          <div className="sorea-book-bump" />
+        <div className="sorea-book-inner">
 
-          <div className="sorea-book-inner">
+          {/* ── PAGE GAUCHE ── */}
+          <div className="sorea-page-left">
+            <div className="sorea-page-title">Bonjour Prénom :-)</div>
 
-            {/* ── PAGE GAUCHE ── */}
-            <div className="sorea-page-left">
-              <div className="sorea-page-title">Bonjour Prénom :-)</div>
-
-              <div className="sorea-savez-box" onClick={toggleSavez}>
-                {/* Voile flou (collapsed) */}
-                {!isOpen && (
-                  <div className="sorea-blur-bg">
-                    {loading ? (
-                      <div className="sorea-loading">
-                        <div className="sorea-loading-dot" />
-                        <div className="sorea-loading-dot" />
-                        <div className="sorea-loading-dot" />
-                      </div>
-                    ) : (
-                      <>
-                        <span className="sorea-savez-collapsed-text">
-                          <u>{currentText.title}</u>
-                        </span>
-                        <span style={{ fontSize: "10px", color: "#9B7DD4", fontFamily: "'Lora', Georgia, serif" }}>
-                          Prochain dans {formatCountdown(secondsLeft)}
-                        </span>
-                      </>
-                    )}
-                  </div>
-                )}
-
-                {/* Contenu expanded */}
-                {isOpen && (
-                  <div className="sorea-savez-expanded">
-                    <div className="sorea-savez-expanded-title">
-                      <u>{currentText.title}</u>
-                      <span className="sorea-countdown-label">
+            <div className="sorea-savez-box" onClick={toggleSavez}>
+              {!isOpen && (
+                <div className="sorea-blur-bg">
+                  {loading ? (
+                    <div className="sorea-loading">
+                      <div className="sorea-loading-dot" />
+                      <div className="sorea-loading-dot" />
+                      <div className="sorea-loading-dot" />
+                    </div>
+                  ) : (
+                    <>
+                      <span className="sorea-savez-collapsed-text">
+                        <u>{currentText.title}</u>
+                      </span>
+                      <span style={{ fontSize: "10px", color: "#9B7DD4", fontFamily: "'Lora', Georgia, serif" }}>
                         Prochain dans {formatCountdown(secondsLeft)}
                       </span>
-                    </div>
-                    <div className="sorea-progress-bar-bg">
-                      <div
-                        style={{
-                          height: "100%",
-                          background: "#7B4FC8",
-                          borderRadius: 4,
-                          width: `${progressPercent}%`,
-                          transition: "width 1s linear",
-                        }}
-                      />
-                    </div>
-                    {currentText.paragraphs.map((p, i) => (
-                      <p key={i}>{p}</p>
-                    ))}
+                    </>
+                  )}
+                </div>
+              )}
+
+              {isOpen && (
+                <div className="sorea-savez-expanded">
+                  <div className="sorea-savez-expanded-title">
+                    <u>{currentText.title}</u>
+                    <span className="sorea-countdown-label">
+                      Prochain dans {formatCountdown(secondsLeft)}
+                    </span>
                   </div>
-                )}
-              </div>
+                  <div className="sorea-progress-bar-bg">
+                    <div
+                      style={{
+                        height: "100%",
+                        background: "#7B4FC8",
+                        borderRadius: 4,
+                        width: `${progressPercent}%`,
+                        transition: "width 1s linear",
+                      }}
+                    />
+                  </div>
+                  {currentText.paragraphs.map((p, i) => (
+                    <p key={i}>{p}</p>
+                  ))}
+                </div>
+              )}
             </div>
-
-            {/* ── PAGE DROITE ── */}
-            <div className="sorea-page-right">
-
-              {/* ONGLETS — apparaissent uniquement quand une section est ouverte */}
-              <div className={`sorea-tabs-row ${activeSection ? "sorea-tabs-visible" : ""}`}>
-                {(["gratitude", "journaling", "libre"] as const).map((key) => (
-                  <button
-                    key={key}
-                    onClick={() => openSection(key)}
-                    className={[
-                      "sorea-tab",
-                      `sorea-tab-${key}`,
-                      activeSection === key ? "sorea-tab-active" : "",
-                    ].join(" ")}
-                  >
-                    {SECTION_LABELS[key]}
-                  </button>
-                ))}
-              </div>
-
-              <div className="sorea-right-content">
-
-                {/* Vue cartes (aucune section ouverte) */}
-                {!activeSection && (
-                  <div className="sorea-cards-view">
-                    <button
-                      onClick={() => openSection("gratitude")}
-                      className="sorea-cat-card sorea-gratitude"
-                      disabled={!isOpen}
-                    >
-                      Gratitude
-                    </button>
-                    <button
-                      onClick={() => openSection("journaling")}
-                      className="sorea-cat-card sorea-journaling"
-                      disabled={!isOpen}
-                    >
-                      Journaling
-                    </button>
-                    <button
-                      onClick={() => openSection("libre")}
-                      className="sorea-cat-card sorea-libre"
-                      disabled={!isOpen}
-                    >
-                      Libre
-                    </button>
-                  </div>
-                )}
-
-                {/* Vue section ouverte */}
-                {activeSection && (
-                  <div className="sorea-section-view">
-                    <div className="sorea-section-header">
-                      <span className="sorea-section-title">
-                        {SECTION_LABELS[activeSection]}
-                      </span>
-                      <button className="sorea-section-back" onClick={closeSection}>
-                        Accueil ↩
-                      </button>
-                    </div>
-                    {/*
-                      sorea-child-wrapper :
-                      - overflow-y: auto  → scroll interne, pas de débordement
-                      - overflow-x: hidden → rien ne dépasse à gauche
-                      - Les styles > * écrasent min-h-screen / max-w-2xl / bg du composant enfant
-                    */}
-                    <div className="sorea-child-wrapper">
-                      {renderSectionContent()}
-                    </div>
-                  </div>
-                )}
-
-              </div>
-            </div>
-
           </div>
+
+          {/* ── PAGE DROITE ── */}
+          <div className="sorea-page-right">
+
+            {/* Onglets — navigue directement via setActiveSection */}
+            <div className={`sorea-tabs-row ${activeSection ? "sorea-tabs-visible" : ""}`}>
+              {(["gratitude", "journaling", "libre"] as const).map((key) => (
+                <button
+                  key={key}
+                  onClick={() => setActiveSection(key)}
+                  className={[
+                    "sorea-tab",
+                    `sorea-tab-${key}`,
+                    activeSection === key ? "sorea-tab-active" : "",
+                  ].join(" ")}
+                >
+                  {SECTION_LABELS[key]}
+                </button>
+              ))}
+            </div>
+
+            <div className="sorea-right-content">
+
+              {!activeSection && (
+                <div className="sorea-cards-view">
+                  <button
+                    onClick={() => openSection("gratitude")}
+                    className="sorea-cat-card sorea-gratitude"
+                    disabled={!isDedicated && !isOpen}
+                  >
+                    Gratitude
+                  </button>
+                  <button
+                    onClick={() => openSection("journaling")}
+                    className="sorea-cat-card sorea-journaling"
+                    disabled={!isDedicated && !isOpen}
+                  >
+                    Journaling
+                  </button>
+                  <button
+                    onClick={() => openSection("libre")}
+                    className="sorea-cat-card sorea-libre"
+                    disabled={!isDedicated && !isOpen}
+                  >
+                    Libre
+                  </button>
+                </div>
+              )}
+
+              {activeSection && (
+                <div className="sorea-section-view">
+                  <div className="sorea-section-header">
+                    <span className="sorea-section-title">
+                      {SECTION_LABELS[activeSection]}
+                    </span>
+                    <button className="sorea-section-back" onClick={closeSection}>
+                      Accueil ↩
+                    </button>
+                  </div>
+                  <div className="sorea-child-wrapper">
+                    {renderSectionContent()}
+                  </div>
+                </div>
+              )}
+
+            </div>
+          </div>
+
         </div>
       </div>
-    </>
+    </div>
   );
 }
