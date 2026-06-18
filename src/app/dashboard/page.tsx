@@ -2,6 +2,7 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import prisma from "@/lib/prisma";
 import Link from "next/link";
+import { countMotAMoiMessagesForUser } from "@/lib/motAMoiMessages";
 
 export default async function DashboardPage() {
   const cookieStore = await cookies();
@@ -30,7 +31,7 @@ export default async function DashboardPage() {
         where: { userId: user.id },
         include: { items: true },
       }),
-      prisma.motAMoiMessage.count({ where: { userId: user.id } }),
+      countMotAMoiMessagesForUser(user.id),
     ]);
 
   const cartItemsCount = cart?.items.reduce((sum, item) => sum + item.quantity, 0) ?? 0;

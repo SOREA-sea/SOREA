@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { mkdir, writeFile } from "fs/promises";
 import path from "path";
-import prisma from "@/lib/prisma";
 import { getUserFromRequest } from "../../middleware/auth";
+import { createMotAMoiMessage, getMotAMoiMessagesForUser } from "@/lib/motAMoiMessages";
 
 export const runtime = "nodejs";
 
@@ -31,10 +31,7 @@ export async function GET() {
       return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
     }
 
-    const messages = await prisma.motAMoiMessage.findMany({
-      where: { userId: user.id },
-      orderBy: { deliveryDate: "asc" },
-    });
+    const messages = await getMotAMoiMessagesForUser(user.id);
 
     return NextResponse.json({ messages });
   } catch (error) {
@@ -97,17 +94,15 @@ export async function POST(request: NextRequest) {
     const bytes = Buffer.from(await file.arrayBuffer());
     await writeFile(filePath, bytes);
 
-    const message = await prisma.motAMoiMessage.create({
-      data: {
-        userId: user.id,
-        title,
-        note: note || null,
-        mediaType: getMediaType(file.type),
-        fileName: file.name || storedName,
-        fileUrl: `/uploads/mot-a-moi/${user.id}/${storedName}`,
-        mimeType: file.type,
-        deliveryDate,
-      },
+    const message = await createMotAMoiMessage({
+      userId: user.id,
+      title,
+      note: note || null,
+      mediaType: getMediaType(file.type),
+      fileName: file.name || storedName,
+      fileUrl: `/uploads/mot-a-moi/${user.id}/${storedName}`,
+      mimeType: file.type,
+      deliveryDate: deliveryDate.toISOString(),
     });
 
     return NextResponse.json({ message }, { status: 201 });

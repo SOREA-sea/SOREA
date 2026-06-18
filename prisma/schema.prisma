@@ -48,7 +48,6 @@ model User {
   favoriteCoaches  FavoriteCoach[]
   favoriteSessions FavoriteSession[]
   menstrualProfile MenstrualProfile?
-  motAMoiMessages  MotAMoiMessage[]
 }
 
 model MenstrualProfile {
@@ -362,22 +361,4 @@ model SavezVous {
   paragraph2 String
   paragraph3 String
   createdAt  DateTime @default(now())
-}
-
-model MotAMoiMessage {
-  id           Int      @id @default(autoincrement())
-  userId       Int
-  title        String
-  note         String?
-  mediaType    String
-  fileName     String
-  fileUrl      String
-  mimeType     String
-  deliveryDate DateTime
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@index([userId, deliveryDate])
 }
