@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import { CalendarClock, FileAudio, ImageIcon, Lock, Plus, Video } from "lucide-react";
 import prisma from "@/lib/prisma";
+import { getMotAMoiMessagesForUser } from "@/lib/motAMoiMessages";
 
 function formatDate(date: Date) {
   return date.toLocaleDateString("fr-FR", {
@@ -35,14 +36,11 @@ export default async function MessageriePage() {
     redirect("/login");
   }
 
-  const messages = await prisma.motAMoiMessage.findMany({
-    where: { userId: session.user.id },
-    orderBy: { deliveryDate: "asc" },
-  });
+  const messages = await getMotAMoiMessagesForUser(session.user.id);
 
   const now = new Date();
-  const availableMessages = messages.filter((message) => message.deliveryDate <= now);
-  const upcomingMessages = messages.filter((message) => message.deliveryDate > now);
+  const availableMessages = messages.filter((message) => new Date(message.deliveryDate) <= now);
+  const upcomingMessages = messages.filter((message) => new Date(message.deliveryDate) > now);
 
   return (
     <div className="space-y-8">
@@ -88,7 +86,7 @@ export default async function MessageriePage() {
                     </div>
                     <h3 className="text-lg font-black text-foreground">{message.title}</h3>
                     <p className="text-xs font-semibold uppercase tracking-[0.18em] text-foreground/40">
-                      Reçu le {formatDate(message.deliveryDate)}
+                      Reçu le {formatDate(new Date(message.deliveryDate))}
                     </p>
                   </div>
                 </div>
@@ -134,7 +132,7 @@ export default async function MessageriePage() {
                   </div>
                   <div>
                     <p className="font-black text-foreground">{message.title}</p>
-                    <p className="text-sm text-foreground/50">Disponible le {formatDate(message.deliveryDate)}</p>
+                    <p className="text-sm text-foreground/50">Disponible le {formatDate(new Date(message.deliveryDate))}</p>
                   </div>
                 </div>
               </article>
