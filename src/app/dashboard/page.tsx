@@ -18,9 +18,7 @@ export default async function DashboardPage() {
   }
 
   const user = session.user;
-  // Coaches no longer have a separate dashboard page; keep showing the standard dashboard
 
-  // Charger les stats direct côté serveur
   const [favoriteProducts, favoriteCoaches, favoriteSessions, reservations, cart, motAMoiMessages] =
     await Promise.all([
       prisma.favoriteProduct.count({ where: { userId: user.id } }),
@@ -37,7 +35,6 @@ export default async function DashboardPage() {
   const cartItemsCount = cart?.items.reduce((sum, item) => sum + item.quantity, 0) ?? 0;
   const totalFavorites = favoriteProducts + favoriteCoaches + favoriteSessions;
 
-  // Charger les prochaines séances réservées
   const upcomingBookings = await prisma.sessionBooking.findMany({
     where: {
       userId: user.id,
@@ -112,7 +109,6 @@ export default async function DashboardPage() {
 
   return (
     <div className="space-y-8">
-      {/* Header */}
       <header>
         <p className="text-xs uppercase tracking-[0.28em] text-foreground/50">Tableau de bord</p>
         <h1 className="text-3xl md:text-4xl font-black section-title mt-1">
@@ -123,7 +119,6 @@ export default async function DashboardPage() {
         </p>
       </header>
 
-      {/* Stats cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5">
         {stats.map((stat) => (
           <Link
@@ -142,7 +137,6 @@ export default async function DashboardPage() {
         ))}
       </div>
 
-      {/* Upcoming sessions */}
       <section>
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-xl font-bold">Prochaines séances</h2>
@@ -205,7 +199,6 @@ export default async function DashboardPage() {
         )}
       </section>
 
-      {/* Reservations */}
       <section>
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-xl font-bold">Réservations en attente</h2>
@@ -232,7 +225,6 @@ export default async function DashboardPage() {
         )}
       </section>
 
-      {/* Quick actions */}
       <section>
         <h2 className="text-xl font-bold mb-4">Accès rapide</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
