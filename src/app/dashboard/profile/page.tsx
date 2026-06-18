@@ -81,7 +81,6 @@ export default function ProfilePage() {
       setProfile(data.user);
       setMessage({ type: "success", text: "Profil mis à jour avec succès !" });
 
-      // Auto-clear success message
       setTimeout(() => setMessage(null), 4000);
     } catch (err: any) {
       setMessage({ type: "error", text: err.message });
@@ -112,7 +111,6 @@ export default function ProfilePage() {
         </p>
       </header>
 
-      {/* Profile info card */}
       {profile && (
         <div className="glass-panel rounded-3xl p-6 flex items-center gap-5">
           <div className="w-16 h-16 rounded-full overflow-hidden bg-white/80 shadow ring-2 ring-white/60 shrink-0">
@@ -144,7 +142,6 @@ export default function ProfilePage() {
         </Link>
       </div>
 
-      {/* Edit form */}
       <form onSubmit={handleSubmit} className="glass-panel rounded-3xl p-8 space-y-6">
         <h2 className="text-xl font-bold">Modifier mes informations</h2>
 
@@ -236,7 +233,6 @@ export default function ProfilePage() {
         </div>
       </form>
 
-      {/* 2FA Controls */}
       <div className="glass-panel rounded-3xl p-8 space-y-4">
         <h2 className="text-xl font-bold">Authentification à deux facteurs (2FA)</h2>
         {profile && (
@@ -307,7 +303,6 @@ export default function ProfilePage() {
               disabled={twoFactorProcessing}
             >{twoFactorProcessing ? 'Traitement...' : 'Désactiver la 2FA'}</button>
 
-            {/* Disable confirmation modal */}
             {showDisableModal && (
               <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
                 <div className="bg-white rounded-2xl p-6 w-full max-w-md">
