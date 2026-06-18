@@ -34,8 +34,7 @@ export default function NouvellePage() {
                 Je laisse parler ma plume
               </button>
             </Link>
-
-            <Link href="/mot-a-moi/ecrire-pour-mon-futur-moi">
+<Link href="/mot-a-moi/ecrire-pour-mon-futur-moi">
               <button className="bg-gradient-to-r from-[#8B47FF] to-[#6D3AE0] text-white font-bold px-8 py-4 rounded-2xl shadow-md transition-all duration-300 hover:scale-105 hover:shadow-xl cursor-pointer min-w-[280px]">
                 Écrire pour mon futur moi
               </button>

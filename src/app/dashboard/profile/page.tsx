@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Link from "next/link";
 
 interface ProfileData {
   id: number;
@@ -130,6 +131,18 @@ export default function ProfilePage() {
           </div>
         </div>
       )}
+
+      <div className="glass-panel rounded-3xl p-6 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+        <div>
+          <h2 className="text-xl font-bold">Messagerie Mot à moi</h2>
+          <p className="text-foreground/60 mt-1">
+            Consultez vos photos, audios et vidéos programmés pour votre futur vous.
+          </p>
+        </div>
+        <Link href="/dashboard/messagerie" className="btn-primary px-6 py-3 text-center">
+          Ouvrir ma messagerie
+        </Link>
+      </div>
 
       {/* Edit form */}
       <form onSubmit={handleSubmit} className="glass-panel rounded-3xl p-8 space-y-6">
