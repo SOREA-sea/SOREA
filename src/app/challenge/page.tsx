@@ -89,7 +89,7 @@ export default function MiroirDesAffirmations() {
 
     return (
         <div
-            className="min-h-screen flex flex-col text-gray-800"
+            className="min-h-screen flex flex-col w-full text-gray-800"
             style={{
                 background: "radial-gradient(ellipse at center, #FEF0F9 0%, #FFFFFF 100%)",
                 fontFamily: "'Inria Sans', sans-serif",
@@ -100,60 +100,64 @@ export default function MiroirDesAffirmations() {
                 rel="stylesheet"
             />
 
-            <div className="w-[1440px] pr-[96px] pl-[96px] mx-auto pb-[24px] gap-[50px] pt-8">
-                <Navbar />
+            {/* NAVBAR */}
+            <div className="w-full">
+                <div className="max-w-[1440px] mx-auto px-[96px] pt-8 pb-[24px]">
+                    <Navbar />
+                </div>
             </div>
 
-            
-            <div className="w-full flex justify-center">
-                <StreakTracker />
-            </div>
+            {/* CONTENU */}
+            <main className="flex-1 w-full flex flex-col">
+                <div className="w-full flex justify-center">
+                    <StreakTracker />
+                </div>
 
-            <div className="w-full flex justify-center mt-8 px-[96px]">
-                <MenstrualCalendar />
-            </div>
+                <div className="w-full flex justify-center mt-8 px-[96px]">
+                    <MenstrualCalendar />
+                </div>
 
-            <div className="flex flex-col mx-auto w-[1440px] px-[96px] gap-[64px] py-16">
-                {sections.map((section, i) => (
-                    <div key={i} className="flex flex-row items-center gap-12">
-                        <div
-                            className="flex-shrink-0 flex items-center justify-center"
-                            style={{ width: "320px" }}
-                        >
-                            <img
-                                src={section.img}
-                                alt={section.alt}
-                                style={{ width: section.imgWidth, display: "block" }}
-                            />
-                        </div>
+                <div className="flex flex-col mx-auto w-full max-w-[1440px] px-[96px] gap-[64px] py-16">
+                    {sections.map((section, i) => (
+                        <div key={i} className="flex flex-row items-center gap-12">
+                            <div
+                                className="flex-shrink-0 flex items-center justify-center"
+                                style={{ width: "320px" }}
+                            >
+                                <img
+                                    src={section.img}
+                                    alt={section.alt}
+                                    style={{ width: section.imgWidth, display: "block" }}
+                                />
+                            </div>
 
-                        <div
-                            className="flex flex-col border-2 border-[#8B47FF] rounded-2xl p-10 gap-6 flex-1"
-                            style={{
-                                background: "radial-gradient(ellipse at center, #FEF0F9 0%, #FFFFFF 100%)",
-                            }}
-                        >
-                            <h2 className="text-3xl font-bold underline text-black text-center">
-                                {section.title}
-                            </h2>
-                            <p className="text-center text-black text-xl leading-relaxed">
-                                {section.description}
-                            </p>
-                            <div className="flex flex-row items-center justify-center gap-4 mt-2">
-                                <Link href={section.href}>
-                                    <button className="bg-white text-[#8B47FF] font-bold px-8 py-5 rounded-2xl shadow-md transition-all duration-300 hover:scale-105 hover:shadow-xl text-sm text-center leading-tight cursor-pointer">
-                                        {section.btnLabel}
-                                    </button>
-                                </Link>
+                            <div
+                                className="flex flex-col border-2 border-[#8B47FF] rounded-2xl p-10 gap-6 flex-1 relative z-10"
+                                style={{
+                                    background: "radial-gradient(ellipse at center, #FEF0F9 0%, #FFFFFF 100%)",
+                                }}
+                            >
+                                <h2 className="text-3xl font-bold underline text-black text-center">
+                                    {section.title}
+                                </h2>
+                                <p className="text-center text-black text-xl leading-relaxed">
+                                    {section.description}
+                                </p>
+                                <div className="flex flex-row items-center justify-center gap-4 mt-2">
+                                    <Link href={section.href}>
+                                        <button className="bg-white text-[#8B47FF] font-bold px-8 py-5 rounded-2xl shadow-md transition-all duration-300 hover:scale-105 hover:shadow-xl text-sm text-center leading-tight cursor-pointer">
+                                            {section.btnLabel}
+                                        </button>
+                                    </Link>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                ))}
-            </div>
+                    ))}
+                </div>
+            </main>
 
-            <div className="w-[1440px] pr-[96px] pl-[96px] mx-auto pb-[24px]">
-                <Footer />
-            </div>
+            {/* FOOTER */}
+            <Footer />
         </div>
     );
 }
