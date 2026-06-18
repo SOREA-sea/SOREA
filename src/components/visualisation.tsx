@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from "react";
+// Link est importé mais inutilisé dans ce composant, tu peux le garder si besoin.
 import Link from "next/link";
 
 interface VisualImage {
@@ -15,18 +16,31 @@ interface VisualImage {
 
 type TabType = 'galerie' | 'archives' | 'trash';
 
+const DEFAULT_GALERIE: VisualImage[] = [
+  { id: "1", colorClass: "bg-[#FBCFE8]", dateAdded: "10/06/2026" }, 
+  { id: "2", colorClass: "bg-[#A855F7]", dateAdded: "11/06/2026" }, 
+  { id: "3", colorClass: "bg-[#C4B5FD]", dateAdded: "11/06/2026" }, 
+  { id: "4", colorClass: "bg-[#5EEAD4]", dateAdded: "12/06/2026" }, 
+  { id: "5", colorClass: "bg-[#FEF08A]", dateAdded: "13/06/2026" }, 
+  { id: "6", colorClass: "bg-[#A8A29E]", dateAdded: "14/06/2026" }, 
+  { id: "7", colorClass: "bg-[#FFFFFF]", dateAdded: "15/06/2026" }, 
+];
+
+// Fonction utilitaire pour convertir un fichier en Base64
+const fileToBase64 = (file: File): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = () => resolve(reader.result as string);
+    reader.onerror = (error) => reject(error);
+  });
+};
+
 export default function Visualisation() {
-  const [galerie, setGalerie] = useState<VisualImage[]>([
-    { id: "1", colorClass: "bg-[#FBCFE8]", dateAdded: "10/06/2026" }, 
-    { id: "2", colorClass: "bg-[#A855F7]", dateAdded: "11/06/2026" }, 
-    { id: "3", colorClass: "bg-[#C4B5FD]", dateAdded: "11/06/2026" }, 
-    { id: "4", colorClass: "bg-[#5EEAD4]", dateAdded: "12/06/2026" }, 
-    { id: "5", colorClass: "bg-[#FEF08A]", dateAdded: "13/06/2026" }, 
-    { id: "6", colorClass: "bg-[#A8A29E]", dateAdded: "14/06/2026" }, 
-    { id: "7", colorClass: "bg-[#FFFFFF]", dateAdded: "15/06/2026" }, 
-  ]);
+  const [galerie, setGalerie] = useState<VisualImage[]>([]);
   const [archives, setArchives] = useState<VisualImage[]>([]);
   const [trash, setTrash] = useState<VisualImage[]>([]);
+  const [isLoaded, setIsLoaded] = useState(false); // Gère l'hydratation Next.js
 
   const [activeTab, setActiveTab] = useState<TabType>('galerie');
   const [zoomedImage, setZoomedImage] = useState<VisualImage | null>(null);
@@ -46,28 +60,65 @@ export default function Visualisation() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const currentImages = activeTab === 'galerie' ? galerie : activeTab === 'archives' ? archives : trash;
 
+  // 1. CHARGEMENT INITIAL (depuis le localStorage)
+  useEffect(() => {
+    const savedGalerie = localStorage.getItem('sorea_visualisation_galerie');
+    const savedArchives = localStorage.getItem('sorea_visualisation_archives');
+    const savedTrash = localStorage.getItem('sorea_visualisation_trash');
+
+    if (savedGalerie) setGalerie(JSON.parse(savedGalerie));
+    else setGalerie(DEFAULT_GALERIE);
+
+    if (savedArchives) setArchives(JSON.parse(savedArchives));
+    if (savedTrash) setTrash(JSON.parse(savedTrash));
+
+    setIsLoaded(true);
+  }, []);
+
+  // 2. SAUVEGARDE AUTOMATIQUE (vers le localStorage à chaque changement)
+  useEffect(() => {
+    if (isLoaded) {
+      localStorage.setItem('sorea_visualisation_galerie', JSON.stringify(galerie));
+      localStorage.setItem('sorea_visualisation_archives', JSON.stringify(archives));
+      localStorage.setItem('sorea_visualisation_trash', JSON.stringify(trash));
+    }
+  }, [galerie, archives, trash, isLoaded]);
+
+
   const triggerToast = (text: string, type: 'success' | 'info' | 'error') => {
     setToastMessage({ text, type });
     setTimeout(() => setToastMessage(null), 3000);
   };
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  // 3. GESTION DE L'UPLOAD EN BASE64
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      const imageUrl = URL.createObjectURL(file);
-      
-      const today = new Date().toLocaleDateString('fr-FR');
-      const newImg: VisualImage = { 
-        id: Date.now().toString(), 
-        imageUrl, 
-        scale: 1, 
-        offsetX: 0, 
-        offsetY: 0,
-        dateAdded: today
-      };
-      setGalerie([...galerie, newImg]);
-      triggerToast("Image importée avec succès ! 📸", "success");
+      // Vérification de la taille pour préserver le localStorage (ex: limite à 2Mo)
+      if (file.size > 2 * 1024 * 1024) {
+        triggerToast("L'image est trop lourde (max 2Mo)", "error");
+        return;
+      }
+
+      try {
+        const base64Image = await fileToBase64(file);
+        const today = new Date().toLocaleDateString('fr-FR');
+        const newImg: VisualImage = { 
+          id: Date.now().toString(), 
+          imageUrl: base64Image, 
+          scale: 1, 
+          offsetX: 0, 
+          offsetY: 0,
+          dateAdded: today
+        };
+        setGalerie([...galerie, newImg]);
+        triggerToast("Image importée avec succès ! 📸", "success");
+      } catch (error) {
+        triggerToast("Erreur lors de la lecture de l'image", "error");
+      }
     }
+    // Réinitialise l'input pour pouvoir importer la même image plusieurs fois si besoin
+    if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
   const handleArchive = (img: VisualImage) => {
@@ -176,6 +227,9 @@ export default function Visualisation() {
   const handlePanEnd = () => {
     if (isPanning) setIsPanning(false);
   };
+
+  // Empêche le rendu de l'interface avant la récupération du localStorage pour éviter un flash ou une erreur d'hydratation
+  if (!isLoaded) return null;
 
   return (
     <div className="w-full flex flex-col items-center gap-16 z-10 font-sans pb-20 relative">
