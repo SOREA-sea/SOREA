@@ -148,7 +148,6 @@ export default function DashboardSidebar({ user }: DashboardSidebarProps) {
 
   return (
     <aside className="w-72 shrink-0 hidden lg:flex flex-col glass-panel rounded-3xl p-6 sticky top-28 self-start" style={{ maxHeight: "calc(100vh - 8rem)" }}>
-      {/* Avatar & user info */}
       <div className="flex flex-col items-center text-center pb-6 border-b border-white/30">
         <div className="w-20 h-20 rounded-full overflow-hidden bg-white/80 shadow-lg ring-2 ring-white/60 mb-3">
           <Image
@@ -172,7 +171,6 @@ export default function DashboardSidebar({ user }: DashboardSidebarProps) {
         </span>
       </div>
 
-      {/* Navigation */}
       <nav className="flex-1 mt-6 space-y-1.5 overflow-y-auto">
         {navItems.map((item) => {
           if (isCoach && (item.href === "/dashboard/reservations" || item.href === "/dashboard/sessions")) {
@@ -182,7 +180,6 @@ export default function DashboardSidebar({ user }: DashboardSidebarProps) {
           return renderNavItem(item);
         })}
 
-        {/* Admin section */}
         {isAdmin && (
           <>
             <div className="pt-4 pb-2 mt-2">
@@ -193,7 +190,6 @@ export default function DashboardSidebar({ user }: DashboardSidebarProps) {
         )}
       </nav>
 
-      {/* Logout */}
       <div className="pt-6 border-t border-white/30 mt-6">
         <button
           onClick={handleLogout}
