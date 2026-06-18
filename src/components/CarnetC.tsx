@@ -1,5 +1,5 @@
 "use client"
-import { useState, memo } from "react";
+import { useState, memo, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import CarnetChallenge from "@/components/Carnet_challenge";
 import CarnetDivertissement from "@/components/Carnet_divertissement";
@@ -397,20 +397,25 @@ const Heart = memo(({ color, text, textColor }: { color: string; text?: string; 
 ));
 Heart.displayName = 'Heart';
 
-export default function CarnetC({ onClose, isDedicated = false }: { onClose?: () => void; isDedicated?: boolean }) {
+export default function CarnetC({ onClose, isDedicated = false, initialMood = null, initialSection = null }: { onClose?: () => void; isDedicated?: boolean; initialMood?: string | null; initialSection?: Section }) {
   const router = useRouter();
   const [selectedMood, setSelectedMood] = useState<string | null>(null);
   const [activeSection, setActiveSection] = useState<Section>(null);
+
+  // Initialiser avec les props si fournies
+  useEffect(() => {
+    if (initialMood) setSelectedMood(initialMood);
+    if (initialSection) setActiveSection(initialSection);
+  }, [initialMood, initialSection]);
 
   const mood = moods.find((m) => m.label === selectedMood) ?? null;
   const moodSelected = selectedMood !== null;
 
   const openSection = (section: Section) => {
-    if (!moodSelected) return;
     if (isDedicated) {
       setActiveSection(section);
     } else {
-      router.push("/carnet/1");
+      router.push(`/carnet/1?mood=${encodeURIComponent(selectedMood || "")}&section=${section}`);
     }
   };
 
