@@ -1,9 +1,14 @@
 "use client"
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
+import { Suspense } from "react";
 import CarnetG from "@/components/CarnetG";
 
-export default function CarnetGratitudePage() {
+function CarnetGratitudeContent() {
     const router = useRouter();
+    const searchParams = useSearchParams();
+
+    //  On lit le paramètre ?section= dans l'URL pour pré-sélectionner la bonne section
+    const initialSection = searchParams.get("section") as "gratitude" | "journaling" | "libre" | null;
 
     return (
         <div className="min-h-screen bg-[#f7f3fb] text-[#2A2340] px-6 py-10">
@@ -23,9 +28,22 @@ export default function CarnetGratitudePage() {
                 </div>
 
                 <div className="rounded-[28px] bg-white shadow-xl p-6">
-                    <CarnetG onClose={() => router.push("/carnet")} isDedicated />
+                    <CarnetG
+                        onClose={() => router.push("/carnet")}
+                        isDedicated
+                        initialSection={initialSection}
+                    />
                 </div>
             </div>
         </div>
+    );
+}
+
+//  Suspense requis par Next.js pour useSearchParams dans un composant client
+export default function CarnetGratitudePage() {
+    return (
+        <Suspense>
+            <CarnetGratitudeContent />
+        </Suspense>
     );
 }
