@@ -123,10 +123,10 @@ export default function MenstrualCalendar() {
       const phase = getPhaseForDate(date);
       
       let phaseColor = "bg-white text-gray-800 hover:bg-gray-50";
-      if (phase === "Hiver") phaseColor = "bg-[#8B47FF] text-white font-bold";
-      if (phase === "Printemps") phaseColor = "bg-[#F4EBFF] text-[#8B47FF] hover:bg-[#E8D9FF]";
-      if (phase === "Été") phaseColor = "bg-[#D8BEFF] text-[#5A20B7] font-bold";
-      if (phase === "Automne") phaseColor = "bg-white text-gray-800 hover:bg-gray-50";
+      if (phase === "Hiver") phaseColor = "bg-[#B3E3F4] text-[#8B47FF] hover:bg-[#E8D9FF]";
+      if (phase === "Printemps") phaseColor = "bg-[#88E788] text-[#8B47FF] hover:bg-[#E8D9FF]";
+      if (phase === "Été") phaseColor = "bg-[#EAE374] text-[#8B47FF] hover:bg-[#E8D9FF]";
+      if (phase === "Automne") phaseColor = "bg-[#F7B58D] text-[#8B47FF] hover:bg-[#E8D9FF]";
 
       const isToday = new Date().toDateString() === date.toDateString();
 
@@ -171,10 +171,10 @@ export default function MenstrualCalendar() {
 
       {/* Legend */}
       <div className="flex flex-wrap gap-6 mb-8 text-sm font-medium justify-center">
-        <div className="flex items-center gap-2"><div className="w-5 h-5 bg-[#8B47FF]"></div> <span className="text-black">Règles</span></div>
-        <div className="flex items-center gap-2"><div className="w-5 h-5 bg-[#F4EBFF] border border-[#8B47FF]/20"></div> <span className="text-black">Phase Folliculaire</span></div>
-        <div className="flex items-center gap-2"><div className="w-5 h-5 bg-[#D8BEFF] border border-[#8B47FF]/40"></div> <span className="text-black">Ovulation</span></div>
-        <div className="flex items-center gap-2"><div className="w-5 h-5 bg-white border border-gray-300"></div> <span className="text-black">Phase Lutéale</span></div>
+        <div className="flex items-center gap-2"><div className="w-5 h-5 bg-[#B3E3F4] border border-[#8B47FF]"></div> <span className="text-black">Règles</span></div>
+        <div className="flex items-center gap-2"><div className="w-5 h-5 bg-[#88E788] border border-[#8B47FF]"></div> <span className="text-black">Phase Folliculaire</span></div>
+        <div className="flex items-center gap-2"><div className="w-5 h-5 bg-[#EAE374] border border-[#8B47FF]"></div> <span className="text-black">Ovulation</span></div>
+        <div className="flex items-center gap-2"><div className="w-5 h-5 bg-[#F7B58D] border border-[#8B47FF]"></div> <span className="text-black">Phase Lutéale</span></div>
       </div>
 
       <div className="bg-white rounded-2xl p-8 shadow-sm border border-gray-200">

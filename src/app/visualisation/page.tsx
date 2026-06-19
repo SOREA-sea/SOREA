@@ -28,7 +28,7 @@ export default function VisualisationPage() {
             </Link>
           </div>
           
-          
+          {/* IMPORT DU COMPOSANT ICI */}
           <div className="w-full flex-grow flex flex-col items-center relative z-10">
             <Visualisation />
           </div>

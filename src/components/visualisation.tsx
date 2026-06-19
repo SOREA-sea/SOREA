@@ -83,6 +83,8 @@ export default function Visualisation() {
     type: "success" | "info" | "error" | "premium";
   } | null>(null);
 
+  const [showConfetti, setShowConfetti] = useState(false);
+
   const fileInputRef = useRef<HTMLInputElement>(null);
   const totalUsedImages = galerie.length + archives.length;
 
@@ -173,7 +175,9 @@ export default function Visualisation() {
     getListMethods(activeTab).set((prev) => prev.filter((i) => i.id !== img.id));
     setArchives([...archives, img]);
     closeZoom();
+    setShowConfetti(true);
     triggerToast("Félicitations ! Vœu accompli et archivé", "success");
+    setTimeout(() => setShowConfetti(false), 4000);
   };
 
   const handleDelete = (img: VisualImage) => {
@@ -315,6 +319,15 @@ export default function Visualisation() {
         .animate-slide-down {
           animation: slideDown 0.4s ease-out forwards;
         }
+
+        @keyframes fall {
+          0% { transform: translateY(-10vh) rotate(0deg); opacity: 1; }
+          100% { transform: translateY(100vh) rotate(360deg); opacity: 0; }
+        }
+
+        .animate-fall {
+          animation: fall linear forwards;
+        }
       `}</style>
 
       {/* NOTIFICATION */}
@@ -333,6 +346,26 @@ export default function Visualisation() {
           >
             {toastMessage.text}
           </div>
+        </div>
+      )}
+
+      {/* CONFETTIS */}
+      {showConfetti && (
+        <div className="fixed inset-0 pointer-events-none z-50 flex justify-center items-start overflow-hidden">
+          {Array.from({ length: 40 }).map((_, i) => (
+            <div
+              key={i}
+              className="absolute animate-fall"
+              style={{
+                left: `${Math.random() * 100}%`,
+                animationDelay: `${Math.random() * 0.5}s`,
+                animationDuration: `${2 + Math.random() * 3}s`,
+                fontSize: `${1 + Math.random() * 1.5}rem`,
+              }}
+            >
+              {["🌸", "✨", "🎉", "🎊", "💜"][Math.floor(Math.random() * 5)]}
+            </div>
+          ))}
         </div>
       )}
 
