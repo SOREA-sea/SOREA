@@ -359,6 +359,6 @@ model SavezVous {
   title      String
   paragraph1 String
   paragraph2 String
-  paragraph3 String
+  paragraph3 String?
   createdAt  DateTime @default(now())
 }
