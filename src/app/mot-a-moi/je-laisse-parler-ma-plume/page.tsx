@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
@@ -22,29 +22,41 @@ export default function JeLaisseParleMaPlume() {
     const [showReveal, setShowReveal] = useState(false);
 
     const currentSentence = sentences[currentIndex];
-    const isCorrect = userInput.toLowerCase().trim() === currentSentence.toLowerCase().trim();
+    const normalizedTarget = currentSentence.toLowerCase();
+    const normalizedInput = userInput.toLowerCase();
+    const isCorrect = normalizedInput.trim() === normalizedTarget.trim();
+    const inputHasAnyText = userInput.length > 0;
+    const textareaRef = useRef<HTMLTextAreaElement | null>(null);
 
-    const handleSubmit = () => {
-        if (userInput.trim() === '') {
-            setFeedback('incorrect');
-            return;
+    useEffect(() => {
+        if (textareaRef.current) {
+            textareaRef.current.style.height = 'auto';
+            textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
         }
+    }, [userInput, currentIndex]);
 
+    useEffect(() => {
         if (isCorrect) {
             setFeedback('correct');
-            setCompletedCount(completedCount + 1);
-            setTimeout(() => {
+            setCompletedCount((count) => count + 1);
+            const timeout = window.setTimeout(() => {
                 if (currentIndex < sentences.length - 1) {
-                    setCurrentIndex(currentIndex + 1);
+                    setCurrentIndex((index) => index + 1);
                     setUserInput('');
                     setFeedback(null);
                     setShowReveal(false);
                 }
-            }, 1500);
-        } else {
-            setFeedback('incorrect');
+            }, 1200);
+
+            return () => window.clearTimeout(timeout);
         }
-    };
+
+        if (inputHasAnyText && !isCorrect) {
+            setFeedback('incorrect');
+        } else if (!inputHasAnyText) {
+            setFeedback(null);
+        }
+    }, [isCorrect, inputHasAnyText, currentIndex]);
 
     const handleSkip = () => {
         setShowReveal(true);
@@ -100,14 +112,46 @@ export default function JeLaisseParleMaPlume() {
                                 <label className="block text-sm font-semibold text-gray-700 mb-2">
                                     Réécrire la phrase :
                                 </label>
-                                <textarea
-                                    value={userInput}
-                                    onChange={(e) => setUserInput(e.target.value)}
-                                    onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && handleSubmit()}
-                                    placeholder="Tapez la phrase ici..."
-                                    className="w-full p-4 border-2 border-[#8B47FF] rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#8B47FF] resize-none"
-                                    rows={3}
-                                />
+                                <div className="relative">
+                                    <div className="absolute inset-0 min-h-[120px] w-full p-4 border-2 border-[#8B47FF] rounded-2xl bg-white text-left text-lg leading-7 font-sans text-gray-300 whitespace-pre-wrap break-words z-0">
+                                        {currentSentence}
+                                    </div>
+
+                                    <div className="pointer-events-none absolute inset-0 min-h-[120px] w-full p-4 rounded-2xl text-left text-lg leading-7 font-sans whitespace-pre-wrap break-words z-10">
+                                        {currentSentence.split('').map((char, index) => {
+                                            const userChar = userInput[index] ?? '';
+                                            const isMatch = userChar.toLowerCase() === char.toLowerCase();
+
+                                            return (
+                                                <span
+                                                    key={`${char}-${index}`}
+                                                    className={
+                                                        !userInput[index]
+                                                            ? 'text-transparent'
+                                                            : isMatch
+                                                                ? 'text-black'
+                                                                : 'text-red-500'
+                                                    }
+                                                >
+                                                    {userChar || char}
+                                                </span>
+                                            );
+                                        })}
+                                        {userInput.length > currentSentence.length && (
+                                            <span className="text-red-500">
+                                                {userInput.slice(currentSentence.length)}
+                                            </span>
+                                        )}
+                                    </div>
+
+                                    <textarea
+                                        ref={textareaRef}
+                                        value={userInput}
+                                        onChange={(e) => setUserInput(e.target.value)}
+                                        className="absolute inset-0 w-full h-full p-4 border-2 border-transparent rounded-2xl bg-transparent text-transparent caret-transparent resize-none overflow-hidden focus:outline-none focus:ring-transparent z-20"
+                                        rows={3}
+                                    />
+                                </div>
                             </div>
 
                             {showReveal && (
@@ -119,25 +163,17 @@ export default function JeLaisseParleMaPlume() {
 
                             {feedback === 'correct' && (
                                 <div className="w-full bg-green-50 border-2 border-green-400 rounded-2xl p-4 text-center">
-                                    <p className="text-lg font-bold text-green-700">✅Bravo ! C'est correct !</p>
+                                    <p className="text-lg font-bold text-green-700">✅Bravo ! C&apos;est correct !</p>
                                 </div>
                             )}
 
                             {feedback === 'incorrect' && !showReveal && (
                                 <div className="w-full bg-red-50 border-2 border-red-400 rounded-2xl p-4 text-center">
-                                    <p className="text-lg font-bold text-red-700"> Ce n'est pas tout à fait ça...</p>
+                                    <p className="text-lg font-bold text-red-700"> Ce n&apos;est pas tout à fait ça...</p>
                                 </div>
                             )}
 
                             <div className="flex gap-4 w-full">
-                                <button
-                                    onClick={handleSubmit}
-                                    disabled={feedback === 'correct'}
-                                    className="flex-1 bg-gradient-to-r from-[#8B47FF] to-[#6D3AE0] text-white font-bold px-6 py-3 rounded-2xl shadow-md transition-all duration-300 hover:scale-105 hover:shadow-xl cursor-pointer disabled:opacity-50"
-                                >
-                                    Vérifier
-                                </button>
-
                                 {!showReveal && (
                                     <button
                                         onClick={handleSkip}
