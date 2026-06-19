@@ -1,8 +1,6 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from "react";
-// Link est importé mais inutilisé dans ce composant, tu peux le garder si besoin.
-import Link from "next/link";
 
 interface VisualImage {
   id: string;
@@ -20,27 +18,61 @@ const DEFAULT_GALERIE: VisualImage[] = [
   { id: "1", colorClass: "bg-[#FBCFE8]", dateAdded: "10/06/2026" }, 
   { id: "2", colorClass: "bg-[#A855F7]", dateAdded: "11/06/2026" }, 
   { id: "3", colorClass: "bg-[#C4B5FD]", dateAdded: "11/06/2026" }, 
-  { id: "4", colorClass: "bg-[#5EEAD4]", dateAdded: "12/06/2026" }, 
-  { id: "5", colorClass: "bg-[#FEF08A]", dateAdded: "13/06/2026" }, 
-  { id: "6", colorClass: "bg-[#A8A29E]", dateAdded: "14/06/2026" }, 
-  { id: "7", colorClass: "bg-[#FFFFFF]", dateAdded: "15/06/2026" }, 
 ];
 
-// Fonction utilitaire pour convertir un fichier en Base64
-const fileToBase64 = (file: File): Promise<string> => {
+// Fonction pour compresser l'image avant de la sauvegarder dans le localStorage
+const compressImageToBase64 = (file: File): Promise<string> => {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.readAsDataURL(file);
-    reader.onload = () => resolve(reader.result as string);
+    reader.onload = (event) => {
+      const img = new Image();
+      img.src = event.target?.result as string;
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        const MAX_SIZE = 1080; // Résolution maximale (très net sur écran mais léger en mémoire)
+        let width = img.width;
+        let height = img.height;
+
+        if (width > height) {
+          if (width > MAX_SIZE) {
+            height *= MAX_SIZE / width;
+            width = MAX_SIZE;
+          }
+        } else {
+          if (height > MAX_SIZE) {
+            width *= MAX_SIZE / height;
+            height = MAX_SIZE;
+          }
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        if (ctx) {
+          ctx.drawImage(img, 0, 0, width, height);
+          // Compresse en JPEG avec 70% de qualité (réduit drastiquement le poids)
+          resolve(canvas.toDataURL('image/jpeg', 0.7));
+        } else {
+          resolve(event.target?.result as string);
+        }
+      };
+      img.onerror = (error) => reject(error);
+    };
     reader.onerror = (error) => reject(error);
   });
 };
 
 export default function Visualisation() {
+  const [isPremium] = useState(false);
+  const MAX_FREE_IMAGES = 5;
+
   const [galerie, setGalerie] = useState<VisualImage[]>([]);
   const [archives, setArchives] = useState<VisualImage[]>([]);
   const [trash, setTrash] = useState<VisualImage[]>([]);
-  const [isLoaded, setIsLoaded] = useState(false); // Gère l'hydratation Next.js
+  const [isLoaded, setIsLoaded] = useState(false);
+
+  const totalUsedImages = galerie.length + archives.length;
 
   const [activeTab, setActiveTab] = useState<TabType>('galerie');
   const [zoomedImage, setZoomedImage] = useState<VisualImage | null>(null);
@@ -54,13 +86,12 @@ export default function Visualisation() {
   const [isPanning, setIsPanning] = useState(false);
   const [panStart, setPanStart] = useState({ x: 0, y: 0 });
 
-  const [toastMessage, setToastMessage] = useState<{ text: string, type: 'success' | 'info' | 'error' } | null>(null);
+  const [toastMessage, setToastMessage] = useState<{ text: string, type: 'success' | 'info' | 'error' | 'premium' } | null>(null);
   const [showConfetti, setShowConfetti] = useState(false);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const currentImages = activeTab === 'galerie' ? galerie : activeTab === 'archives' ? archives : trash;
 
-  // 1. CHARGEMENT INITIAL (depuis le localStorage)
   useEffect(() => {
     const savedGalerie = localStorage.getItem('sorea_visualisation_galerie');
     const savedArchives = localStorage.getItem('sorea_visualisation_archives');
@@ -75,37 +106,44 @@ export default function Visualisation() {
     setIsLoaded(true);
   }, []);
 
-  // 2. SAUVEGARDE AUTOMATIQUE (vers le localStorage à chaque changement)
   useEffect(() => {
     if (isLoaded) {
-      localStorage.setItem('sorea_visualisation_galerie', JSON.stringify(galerie));
-      localStorage.setItem('sorea_visualisation_archives', JSON.stringify(archives));
-      localStorage.setItem('sorea_visualisation_trash', JSON.stringify(trash));
+      try {
+        localStorage.setItem('sorea_visualisation_galerie', JSON.stringify(galerie));
+        localStorage.setItem('sorea_visualisation_archives', JSON.stringify(archives));
+        localStorage.setItem('sorea_visualisation_trash', JSON.stringify(trash));
+      } catch (e) {
+        triggerToast("Le stockage de votre navigateur est saturé !", "error");
+      }
     }
   }, [galerie, archives, trash, isLoaded]);
 
-
-  const triggerToast = (text: string, type: 'success' | 'info' | 'error') => {
+  const triggerToast = (text: string, type: 'success' | 'info' | 'error' | 'premium') => {
     setToastMessage({ text, type });
     setTimeout(() => setToastMessage(null), 3000);
   };
 
-  // 3. GESTION DE L'UPLOAD EN BASE64
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!isPremium && totalUsedImages >= MAX_FREE_IMAGES) {
+      triggerToast("Limite atteinte (5/5). Passez Premium pour débloquer plus d'espace !", "premium");
+      if (fileInputRef.current) fileInputRef.current.value = '';
+      return;
+    }
+
     const file = e.target.files?.[0];
     if (file) {
-      // Vérification de la taille pour préserver le localStorage (ex: limite à 2Mo)
-      if (file.size > 2 * 1024 * 1024) {
-        triggerToast("L'image est trop lourde (max 2Mo)", "error");
+      // Nouvelle limite fixée à 10 Mo pour l'importation (compressée ensuite)
+      if (file.size > 10 * 1024 * 1024) {
+        triggerToast("L'image est trop lourde (max 10Mo)", "error");
         return;
       }
 
       try {
-        const base64Image = await fileToBase64(file);
+        const compressedBase64 = await compressImageToBase64(file);
         const today = new Date().toLocaleDateString('fr-FR');
         const newImg: VisualImage = { 
           id: Date.now().toString(), 
-          imageUrl: base64Image, 
+          imageUrl: compressedBase64, 
           scale: 1, 
           offsetX: 0, 
           offsetY: 0,
@@ -117,7 +155,6 @@ export default function Visualisation() {
         triggerToast("Erreur lors de la lecture de l'image", "error");
       }
     }
-    // Réinitialise l'input pour pouvoir importer la même image plusieurs fois si besoin
     if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
@@ -149,8 +186,14 @@ export default function Visualisation() {
   };
 
   const handleRestore = (img: VisualImage) => {
+    if (!isPremium && activeTab === 'trash' && totalUsedImages >= MAX_FREE_IMAGES) {
+      triggerToast("Impossible de restaurer : limite globale de 5 images atteinte.", "premium");
+      return;
+    }
+
     if (activeTab === 'archives') setArchives(archives.filter(i => i.id !== img.id));
     else if (activeTab === 'trash') setTrash(trash.filter(i => i.id !== img.id));
+    
     setGalerie([...galerie, img]);
     setZoomedImage(null);
     setIsEditing(false);
@@ -228,13 +271,11 @@ export default function Visualisation() {
     if (isPanning) setIsPanning(false);
   };
 
-  // Empêche le rendu de l'interface avant la récupération du localStorage pour éviter un flash ou une erreur d'hydratation
   if (!isLoaded) return null;
 
   return (
     <div className="w-full flex flex-col items-center gap-16 z-10 font-sans pb-20 relative">
       
-      {/* STYLE CSS INTÉGRÉ POUR LES CONFETTIS */}
       <style>{`
         @keyframes fall {
           0% { transform: translateY(-10vh) rotate(0deg); opacity: 1; }
@@ -251,9 +292,11 @@ export default function Visualisation() {
       {/* POP-UP NOTIFICATION */}
       {toastMessage && (
         <div className="fixed top-8 z-50 animate-slide-down flex justify-center w-full pointer-events-none">
-          <div className={`px-6 py-3 rounded-full shadow-xl font-bold text-white flex items-center gap-2 
-            ${toastMessage.type === 'success' ? 'bg-[#FF7EB3]' : 
-              toastMessage.type === 'error' ? 'bg-red-400' : 'bg-[#8B47FF]'}`}
+          <div className={`px-6 py-3 rounded-full shadow-xl font-bold flex items-center gap-2 
+            ${toastMessage.type === 'success' ? 'bg-[#FF7EB3] text-white' : 
+              toastMessage.type === 'error' ? 'bg-red-400 text-white' : 
+              toastMessage.type === 'premium' ? 'bg-[#FFD700] text-black ring-4 ring-yellow-200' : 
+              'bg-[#8B47FF] text-white'}`}
           >
             {toastMessage.text}
           </div>
@@ -347,7 +390,7 @@ export default function Visualisation() {
       {/* GALERIE */}
       <div className="w-full max-w-4xl flex flex-col mt-8">
         <div className="flex gap-3 mb-8 items-end justify-between w-full">
-          <div className="flex gap-3">
+          <div className="flex gap-3 items-center">
             <button 
               onClick={() => { setActiveTab('galerie'); setZoomedImage(null); setIsEditing(false); }}
               className={`flex items-center gap-2 px-6 py-3 font-bold text-lg rounded-t-xl transition-colors ${activeTab === 'galerie' ? 'bg-[#FDF2F8] text-[#8B47FF]' : 'text-gray-400 hover:bg-gray-50'}`}
@@ -369,7 +412,15 @@ export default function Visualisation() {
               <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
               {activeTab === 'trash' && " Supprimés"}
             </button>
+
+            {/* JAUGE FREEMIUM */}
+            {!isPremium && (activeTab === 'galerie' || activeTab === 'archives') && (
+              <span className={`ml-4 text-sm font-bold px-3 py-1 rounded-full ${totalUsedImages >= MAX_FREE_IMAGES ? 'bg-red-100 text-red-600' : 'bg-purple-100 text-[#8B47FF]'}`}>
+                {totalUsedImages} / {MAX_FREE_IMAGES} images globales
+              </span>
+            )}
           </div>
+          
           <span className="text-sm text-gray-400 italic flex items-center gap-2 mb-3">
             💡 Maintenez le clic pour réorganiser
           </span>
@@ -405,10 +456,27 @@ export default function Visualisation() {
           
           {activeTab === 'galerie' && (
             <div 
-              onClick={() => fileInputRef.current?.click()}
-              className="w-full aspect-square flex items-center justify-center bg-gray-50 border-2 border-dashed border-gray-300 cursor-pointer hover:bg-gray-100 transition-colors rounded-xl"
+              onClick={() => {
+                if (!isPremium && totalUsedImages >= MAX_FREE_IMAGES) {
+                  triggerToast("Débloquez SOREA Premium pour ajouter plus d'images ! 🔒", "premium");
+                } else {
+                  fileInputRef.current?.click();
+                }
+              }}
+              className={`w-full aspect-square flex flex-col items-center justify-center border-2 border-dashed rounded-xl transition-all ${
+                !isPremium && totalUsedImages >= MAX_FREE_IMAGES 
+                  ? 'bg-purple-50 border-purple-200 cursor-not-allowed hover:bg-purple-100' 
+                  : 'bg-gray-50 border-gray-300 cursor-pointer hover:bg-gray-100'
+              }`}
             >
-              <span className="text-4xl text-gray-400 font-light">+</span>
+              {!isPremium && totalUsedImages >= MAX_FREE_IMAGES ? (
+                <>
+                  <span className="text-3xl mb-2">🔒</span>
+                  <span className="text-xs text-center font-bold text-[#8B47FF] px-2 uppercase tracking-wider">Passer Premium</span>
+                </>
+              ) : (
+                <span className="text-4xl text-gray-400 font-light">+</span>
+              )}
             </div>
           )}
         </div>
