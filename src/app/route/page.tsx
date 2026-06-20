@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import Link from "next/link";
 import Navbar from '@/components/Navbar';
 import Footer from "@/components/Footer";
-import Wheeltestcopy from "@/components/Wheeltestcopy";
+import WellbeingWheel from "@/components/WellbeingWheel";
 import StreakTracker from "@/components/StreakTracker";
 
 export default function RouteDesDefis() {
@@ -70,7 +70,7 @@ export default function RouteDesDefis() {
           </div>
 
           <div className="relative z-10">
-              <Wheeltestcopy />
+              <WellbeingWheel />
           </div>
         </div>
       </main>
