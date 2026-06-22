@@ -135,7 +135,7 @@ export default function MenstrualCalendar() {
           key={day} 
           className={`h-12 sm:h-16 border-r border-b border-gray-200 flex flex-col items-center justify-center transition-colors cursor-pointer ${phaseColor} ${isToday ? 'ring-inset ring-2 ring-black font-bold' : ''}`}
         >
-          <span className="text-sm">{day}</span>
+          <span className="text-sm font-semibold">{day}</span>
         </div>
       );
     }
@@ -198,7 +198,7 @@ export default function MenstrualCalendar() {
           </div>
         </div>
 
-        <div className="grid grid-cols-7 text-center text-sm font-semibold text-gray-500 mb-4">
+        <div className="grid grid-cols-7 text-center text-xs font-semibold text-gray-500 mb-4">
           <div>Mo</div><div>Tu</div><div>We</div><div>Th</div><div>Fr</div><div>Sa</div><div>Su</div>
         </div>
         

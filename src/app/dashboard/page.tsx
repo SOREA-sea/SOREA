@@ -2,6 +2,8 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import prisma from "@/lib/prisma";
 import Link from "next/link";
+import MenstrualCalendar from "@/components/MenstrualCalendar";
+import StreakTracker from "@/components/StreakTracker";
 import { countMotAMoiMessagesForUser } from "@/lib/motAMoiMessages";
 
 export default async function DashboardPage() {
@@ -223,6 +225,28 @@ export default async function DashboardPage() {
             </Link>
           </div>
         )}
+      </section>
+
+      <section>
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-xl font-bold">Mon calendrier menstruel</h2>
+          <Link href="/challenge" className="text-sm text-purple-600 font-semibold hover:text-purple-800 transition-colors">
+            Voir le calendrier complet →
+          </Link>
+        </div>
+        <div className="space-y-6">
+          <div className="glass-panel rounded-3xl p-6">
+            <div className="mx-auto w-full max-w-[720px]">
+              <MenstrualCalendar />
+            </div>
+          </div>
+          <div className="glass-panel rounded-3xl p-6">
+            <h3 className="text-xl font-bold mb-4">Ma jauge de streak</h3>
+            <div className="mx-auto w-full max-w-[480px]">
+              <StreakTracker joursConsecutifs={4} />
+            </div>
+          </div>
+        </div>
       </section>
 
       <section>
