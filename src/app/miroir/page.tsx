@@ -143,7 +143,7 @@ useEffect(() => { //Si l'utilisatrice change d'onglet ou minimise la fenêtre, l
               />
 
               <div 
-                className="absolute z-10 overflow-hidden bg-black"
+                className="absolute z-10 overflow-hidden"
                 style={{ 
                   width: "203px",       
                   height: "270px",      

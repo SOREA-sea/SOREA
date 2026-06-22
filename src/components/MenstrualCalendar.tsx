@@ -171,10 +171,10 @@ export default function MenstrualCalendar() {
 
       {/* Legend */}
       <div className="flex flex-wrap gap-6 mb-8 text-sm font-medium justify-center">
-        <div className="flex items-center gap-2"><div className="w-5 h-5 bg-[#B3E3F4] border border-[#8B47FF]"></div> <span className="text-black">Règles</span></div>
-        <div className="flex items-center gap-2"><div className="w-5 h-5 bg-[#88E788] border border-[#8B47FF]"></div> <span className="text-black">Phase Folliculaire</span></div>
-        <div className="flex items-center gap-2"><div className="w-5 h-5 bg-[#EAE374] border border-[#8B47FF]"></div> <span className="text-black">Ovulation</span></div>
-        <div className="flex items-center gap-2"><div className="w-5 h-5 bg-[#F7B58D] border border-[#8B47FF]"></div> <span className="text-black">Phase Lutéale</span></div>
+        <div className="flex items-center gap-2"><div className="w-5 h-5 bg-[#88E788] border border-[#8B47FF]"></div> <span className="text-black">Phase Pré-Ovulatoire</span></div>
+        <div className="flex items-center gap-2"><div className="w-5 h-5 bg-[#EAE374] border border-[#8B47FF]"></div> <span className="text-black">Phase Ovulatoire</span></div>
+        <div className="flex items-center gap-2"><div className="w-5 h-5 bg-[#F7B58D] border border-[#8B47FF]"></div> <span className="text-black">Phase Prémenstruelle</span></div>
+        <div className="flex items-center gap-2"><div className="w-5 h-5 bg-[#B3E3F4] border border-[#8B47FF]"></div> <span className="text-black">Phase Menstruelle</span></div>
       </div>
 
       <div className="bg-white rounded-2xl p-8 shadow-sm border border-gray-200">
