@@ -17,7 +17,7 @@ interface CycleInfo {
   refDate: string;
 }
 
-// Map phase names to their corresponding SVG icon path
+// Chaque phases a son icône.
 const phaseIcons: { [key: string]: string } = {
   Hiver: "/image_MenstrualCalendar/Hiver.svg",
   Printemps: "/image_MenstrualCalendar/Printemps.svg",
