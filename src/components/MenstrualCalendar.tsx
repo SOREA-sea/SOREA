@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, ReactNode } from "react";
-import { Settings, ChevronLeft, ChevronRight, X } from "lucide-react";
+import { Settings, ChevronLeft, ChevronRight, X, Trash2 } from "lucide-react";
 
 interface Profile {
   isActive: boolean;
@@ -15,6 +15,12 @@ interface CycleInfo {
   daysUntilNext: number;
   phase: string;
   refDate: string;
+}
+
+interface TodoItem {
+  id: string;
+  text: string;
+  completed: boolean;
 }
 
 // Chaque phases a son icône.
@@ -38,10 +44,41 @@ export default function MenstrualCalendar() {
   const [lastPeriodStartForm, setLastPeriodStartForm] = useState("");
 
   const [currentMonth, setCurrentMonth] = useState(new Date());
+  const [selectedDate, setSelectedDate] = useState<string | null>(null);
+  const [showTodoModal, setShowTodoModal] = useState(false);
+  const [todoInput, setTodoInput] = useState("");
+  const [todosByDate, setTodosByDate] = useState<Record<string, TodoItem[]>>({});
+  const [loggedUser, setLoggedUser] = useState<{ id: string; email: string } | null>(null);
+  const [phaseFilters, setPhaseFilters] = useState<string[]>([]);
 
   useEffect(() => {
     fetchProfile();
+    fetchLoggedUser();
   }, []);
+
+  useEffect(() => {
+    if (!loggedUser) return;
+    localStorage.setItem(`sorea_todos_${loggedUser.id}`, JSON.stringify(todosByDate));
+  }, [todosByDate, loggedUser]);
+
+  const fetchLoggedUser = async () => {
+    try {
+      const res = await fetch("/api/auth/me");
+      if (res.ok) {
+        const data = await res.json();
+        const user = data.user;
+        if (user?.id) {
+          setLoggedUser({ id: user.id, email: user.email });
+          const stored = localStorage.getItem(`sorea_todos_${user.id}`);
+          if (stored) {
+            setTodosByDate(JSON.parse(stored));
+          }
+        }
+      }
+    } catch (e) {
+      console.error("Impossible de récupérer l'utilisateur connecté", e);
+    }
+  };
 
   const fetchProfile = async () => {
     try {
@@ -90,6 +127,72 @@ export default function MenstrualCalendar() {
     } catch (e) {
       console.error(e);
     }
+  };
+
+  const handleDayClick = (date: Date) => {
+    if (!loggedUser) {
+      return;
+    }
+    setSelectedDate(date.toISOString().split("T")[0]);
+    setShowTodoModal(true);
+  };
+
+  const closeTodoModal = () => {
+    setShowTodoModal(false);
+  };
+
+  const togglePhaseFilter = (phase: string) => {
+    setPhaseFilters((prev) =>
+      prev.includes(phase)
+        ? prev.filter((item) => item !== phase)
+        : [...prev, phase]
+    );
+  };
+
+  const addTodo = () => {
+    if (!selectedDate) return;
+    const trimmed = todoInput.trim();
+    if (!trimmed) return;
+
+    setTodosByDate((prev) => {
+      const current = prev[selectedDate] || [];
+      return {
+        ...prev,
+        [selectedDate]: [
+          ...current,
+          { id: `${selectedDate}-${Date.now()}`, text: trimmed, completed: false },
+        ],
+      };
+    });
+    setTodoInput("");
+  };
+
+  const toggleTodo = (todoId: string) => {
+    if (!selectedDate) return;
+    setTodosByDate((prev) => {
+      const current = prev[selectedDate] || [];
+      return {
+        ...prev,
+        [selectedDate]: current.map((todo) =>
+          todo.id === todoId ? { ...todo, completed: !todo.completed } : todo
+        ),
+      };
+    });
+  };
+
+  const deleteTodo = (todoId: string) => {
+    if (!selectedDate) return;
+    setTodosByDate((prev) => {
+      const current = prev[selectedDate] || [];
+      const next = current.filter((todo) => todo.id !== todoId);
+      const copy = { ...prev };
+      if (next.length) {
+        copy[selectedDate] = next;
+      } else {
+        delete copy[selectedDate];
+      }
+      return copy;
+    });
   };
 
   const getPhaseForDate = (date: Date) => {
@@ -146,7 +249,7 @@ export default function MenstrualCalendar() {
           <img
             src={phaseIcons[phase]}
             alt="Icône Hiver"
-            className="w-6 h-6 absolute bottom-1 right-1" // Position de l'icône
+            className="w-6 h-6 absolute bottom-1 right-1"
           />
         );
       } else if (phase === "Printemps") {
@@ -178,21 +281,34 @@ export default function MenstrualCalendar() {
         );
       }//L'utilisation des else if (au lieu d'une suite de simples if) est importante ici pour la logique du code pour ce calendrier qui se base sur un calcul.
 
+      const dateKey = date.toISOString().split("T")[0];
       const isToday = new Date().toDateString() === date.toDateString();
-//Juste après la constante on ajoute une condition pour écraser la couleur de fond si isToday est vrai, en utilisant la classe Tailwind arbitraire bg-[#8D9FF]
-if (isToday) {
-  phaseColor = "bg-[#E8D9FF] text-[#8B47FF]";
-}
+      const isSelected = selectedDate === dateKey;
+      const phaseVisible = !phaseFilters.length || (phase && phaseFilters.includes(phase));
+      const hiddenStyles = !phaseVisible ? "opacity-30" : "";
+      const iconVisible = phaseVisible ? icon : null;
+      const hasTodos = Boolean(todosByDate[dateKey]?.length);
+
+      if (isToday) {
+        phaseColor = "bg-[#E8D9FF] text-[#8B47FF]";
+      }
+      if (isSelected) {
+        phaseColor = "bg-[#E8D9FF] text-[#8B47FF] ring-2 ring-[#8B47FF]";
+      }
 
       days.push(
         <div
           key={day}
+          onClick={() => handleDayClick(date)}
           className={`h-12 sm:h-16 border-r border-b border-gray-200 flex flex-col items-center justify-center transition-colors cursor-pointer relative ${phaseColor} ${
             isToday ? "font-bold" : ""
-          }`}
+          } ${hiddenStyles}`}
         >
+          {hasTodos && (
+            <span className="absolute left-2 top-2 h-2.5 w-2.5 rounded-full bg-[#8B47FF] shadow-sm"></span>
+          )}
           <span className="text-sm font-semibold">{day}</span>
-          {icon} {/* Display the icon */}
+          {iconVisible} {/* Display the icon only when phase is visible */}
         </div>
       );
     }
@@ -214,7 +330,7 @@ if (isToday) {
           "radial-gradient(ellipse at center, #FEF0F9 0%, #FFFFFF 100%)",
       }}
     >
-      <div className="flex justify-between items-center mb-8">
+      <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between mb-8">
         <div>
           <h2 className="text-3xl font-bold underline text-black">
             Calendrier Menstruel
@@ -233,6 +349,33 @@ if (isToday) {
         >
           <Settings className="w-6 h-6" />
         </button>
+      </div>
+
+      <div className="mb-8 rounded-3xl border border-[#EDE7FF] bg-[#FAF4FF] p-4 shadow-sm">
+        <p className="text-sm font-semibold text-[#5B3ABC] mb-3">Filtrer les phases</p>
+        <div className="flex flex-wrap gap-3">
+          {['Hiver', 'Printemps', 'Été', 'Automne'].map((phase) => (
+            <button
+              key={phase}
+              type="button"
+              onClick={() => togglePhaseFilter(phase)}
+              className={`rounded-full border px-4 py-2 text-sm font-semibold transition ${
+                phaseFilters.includes(phase)
+                  ? 'bg-[#8B47FF] border-[#8B47FF] text-white'
+                  : 'bg-white border-gray-200 text-gray-700 hover:bg-[#F4EBFF]'
+              }`}
+            >
+              {phase}
+            </button>
+          ))}
+          <button
+            type="button"
+            onClick={() => setPhaseFilters([])}
+            className="rounded-full border border-gray-300 bg-white px-4 py-2 text-sm font-semibold text-gray-600 transition hover:bg-gray-100"
+          >
+            Réinitialiser
+          </button>
+        </div>
       </div>
 
       {/* Legend */}
@@ -370,6 +513,111 @@ if (isToday) {
           {renderCalendar()}
         </div>
       </div>
+
+      {!loggedUser && (
+        <div className="mt-8 rounded-3xl border border-dashed border-[#8B47FF]/40 bg-[#FAF6FF] p-6 text-center text-sm text-[#5E4DA4]">
+          Connectez-vous pour activer la todo list du calendrier.
+        </div>
+      )}
+
+      {loggedUser && showTodoModal && selectedDate && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+          <div className="w-full max-w-2xl rounded-3xl border border-[#8B47FF] bg-white p-6 shadow-2xl">
+            <div className="flex items-center justify-between gap-4 mb-6">
+              <div>
+                <p className="text-sm font-semibold text-[#5B3ABC]">Tâches du {selectedDate}</p>
+                <p className="text-2xl font-bold text-black">
+                  {new Date(selectedDate).toLocaleDateString("fr-FR", {
+                    weekday: "long",
+                    day: "numeric",
+                    month: "long",
+                  })}
+                </p>
+              </div>
+              <button
+                onClick={closeTodoModal}
+                className="rounded-full border border-gray-200 bg-white p-2 text-gray-600 transition hover:border-[#8B47FF] hover:text-black"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+
+            <div className="flex flex-col sm:flex-row gap-3 mb-4">
+              <input
+                type="text"
+                value={todoInput}
+                onChange={(e) => setTodoInput(e.target.value)}
+                placeholder="Ajouter une tâche..."
+                className="flex-1 min-w-0 rounded-2xl border border-gray-200 bg-white px-4 py-3 text-sm text-black outline-none transition-all"
+              />
+              <button
+                onClick={addTodo}
+                className="rounded-2xl bg-[#8B47FF] px-6 py-3 text-sm font-bold text-white transition hover:bg-[#6f37e6]"
+              >
+                Ajouter
+              </button>
+            </div>
+
+            <div className="space-y-3">
+              {(todosByDate[selectedDate] ?? []).length > 0 ? (
+                todosByDate[selectedDate].map((todo) => (
+                  <div
+                    key={todo.id}
+                    className="group flex items-center justify-between gap-4 rounded-3xl border border-gray-200 bg-white px-4 py-3 transition"
+                  >
+                    <label className="flex items-center gap-3 flex-1 cursor-pointer">
+                      <span className={`relative flex h-5 w-5 shrink-0 items-center justify-center rounded-[6px] border transition ${
+                        todo.completed
+                          ? "border-emerald-500 bg-emerald-500"
+                          : "border-gray-300 bg-white"
+                      }`}>
+                        <input
+                          type="checkbox"
+                          checked={todo.completed}
+                          onChange={() => toggleTodo(todo.id)}
+                          className="absolute inset-0 h-full w-full opacity-0 cursor-pointer"
+                        />
+                        {todo.completed && (
+                          <svg
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="3"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            className="h-3.5 w-3.5 text-white"
+                          >
+                            <path d="M5 13l4 4L19 7" />
+                          </svg>
+                        )}
+                      </span>
+                      <span
+                        className={`text-sm ${
+                          todo.completed
+                            ? "text-gray-500 line-through"
+                            : "text-gray-900"
+                        }`}
+                      >
+                        {todo.text}
+                      </span>
+                    </label>
+                    <button
+                      onClick={() => deleteTodo(todo.id)}
+                      className="flex h-11 w-11 items-center justify-center rounded-full text-gray-400 transition hover:text-red-600"
+                    >
+                      <Trash2 className="h-5 w-5" />
+                    </button>
+                  </div>
+                ))
+              ) : (
+                <p className="rounded-3xl border border-dashed border-gray-300 bg-white px-4 py-6 text-center text-sm text-gray-500">
+                  Aucune tâche pour ce jour. Ajoutez-en une via le champ ci-dessus.
+                </p>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
 
       {showSettings && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
