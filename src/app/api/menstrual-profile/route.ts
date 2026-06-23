@@ -132,10 +132,72 @@ export async function PUT(request: Request) {
 
     const data: any = {};
     if (isActive !== undefined) data.isActive = isActive;
-    if (cycleLength !== undefined) data.cycleLength = cycleLength;
     if (periodLength !== undefined) data.periodLength = periodLength;
+
     if (lastPeriodStartDate !== undefined) {
-      data.lastPeriodStartDate = lastPeriodStartDate ? new Date(lastPeriodStartDate) : null;
+      const newStartDate = lastPeriodStartDate ? new Date(lastPeriodStartDate) : null;
+      data.lastPeriodStartDate = newStartDate;
+      
+      if (newStartDate) {
+        const currentProfile = await prisma.menstrualProfile.findUnique({
+          where: { userId: session.userId }
+        });
+        
+        // Check if the date changed
+        const isDifferentDate = !currentProfile?.lastPeriodStartDate || 
+          currentProfile.lastPeriodStartDate.toISOString().split("T")[0] !== newStartDate.toISOString().split("T")[0];
+          
+        if (isDifferentDate) {
+          // Add to history
+          // @ts-ignore
+          await prisma.periodHistory.create({
+            data: {
+              userId: session.userId,
+              startDate: newStartDate,
+            }
+          });
+          
+          // Re-calculate cycle length based on history
+          // @ts-ignore
+          const history = await prisma.periodHistory.findMany({
+            where: { userId: session.userId },
+            orderBy: { startDate: 'desc' }, // newest first
+            take: 6 // last 6 months is enough for average
+          });
+          
+          // If the user explicitly provided a cycleLength (e.g. initial survey), and we don't have enough history, use it.
+          if (history.length < 2 && cycleLength !== undefined) {
+            data.cycleLength = cycleLength;
+          } 
+          // Otherwise, if we have enough history, calculate the average automatically
+          else if (history.length >= 2) {
+            let totalDays = 0;
+            let count = 0;
+            for (let i = 0; i < history.length - 1; i++) {
+              const diffTime = history[i].startDate.getTime() - history[i+1].startDate.getTime();
+              const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
+              // only consider valid cycle lengths between 15 and 45 days to avoid outlier errors
+              if (diffDays >= 15 && diffDays <= 45) {
+                totalDays += diffDays;
+                count++;
+              }
+            }
+            if (count > 0) {
+              const average = Math.round(totalDays / count);
+              data.cycleLength = Math.max(21, Math.min(35, average)); // limit to reasonable length
+            } else if (cycleLength !== undefined) {
+              data.cycleLength = cycleLength;
+            }
+          }
+        } else if (cycleLength !== undefined) {
+          // Date hasn't changed, but maybe they are just updating cycle length via survey
+          data.cycleLength = cycleLength;
+        }
+      } else if (cycleLength !== undefined) {
+          data.cycleLength = cycleLength;
+      }
+    } else if (cycleLength !== undefined) {
+      data.cycleLength = cycleLength;
     }
 
     const profile = await prisma.menstrualProfile.upsert({
