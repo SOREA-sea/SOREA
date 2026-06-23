@@ -17,9 +17,21 @@ export default function JeLaisseParleMaPlume() {
 
     const textareaRef = useRef<HTMLTextAreaElement | null>(null);
 
-    const normalizedTarget = currentSentence.toLowerCase().trim();
-    const normalizedInput = userInput.toLowerCase().trim();
-    const isCorrect = normalizedInput === normalizedTarget;
+    const normalizedTarget = currentSentence.toLowerCase();
+    const normalizedInput = userInput.toLowerCase();
+    const firstErrorIndex = (() => {
+        for (let index = 0; index < userInput.length; index += 1) {
+            const expected = normalizedTarget[index];
+            const actual = normalizedInput[index];
+            if (expected !== actual) {
+                return index;
+            }
+        }
+        return -1;
+    })();
+
+    const hasError = firstErrorIndex !== -1;
+    const isCorrect = !hasError && userInput.length > 0 && normalizedInput === normalizedTarget;
     const feedback: 'correct' | 'incorrect' | null = !userInput
         ? null
         : isCorrect
@@ -91,36 +103,55 @@ export default function JeLaisseParleMaPlume() {
 
                             <div className="pointer-events-none absolute inset-0 min-h-[140px] w-full p-4 rounded-2xl text-left text-lg leading-7 font-sans whitespace-pre-wrap break-words z-10">
                                 {currentSentence.split('').map((char, index) => {
-                                    const userChar = userInput[index] ?? '';
-                                    const isMatch = userChar.toLowerCase() === char.toLowerCase();
+                                    const isTyped = index < userInput.length;
+                                    const expected = currentSentence[index];
+                                    const actual = userInput[index] ?? '';
+                                    const isCorrectChar = isTyped && actual.toLowerCase() === expected.toLowerCase();
+                                    const isErrorChar = isTyped && !isCorrectChar && index === firstErrorIndex;
 
                                     return (
                                         <span
                                             key={`${char}-${index}`}
                                             className={
-                                                !userInput[index]
-                                                    ? 'text-transparent'
-                                                    : isMatch
-                                                        ? 'text-black'
-                                                        : 'text-red-500'
+                                                isErrorChar
+                                                    ? 'text-red-500'
+                                                    : isCorrectChar
+                                                        ? 'text-violet-600'
+                                                        : 'text-gray-300'
                                             }
                                         >
-                                            {userChar || char}
+                                            {char}
                                         </span>
                                     );
                                 })}
-                                {userInput.length > currentSentence.length && (
-                                    <span className="text-red-500">
-                                        {userInput.slice(currentSentence.length)}
-                                    </span>
-                                )}
                             </div>
 
                             <textarea
                                 ref={textareaRef}
                                 value={userInput}
                                 onChange={(e) => {
-                                    setUserInput(e.target.value);
+                                    const rawValue = e.target.value;
+                                    if (rawValue.length > currentSentence.length) {
+                                        return;
+                                    }
+
+                                    let nextValue = rawValue;
+                                    const lowerValue = rawValue.toLowerCase();
+                                    const expected = currentSentence.toLowerCase();
+                                    let errorIndex = -1;
+
+                                    for (let index = 0; index < lowerValue.length; index += 1) {
+                                        if (lowerValue[index] !== expected[index]) {
+                                            errorIndex = index;
+                                            break;
+                                        }
+                                    }
+
+                                    if (errorIndex !== -1) {
+                                        nextValue = rawValue.slice(0, errorIndex + 1);
+                                    }
+
+                                    setUserInput(nextValue);
                                     setShowReveal(false);
                                 }}
                                 className="absolute inset-0 w-full h-full p-4 border-2 border-transparent rounded-2xl bg-transparent text-transparent caret-transparent resize-none overflow-hidden focus:outline-none focus:ring-transparent z-20"
