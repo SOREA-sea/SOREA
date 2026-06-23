@@ -179,12 +179,16 @@ export default function MenstrualCalendar() {
       }//L'utilisation des else if (au lieu d'une suite de simples if) est importante ici pour la logique du code pour ce calendrier qui se base sur un calcul.
 
       const isToday = new Date().toDateString() === date.toDateString();
+//Juste après la constante on ajoute une condition pour écraser la couleur de fond si isToday est vrai, en utilisant la classe Tailwind arbitraire bg-[#8D9FF]
+if (isToday) {
+  phaseColor = "bg-[#E8D9FF] text-[#8B47FF]";
+}
 
       days.push(
         <div
           key={day}
           className={`h-12 sm:h-16 border-r border-b border-gray-200 flex flex-col items-center justify-center transition-colors cursor-pointer relative ${phaseColor} ${
-            isToday ? "ring-inset ring-2 ring-black font-bold" : ""
+            isToday ? "font-bold" : ""
           }`}
         >
           <span className="text-sm font-semibold">{day}</span>
@@ -239,7 +243,7 @@ export default function MenstrualCalendar() {
             <img
               src={phaseIcons["Printemps"]}
               alt="Icône Printemps"
-              className="w-full h-full object-cover"
+              className="w-full h-full object-contain"
             />
           </div>
           <span className="text-black">Phase Pré-Ovulatoire</span>
@@ -261,7 +265,7 @@ export default function MenstrualCalendar() {
             <img
               src={phaseIcons["Été"]}
               alt="Icône Été"
-              className="w-full h-full object-cover"
+              className="w-full h-full object-contain"
             />
           </div>
           <span className="text-black">Phase Ovulatoire</span>
@@ -282,7 +286,7 @@ export default function MenstrualCalendar() {
             <img
               src={phaseIcons["Automne"]}
               alt="Icône Automne"
-              className="w-full h-full object-cover"
+              className="w-full h-full object-contain"
             />
           </div>
           <span className="text-black">Phase Prémenstruelle</span>
