@@ -17,6 +17,12 @@ interface CycleInfo {
   refDate: string;
 }
 
+interface SymptomLog {
+  flow: string | null;
+  mood: string | null;
+  physicalSymptoms: string | null;
+}
+
 // Chaque phases a son icône.
 const phaseIcons: { [key: string]: string } = {
   Hiver: "/image_MenstrualCalendar/Hiver.svg",
@@ -36,8 +42,14 @@ export default function MenstrualCalendar() {
   const [cycleLengthForm, setCycleLengthForm] = useState(28);
   const [periodLengthForm, setPeriodLengthForm] = useState(5);
   const [lastPeriodStartForm, setLastPeriodStartForm] = useState("");
+  const [showSurvey, setShowSurvey] = useState(false);
 
   const [currentMonth, setCurrentMonth] = useState(new Date());
+  
+  // Symptoms
+  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+  const [symptomLog, setSymptomLog] = useState<SymptomLog>({ flow: null, mood: null, physicalSymptoms: null });
+  const [isSavingSymptom, setIsSavingSymptom] = useState(false);
 
   useEffect(() => {
     fetchProfile();
@@ -89,6 +101,62 @@ export default function MenstrualCalendar() {
       }
     } catch (e) {
       console.error(e);
+    }
+  };
+
+  const fetchSymptom = async (date: Date) => {
+    try {
+      // Need to adjust for local timezone to avoid offset issues
+      const localDate = new Date(date.getTime() - (date.getTimezoneOffset() * 60000));
+      const dateStr = localDate.toISOString().split("T")[0];
+      const res = await fetch(`/api/symptoms?date=${dateStr}`);
+      if (res.ok) {
+        const data = await res.json();
+        if (data.log) {
+          setSymptomLog({
+            flow: data.log.flow,
+            mood: data.log.mood,
+            physicalSymptoms: data.log.physicalSymptoms,
+          });
+        } else {
+          setSymptomLog({ flow: null, mood: null, physicalSymptoms: null });
+        }
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const handleDayClick = (day: number) => {
+    const date = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), day);
+    setSelectedDate(date);
+    fetchSymptom(date);
+  };
+
+  const handleSymptomChange = (field: keyof SymptomLog, value: string) => {
+    setSymptomLog(prev => ({ ...prev, [field]: prev[field] === value ? null : value })); // Toggle if already selected
+  };
+
+  const saveSymptom = async () => {
+    if (!selectedDate) return;
+    setIsSavingSymptom(true);
+    try {
+      const localDate = new Date(selectedDate.getTime() - (selectedDate.getTimezoneOffset() * 60000));
+      const dateStr = localDate.toISOString().split("T")[0];
+      await fetch("/api/symptoms", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          date: dateStr,
+          flow: symptomLog.flow,
+          mood: symptomLog.mood,
+          physicalSymptoms: symptomLog.physicalSymptoms,
+        }),
+      });
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setIsSavingSymptom(false);
     }
   };
 
@@ -179,14 +247,19 @@ export default function MenstrualCalendar() {
       }//L'utilisation des else if (au lieu d'une suite de simples if) est importante ici pour la logique du code pour ce calendrier qui se base sur un calcul.
 
       const isToday = new Date().toDateString() === date.toDateString();
+      const isSelected = selectedDate?.toDateString() === date.toDateString();
 //Juste après la constante on ajoute une condition pour écraser la couleur de fond si isToday est vrai, en utilisant la classe Tailwind arbitraire bg-[#8D9FF]
 if (isToday) {
   phaseColor = "bg-[#E8D9FF] text-[#8B47FF]";
+}
+if (isSelected) {
+  phaseColor += " ring-2 ring-inset ring-[#8B47FF]";
 }
 
       days.push(
         <div
           key={day}
+          onClick={() => handleDayClick(day)}
           className={`h-12 sm:h-16 border-r border-b border-gray-200 flex flex-col items-center justify-center transition-colors cursor-pointer relative ${phaseColor} ${
             isToday ? "font-bold" : ""
           }`}
@@ -371,6 +444,88 @@ if (isToday) {
         </div>
       </div>
 
+      {/* Symptom Tracking Section */}
+      {selectedDate && (
+        <div className="mt-8 bg-[#F4EBFF] rounded-2xl p-6 border border-[#8B47FF]/30">
+          <div className="flex justify-between items-center mb-4">
+            <h3 className="text-lg font-bold text-[#8B47FF]">
+              Suivi quotidien - {selectedDate.toLocaleDateString("fr-FR", { weekday: 'long', day: 'numeric', month: 'long' })}
+            </h3>
+            <button onClick={() => setSelectedDate(null)} className="text-gray-500 hover:text-black">
+              <X className="w-5 h-5" />
+            </button>
+          </div>
+          
+          {selectedDate.getTime() > new Date().setHours(23, 59, 59, 999) ? (
+            <p className="text-gray-500 font-medium italic">Vous ne pouvez pas renseigner de symptômes pour une date future.</p>
+          ) : (
+            <div className="space-y-6">
+              {/* Flux */}
+              <div>
+                <p className="text-sm font-bold text-black mb-2">Flux</p>
+                <div className="flex flex-wrap gap-2">
+                  {["Léger", "Moyen", "Abondant"].map((f) => (
+                    <button
+                      key={f}
+                      onClick={() => handleSymptomChange('flow', f)}
+                      className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+                        symptomLog.flow === f ? "bg-[#8B47FF] text-white" : "bg-white text-gray-700 border border-gray-300 hover:border-[#8B47FF]"
+                      }`}
+                    >
+                      {f}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Humeur */}
+              <div>
+                <p className="text-sm font-bold text-black mb-2">Humeur</p>
+                <div className="flex flex-wrap gap-2">
+                  {["Heureuse", "Irritable", "Fatiguée", "Anxieuse", "Déprimée"].map((m) => (
+                    <button
+                      key={m}
+                      onClick={() => handleSymptomChange('mood', m)}
+                      className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+                        symptomLog.mood === m ? "bg-[#8B47FF] text-white" : "bg-white text-gray-700 border border-gray-300 hover:border-[#8B47FF]"
+                      }`}
+                    >
+                      {m}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Symptômes physiques */}
+              <div>
+                <p className="text-sm font-bold text-black mb-2">Symptômes physiques</p>
+                <div className="flex flex-wrap gap-2">
+                  {["Crampes", "Maux de tête", "Acné", "Seins douloureux"].map((s) => (
+                    <button
+                      key={s}
+                      onClick={() => handleSymptomChange('physicalSymptoms', s)}
+                      className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+                        symptomLog.physicalSymptoms === s ? "bg-[#8B47FF] text-white" : "bg-white text-gray-700 border border-gray-300 hover:border-[#8B47FF]"
+                      }`}
+                    >
+                      {s}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <button
+                onClick={saveSymptom}
+                disabled={isSavingSymptom}
+                className="w-full py-3 mt-4 bg-[#8B47FF] text-white rounded-xl font-bold shadow-sm hover:opacity-90 transition-opacity"
+              >
+                {isSavingSymptom ? "Enregistrement..." : "Enregistrer les symptômes"}
+              </button>
+            </div>
+          )}
+        </div>
+      )}
+
       {showSettings && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-3xl p-8 shadow-2xl w-full max-w-md relative border-2 border-[#8B47FF]">
@@ -399,32 +554,31 @@ if (isToday) {
 
               {isActiveForm && (
                 <div className="space-y-4 animate-in fade-in slide-in-from-top-4 duration-300">
-                  <div>
-                    <label className="block text-sm font-bold text-black mb-2">
-                      Durée du cycle (jours)
-                    </label>
-                    <input
-                      type="number"
-                      value={cycleLengthForm}
-                      onChange={(e) =>
-                        setCycleLengthForm(parseInt(e.target.value))
-                      }
-                      className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl bg-white text-black focus:border-[#8B47FF] outline-none transition-all"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-bold text-black mb-2">
-                      Durée des règles (jours)
-                    </label>
-                    <input
-                      type="number"
-                      value={periodLengthForm}
-                      onChange={(e) =>
-                        setPeriodLengthForm(parseInt(e.target.value))
-                      }
-                      className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl bg-white text-black focus:border-[#8B47FF] outline-none transition-all"
-                    />
-                  </div>
+                  {/* Sondage initial au lieu du champ durée libre */}
+                  {(!profile?.isActive || showSurvey) && (
+                    <div className="p-4 bg-gray-50 rounded-xl border border-gray-200">
+                      <p className="text-sm font-bold text-black mb-3">Quel est votre type de cycle habituel ?</p>
+                      <div className="space-y-2">
+                        <label className="flex items-center gap-2 cursor-pointer">
+                          <input type="radio" name="cycleType" checked={cycleLengthForm === 24} onChange={() => setCycleLengthForm(24)} className="text-[#8B47FF] focus:ring-[#8B47FF]" />
+                          <span className="text-sm text-gray-700">🔴 Plutôt courts (environ 3 semaines)</span>
+                        </label>
+                        <label className="flex items-center gap-2 cursor-pointer">
+                          <input type="radio" name="cycleType" checked={cycleLengthForm === 28} onChange={() => setCycleLengthForm(28)} className="text-[#8B47FF] focus:ring-[#8B47FF]" />
+                          <span className="text-sm text-gray-700">🟢 Standard / Moyens (environ 4 semaines)</span>
+                        </label>
+                        <label className="flex items-center gap-2 cursor-pointer">
+                          <input type="radio" name="cycleType" checked={cycleLengthForm === 32} onChange={() => setCycleLengthForm(32)} className="text-[#8B47FF] focus:ring-[#8B47FF]" />
+                          <span className="text-sm text-gray-700">🔵 Plutôt longs (plus de 4 semaines)</span>
+                        </label>
+                        <label className="flex items-center gap-2 cursor-pointer">
+                          <input type="radio" name="cycleType" checked={![24, 28, 32].includes(cycleLengthForm)} onChange={() => setCycleLengthForm(28)} className="text-[#8B47FF] focus:ring-[#8B47FF]" />
+                          <span className="text-sm text-gray-700">⚫ Je ne sais pas du tout</span>
+                        </label>
+                      </div>
+                    </div>
+                  )}
+
                   <div>
                     <label className="block text-sm font-bold text-black mb-2">
                       Début des dernières règles
@@ -435,6 +589,9 @@ if (isToday) {
                       onChange={(e) => setLastPeriodStartForm(e.target.value)}
                       className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl bg-white text-black focus:border-[#8B47FF] outline-none transition-all"
                     />
+                    <p className="text-xs text-gray-500 mt-2 italic">
+                      <span className="underline">Le site applique par défaut un cycle standard théorique de 28 jours.</span>
+                    </p>
                   </div>
                 </div>
               )}
