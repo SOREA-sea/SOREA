@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useEffect } from "react";
 import { Settings, ChevronLeft, ChevronRight, X, Trash2 } from "lucide-react";
@@ -42,7 +42,6 @@ export default function MenstrualCalendar() {
   const [loading, setLoading] = useState(true);
   const [showSettings, setShowSettings] = useState(false);
 
-  // Form
   const [isActiveForm, setIsActiveForm] = useState(false);
   const [cycleLengthForm, setCycleLengthForm] = useState(28);
   const [periodLengthForm, setPeriodLengthForm] = useState(5);
@@ -51,18 +50,16 @@ export default function MenstrualCalendar() {
 
   const [currentMonth, setCurrentMonth] = useState(new Date());
 
-  // Todos (persisted per user)
-  const [selectedTodoDate, setSelectedTodoDate] = useState<string | null>(null); // 'YYYY-MM-DD'
+  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+  const [symptomLog, setSymptomLog] = useState<SymptomLog>({ flow: null, mood: null, physicalSymptoms: null });
+  const [isSavingSymptom, setIsSavingSymptom] = useState(false);
+
+  const [selectedTodoDate, setSelectedTodoDate] = useState<string | null>(null);
   const [showTodoModal, setShowTodoModal] = useState(false);
   const [todoInput, setTodoInput] = useState("");
   const [todosByDate, setTodosByDate] = useState<Record<string, TodoItem[]>>({});
   const [loggedUser, setLoggedUser] = useState<{ id: string; email: string } | null>(null);
   const [phaseFilters, setPhaseFilters] = useState<string[]>([]);
-
-  // Symptoms
-  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
-  const [symptomLog, setSymptomLog] = useState<SymptomLog>({ flow: null, mood: null, physicalSymptoms: null });
-  const [isSavingSymptom, setIsSavingSymptom] = useState(false);
 
   useEffect(() => {
     fetchProfile();
@@ -77,15 +74,14 @@ export default function MenstrualCalendar() {
   const fetchLoggedUser = async () => {
     try {
       const res = await fetch("/api/auth/me");
-      if (res.ok) {
-        const data = await res.json();
-        const user = data.user;
-        if (user?.id) {
-          setLoggedUser({ id: user.id, email: user.email });
-          const stored = localStorage.getItem(`sorea_todos_${user.id}`);
-          if (stored) {
-            setTodosByDate(JSON.parse(stored));
-          }
+      if (!res.ok) return;
+      const data = await res.json();
+      const user = data.user;
+      if (user?.id) {
+        setLoggedUser({ id: user.id, email: user.email });
+        const stored = localStorage.getItem(`sorea_todos_${user.id}`);
+        if (stored) {
+          setTodosByDate(JSON.parse(stored));
         }
       }
     } catch (e) {
@@ -96,21 +92,17 @@ export default function MenstrualCalendar() {
   const fetchProfile = async () => {
     try {
       const res = await fetch("/api/menstrual-profile");
-      if (res.ok) {
-        const data = await res.json();
-        setProfile(data.profile);
-        setCycleInfo(data.cycleInfo);
-
-        setIsActiveForm(data.profile.isActive);
-        setCycleLengthForm(data.profile.cycleLength);
-        setPeriodLengthForm(data.profile.periodLength);
-        if (data.profile.lastPeriodStartDate) {
-          setLastPeriodStartForm(
-            new Date(data.profile.lastPeriodStartDate).toISOString().split("T")[0]
-          );
-        } else {
-          setLastPeriodStartForm(new Date().toISOString().split("T")[0]);
-        }
+      if (!res.ok) return;
+      const data = await res.json();
+      setProfile(data.profile);
+      setCycleInfo(data.cycleInfo);
+      setIsActiveForm(data.profile.isActive);
+      setCycleLengthForm(data.profile.cycleLength);
+      setPeriodLengthForm(data.profile.periodLength);
+      if (data.profile.lastPeriodStartDate) {
+        setLastPeriodStartForm(new Date(data.profile.lastPeriodStartDate).toISOString().split("T")[0]);
+      } else {
+        setLastPeriodStartForm(new Date().toISOString().split("T")[0]);
       }
     } catch (e) {
       console.error(e);
@@ -131,12 +123,11 @@ export default function MenstrualCalendar() {
           lastPeriodStartDate: isActiveForm ? lastPeriodStartForm : null,
         }),
       });
-      if (res.ok) {
-        const data = await res.json();
-        setProfile(data.profile);
-        setCycleInfo(data.cycleInfo);
-        setShowSettings(false);
-      }
+      if (!res.ok) return;
+      const data = await res.json();
+      setProfile(data.profile);
+      setCycleInfo(data.cycleInfo);
+      setShowSettings(false);
     } catch (e) {
       console.error(e);
     }
@@ -147,17 +138,16 @@ export default function MenstrualCalendar() {
       const localDate = new Date(date.getTime() - date.getTimezoneOffset() * 60000);
       const dateStr = localDate.toISOString().split("T")[0];
       const res = await fetch(`/api/symptoms?date=${dateStr}`);
-      if (res.ok) {
-        const data = await res.json();
-        if (data.log) {
-          setSymptomLog({
-            flow: data.log.flow,
-            mood: data.log.mood,
-            physicalSymptoms: data.log.physicalSymptoms,
-          });
-        } else {
-          setSymptomLog({ flow: null, mood: null, physicalSymptoms: null });
-        }
+      if (!res.ok) return;
+      const data = await res.json();
+      if (data.log) {
+        setSymptomLog({
+          flow: data.log.flow,
+          mood: data.log.mood,
+          physicalSymptoms: data.log.physicalSymptoms,
+        });
+      } else {
+        setSymptomLog({ flow: null, mood: null, physicalSymptoms: null });
       }
     } catch (e) {
       console.error(e);
@@ -166,11 +156,8 @@ export default function MenstrualCalendar() {
 
   const handleDayClick = (day: number) => {
     const date = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), day);
-    // symptom selection
     setSelectedDate(date);
     fetchSymptom(date);
-
-    // todo selection
     const dateKey = date.toISOString().split("T")[0];
     setSelectedTodoDate(dateKey);
     if (loggedUser) setShowTodoModal(true);
@@ -189,7 +176,6 @@ export default function MenstrualCalendar() {
     if (!selectedTodoDate) return;
     const trimmed = todoInput.trim();
     if (!trimmed) return;
-
     setTodosByDate((prev) => {
       const current = prev[selectedTodoDate] || [];
       return {
@@ -209,7 +195,9 @@ export default function MenstrualCalendar() {
       const current = prev[selectedTodoDate] || [];
       return {
         ...prev,
-        [selectedTodoDate]: current.map((todo) => (todo.id === todoId ? { ...todo, completed: !todo.completed } : todo)),
+        [selectedTodoDate]: current.map((todo) =>
+          todo.id === todoId ? { ...todo, completed: !todo.completed } : todo
+        ),
       };
     });
   };
@@ -258,18 +246,14 @@ export default function MenstrualCalendar() {
 
   const getPhaseForDate = (date: Date) => {
     if (!cycleInfo || !profile) return null;
-
     const ref = new Date(cycleInfo.refDate);
     ref.setHours(0, 0, 0, 0);
     const target = new Date(date);
     target.setHours(0, 0, 0, 0);
-
     const diffTime = target.getTime() - ref.getTime();
     const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-
     const cLength = profile.cycleLength || 28;
     const currentDay = (((diffDays % cLength) + cLength) % cLength) + 1;
-
     const pLength = profile.periodLength || 5;
     if (currentDay <= pLength) return "Hiver";
     const ovStart = cLength - 14;
@@ -282,25 +266,20 @@ export default function MenstrualCalendar() {
   const renderCalendar = () => {
     const year = currentMonth.getFullYear();
     const month = currentMonth.getMonth();
-    const firstDay = new Date(year, month, 1).getDay(); // 0 = Sunday
+    const firstDay = new Date(year, month, 1).getDay();
     const daysInMonth = new Date(year, month + 1, 0).getDate();
-
-    const adjustedFirstDay = firstDay === 0 ? 6 : firstDay - 1; // Start on Monday (0)
-
-    const days = [] as any[];
+    const adjustedFirstDay = firstDay === 0 ? 6 : firstDay - 1;
+    const days: React.ReactNode[] = [];
     for (let i = 0; i < adjustedFirstDay; i++) {
       days.push(
         <div key={`empty-${i}`} className="h-12 sm:h-16 border-r border-b border-gray-200 bg-gray-50" />
       );
     }
-
     for (let day = 1; day <= daysInMonth; day++) {
       const date = new Date(year, month, day);
       const phase = getPhaseForDate(date);
-
       let phaseColor = "bg-white text-gray-800 hover:bg-gray-50";
-      let icon = null as any;
-
+      let icon: React.ReactNode = null;
       if (phase === "Hiver") {
         phaseColor = "text-[#8B47FF] hover:bg-[#E8D9FF]";
         icon = <img src={phaseIcons[phase]} alt="Icône Hiver" className="w-6 h-6 absolute bottom-1 right-1" />;
@@ -314,7 +293,6 @@ export default function MenstrualCalendar() {
         phaseColor = "text-[#8B47FF] hover:bg-[#E8D9FF]";
         icon = <img src={phaseIcons[phase]} alt="Icône Automne" className="w-6 h-6 absolute bottom-1 right-1" />;
       }
-
       const dateKey = date.toISOString().split("T")[0];
       const isToday = new Date().toDateString() === date.toDateString();
       const isSelected = selectedDate?.toDateString() === date.toDateString();
@@ -322,21 +300,17 @@ export default function MenstrualCalendar() {
       const hiddenStyles = !phaseVisible ? "opacity-30" : "";
       const iconVisible = phaseVisible ? icon : null;
       const hasTodos = Boolean(todosByDate[dateKey]?.length);
-
       if (isToday) {
         phaseColor = "bg-[#E8D9FF] text-[#8B47FF]";
       }
       if (isSelected) {
         phaseColor = "bg-[#E8D9FF] text-[#8B47FF] ring-2 ring-[#8B47FF]";
       }
-
       days.push(
         <div
           key={day}
           onClick={() => handleDayClick(day)}
-          className={`h-12 sm:h-16 border-r border-b border-gray-200 flex flex-col items-center justify-center transition-colors cursor-pointer relative ${phaseColor} ${
-            isToday ? "font-bold" : ""
-          } ${hiddenStyles}`}
+          className={`h-12 sm:h-16 border-r border-b border-gray-200 flex flex-col items-center justify-center transition-colors cursor-pointer relative ${phaseColor} ${isToday ? "font-bold" : ""} ${hiddenStyles}`}
         >
           {hasTodos && <span className="absolute left-2 top-2 h-2.5 w-2.5 rounded-full bg-[#8B47FF] shadow-sm" />}
           <span className="text-sm font-semibold">{day}</span>
@@ -344,11 +318,16 @@ export default function MenstrualCalendar() {
         </div>
       );
     }
-
     return days;
   };
 
   if (loading) return <div className="animate-pulse bg-gray-200 rounded-2xl h-64 w-full" />;
+
+  const changeMonth = (offset: number) => {
+    const next = new Date(currentMonth);
+    next.setMonth(next.getMonth() + offset);
+    setCurrentMonth(next);
+  };
 
   return (
     <div
@@ -358,9 +337,16 @@ export default function MenstrualCalendar() {
       <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between mb-8">
         <div>
           <h2 className="text-3xl font-bold underline text-black">Calendrier Menstruel</h2>
-          {profile?.isActive ? <p className="text-black font-medium mt-1">Suivi activé</p> : <p className="text-black font-medium mt-1">Mode par défaut (suivi inactif)</p>}
+          {profile?.isActive ? (
+            <p className="text-black font-medium mt-1">Suivi activé</p>
+          ) : (
+            <p className="text-black font-medium mt-1">Mode par défaut (suivi inactif)</p>
+          )}
         </div>
-        <button onClick={() => setShowSettings(true)} className="p-3 bg-white border border-[#8B47FF] text-[#8B47FF] rounded-2xl hover:bg-[#F4EBFF] transition-all duration-300 hover:scale-105 shadow-sm">
+        <button
+          onClick={() => setShowSettings(true)}
+          className="p-3 bg-white border border-[#8B47FF] text-[#8B47FF] rounded-2xl hover:bg-[#F4EBFF] transition-all duration-300 hover:scale-105 shadow-sm"
+        >
           <Settings className="w-6 h-6" />
         </button>
       </div>
@@ -369,15 +355,25 @@ export default function MenstrualCalendar() {
         <p className="text-sm font-semibold text-[#5B3ABC] mb-3">Filtrer les phases</p>
         <div className="flex flex-wrap gap-3">
           {["Hiver", "Printemps", "Été", "Automne"].map((phase) => (
-            <button key={phase} type="button" onClick={() => togglePhaseFilter(phase)} className={`rounded-full border px-4 py-2 text-sm font-semibold transition ${phaseFilters.includes(phase) ? "bg-[#8B47FF] border-[#8B47FF] text-white" : "bg-white border-gray-200 text-gray-700 hover:bg-[#F4EBFF]"}`}>
+            <button
+              key={phase}
+              type="button"
+              onClick={() => togglePhaseFilter(phase)}
+              className={`rounded-full border px-4 py-2 text-sm font-semibold transition ${phaseFilters.includes(phase) ? "bg-[#8B47FF] border-[#8B47FF] text-white" : "bg-white border-gray-200 text-gray-700 hover:bg-[#F4EBFF]"}`}
+            >
               {phase}
             </button>
           ))}
-          <button type="button" onClick={() => setPhaseFilters([])} className="rounded-full border border-gray-300 bg-white px-4 py-2 text-sm font-semibold text-gray-600 transition hover:bg-gray-100">Réinitialiser</button>
+          <button
+            type="button"
+            onClick={() => setPhaseFilters([])}
+            className="rounded-full border border-gray-300 bg-white px-4 py-2 text-sm font-semibold text-gray-600 transition hover:bg-gray-100"
+          >
+            Réinitialiser
+          </button>
         </div>
       </div>
 
-      {/* Legend */}
       <div className="flex flex-wrap gap-6 mb-8 text-sm font-medium justify-center">
         <div className="Printemps group relative flex items-center gap-2 cursor-pointer">
           <div className="w-5 h-5 shrink-0 flex items-center justify-center">
@@ -385,21 +381,18 @@ export default function MenstrualCalendar() {
           </div>
           <span className="text-black">Phase Pré-Ovulatoire</span>
         </div>
-
         <div className="Été group relative flex items-center gap-2 cursor-pointer">
           <div className="w-5 h-5 shrink-0 flex items-center justify-center">
             <img src={phaseIcons["Été"]} alt="Icône Été" className="w-full h-full object-contain" />
           </div>
           <span className="text-black">Phase Ovulatoire</span>
         </div>
-
         <div className="Automne group relative flex items-center gap-2 cursor-pointer">
           <div className="w-5 h-5 shrink-0 flex items-center justify-center">
             <img src={phaseIcons["Automne"]} alt="Icône Automne" className="w-full h-full object-contain" />
           </div>
           <span className="text-black">Phase Prémenstruelle</span>
         </div>
-
         <div className="Hiver group relative flex items-center gap-2 cursor-pointer">
           <div className="w-5 h-5 shrink-0 flex items-center justify-center">
             <img src={phaseIcons["Hiver"]} alt="Icône Hiver" className="w-full h-full object-contain" />
@@ -410,10 +403,16 @@ export default function MenstrualCalendar() {
 
       <div className="bg-white rounded-2xl p-8 shadow-sm border border-gray-200">
         <div className="flex justify-between items-center mb-6 px-2">
-          <span className="font-bold text-2xl text-black">{currentMonth.toLocaleDateString("en-US", { month: "short", year: "numeric" })}</span>
+          <span className="font-bold text-2xl text-black">
+            {currentMonth.toLocaleDateString("en-US", { month: "short", year: "numeric" })}
+          </span>
           <div className="flex gap-4 text-gray-400">
-            <button onClick={() => setCurrentMonth(new Date(currentMonth.setMonth(currentMonth.getMonth() - 1)))} className="hover:text-black transition-colors"><ChevronLeft className="w-6 h-6" /></button>
-            <button onClick={() => setCurrentMonth(new Date(currentMonth.setMonth(currentMonth.getMonth() + 1)))} className="hover:text-black transition-colors"><ChevronRight className="w-6 h-6" /></button>
+            <button onClick={() => changeMonth(-1)} className="hover:text-black transition-colors">
+              <ChevronLeft className="w-6 h-6" />
+            </button>
+            <button onClick={() => changeMonth(1)} className="hover:text-black transition-colors">
+              <ChevronRight className="w-6 h-6" />
+            </button>
           </div>
         </div>
 
@@ -430,7 +429,11 @@ export default function MenstrualCalendar() {
         <div className="grid grid-cols-7 border-l border-t border-gray-200 bg-white relative">{renderCalendar()}</div>
       </div>
 
-      {!loggedUser && <div className="mt-8 rounded-3xl border border-dashed border-[#8B47FF]/40 bg-[#FAF6FF] p-6 text-center text-sm text-[#5E4DA4]">Connectez-vous pour activer la todo list du calendrier.</div>}
+      {!loggedUser && (
+        <div className="mt-8 rounded-3xl border border-dashed border-[#8B47FF]/40 bg-[#FAF6FF] p-6 text-center text-sm text-[#5E4DA4]">
+          Connectez-vous pour activer la todo list du calendrier.
+        </div>
+      )}
 
       {loggedUser && showTodoModal && selectedTodoDate && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
@@ -438,14 +441,32 @@ export default function MenstrualCalendar() {
             <div className="flex items-center justify-between gap-4 mb-6">
               <div>
                 <p className="text-sm font-semibold text-[#5B3ABC]">Tâches du {selectedTodoDate}</p>
-                <p className="text-2xl font-bold text-black">{new Date(selectedTodoDate).toLocaleDateString("fr-FR", { weekday: "long", day: "numeric", month: "long" })}</p>
+                <p className="text-2xl font-bold text-black">
+                  {new Date(selectedTodoDate).toLocaleDateString("fr-FR", { weekday: "long", day: "numeric", month: "long" })}
+                </p>
               </div>
-              <button onClick={closeTodoModal} className="rounded-full border border-gray-200 bg-white p-2 text-gray-600 transition hover:border-[#8B47FF] hover:text-black"><X className="h-5 w-5" /></button>
+              <button
+                onClick={closeTodoModal}
+                className="rounded-full border border-gray-200 bg-white p-2 text-gray-600 transition hover:border-[#8B47FF] hover:text-black"
+              >
+                <X className="h-5 w-5" />
+              </button>
             </div>
 
             <div className="flex flex-col sm:flex-row gap-3 mb-4">
-              <input type="text" value={todoInput} onChange={(e) => setTodoInput(e.target.value)} placeholder="Ajouter une tâche..." className="flex-1 min-w-0 rounded-2xl border border-gray-200 bg-white px-4 py-3 text-sm text-black outline-none transition-all" />
-              <button onClick={addTodo} className="rounded-2xl bg-[#8B47FF] px-6 py-3 text-sm font-bold text-white transition hover:bg-[#6f37e6]">Ajouter</button>
+              <input
+                type="text"
+                value={todoInput}
+                onChange={(e) => setTodoInput(e.target.value)}
+                placeholder="Ajouter une tâche..."
+                className="flex-1 min-w-0 rounded-2xl border border-gray-200 bg-white px-4 py-3 text-sm text-black outline-none transition-all"
+              />
+              <button
+                onClick={addTodo}
+                className="rounded-2xl bg-[#8B47FF] px-6 py-3 text-sm font-bold text-white transition hover:bg-[#6f37e6]"
+              >
+                Ajouter
+              </button>
             </div>
 
             <div className="space-y-3">
@@ -453,19 +474,37 @@ export default function MenstrualCalendar() {
                 (todosByDate[selectedTodoDate] ?? []).map((todo) => (
                   <div key={todo.id} className="group flex items-center justify-between gap-4 rounded-3xl border border-gray-200 bg-white px-4 py-3 transition">
                     <label className="flex items-center gap-3 flex-1 cursor-pointer">
-                      <span className={`relative flex h-5 w-5 shrink-0 items-center justify-center rounded-[6px] border transition ${todo.completed ? "border-emerald-500 bg-emerald-500" : "border-gray-300 bg-white"}`}>
-                        <input type="checkbox" checked={todo.completed} onChange={() => toggleTodo(todo.id)} className="absolute inset-0 h-full w-full opacity-0 cursor-pointer" />
+                      <span
+                        className={`relative flex h-5 w-5 shrink-0 items-center justify-center rounded-[6px] border transition ${
+                          todo.completed ? "border-emerald-500 bg-emerald-500" : "border-gray-300 bg-white"
+                        }`}
+                      >
+                        <input
+                          type="checkbox"
+                          checked={todo.completed}
+                          onChange={() => toggleTodo(todo.id)}
+                          className="absolute inset-0 h-full w-full opacity-0 cursor-pointer"
+                        />
                         {todo.completed && (
-                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="h-3.5 w-3.5 text-white"><path d="M5 13l4 4L19 7" /></svg>
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="h-3.5 w-3.5 text-white">
+                            <path d="M5 13l4 4L19 7" />
+                          </svg>
                         )}
                       </span>
                       <span className={`text-sm ${todo.completed ? "text-gray-500 line-through" : "text-gray-900"}`}>{todo.text}</span>
                     </label>
-                    <button onClick={() => deleteTodo(todo.id)} className="flex h-11 w-11 items-center justify-center rounded-full text-gray-400 transition hover:text-red-600"><Trash2 className="h-5 w-5" /></button>
+                    <button
+                      onClick={() => deleteTodo(todo.id)}
+                      className="flex h-11 w-11 items-center justify-center rounded-full text-gray-400 transition hover:text-red-600"
+                    >
+                      <Trash2 className="h-5 w-5" />
+                    </button>
                   </div>
                 ))
               ) : (
-                <p className="rounded-3xl border border-dashed border-gray-300 bg-white px-4 py-6 text-center text-sm text-gray-500">Aucune tâche pour ce jour. Ajoutez-en une via le champ ci-dessus.</p>
+                <p className="rounded-3xl border border-dashed border-gray-300 bg-white px-4 py-6 text-center text-sm text-gray-500">
+                  Aucune tâche pour ce jour. Ajoutez-en une via le champ ci-dessus.
+                </p>
               )}
             </div>
           </div>
@@ -475,8 +514,12 @@ export default function MenstrualCalendar() {
       {selectedDate && (
         <div className="mt-8 bg-[#F4EBFF] rounded-2xl p-6 border border-[#8B47FF]/30">
           <div className="flex justify-between items-center mb-4">
-            <h3 className="text-lg font-bold text-[#8B47FF]">Suivi quotidien - {selectedDate.toLocaleDateString("fr-FR", { weekday: 'long', day: 'numeric', month: 'long' })}</h3>
-            <button onClick={() => setSelectedDate(null)} className="text-gray-500 hover:text-black"><X className="w-5 h-5" /></button>
+            <h3 className="text-lg font-bold text-[#8B47FF]">
+              Suivi quotidien - {selectedDate.toLocaleDateString("fr-FR", { weekday: 'long', day: 'numeric', month: 'long' })}
+            </h3>
+            <button onClick={() => setSelectedDate(null)} className="text-gray-500 hover:text-black">
+              <X className="w-5 h-5" />
+            </button>
           </div>
 
           {selectedDate.getTime() > new Date().setHours(23, 59, 59, 999) ? (
@@ -485,26 +528,62 @@ export default function MenstrualCalendar() {
             <div className="space-y-6">
               <div>
                 <p className="text-sm font-bold text-black mb-2">Flux</p>
-                <div className="flex flex-wrap gap-2">{["Léger", "Moyen", "Abondant"].map((f) => (
-                  <button key={f} onClick={() => handleSymptomChange('flow', f)} className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${symptomLog.flow === f ? 'bg-[#8B47FF] text-white' : 'bg-white text-gray-700 border border-gray-300 hover:border-[#8B47FF]'}`}>{f}</button>
-                ))}</div>
+                <div className="flex flex-wrap gap-2">
+                  {['Léger', 'Moyen', 'Abondant'].map((f) => (
+                    <button
+                      key={f}
+                      onClick={() => handleSymptomChange('flow', f)}
+                      className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+                        symptomLog.flow === f ? 'bg-[#8B47FF] text-white' : 'bg-white text-gray-700 border border-gray-300 hover:border-[#8B47FF]'
+                      }`}
+                    >
+                      {f}
+                    </button>
+                  ))}
+                </div>
               </div>
 
               <div>
                 <p className="text-sm font-bold text-black mb-2">Humeur</p>
-                <div className="flex flex-wrap gap-2">{["Heureuse", "Irritable", "Fatiguée", "Anxieuse", "Déprimée"].map((m) => (
-                  <button key={m} onClick={() => handleSymptomChange('mood', m)} className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${symptomLog.mood === m ? 'bg-[#8B47FF] text-white' : 'bg-white text-gray-700 border border-gray-300 hover:border-[#8B47FF]'}`}>{m}</button>
-                ))}</div>
+                <div className="flex flex-wrap gap-2">
+                  {['Heureuse', 'Irritable', 'Fatiguée', 'Anxieuse', 'Déprimée'].map((m) => (
+                    <button
+                      key={m}
+                      onClick={() => handleSymptomChange('mood', m)}
+                      className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+                        symptomLog.mood === m ? 'bg-[#8B47FF] text-white' : 'bg-white text-gray-700 border border-gray-300 hover:border-[#8B47FF]'
+                      }`}
+                    >
+                      {m}
+                    </button>
+                  ))}
+                </div>
               </div>
 
               <div>
                 <p className="text-sm font-bold text-black mb-2">Symptômes physiques</p>
-                <div className="flex flex-wrap gap-2">{["Crampes", "Maux de tête", "Acné", "Seins douloureux"].map((s) => (
-                  <button key={s} onClick={() => handleSymptomChange('physicalSymptoms', s)} className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${symptomLog.physicalSymptoms === s ? 'bg-[#8B47FF] text-white' : 'bg-white text-gray-700 border border-gray-300 hover:border-[#8B47FF]'}`}>{s}</button>
-                ))}</div>
+                <div className="flex flex-wrap gap-2">
+                  {['Crampes', 'Maux de tête', 'Acné', 'Seins douloureux'].map((s) => (
+                    <button
+                      key={s}
+                      onClick={() => handleSymptomChange('physicalSymptoms', s)}
+                      className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+                        symptomLog.physicalSymptoms === s ? 'bg-[#8B47FF] text-white' : 'bg-white text-gray-700 border border-gray-300 hover:border-[#8B47FF]'
+                      }`}
+                    >
+                      {s}
+                    </button>
+                  ))}
+                </div>
               </div>
 
-              <button onClick={saveSymptom} disabled={isSavingSymptom} className="w-full py-3 mt-4 bg-[#8B47FF] text-white rounded-xl font-bold shadow-sm hover:opacity-90 transition-opacity">{isSavingSymptom ? 'Enregistrement...' : 'Enregistrer les symptômes'}</button>
+              <button
+                onClick={saveSymptom}
+                disabled={isSavingSymptom}
+                className="w-full py-3 mt-4 bg-[#8B47FF] text-white rounded-xl font-bold shadow-sm hover:opacity-90 transition-opacity"
+              >
+                {isSavingSymptom ? 'Enregistrement...' : 'Enregistrer les symptômes'}
+              </button>
             </div>
           )}
         </div>
@@ -513,38 +592,65 @@ export default function MenstrualCalendar() {
       {showSettings && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-3xl p-8 shadow-2xl w-full max-w-md relative border-2 border-[#8B47FF]">
-            <button onClick={() => setShowSettings(false)} className="absolute top-4 right-4 p-2 text-gray-400 hover:text-black transition-colors"><X className="w-6 h-6" /></button>
+            <button onClick={() => setShowSettings(false)} className="absolute top-4 right-4 p-2 text-gray-400 hover:text-black transition-colors">
+              <X className="w-6 h-6" />
+            </button>
             <h3 className="text-2xl font-bold mb-6 text-black underline">Paramètres</h3>
-
             <div className="space-y-6">
               <label className="flex items-center justify-between p-4 bg-[#F4EBFF] border border-[#8B47FF]/30 rounded-xl cursor-pointer hover:bg-[#E8D9FF] transition-colors">
                 <span className="font-bold text-[#8B47FF]">Activer le suivi</span>
-                <input type="checkbox" checked={isActiveForm} onChange={(e) => setIsActiveForm(e.target.checked)} className="w-5 h-5 rounded border-gray-300 text-[#8B47FF] focus:ring-[#8B47FF]" />
+                <input
+                  type="checkbox"
+                  checked={isActiveForm}
+                  onChange={(e) => setIsActiveForm(e.target.checked)}
+                  className="w-5 h-5 rounded border-gray-300 text-[#8B47FF] focus:ring-[#8B47FF]"
+                />
               </label>
-
               {isActiveForm && (
                 <div className="space-y-4 animate-in fade-in slide-in-from-top-4 duration-300">
                   {(!profile?.isActive || showSurvey) && (
                     <div className="p-4 bg-gray-50 rounded-xl border border-gray-200">
                       <p className="text-sm font-bold text-black mb-3">Quel est votre type de cycle habituel ?</p>
                       <div className="space-y-2">
-                        <label className="flex items-center gap-2 cursor-pointer"><input type="radio" name="cycleType" checked={cycleLengthForm === 24} onChange={() => setCycleLengthForm(24)} className="text-[#8B47FF] focus:ring-[#8B47FF]" /><span className="text-sm text-gray-700">🔴 Plutôt courts (environ 3 semaines)</span></label>
-                        <label className="flex items-center gap-2 cursor-pointer"><input type="radio" name="cycleType" checked={cycleLengthForm === 28} onChange={() => setCycleLengthForm(28)} className="text-[#8B47FF] focus:ring-[#8B47FF]" /><span className="text-sm text-gray-700">🟢 Standard / Moyens (environ 4 semaines)</span></label>
-                        <label className="flex items-center gap-2 cursor-pointer"><input type="radio" name="cycleType" checked={cycleLengthForm === 32} onChange={() => setCycleLengthForm(32)} className="text-[#8B47FF] focus:ring-[#8B47FF]" /><span className="text-sm text-gray-700">🔵 Plutôt longs (plus de 4 semaines)</span></label>
-                        <label className="flex items-center gap-2 cursor-pointer"><input type="radio" name="cycleType" checked={! [24, 28, 32].includes(cycleLengthForm)} onChange={() => setCycleLengthForm(28)} className="text-[#8B47FF] focus:ring-[#8B47FF]" /><span className="text-sm text-gray-700">⚫ Je ne sais pas du tout</span></label>
+                        <label className="flex items-center gap-2 cursor-pointer">
+                          <input type="radio" name="cycleType" checked={cycleLengthForm === 24} onChange={() => setCycleLengthForm(24)} className="text-[#8B47FF] focus:ring-[#8B47FF]" />
+                          <span className="text-sm text-gray-700">🔴 Plutôt courts (environ 3 semaines)</span>
+                        </label>
+                        <label className="flex items-center gap-2 cursor-pointer">
+                          <input type="radio" name="cycleType" checked={cycleLengthForm === 28} onChange={() => setCycleLengthForm(28)} className="text-[#8B47FF] focus:ring-[#8B47FF]" />
+                          <span className="text-sm text-gray-700">🟢 Standard / Moyens (environ 4 semaines)</span>
+                        </label>
+                        <label className="flex items-center gap-2 cursor-pointer">
+                          <input type="radio" name="cycleType" checked={cycleLengthForm === 32} onChange={() => setCycleLengthForm(32)} className="text-[#8B47FF] focus:ring-[#8B47FF]" />
+                          <span className="text-sm text-gray-700">🔵 Plutôt longs (plus de 4 semaines)</span>
+                        </label>
+                        <label className="flex items-center gap-2 cursor-pointer">
+                          <input type="radio" name="cycleType" checked={! [24, 28, 32].includes(cycleLengthForm)} onChange={() => setCycleLengthForm(28)} className="text-[#8B47FF] focus:ring-[#8B47FF]" />
+                          <span className="text-sm text-gray-700">⚫ Je ne sais pas du tout</span>
+                        </label>
                       </div>
                     </div>
                   )}
-
                   <div>
                     <label className="block text-sm font-bold text-black mb-2">Début des dernières règles</label>
-                    <input type="date" value={lastPeriodStartForm} onChange={(e) => setLastPeriodStartForm(e.target.value)} className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl bg-white text-black focus:border-[#8B47FF] outline-none transition-all" />
-                    <p className="text-xs text-gray-500 mt-2 italic"><span className="underline">Le site applique par défaut un cycle standard théorique de 28 jours.</span></p>
+                    <input
+                      type="date"
+                      value={lastPeriodStartForm}
+                      onChange={(e) => setLastPeriodStartForm(e.target.value)}
+                      className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl bg-white text-black focus:border-[#8B47FF] outline-none transition-all"
+                    />
+                    <p className="text-xs text-gray-500 mt-2 italic">
+                      <span className="underline">Le site applique par défaut un cycle standard théorique de 28 jours.</span>
+                    </p>
                   </div>
                 </div>
               )}
-
-              <button onClick={saveSettings} className="w-full py-4 mt-6 bg-white border-2 border-[#8B47FF] text-[#8B47FF] rounded-2xl font-bold shadow-md hover:scale-105 hover:bg-[#F4EBFF] transition-all active:scale-95 text-lg">Enregistrer</button>
+              <button
+                onClick={saveSettings}
+                className="w-full py-4 mt-6 bg-white border-2 border-[#8B47FF] text-[#8B47FF] rounded-2xl font-bold shadow-md hover:scale-105 hover:bg-[#F4EBFF] transition-all active:scale-95 text-lg"
+              >
+                Enregistrer
+              </button>
             </div>
           </div>
         </div>
