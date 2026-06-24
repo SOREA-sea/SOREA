@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useState, useEffect } from "react";
 import { Settings, ChevronLeft, ChevronRight, X, Trash2 } from "lucide-react";
@@ -41,6 +41,7 @@ export default function MenstrualCalendar() {
   const [cycleInfo, setCycleInfo] = useState<CycleInfo | null>(null);
   const [loading, setLoading] = useState(true);
   const [showSettings, setShowSettings] = useState(false);
+const [isSnowflakeMode, setIsSnowflakeMode] = useState(false);
 
   const [isActiveForm, setIsActiveForm] = useState(false);
   const [cycleLengthForm, setCycleLengthForm] = useState(28);
@@ -282,7 +283,13 @@ export default function MenstrualCalendar() {
       let icon: React.ReactNode = null;
       if (phase === "Hiver") {
         phaseColor = "text-[#8B47FF] hover:bg-[#E8D9FF]";
-        icon = <img src={phaseIcons[phase]} alt="Icône Hiver" className="w-6 h-6 absolute bottom-1 right-1" />;
+        icon = (
+          <img 
+            src={isSnowflakeMode ? "/image_MenstrualCalendar/Flocon.svg" : phaseIcons[phase]} 
+            alt={isSnowflakeMode ? "Icône Flocon" : "Icône Hiver"} 
+            className="w-6 h-6 absolute bottom-1 right-1" 
+          />
+        );
       } else if (phase === "Printemps") {
         phaseColor = "text-[#8B47FF] hover:bg-[#E8D9FF]";
         icon = <img src={phaseIcons[phase]} alt="Icône Printemps" className="w-6 h-6 absolute bottom-1 right-1" />;
@@ -300,6 +307,10 @@ export default function MenstrualCalendar() {
       const hiddenStyles = !phaseVisible ? "opacity-30" : "";
       const iconVisible = phaseVisible ? icon : null;
       const hasTodos = Boolean(todosByDate[dateKey]?.length);
+      const dayTodos = todosByDate[dateKey] || [];
+      const allTodosCompleted = dayTodos.length > 0 && dayTodos.every(todo => todo.completed); //Le point s'affiche s'il y a des tâches, MAIS disparaît si elle sont toutes complétées.
+      const showPurpleDot = dayTodos.length > 0 && !allTodosCompleted;
+
       if (isToday) {
         phaseColor = "bg-[#E8D9FF] text-[#8B47FF]";
       }
@@ -312,7 +323,15 @@ export default function MenstrualCalendar() {
           onClick={() => handleDayClick(day)}
           className={`h-12 sm:h-16 border-r border-b border-gray-200 flex flex-col items-center justify-center transition-colors cursor-pointer relative ${phaseColor} ${isToday ? "font-bold" : ""} ${hiddenStyles}`}
         >
-          {hasTodos && <span className="absolute left-2 top-2 h-2.5 w-2.5 rounded-full bg-[#8B47FF] shadow-sm" />}
+          {allTodosCompleted && (
+      <img 
+        src="/image_MenstrualCalendar/Okey-Calendar.svg" 
+        alt="Toutes les tâches terminées" 
+        className="w-5 h-5 absolute left-1 top-1 object-contain" 
+      />
+    )}
+
+          {showPurpleDot && <span className="absolute left-2 top-2 h-2.5 w-2.5 rounded-full bg-[#8B47FF] shadow-sm" />} 
           <span className="text-sm font-semibold">{day}</span>
           {iconVisible}
         </div>
@@ -351,10 +370,89 @@ export default function MenstrualCalendar() {
         </button>
       </div>
 
-      <div className="mb-8 rounded-3xl border border-[#EDE7FF] bg-[#FAF4FF] p-4 shadow-sm">
+      
+
+        <div className="flex flex-wrap gap-6 mb-8 text-sm font-medium justify-center">
+       
+        <div className="Printemps group relative flex items-center gap-2 cursor-pointer">
+          <div className="w-5 h-5 shrink-0 flex items-center justify-center">
+            <img src={phaseIcons["Printemps"]} alt="Icône Printemps" className="w-full h-full object-contain" />
+          </div>
+          <span className="text-black">Phase Pré-Ovulatoire</span>
+          {/* Tooltip */}
+          <div className="absolute bottom-full mb-2 hidden group-hover:block bg-gray-800 text-white text-xs rounded p-3 w-64 z-20 shadow-lg left-1/2 transform -translate-x-1/2 pointer-events-none">
+            <p className="font-bold mb-1">Le Printemps du cycle </p>
+            <p className="font-normal text-gray-200">
+              Le corps se prépare à libérer un ovule et l'utérus commence à
+              fabriquer une nouvelle muqueuse irriguée par le sang. Durant cette
+              période, l'énergie remonte doucement, favorisant un sentiment de
+              dynamisme et d'optimisme.
+            </p>
+          </div>
+
+        </div>
+      
+      {/* Été : Phase Ovulatoire */}
+        <div className="Été group relative flex items-center gap-2 cursor-pointer">  
+          <div className="w-5 h-5 shrink-0 flex items-center justify-center">
+            <img src={phaseIcons["Été"]} alt="Icône Été" className="w-full h-full object-contain" />
+          </div>
+          <span className="text-black">Phase Ovulatoire</span>
+          {/* Tooltip */}
+          <div className="absolute bottom-full mb-2 hidden group-hover:block bg-gray-800 text-white text-xs rounded p-3 w-64 z-20 shadow-lg left-1/2 transform -translate-x-1/2 pointer-events-none">
+            <p className="font-bold mb-1">L'Été du cycle </p>
+            <p className="font-normal text-gray-200">
+              C'est le moment où l’ovaire libère l’ovule pour la fécondation. Cette
+              phase correspond généralement à un pic d'énergie maximale, facilitant
+              la communication, le rayonnement et l’assurance.
+            </p>
+          </div>
+        </div>
+        
+        <div className="Automne group relative flex items-center gap-2 cursor-pointer">
+          <div className="w-5 h-5 shrink-0 flex items-center justify-center">
+            <img src={phaseIcons["Automne"]} alt="Icône Automne" className="w-full h-full object-contain" />
+          </div>
+          <span className="text-black">Phase Prémenstruelle</span>
+          {/* Tooltip */}
+          <div className="absolute bottom-full mb-2 hidden group-hover:block bg-gray-800 text-white text-xs rounded p-3 w-64 z-20 shadow-lg left-1/2 transform -translate-x-1/2 pointer-events-none">
+            <p className="font-bold mb-1">L'Automne du cycle </p>
+            <p className="font-normal text-gray-200">
+              L'ovule libéré n'a pas été fécondé. Les niveaux d'énergie commencent
+              à baisser, incitant naturellement à se tourner vers soi, et les
+              premiers signes du syndrome prémenstruel (SPM) peuvent faire leur
+              apparition ches certaines personnes.
+            </p>
+          </div>
+        </div>
+        
+<div className="Hiver group relative flex items-center gap-2 cursor-pointer">
+          <div className="w-5 h-5 shrink-0 flex items-center justify-center">
+            <img 
+              src={isSnowflakeMode ? "/image_MenstrualCalendar/Flocon.svg" : phaseIcons["Hiver"]} 
+              alt={isSnowflakeMode ? "Icône Flocon" : "Icône Hiver"} 
+              className="w-full h-full object-contain" 
+            />
+          </div>
+          <span className="text-black">Phase Menstruelle</span>
+          {/* Tooltip */}
+          <div className="absolute bottom-full mb-2 hidden group-hover:block bg-gray-800 text-white text-xs rounded p-3 w-64 z-20 shadow-lg left-1/2 transform -translate-x-1/2 pointer-events-none">
+            <p className="font-bold mb-1">L'Hiver du cycle</p>
+            <p className="font-normal text-gray-200">
+              Cette période correspond au début des règles et au “nettoyage” de
+              l'utérus. Le corps exprime un besoin accru de repos, de douceur et
+              d'un rythme plus lent pour se régénérer pleinement.
+            </p>
+          </div>
+        
+        </div>
+       
+        </div>
+
+<div className="mb-8 rounded-3xl border border-[#EDE7FF] bg-[#FAF4FF] p-4 shadow-sm">
         <p className="text-sm font-semibold text-[#5B3ABC] mb-3">Filtrer les phases</p>
         <div className="flex flex-wrap gap-3">
-          {["Hiver", "Printemps", "Été", "Automne"].map((phase) => (
+          {["Printemps", "Été", "Automne", "Hiver"].map((phase) => (
             <button
               key={phase}
               type="button"
@@ -371,37 +469,16 @@ export default function MenstrualCalendar() {
           >
             Réinitialiser
           </button>
+          <button
+          onClick={() => setIsSnowflakeMode(!isSnowflakeMode)}
+          className="px-4 py-2 bg-white border-2 border-[#8B47FF] text-[#8B47FF] font-bold rounded-2xl hover:bg-[#F4EBFF] transition-all duration-300 shadow-sm text-sm"
+        >
+          Mode {isSnowflakeMode ? "❄️Hiver" : "🩸Menstrue"}
+        </button>
         </div>
-      </div>
+        </div>
 
-      <div className="flex flex-wrap gap-6 mb-8 text-sm font-medium justify-center">
-        <div className="Printemps group relative flex items-center gap-2 cursor-pointer">
-          <div className="w-5 h-5 shrink-0 flex items-center justify-center">
-            <img src={phaseIcons["Printemps"]} alt="Icône Printemps" className="w-full h-full object-contain" />
-          </div>
-          <span className="text-black">Phase Pré-Ovulatoire</span>
-        </div>
-        <div className="Été group relative flex items-center gap-2 cursor-pointer">
-          <div className="w-5 h-5 shrink-0 flex items-center justify-center">
-            <img src={phaseIcons["Été"]} alt="Icône Été" className="w-full h-full object-contain" />
-          </div>
-          <span className="text-black">Phase Ovulatoire</span>
-        </div>
-        <div className="Automne group relative flex items-center gap-2 cursor-pointer">
-          <div className="w-5 h-5 shrink-0 flex items-center justify-center">
-            <img src={phaseIcons["Automne"]} alt="Icône Automne" className="w-full h-full object-contain" />
-          </div>
-          <span className="text-black">Phase Prémenstruelle</span>
-        </div>
-        <div className="Hiver group relative flex items-center gap-2 cursor-pointer">
-          <div className="w-5 h-5 shrink-0 flex items-center justify-center">
-            <img src={phaseIcons["Hiver"]} alt="Icône Hiver" className="w-full h-full object-contain" />
-          </div>
-          <span className="text-black">Phase Menstruelle</span>
-        </div>
-      </div>
-
-      <div className="bg-white rounded-2xl p-8 shadow-sm border border-gray-200">
+        <div className="bg-white rounded-2xl p-8 shadow-sm border border-gray-200">
         <div className="flex justify-between items-center mb-6 px-2">
           <span className="font-bold text-2xl text-black">
             {currentMonth.toLocaleDateString("en-US", { month: "short", year: "numeric" })}
