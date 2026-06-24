@@ -24,6 +24,18 @@ export default async function DashboardLayout({ children }: { children: React.Re
 
   const user = session.user;
 
+  // Fetch des compteurs pour la sidebar
+  const [favoriteProducts, favoriteCoaches, favoriteSessions, reservationsCount, sessionsCount] =
+    await Promise.all([
+      prisma.favoriteProduct.count({ where: { userId: user.id } }),
+      prisma.favoriteCoach.count({ where: { userId: user.id } }),
+      prisma.favoriteSession.count({ where: { userId: user.id } }),
+      prisma.sessionBooking.count({ where: { userId: user.id, status: "pending" } }),
+      prisma.sessionBooking.count({ where: { userId: user.id, status: "confirmed" } }),
+    ]);
+
+  const favoritesCount = favoriteProducts + favoriteCoaches + favoriteSessions;
+
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-b from-pastel-1 to-pastel-2 text-foreground font-sans">
       <Navbar isLoggedIn={true} />
@@ -35,8 +47,12 @@ export default async function DashboardLayout({ children }: { children: React.Re
             email: user.email,
             avatarUrl: user.avatarUrl,
             role: user.role,
+            favoritesCount,
+            reservationsCount,
+            sessionsCount,
           }}
         />
+
         <main className="flex-1 min-w-0">
           {children}
         </main>
