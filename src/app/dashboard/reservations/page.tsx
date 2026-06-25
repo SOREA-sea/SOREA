@@ -112,7 +112,7 @@ export default function ReservationsPage() {
           <p className="text-foreground/50 mt-2 max-w-md mx-auto">
             Cliquez sur Réserver depuis une séance pour l’ajouter ici, puis confirmez plus tard.
           </p>
-          <Link href="/#sessions" className="btn-primary inline-block mt-6">
+          <Link href="/Coaching" className="btn-primary inline-block mt-6">
             Voir les séances
           </Link>
         </div>

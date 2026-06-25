@@ -105,7 +105,7 @@ export default async function DashboardPage() {
         </svg>
       ),
       color: "bg-green-100 text-green-600",
-      href: "#",
+      href: "/dashboard",
     },
   ];
 
@@ -141,88 +141,80 @@ export default async function DashboardPage() {
 
       <section>
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-xl font-bold">Prochaines séances</h2>
+          <div>
+            <h2 className="text-xl font-bold">Mon panier</h2>
+            <p className="text-foreground/60 text-sm mt-1">
+              Retrouvez vos séances à venir et vos réservations en attente au même endroit.
+            </p>
+          </div>
           <Link href="/dashboard/sessions" className="text-sm text-purple-600 font-semibold hover:text-purple-800 transition-colors">
             Tout voir →
           </Link>
         </div>
 
-        {upcomingBookings.length === 0 ? (
+        {upcomingBookings.length === 0 && reservations === 0 ? (
           <div className="glass-panel rounded-3xl p-8 text-center">
             <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4 text-purple-500">
               <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
               </svg>
             </div>
-            <p className="text-foreground/70 font-medium">Aucune séance à venir</p>
-            <p className="text-foreground/50 text-sm mt-1">Explorez nos séances de coaching pour commencer !</p>
-            <Link href="/#sessions" className="btn-primary inline-block mt-4 text-sm">
-              Découvrir les séances
-            </Link>
-          </div>
-        ) : (
-          <div className="space-y-3">
-            {upcomingBookings.map((booking) => {
-              const startsAt = booking.session.startsAt ? new Date(booking.session.startsAt) : null;
-              return (
-                <div key={booking.id} className="glass-panel rounded-2xl p-5 flex items-center justify-between">
-                  <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center text-purple-600 shrink-0">
-                      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                      </svg>
-                    </div>
-                    <div>
-                      <p className="font-bold text-foreground">{booking.session.title}</p>
-                      <p className="text-foreground/50 text-sm">
-                        {booking.session.coach.user.firstName} {booking.session.coach.user.lastName}
-                        {booking.session.sessionType && ` · ${booking.session.sessionType}`}
-                      </p>
-                    </div>
-                  </div>
-                  <div className="text-right shrink-0">
-                    {startsAt && (
-                      <>
-                        <p className="font-semibold text-sm text-foreground">
-                          {startsAt.toLocaleDateString("fr-FR", { day: "numeric", month: "short" })}
-                        </p>
-                        <p className="text-foreground/50 text-xs">
-                          {startsAt.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" })}
-                          {booking.session.durationMinutes && ` · ${booking.session.durationMinutes} min`}
-                        </p>
-                      </>
-                    )}
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        )}
-      </section>
-
-      <section>
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-xl font-bold">Réservations en attente</h2>
-          <Link href="/dashboard/reservations" className="text-sm text-purple-600 font-semibold hover:text-purple-800 transition-colors">
-            Tout voir →
-          </Link>
-        </div>
-
-        {reservations === 0 ? (
-          <div className="glass-panel rounded-3xl p-8 text-center">
-            <p className="text-foreground/70 font-medium">Aucune réservation en attente</p>
-            <p className="text-foreground/50 text-sm mt-1">Cliquez sur Réserver sur une séance pour l’ajouter ici.</p>
-            <Link href="/#sessions" className="btn-primary inline-block mt-4 text-sm">
+            <p className="text-foreground/70 font-medium">Votre panier est vide</p>
+            <p className="text-foreground/50 text-sm mt-1">Ajoutez une séance ou une réservation pour commencer.</p>
+            <Link href="/Coaching" className="btn-primary inline-block mt-4 text-sm">
               Voir les séances
             </Link>
           </div>
         ) : (
-          <div className="glass-panel rounded-3xl p-5">
-            <p className="text-foreground/70 font-medium">Vous avez {reservations} réservation{reservations > 1 ? "s" : ""} en attente.</p>
-            <Link href="/dashboard/reservations" className="btn-primary inline-block mt-4 text-sm">
-              Gérer mes réservations
-            </Link>
+          <div className="space-y-4">
+            {reservations > 0 && (
+              <div className="glass-panel rounded-3xl p-5">
+                <p className="text-foreground/70 font-medium">Vous avez {reservations} réservation{reservations > 1 ? "s" : ""} en attente.</p>
+                <Link href="/dashboard/reservations" className="btn-primary inline-block mt-4 text-sm">
+                  Gérer mes réservations
+                </Link>
+              </div>
+            )}
+
+            {upcomingBookings.length > 0 && (
+              <div className="space-y-3">
+                {upcomingBookings.map((booking) => {
+                  const startsAt = booking.session.startsAt ? new Date(booking.session.startsAt) : null;
+                  return (
+                    <div key={booking.id} className="glass-panel rounded-2xl p-5 flex items-center justify-between">
+                      <div className="flex items-center gap-4">
+                        <div className="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center text-purple-600 shrink-0">
+                          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          </svg>
+                        </div>
+                        <div>
+                          <p className="font-bold text-foreground">{booking.session.title}</p>
+                          <p className="text-foreground/50 text-sm">
+                            {booking.session.coach.user.firstName} {booking.session.coach.user.lastName}
+                            {booking.session.sessionType && ` · ${booking.session.sessionType}`}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="text-right shrink-0">
+                        {startsAt && (
+                          <>
+                            <p className="font-semibold text-sm text-foreground">
+                              {startsAt.toLocaleDateString("fr-FR", { day: "numeric", month: "short" })}
+                            </p>
+                            <p className="text-foreground/50 text-xs">
+                              {startsAt.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" })}
+                              {booking.session.durationMinutes && ` · ${booking.session.durationMinutes} min`}
+                            </p>
+                          </>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
           </div>
         )}
       </section>
