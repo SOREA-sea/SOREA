@@ -54,7 +54,7 @@ export async function requireAuth(role?: string) {
   if (!user) {
     return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
   }
-  if (role && user.role !== role) {
+  if (role && !user.role?.split(',').includes(role)) {
     return NextResponse.json({ error: "Accès refusé" }, { status: 403 });
   }
   return user;
