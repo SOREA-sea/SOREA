@@ -85,7 +85,7 @@ export default function SessionsPage() {
           <p className="text-foreground/50 mt-2 max-w-md mx-auto">
             Vous n'avez pas encore réservé de séance de coaching. Explorez nos programmes pour trouver celle qui vous correspond.
           </p>
-          <Link href="/#sessions" className="btn-primary inline-block mt-6">
+          <Link href="/Coaching" className="btn-primary inline-block mt-6">
             Découvrir les séances
           </Link>
         </div>

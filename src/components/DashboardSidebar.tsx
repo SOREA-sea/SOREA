@@ -19,7 +19,19 @@ interface DashboardSidebarProps {
   };
 }
 
-const navItems = [
+// Ajout "panierCount" à l'union de types
+type DashboardNavCountKey = "favoritesCount" | "reservationsCount" | "sessionsCount" | "panierCount";
+
+type DashboardStatKey = DashboardNavCountKey;
+
+interface DashboardNavItem {
+  href: string;
+  label: string;
+  icon: React.ReactNode;
+  countKey?: DashboardNavCountKey;
+}
+
+const navItems: DashboardNavItem[] = [
   {
     href: "/dashboard",
     label: "Mon tableau de bord",
@@ -37,7 +49,7 @@ const navItems = [
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
       </svg>
     ),
-    countKey: "favoritesCount" as const,
+    countKey: "favoritesCount",
   },
   {
     href: "/dashboard/reservations",
@@ -47,17 +59,17 @@ const navItems = [
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
       </svg>
     ),
-    countKey: "reservationsCount" as const,
+    countKey: "reservationsCount",
   },
   {
     href: "/dashboard/sessions",
     label: "Mes séances",
     icon: (
       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M12 8v4l3 3M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
       </svg>
     ),
-    countKey: "sessionsCount" as const,
+    countKey: "sessionsCount",
   },
 ];
 
@@ -114,7 +126,7 @@ export default function DashboardSidebar({ user }: DashboardSidebarProps) {
   };
 
   const renderNavItem = (
-    item: { href: string; label: string; icon: React.ReactNode; countKey?: keyof typeof user },
+    item: DashboardNavItem,
     isAdminItem = false
   ) => {
     const exactMatchPaths = ["/dashboard", "/dashboard/admin"];
@@ -122,7 +134,11 @@ export default function DashboardSidebar({ user }: DashboardSidebarProps) {
       ? pathname === item.href
       : pathname.startsWith(item.href);
 
-    const count = item.countKey !== undefined ? (user[item.countKey] as number | undefined) : undefined;
+    const count = item.countKey !== undefined
+      ? item.countKey === "panierCount"
+        ? ((user.reservationsCount ?? 0) + (user.sessionsCount ?? 0))
+        : (user[item.countKey as DashboardStatKey] as number | undefined)
+      : undefined;
 
     return (
       <Link
@@ -252,13 +268,7 @@ export default function DashboardSidebar({ user }: DashboardSidebarProps) {
 
       {/* ── NAVIGATION ── */}
       <nav className="flex-1 mt-5 space-y-1.5">
-        {navItems.map((item) => {
-          // Cacher réservations et séances pour les coachs
-          if (isCoach && (item.href === "/dashboard/reservations" || item.href === "/dashboard/sessions")) {
-            return null;
-          }
-          return renderNavItem(item);
-        })}
+        {navItems.map((item) => renderNavItem(item))}
 
         {/* Bouton dashboard coach */}
         {isCoach && (
