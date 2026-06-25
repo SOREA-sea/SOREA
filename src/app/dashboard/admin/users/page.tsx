@@ -17,12 +17,107 @@ interface UserData {
   };
 }
 
+function RoleSelector({ currentRoles, onSave, disabled, openUpwards }: { currentRoles: string, onSave: (newRoles: string) => void, disabled: boolean, openUpwards?: boolean }) {
+  const [isOpen, setIsOpen] = useState(false);
+  
+  const rolesArray = currentRoles.toLowerCase().split(',').map(r => r.trim()).filter(Boolean).map(r => r === 'ambassadrice' ? 'ambassador' : r);
+  
+  const toggleRole = (role: string) => {
+    if (role === 'admin') {
+      onSave('admin');
+      setIsOpen(false);
+      return;
+    }
+    
+    let newRoles = [...rolesArray];
+    if (newRoles.includes('admin')) {
+      newRoles = [];
+    }
+    
+    if (newRoles.includes(role)) {
+      newRoles = newRoles.filter(r => r !== role);
+      if (newRoles.length === 0) newRoles = ['user']; // Default to user if empty
+    } else {
+      // User and Coach are mutually exclusive
+      if (role === 'coach') newRoles = newRoles.filter(r => r !== 'user');
+      if (role === 'user') newRoles = newRoles.filter(r => r !== 'coach');
+      
+      if (newRoles.length >= 2) return; // limit reached
+      newRoles.push(role);
+    }
+    
+    // Sort roles to match backend expectations (user/coach first, then ambassador)
+    const order = { user: 1, coach: 2, ambassador: 3 };
+    newRoles.sort((a, b) => (order[a as keyof typeof order] || 99) - (order[b as keyof typeof order] || 99));
+    
+    onSave(newRoles.join(','));
+  };
+
+  const getRoleLabel = () => {
+    if (rolesArray.includes('admin')) return 'Admin';
+    if (rolesArray.length === 0) return 'Utilisateur';
+    const labels = rolesArray.map(r => r === 'user' ? 'Utilisateur' : r === 'coach' ? 'Coach' : 'Ambassadrice');
+    return labels.join(' & ');
+  };
+
+  return (
+    <div className="relative w-full min-w-[160px]">
+      <button 
+        disabled={disabled}
+        onClick={() => setIsOpen(!isOpen)}
+        className="px-3 py-1.5 w-full text-left rounded-full text-xs font-semibold bg-white border border-purple-200 hover:border-purple-300 outline-none flex justify-between items-center text-purple-900 focus:ring-2 focus:ring-purple-300 transition-colors disabled:opacity-50"
+      >
+        <span className="truncate mr-2">{getRoleLabel()}</span>
+        <svg className={`w-3.5 h-3.5 shrink-0 transition-transform ${isOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
+      </button>
+      
+      {isOpen && (
+        <>
+          <div className="fixed inset-0 z-40" onClick={() => setIsOpen(false)}></div>
+          <div className={`absolute z-50 w-full bg-white border border-purple-100 rounded-xl shadow-lg p-2 flex flex-col gap-1 left-0 ${openUpwards ? 'bottom-full mb-1' : 'top-full mt-1'}`}>
+            <div className="text-[10px] uppercase font-bold text-gray-400 px-2 pb-1">Sélectionnez (2 max)</div>
+            
+            {(['user', 'coach', 'ambassador'] as const).map(roleOption => {
+              const isSelected = rolesArray.includes(roleOption);
+              const isDisabled = !isSelected && rolesArray.length >= 2 && !rolesArray.includes('admin');
+              return (
+                <label key={roleOption} className={`flex items-center gap-2 px-2 py-1.5 rounded-lg text-xs font-medium cursor-pointer transition-colors ${isSelected ? 'bg-purple-50 text-purple-700' : 'hover:bg-gray-50 text-gray-700'} ${isDisabled ? 'opacity-40 cursor-not-allowed' : ''}`}>
+                  <input 
+                    type="checkbox" 
+                    className="rounded border-purple-300 text-purple-600 focus:ring-purple-500 disabled:opacity-50 cursor-pointer"
+                    checked={isSelected}
+                    disabled={isDisabled && !isSelected}
+                    onChange={() => toggleRole(roleOption)}
+                  />
+                  {roleOption === 'user' ? 'Utilisateur' : roleOption === 'coach' ? 'Coach' : 'Ambassadrice'}
+                </label>
+              );
+            })}
+            
+            <div className="h-px bg-gray-100 my-1"></div>
+            
+            <label className={`flex items-center gap-2 px-2 py-1.5 rounded-lg text-xs font-medium cursor-pointer transition-colors ${rolesArray.includes('admin') ? 'bg-red-50 text-red-700' : 'hover:bg-gray-50 text-gray-700'}`}>
+              <input 
+                type="checkbox" 
+                className="rounded border-red-300 text-red-600 focus:ring-red-500 cursor-pointer"
+                checked={rolesArray.includes('admin')}
+                onChange={() => toggleRole('admin')}
+              />
+              Admin
+            </label>
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
 export default function AdminUsersPage() {
   const [users, setUsers] = useState<UserData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState<number | null>(null);
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
-  const [filter, setFilter] = useState<"all" | "user" | "coach" | "admin">("all");
+  const [filter, setFilter] = useState<"all" | "user" | "coach" | "ambassador" | "admin">("all");
   const [search, setSearch] = useState("");
 
   useEffect(() => {
@@ -108,7 +203,7 @@ export default function AdminUsersPage() {
   };
 
   const filteredUsers = users.filter((u) => {
-    const matchesFilter = filter === "all" || u.role === filter;
+    const matchesFilter = filter === "all" || u.role.split(',').includes(filter);
     const matchesSearch =
       search === "" ||
       `${u.firstName} ${u.lastName}`.toLowerCase().includes(search.toLowerCase()) ||
@@ -160,7 +255,7 @@ export default function AdminUsersPage() {
           />
         </div>
         <div className="flex bg-white/50 p-1 rounded-full border border-white/60 shrink-0">
-          {(["all", "user", "coach", "admin"] as const).map((f) => (
+          {(["all", "user", "coach", "ambassador", "admin"] as const).map((f) => (
             <button
               key={f}
               onClick={() => setFilter(f)}
@@ -170,7 +265,7 @@ export default function AdminUsersPage() {
                   : "text-foreground/60 hover:text-foreground"
               }`}
             >
-              {f === "all" ? "Tous" : f === "user" ? "Membres" : f === "coach" ? "Coachs" : "Admins"}
+              {f === "all" ? "Tous" : f === "user" ? "Utilisateurs" : f === "coach" ? "Coachs" : f === "ambassador" ? "Ambassadrices" : "Admins"}
             </button>
           ))}
         </div>
@@ -190,7 +285,7 @@ export default function AdminUsersPage() {
               </tr>
             </thead>
             <tbody>
-              {filteredUsers.map((u) => (
+              {filteredUsers.map((u, index) => (
                 <tr key={u.id} className={`border-b border-white/15 last:border-0 transition-colors ${
                   !u.isActive ? "opacity-50" : "hover:bg-white/20"
                 }`}>
@@ -213,16 +308,12 @@ export default function AdminUsersPage() {
                     </div>
                   </td>
                   <td className="px-6 py-4">
-                    <select
-                      value={u.role}
-                      onChange={(e) => changeRole(u.id, e.target.value)}
+                    <RoleSelector 
+                      currentRoles={u.role} 
+                      onSave={(newRoles) => changeRole(u.id, newRoles)} 
                       disabled={actionLoading === u.id}
-                      className="px-3 py-1.5 rounded-full text-xs font-semibold bg-white/60 border border-white/80 outline-none cursor-pointer focus:ring-2 focus:ring-purple-300"
-                    >
-                      <option value="user">Membre</option>
-                      <option value="coach">Coach</option>
-                      <option value="admin">Admin</option>
-                    </select>
+                      openUpwards={index >= Math.max(0, filteredUsers.length - 2) && filteredUsers.length > 2}
+                    />
                   </td>
                   <td className="px-6 py-4 hidden md:table-cell">
                     <div className="text-xs text-foreground/60 space-y-0.5">
