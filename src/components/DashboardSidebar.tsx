@@ -72,19 +72,7 @@ function DefaultAvatar({ seed, size = 80 }: { seed: string; size?: number }) {
   );
 }
 
-// Ajout "panierCount" à l'union de types
-type DashboardNavCountKey = "favoritesCount" | "reservationsCount" | "sessionsCount" | "panierCount";
-
-type DashboardStatKey = DashboardNavCountKey;
-
-interface DashboardNavItem {
-  href: string;
-  label: string;
-  icon: React.ReactNode;
-  countKey?: DashboardNavCountKey;
-}
-
-const navItems: DashboardNavItem[] = [
+const navItems = [
   {
     href: "/dashboard",
     label: "Vue d'ensemble",
@@ -103,10 +91,6 @@ const navItems: DashboardNavItem[] = [
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
       </svg>
     ),
-<<<<<<< HEAD
-    countKey: "favoritesCount",
-=======
->>>>>>> f65ced3b ( front side bar dashboard)
   },
   {
     href: "/dashboard/reservations",
@@ -117,10 +101,6 @@ const navItems: DashboardNavItem[] = [
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
       </svg>
     ),
-<<<<<<< HEAD
-    countKey: "reservationsCount",
-=======
->>>>>>> f65ced3b ( front side bar dashboard)
   },
   {
     href: "/dashboard/sessions",
@@ -128,12 +108,9 @@ const navItems: DashboardNavItem[] = [
     countKey: "sessionsCount" as const,
     icon: (
       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M12 8v4l3 3M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
       </svg>
     ),
-<<<<<<< HEAD
-    countKey: "sessionsCount",
-=======
   },
   {
     href: "/dashboard/panier",
@@ -143,7 +120,6 @@ const navItems: DashboardNavItem[] = [
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
       </svg>
     ),
->>>>>>> f65ced3b ( front side bar dashboard)
   },
 ];
 
@@ -190,15 +166,8 @@ export default function DashboardSidebar({ user, notificationsCount = 0 }: Dashb
   const pathname = usePathname();
   const router = useRouter();
 
-<<<<<<< HEAD
-  const handleEditProfile = () => router.push("/dashboard/profile");
-
-  const isAdmin = user.role?.split(',').includes("admin");
-  const isCoach = user.role?.split(',').includes("coach");
-=======
   const isAdmin = user.role === "admin";
   const isCoach = user.role === "coach";
->>>>>>> f65ced3b ( front side bar dashboard)
 
   const displayName = user.pseudo || `${user.firstName} ${user.lastName}`;
 
@@ -216,7 +185,7 @@ export default function DashboardSidebar({ user, notificationsCount = 0 }: Dashb
   };
 
   const renderNavItem = (
-    item: DashboardNavItem,
+    item: { href: string; label: string; icon: React.ReactNode; countKey?: keyof typeof user },
     isAdminItem = false
   ) => {
     const exactMatchPaths = ["/dashboard", "/dashboard/admin"];
@@ -224,11 +193,7 @@ export default function DashboardSidebar({ user, notificationsCount = 0 }: Dashb
       ? pathname === item.href
       : pathname.startsWith(item.href);
 
-    const count = item.countKey !== undefined
-      ? item.countKey === "panierCount"
-        ? ((user.reservationsCount ?? 0) + (user.sessionsCount ?? 0))
-        : (user[item.countKey as DashboardStatKey] as number | undefined)
-      : undefined;
+    const count = item.countKey !== undefined ? (user[item.countKey] as number | undefined) : undefined;
 
     return (
       <Link
@@ -349,9 +314,6 @@ export default function DashboardSidebar({ user, notificationsCount = 0 }: Dashb
 
       {/* ── NAVIGATION ── */}
       <nav className="flex-1 mt-5 space-y-1.5">
-<<<<<<< HEAD
-        {navItems.map((item) => renderNavItem(item))}
-=======
         {navItems.map((item) => {
           // Coachs n'ont pas réservations/séances utilisateur (ils ont leur espace dédié)
           if (isCoach && (item.href === "/dashboard/reservations" || item.href === "/dashboard/sessions")) {
@@ -359,7 +321,6 @@ export default function DashboardSidebar({ user, notificationsCount = 0 }: Dashb
           }
           return renderNavItem(item);
         })}
->>>>>>> f65ced3b ( front side bar dashboard)
 
         {/* Espace coach */}
         {isCoach && (
