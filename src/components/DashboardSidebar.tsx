@@ -97,8 +97,8 @@ export default function DashboardSidebar({ user }: DashboardSidebarProps) {
 
   const handleEditProfile = () => router.push("/dashboard/profile");
 
-  const isAdmin = user.role === "admin";
-  const isCoach = user.role === "coach";
+  const isAdmin = user.role?.split(',').includes("admin");
+  const isCoach = user.role?.split(',').includes("coach");
 
   // Nom affiché : pseudo si défini, sinon prénom + nom
   const displayName = user.pseudo || `${user.firstName} ${user.lastName}`;

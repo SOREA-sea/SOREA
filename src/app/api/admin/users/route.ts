@@ -69,7 +69,7 @@ export async function PATCH(request: Request) {
 
     const updateData: Record<string, any> = {};
     if (typeof isActive === "boolean") updateData.isActive = isActive;
-    if (role && ["user", "coach", "admin"].includes(role)) updateData.role = role;
+    if (role && ["user", "coach", "ambassador", "user,ambassador", "coach,ambassador", "admin"].includes(role)) updateData.role = role;
 
     if (Object.keys(updateData).length === 0) {
       return NextResponse.json(

@@ -241,13 +241,13 @@ export default async function AdminOverviewPage() {
                   </td>
                   <td className="px-6 py-4 hidden sm:table-cell">
                     <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${
-                      u.role === "admin"
+                      u.role?.split(',').includes("admin")
                         ? "bg-red-100 text-red-700"
-                        : u.role === "coach"
+                        : u.role?.split(',').includes("coach")
                           ? "bg-blue-100 text-blue-700"
                           : "bg-gray-100 text-gray-600"
                     }`}>
-                      {u.role === "admin" ? "Admin" : u.role === "coach" ? "Coach" : "Membre"}
+                      {u.role?.split(',').includes("admin") ? "Admin" : u.role?.split(',').includes("coach") ? "Coach" : "Utilisateur"}
                     </span>
                   </td>
                   <td className="px-6 py-4 hidden md:table-cell">
@@ -283,7 +283,7 @@ export default async function AdminOverviewPage() {
                   <p className="font-bold text-foreground">{booking.session.title}</p>
                   <p className="text-foreground/50 text-sm">
                     {booking.user.firstName} {booking.user.lastName}
-                    {booking.user.role === "coach" ? " · Coach" : ""}
+                    {booking.user.role?.split(',').includes("coach") ? " · Coach" : ""}
                     {booking.session.coach?.user ? ` · ${booking.session.coach.user.firstName} ${booking.session.coach.user.lastName}` : ""}
                   </p>
                 </div>
