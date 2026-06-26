@@ -232,7 +232,7 @@ export default function DashboardSidebar({ user, notificationsCount = 0 }: Dashb
           <h3 className="font-bold text-lg text-foreground stroke-none leading-tight">{displayName}</h3>
 
           <Link
-            href="/dashboard/messagerie"
+            href="/mot-a-moi"
             className="w-7 h-7 rounded-full flex items-center justify-center bg-white/60 hover:bg-purple-50 text-foreground/40 hover:text-purple-600 transition-all shadow-sm"
             title="Messagerie"
             aria-label="Messagerie"
@@ -243,7 +243,7 @@ export default function DashboardSidebar({ user, notificationsCount = 0 }: Dashb
           </Link>
 
           <Link
-            href="/dashboard/notifications"
+            href="/dashboard/messagerie"
             className="relative w-7 h-7 rounded-full flex items-center justify-center bg-white/60 hover:bg-purple-50 text-foreground/40 hover:text-purple-600 transition-all shadow-sm"
             title="Notifications"
             aria-label="Notifications"
