@@ -48,6 +48,19 @@ model User {
   favoriteCoaches  FavoriteCoach[]
   favoriteSessions FavoriteSession[]
   menstrualProfile MenstrualProfile?
+
+  // carnet Gratitude
+  habitChecks HabitCheck[]
+  moodEntries MoodEntry[]
+  journalNotes JournalNote[]
+  quickNotes   QuickNote[]
+
+  // carnet challenge
+  dailyFeelings    DailyFeeling[]
+  challengeItems   ChallengeItem[]
+  hobbyCategories  HobbyCategory[]
+  challengesSeeded Boolean @default(false)
+  hobbiesSeeded    Boolean @default(false)
 }
 
 model MenstrualProfile {
@@ -361,4 +374,115 @@ model SavezVous {
   paragraph2 String
   paragraph3 String?
   createdAt  DateTime @default(now())
+}
+// carnet Gratitude planing
+
+model HabitCheck {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  habitId   String
+  weekStart String   // "YYYY-MM-DD" du lundi de la semaine concernée
+  dayIndex  Int      // 0=Lun ... 6=Dim
+  checked   Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, habitId, weekStart, dayIndex])
+}
+// carnet Gratitude planing
+model MoodEntry {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  date      String   // "YYYY-MM-DD" du jour
+  moodId    String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, date])
+}
+
+// carnet Gratitude journaling
+model JournalNote {
+  id          Int      @id @default(autoincrement())
+  userId      Int
+  texte       String
+  humeurEmoji String?
+  humeurLabel String?
+  tag         String?
+  createdAt   DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+// carnet Gratitude libre
+model QuickNote {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  texte     String
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+// carnet challenge 
+model DailyFeeling {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  date      String
+  moodLabel String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, date])
+}
+
+model ChallengeItem {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  theme     String
+  label     String
+  isDefault Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user        User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  completions ChallengeCompletion[]
+}
+
+model ChallengeCompletion {
+  id              Int      @id @default(autoincrement())
+  challengeItemId Int
+  date            String
+  createdAt       DateTime @default(now())
+
+  challengeItem ChallengeItem @relation(fields: [challengeItemId], references: [id], onDelete: Cascade)
+
+  @@unique([challengeItemId, date])
+}
+
+model HobbyCategory {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  name      String
+  icon      String
+  isDefault Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  user  User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  items HobbyItem[]
+}
+
+model HobbyItem {
+  id         Int      @id @default(autoincrement())
+  categoryId Int
+  label      String
+  createdAt  DateTime @default(now())
+
+  category HobbyCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
 }
