@@ -92,7 +92,7 @@ const navItems = [
   {
     href: "/dashboard/panier",
     label: "Mon panier",
-    countKey: "reservationsCount" as const, // Conserve le badge de notification (si besoin)
+    countKey: "reservationsCount" as const,
     icon: (
       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
@@ -155,7 +155,8 @@ export default function DashboardSidebar({ user, notificationsCount = 0 }: Dashb
     item: { href: string; label: string; icon: React.ReactNode; countKey?: keyof typeof user },
     isAdminItem = false
   ) => {
-    const exactMatchPaths = ["/dashboard", "/dashboard/admin"];
+    // Ces chemins doivent matcher exactement (pas de startsWith)
+    const exactMatchPaths = ["/dashboard", "/dashboard/admin", "/dashboard/coach"];
     const isActive = exactMatchPaths.includes(item.href)
       ? pathname === item.href
       : pathname.startsWith(item.href);
@@ -286,12 +287,12 @@ export default function DashboardSidebar({ user, notificationsCount = 0 }: Dashb
             <Link
               href="/dashboard/coach"
               className={`flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-medium transition-all ${
-                pathname.startsWith("/dashboard/coach")
+                pathname === "/dashboard/coach"
                   ? "bg-blue-50/80 shadow-sm text-blue-700"
                   : "text-foreground/70 hover:bg-blue-50/40 hover:text-blue-700"
               }`}
             >
-              <span className={pathname.startsWith("/dashboard/coach") ? "text-blue-600" : "text-foreground/50"}>
+              <span className={pathname === "/dashboard/coach" ? "text-blue-600" : "text-foreground/50"}>
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                 </svg>
