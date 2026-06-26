@@ -112,15 +112,7 @@ const navItems = [
       </svg>
     ),
   },
-  {
-    href: "/dashboard/panier",
-    label: "Mon panier",
-    icon: (
-      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
-      </svg>
-    ),
-  },
+  
 ];
 
 const adminNavItems = [
@@ -151,15 +143,7 @@ const adminNavItems = [
       </svg>
     ),
   },
-  {
-    href: "/dashboard/coach/session/create",
-    label: "Créer une séance",
-    icon: (
-      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M12 4v16m8-8H4" />
-      </svg>
-    ),
-  },
+  
 ];
 
 export default function DashboardSidebar({ user, notificationsCount = 0 }: DashboardSidebarProps) {
@@ -344,14 +328,14 @@ export default function DashboardSidebar({ user, notificationsCount = 0 }: Dashb
               <span className="flex-1">Tableau de bord coach</span>
             </Link>
             <Link
-              href="/dashboard/coach/sessions/create"
+              href="/dashboard/coach/session/create"
               className={`flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-medium transition-all ${
-                pathname === "/dashboard/coach/sessions/create"
+                pathname === "/dashboard/coach/session/create"
                   ? "bg-blue-50/80 shadow-sm text-blue-700"
                   : "text-foreground/70 hover:bg-blue-50/40 hover:text-blue-700"
               }`}
             >
-              <span className={pathname === "/dashboard/coach/sessions/create" ? "text-blue-600" : "text-foreground/50"}>
+              <span className={pathname === "/dashboard/coach/session/create" ? "text-blue-600" : "text-foreground/50"}>
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M12 4v16m8-8H4" />
                 </svg>
