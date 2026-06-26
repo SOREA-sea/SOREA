@@ -50,6 +50,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
             favoritesCount,
             reservationsCount,
             sessionsCount,
+            twoFactorEnabled: user.twoFactorEnabled ?? false,
           }}
         />
 

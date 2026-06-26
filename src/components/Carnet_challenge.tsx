@@ -1,4 +1,5 @@
-import { useState } from "react";
+"use client";
+import { useState, useEffect } from "react";
 
 type Theme = "Anti-stress" | "Sommeil" | "Mouvement" | "Autre";
 
@@ -8,74 +9,112 @@ interface Challenge {
   checked: boolean;
 }
 
-const defaultChallenges: Record<Theme, Challenge[]> = {
-  "Anti-stress": [
-    { id: 1, label: "Respiration 5-5-5 (3 cycles)", checked: false },
-    { id: 2, label: "Balade 10 minutes sans écran", checked: true },
-    { id: 3, label: "Note de gratitude", checked: false },
-  ],
-  Sommeil: [
-    { id: 4, label: "Écran off 1h avant dodo", checked: false },
-    { id: 5, label: "Étirements doux 5 min", checked: false },
-    { id: 6, label: "Lecture 10 pages", checked: false },
-  ],
-  Mouvement: [
-    { id: 7, label: "Pilates 10 minutes", checked: false },
-    { id: 8, label: "20 squats / 20 fentes", checked: false },
-    { id: 9, label: "Marche 3 000 pas", checked: false },
-  ],
-  Autre: [
-    { id: 10, label: "Manger un fruit", checked: false },
-  ],
-};
-
-const themeOrder: Theme[] = ["Anti-stress", "Sommeil", "Mouvement", "Autre"];
-
-const themeColors: Record<Theme, string> = {
-  "Anti-stress": "#a78bfa",
-  Sommeil: "#a78bfa",
-  Mouvement: "#a78bfa",
-  Autre: "#a78bfa",
-};
-
 export default function CarnetChallenge() {
   const [activeTheme, setActiveTheme] = useState<Theme>("Anti-stress");
-  const [challenges, setChallenges] = useState<Record<Theme, Challenge[]>>(defaultChallenges);
+  const [challenges, setChallenges] = useState<Record<Theme, Challenge[]>>({
+    "Anti-stress": [],
+    Sommeil: [],
+    Mouvement: [],
+    Autre: [],
+  });
   const [customInput, setCustomInput] = useState("");
+  const [chargement, setChargement] = useState(true);
 
-  const toggleChallenge = (id: number) => {
+  useEffect(() => {
+    fetch("/api/carnet/challenges")
+      .then((r) => r.json())
+      .then((res) => {
+        const data = res.data || {};
+        setChallenges({
+          "Anti-stress": data["Anti-stress"] || [],
+          Sommeil: data["Sommeil"] || [],
+          Mouvement: data["Mouvement"] || [],
+          Autre: data["Autre"] || [],
+        });
+      })
+      .catch((err) => console.error("Erreur chargement challenges:", err))
+      .finally(() => setChargement(false));
+  }, []);
+
+  const toggleChallenge = async (id: number) => {
+    const ancien = challenges;
     setChallenges((prev) => ({
       ...prev,
-      [activeTheme]: prev[activeTheme].map((c) =>
-        c.id === id ? { ...c, checked: !c.checked } : c
-      ),
+      [activeTheme]: prev[activeTheme].map((c) => (c.id === id ? { ...c, checked: !c.checked } : c)),
     }));
+
+    try {
+      const res = await fetch("/api/carnet/challenges", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id }),
+      });
+      if (!res.ok) throw new Error("Échec sauvegarde");
+    } catch (err) {
+      console.error(err);
+      setChallenges(ancien);
+    }
   };
 
-  const addChallenge = () => {
+  const addChallenge = async () => {
     const trimmed = customInput.trim();
     if (!trimmed) return;
-    const newId = Date.now();
+
+    const tempId = Date.now();
     setChallenges((prev) => ({
       ...prev,
-      [activeTheme]: [
-        ...prev[activeTheme],
-        { id: newId, label: trimmed, checked: false },
-      ],
+      [activeTheme]: [...prev[activeTheme], { id: tempId, label: trimmed, checked: false }],
     }));
     setCustomInput("");
+
+    try {
+      const res = await fetch("/api/carnet/challenges", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ theme: activeTheme, label: trimmed }),
+      });
+      if (!res.ok) throw new Error("Échec sauvegarde");
+      const data = await res.json();
+      setChallenges((prev) => ({
+        ...prev,
+        [activeTheme]: prev[activeTheme].map((c) =>
+          c.id === tempId ? { id: data.data.id, label: data.data.label, checked: data.data.checked } : c
+        ),
+      }));
+    } catch (err) {
+      console.error(err);
+      setChallenges((prev) => ({
+        ...prev,
+        [activeTheme]: prev[activeTheme].filter((c) => c.id !== tempId),
+      }));
+    }
   };
 
-  const resetList = () => {
-    setChallenges((prev) => ({
-      ...prev,
-      [activeTheme]: [],
-    }));
+  const resetList = async () => {
+    const ancien = challenges;
+    setChallenges((prev) => ({ ...prev, [activeTheme]: [] }));
+
+    try {
+      const res = await fetch(`/api/carnet/challenges?theme=${encodeURIComponent(activeTheme)}`, {
+        method: "DELETE",
+      });
+      if (!res.ok) throw new Error("Échec réinitialisation");
+    } catch (err) {
+      console.error(err);
+      setChallenges(ancien);
+    }
   };
+
+  if (chargement) {
+    return (
+      <div style={styles.card}>
+        <p style={{ fontSize: 12, color: "#8b5cf6" }}>Chargement…</p>
+      </div>
+    );
+  }
 
   return (
     <div style={styles.card}>
-      {/* Header */}
       <div style={styles.header}>
         <div style={styles.iconWrap}>
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#7c3aed" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
@@ -91,33 +130,22 @@ export default function CarnetChallenge() {
 
       <p style={styles.subtitle}>Choisissez une thématique ou créez la vôtre</p>
 
-      {/* Theme tabs – row 1 */}
       <div style={styles.tabRow}>
         {(["Anti-stress", "Sommeil"] as Theme[]).map((t) => (
-          <button
-            key={t}
-            style={activeTheme === t ? styles.tabActive : styles.tabInactive}
-            onClick={() => setActiveTheme(t)}
-          >
+          <button key={t} style={activeTheme === t ? styles.tabActive : styles.tabInactive} onClick={() => setActiveTheme(t)}>
             {t}
           </button>
         ))}
       </div>
 
-      {/* Theme tabs – row 2 */}
       <div style={styles.tabRow}>
         {(["Mouvement", "Autre"] as Theme[]).map((t) => (
-          <button
-            key={t}
-            style={activeTheme === t ? styles.tabActive : styles.tabInactive}
-            onClick={() => setActiveTheme(t)}
-          >
+          <button key={t} style={activeTheme === t ? styles.tabActive : styles.tabInactive} onClick={() => setActiveTheme(t)}>
             {t}
           </button>
         ))}
       </div>
 
-      {/* Challenge list */}
       <div style={styles.list}>
         {challenges[activeTheme].map((challenge) => (
           <label key={challenge.id} style={styles.item}>
@@ -141,7 +169,6 @@ export default function CarnetChallenge() {
         ))}
       </div>
 
-      {/* Custom input */}
       <div style={styles.inputRow}>
         <input
           type="text"
@@ -156,7 +183,6 @@ export default function CarnetChallenge() {
         </button>
       </div>
 
-      {/* Reset */}
       <div style={styles.resetRow}>
         <button onClick={resetList} style={styles.resetBtn}>
           Réinitialiser la liste
@@ -166,163 +192,23 @@ export default function CarnetChallenge() {
   );
 }
 
-/* ── Inline styles ── */
 const styles: Record<string, React.CSSProperties> = {
-  card: {
-    background: "#ffffff",
-    borderRadius: "16px",
-    boxShadow: "0 4px 24px rgba(124,58,237,0.10)",
-    padding: "24px 28px 20px",
-    width: "320px",
-    fontFamily: "'Nunito', 'Segoe UI', sans-serif",
-    border: "1px solid #ede9fe",
-  },
-  header: {
-    display: "flex",
-    alignItems: "center",
-    gap: "10px",
-    marginBottom: "4px",
-  },
-  iconWrap: {
-    background: "#ede9fe",
-    borderRadius: "8px",
-    width: "32px",
-    height: "32px",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    flexShrink: 0,
-  },
-  title: {
-    fontWeight: 700,
-    fontSize: "17px",
-    color: "#1e1b4b",
-    letterSpacing: "-0.3px",
-  },
-  subtitle: {
-    fontSize: "12px",
-    color: "#8b5cf6",
-    marginBottom: "14px",
-    marginTop: "2px",
-    fontWeight: 500,
-  },
-  tabRow: {
-    display: "flex",
-    gap: "8px",
-    marginBottom: "8px",
-  },
-  tabActive: {
-    flex: 1,
-    padding: "7px 0",
-    background: "#7c3aed",
-    color: "#fff",
-    border: "none",
-    borderRadius: "8px",
-    fontWeight: 700,
-    fontSize: "13px",
-    cursor: "pointer",
-    transition: "background 0.18s",
-    fontFamily: "inherit",
-  },
-  tabInactive: {
-    flex: 1,
-    padding: "7px 0",
-    background: "transparent",
-    color: "#6d28d9",
-    border: "1.5px solid #ddd6fe",
-    borderRadius: "8px",
-    fontWeight: 600,
-    fontSize: "13px",
-    cursor: "pointer",
-    transition: "background 0.18s",
-    fontFamily: "inherit",
-  },
-  list: {
-    marginTop: "16px",
-    display: "flex",
-    flexDirection: "column",
-    gap: "10px",
-    minHeight: "88px",
-  },
-  item: {
-    display: "flex",
-    alignItems: "center",
-    gap: "10px",
-    cursor: "pointer",
-    background: "#faf5ff",
-    borderRadius: "8px",
-    padding: "8px 12px",
-    border: "1px solid #ede9fe",
-    transition: "background 0.14s",
-  },
-  checkboxUnchecked: {
-    width: "18px",
-    height: "18px",
-    borderRadius: "5px",
-    border: "1.8px solid #c4b5fd",
-    background: "#fff",
-    flexShrink: 0,
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  checkboxChecked: {
-    width: "18px",
-    height: "18px",
-    borderRadius: "5px",
-    border: "1.8px solid #7c3aed",
-    background: "#7c3aed",
-    flexShrink: 0,
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  itemLabel: {
-    fontSize: "13.5px",
-    fontWeight: 500,
-    transition: "color 0.2s",
-  },
-  inputRow: {
-    display: "flex",
-    gap: "8px",
-    marginTop: "16px",
-  },
-  input: {
-    flex: 1,
-    padding: "8px 12px",
-    border: "1.5px solid #ddd6fe",
-    borderRadius: "8px",
-    fontSize: "13px",
-    fontFamily: "inherit",
-    color: "#374151",
-    outline: "none",
-    background: "#faf5ff",
-  },
-  addBtn: {
-    padding: "8px 16px",
-    background: "#7c3aed",
-    color: "#fff",
-    border: "none",
-    borderRadius: "8px",
-    fontWeight: 700,
-    fontSize: "13px",
-    cursor: "pointer",
-    fontFamily: "inherit",
-    whiteSpace: "nowrap",
-  },
-  resetRow: {
-    display: "flex",
-    justifyContent: "flex-end",
-    marginTop: "10px",
-  },
-  resetBtn: {
-    background: "none",
-    border: "none",
-    color: "#a78bfa",
-    fontSize: "12px",
-    cursor: "pointer",
-    fontFamily: "inherit",
-    textDecoration: "underline",
-    padding: 0,
-  },
+  card: { background: "#ffffff", borderRadius: "16px", boxShadow: "0 4px 24px rgba(124,58,237,0.10)", padding: "24px 28px 20px", width: "320px", fontFamily: "'Nunito', 'Segoe UI', sans-serif", border: "1px solid #ede9fe" },
+  header: { display: "flex", alignItems: "center", gap: "10px", marginBottom: "4px" },
+  iconWrap: { background: "#ede9fe", borderRadius: "8px", width: "32px", height: "32px", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 },
+  title: { fontWeight: 700, fontSize: "17px", color: "#1e1b4b", letterSpacing: "-0.3px" },
+  subtitle: { fontSize: "12px", color: "#8b5cf6", marginBottom: "14px", marginTop: "2px", fontWeight: 500 },
+  tabRow: { display: "flex", gap: "8px", marginBottom: "8px" },
+  tabActive: { flex: 1, padding: "7px 0", background: "#7c3aed", color: "#fff", border: "none", borderRadius: "8px", fontWeight: 700, fontSize: "13px", cursor: "pointer", transition: "background 0.18s", fontFamily: "inherit" },
+  tabInactive: { flex: 1, padding: "7px 0", background: "transparent", color: "#6d28d9", border: "1.5px solid #ddd6fe", borderRadius: "8px", fontWeight: 600, fontSize: "13px", cursor: "pointer", transition: "background 0.18s", fontFamily: "inherit" },
+  list: { marginTop: "16px", display: "flex", flexDirection: "column", gap: "10px", minHeight: "88px" },
+  item: { display: "flex", alignItems: "center", gap: "10px", cursor: "pointer", background: "#faf5ff", borderRadius: "8px", padding: "8px 12px", border: "1px solid #ede9fe", transition: "background 0.14s" },
+  checkboxUnchecked: { width: "18px", height: "18px", borderRadius: "5px", border: "1.8px solid #c4b5fd", background: "#fff", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center" },
+  checkboxChecked: { width: "18px", height: "18px", borderRadius: "5px", border: "1.8px solid #7c3aed", background: "#7c3aed", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center" },
+  itemLabel: { fontSize: "13.5px", fontWeight: 500, transition: "color 0.2s" },
+  inputRow: { display: "flex", gap: "8px", marginTop: "16px" },
+  input: { flex: 1, padding: "8px 12px", border: "1.5px solid #ddd6fe", borderRadius: "8px", fontSize: "13px", fontFamily: "inherit", color: "#374151", outline: "none", background: "#faf5ff" },
+  addBtn: { padding: "8px 16px", background: "#7c3aed", color: "#fff", border: "none", borderRadius: "8px", fontWeight: 700, fontSize: "13px", cursor: "pointer", fontFamily: "inherit", whiteSpace: "nowrap" },
+  resetRow: { display: "flex", justifyContent: "flex-end", marginTop: "10px" },
+  resetBtn: { background: "none", border: "none", color: "#a78bfa", fontSize: "12px", cursor: "pointer", fontFamily: "inherit", textDecoration: "underline", padding: 0 },
 };

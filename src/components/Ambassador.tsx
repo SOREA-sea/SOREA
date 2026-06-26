@@ -88,7 +88,8 @@ function DevenirAmbassadriceBtn() {
       if (res.ok) {
         const data = await res.json();
         const user = data.user;
-        if (user.role === "COACH" || user.role === "AMBASSADEUR") {
+        const roles = (user.role || "").toLowerCase().split(",");
+        if (roles.includes("coach") || roles.includes("ambassador") || roles.includes("ambassadeur")) {
           router.push("/dashboard");
           return;
         } else {
