@@ -21,9 +21,8 @@ interface DashboardSidebarProps {
   notificationsCount?: number;
 }
 
-// Avatar SVG par défaut — silhouette homme ou femme, aléatoire
+// Avatar SVG par défaut — silhouette homme ou femme, stable par user
 function DefaultAvatar({ seed, size = 80 }: { seed: string; size?: number }) {
-  // déterministe selon le seed (email/prénom) — pas vraiment aléatoire, stable par user
   const isFemale = seed.charCodeAt(0) % 2 === 0;
 
   return (
@@ -37,14 +36,12 @@ function DefaultAvatar({ seed, size = 80 }: { seed: string; size?: number }) {
     >
       <rect width="80" height="80" rx="40" fill="#E5E7EB" />
       {isFemale ? (
-        // Silhouette féminine
         <>
           <ellipse cx="40" cy="28" rx="13" ry="14" fill="#9CA3AF" />
           <path
             d="M16 72c0-14.912 10.745-24 24-24s24 9.088 24 24"
             fill="#9CA3AF"
           />
-          {/* cheveux longs */}
           <path
             d="M27 32 Q26 50 28 54 Q30 56 32 54 Q33 52 33 48"
             stroke="#9CA3AF"
@@ -59,7 +56,6 @@ function DefaultAvatar({ seed, size = 80 }: { seed: string; size?: number }) {
           />
         </>
       ) : (
-        // Silhouette masculine
         <>
           <ellipse cx="40" cy="28" rx="13" ry="14" fill="#9CA3AF" />
           <path
@@ -72,6 +68,7 @@ function DefaultAvatar({ seed, size = 80 }: { seed: string; size?: number }) {
   );
 }
 
+// Liste de navigation principale (accessible à tous, même aux coachs)
 const navItems = [
   {
     href: "/dashboard",
@@ -93,26 +90,15 @@ const navItems = [
     ),
   },
   {
-    href: "/dashboard/reservations",
-    label: "Mes réservations",
-    countKey: "reservationsCount" as const,
+    href: "/dashboard/panier",
+    label: "Mon panier",
+    countKey: "reservationsCount" as const, // Conserve le badge de notification (si besoin)
     icon: (
       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
       </svg>
     ),
   },
-  {
-    href: "/dashboard/sessions",
-    label: "Mes séances",
-    countKey: "sessionsCount" as const,
-    icon: (
-      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-      </svg>
-    ),
-  },
-  
 ];
 
 const adminNavItems = [
@@ -143,7 +129,6 @@ const adminNavItems = [
       </svg>
     ),
   },
-  
 ];
 
 export default function DashboardSidebar({ user, notificationsCount = 0 }: DashboardSidebarProps) {
@@ -154,8 +139,6 @@ export default function DashboardSidebar({ user, notificationsCount = 0 }: Dashb
   const isCoach = user.role === "coach";
 
   const displayName = user.pseudo || `${user.firstName} ${user.lastName}`;
-
-  // Seed stable pour l'avatar par défaut
   const avatarSeed = useMemo(() => user.email || user.firstName, [user.email, user.firstName]);
 
   const handleLogout = async () => {
@@ -217,8 +200,6 @@ export default function DashboardSidebar({ user, notificationsCount = 0 }: Dashb
     >
       {/* ── PROFIL ── */}
       <div className="flex flex-col items-center text-center pb-6 border-b border-white/30">
-
-        {/* Avatar + crayon (modifier photo) */}
         <div className="relative mb-3 group">
           <div className="w-20 h-20 rounded-full overflow-hidden bg-gray-200 shadow-lg ring-2 ring-white/60">
             {user.avatarUrl ? (
@@ -234,7 +215,6 @@ export default function DashboardSidebar({ user, notificationsCount = 0 }: Dashb
             )}
           </div>
 
-          {/* Bouton crayon — modifier la photo uniquement */}
           <button
             onClick={() => router.push("/dashboard/profile?tab=photo")}
             className="absolute -bottom-1 -right-1 w-7 h-7 rounded-full bg-white shadow-md border border-gray-100 flex items-center justify-center text-purple-600 hover:bg-purple-50 transition-all"
@@ -247,11 +227,9 @@ export default function DashboardSidebar({ user, notificationsCount = 0 }: Dashb
           </button>
         </div>
 
-        {/* Nom + icônes messagerie et notifications */}
         <div className="flex items-center gap-2 justify-center mt-1">
-          <h3 className="font-bold text-lg text-foreground leading-tight">{displayName}</h3>
+          <h3 className="font-bold text-lg text-foreground stroke-none leading-tight">{displayName}</h3>
 
-          {/* Icône message — envoyer un message */}
           <Link
             href="/dashboard/messagerie"
             className="w-7 h-7 rounded-full flex items-center justify-center bg-white/60 hover:bg-purple-50 text-foreground/40 hover:text-purple-600 transition-all shadow-sm"
@@ -263,7 +241,6 @@ export default function DashboardSidebar({ user, notificationsCount = 0 }: Dashb
             </svg>
           </Link>
 
-          {/* Icône notifications */}
           <Link
             href="/dashboard/notifications"
             className="relative w-7 h-7 rounded-full flex items-center justify-center bg-white/60 hover:bg-purple-50 text-foreground/40 hover:text-purple-600 transition-all shadow-sm"
@@ -298,15 +275,9 @@ export default function DashboardSidebar({ user, notificationsCount = 0 }: Dashb
 
       {/* ── NAVIGATION ── */}
       <nav className="flex-1 mt-5 space-y-1.5">
-        {navItems.map((item) => {
-          // Coachs n'ont pas réservations/séances utilisateur (ils ont leur espace dédié)
-          if (isCoach && (item.href === "/dashboard/reservations" || item.href === "/dashboard/sessions")) {
-            return null;
-          }
-          return renderNavItem(item);
-        })}
+        {navItems.map((item) => renderNavItem(item))}
 
-        {/* Espace coach */}
+        {/* Espace dédié uniquement aux coachs */}
         {isCoach && (
           <>
             <div className="pt-4 pb-2 mt-2">
