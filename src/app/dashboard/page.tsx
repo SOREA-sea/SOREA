@@ -134,7 +134,7 @@ export default async function DashboardPage() {
             
             {/* Zone des boutons jumeaux avec la même classe .btn-primary */}
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mt-5">
-              <Link href="/Coaching" className="btn-primary text-center w-full sm:w-auto text-sm">
+              <Link href="/coaching" className="btn-primary text-center w-full sm:w-auto text-sm">
                 Découvrir les séances
               </Link>
               <Link href="/shop" className="btn-primary text-center w-full sm:w-auto text-sm">
