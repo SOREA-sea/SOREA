@@ -1,5 +1,5 @@
 "use client"
-import { useState, memo, useEffect } from "react";
+import { useState, memo, useEffect, useInsertionEffect } from "react";
 import { useRouter } from "next/navigation";
 import CarnetChallenge from "@/components/Carnet_challenge";
 import CarnetDivertissement from "@/components/Carnet_divertissement";
@@ -66,8 +66,9 @@ const styles = `
   .sorea-btn-commander:hover { background: #F3EEFF; }
 
   .sorea-book {
-    width: 640px;
-    height: 420px;
+    width: 860px;
+    max-width: 92vw;
+    height: 560px;
     position: relative;
     flex-shrink: 0;
   }
@@ -134,6 +135,7 @@ const styles = `
     border-right: 1.5px solid #E0D8F0;
     display: flex;
     flex-direction: column;
+    min-width: 0;
   }
 
   .sorea-page-title {
@@ -178,7 +180,6 @@ const styles = `
     align-items: center;
     justify-content: center;
     gap: 4px;
-    cursor: pointer;
   }
 
   .sorea-heart-label {
@@ -186,6 +187,16 @@ const styles = `
     font-weight: 700;
     font-family: 'Lora', Georgia, serif;
     margin-top: -8px;
+  }
+
+  .sorea-mood-message {
+    font-size: 12.5px;
+    font-weight: 600;
+    color: #5A4A7A;
+    text-align: center;
+    max-width: 200px;
+    line-height: 1.4;
+    margin: 0;
   }
 
   /* RIGHT PAGE */
@@ -196,6 +207,7 @@ const styles = `
     flex-direction: column;
     justify-content: center;
     gap: 24px;
+    min-width: 0;
   }
 
   .sorea-cat-card {
@@ -283,6 +295,7 @@ const styles = `
     overflow: hidden;
     display: flex;
     flex-direction: column;
+    min-width: 0;
   }
 
   /* Vue cartes */
@@ -293,6 +306,7 @@ const styles = `
     flex-direction: column;
     justify-content: center;
     gap: 12px;
+    min-width: 0;
   }
 
   .sorea-cards-view .sorea-cat-card {
@@ -319,6 +333,7 @@ const styles = `
     display: flex;
     flex-direction: column;
     overflow: hidden;
+    min-width: 0;
   }
 
   .sorea-section-header {
@@ -352,6 +367,7 @@ const styles = `
     flex: 1;
     overflow-y: auto;
     overflow-x: hidden;
+    min-width: 0;
   }
 
   .sorea-child-wrapper > * {
@@ -365,11 +381,11 @@ const styles = `
 `;
 
 const moods = [
-  { label: "Très bien", color: "#F5E18A", textColor: "#7A6010", top: "12%", left: "52%" },
-  { label: "Bien", color: "#A8D9B8", textColor: "#2E6B47", top: "38%", left: "22%" },
-  { label: "Pas mal…", color: "#C8B8E8", textColor: "#5A3D8A", top: "38%", left: "72%" },
-  { label: "Mal", color: "#F4A09A", textColor: "#8B2E2A", top: "72%", left: "32%" },
-  { label: "Pas terrible", color: "#A8D0F0", textColor: "#1A5A8B", top: "72%", left: "70%" },
+  { label: "Très bien", color: "#F5E18A", textColor: "#7A6010", top: "12%", left: "52%", message: "Quelle belle énergie aujourd'hui, profites-en bien !" },
+  { label: "Bien", color: "#A8D9B8", textColor: "#2E6B47", top: "38%", left: "22%", message: "Une bonne journée s'annonce, continue sur cette lancée." },
+  { label: "Pas mal…", color: "#C8B8E8", textColor: "#5A3D8A", top: "38%", left: "72%", message: "Pas mal du tout, on garde ce rythme aujourd'hui." },
+  { label: "Mal", color: "#F4A09A", textColor: "#8B2E2A", top: "72%", left: "32%", message: "Une journée plus difficile. Sois doux avec toi-même aujourd'hui." },
+  { label: "Pas terrible", color: "#A8D0F0", textColor: "#1A5A8B", top: "72%", left: "70%", message: "Ça n'a pas l'air facile. Prends les choses une à la fois." },
 ];
 
 const Heart = memo(({ color, text, textColor }: { color: string; text?: string; textColor?: string }) => (
@@ -399,14 +415,70 @@ Heart.displayName = 'Heart';
 
 export default function CarnetC({ onClose, isDedicated = false, initialMood = null, initialSection = null }: { onClose?: () => void; isDedicated?: boolean; initialMood?: string | null; initialSection?: Section }) {
   const router = useRouter();
+  const STYLE_ID = "carnet-c-styles";
+  useInsertionEffect(() => {
+  if (document.getElementById(STYLE_ID)) return;
+  const tag = document.createElement("style");
+  tag.id = STYLE_ID;
+  tag.textContent = styles;
+  document.head.appendChild(tag);
+}, []);
   const [selectedMood, setSelectedMood] = useState<string | null>(null);
   const [activeSection, setActiveSection] = useState<Section>(null);
 
-  // Initialiser avec les props si fournies
   useEffect(() => {
-    if (initialMood) setSelectedMood(initialMood);
-    if (initialSection) setActiveSection(initialSection);
+    let annule = false;
+
+    async function init() {
+      // La BDD est toujours la source de vérité : elle gère déjà le "nouvel état chaque jour"
+      // via la clé composite userId_date côté API. On va donc TOUJOURS la consulter en premier,
+      // pour ne jamais laisser un mood périmé venant de l'URL écraser l'état réel du jour.
+      try {
+        const res = await fetch("/api/carnet/feeling");
+        const data = await res.json();
+        if (annule) return;
+
+        if (data.data) {
+          // Une humeur a déjà été enregistrée AUJOURD'HUI : c'est elle qui fait foi.
+          setSelectedMood(data.data);
+        } else if (initialMood) {
+          // Rien d'enregistré pour aujourd'hui, mais une valeur arrive via l'URL
+          // (cas du widget non-dédié) : on l'affiche et on la sauvegarde.
+          setSelectedMood(initialMood);
+          try {
+            await fetch("/api/carnet/feeling", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ moodLabel: initialMood }),
+            });
+          } catch (err) {
+            console.error("Erreur sauvegarde météo intérieure:", err);
+          }
+        }
+      } catch (err) {
+        console.error("Erreur chargement météo intérieure:", err);
+      }
+
+      if (initialSection) setActiveSection(initialSection);
+    }
+
+    init();
+    return () => { annule = true; };
   }, [initialMood, initialSection]);
+
+  const choisirMood = async (label: string) => {
+    setSelectedMood(label);
+    try {
+      const res = await fetch("/api/carnet/feeling", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ moodLabel: label }),
+      });
+      if (!res.ok) throw new Error("Échec sauvegarde météo");
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
   const mood = moods.find((m) => m.label === selectedMood) ?? null;
   const moodSelected = selectedMood !== null;
@@ -430,7 +502,7 @@ export default function CarnetC({ onClose, isDedicated = false, initialMood = nu
 
   return (
     <>
-      <style>{styles}</style>
+      
       <div className="sorea-wrap">
         {/* Sidebar */}
         <div className="sorea-sidebar">
@@ -468,23 +540,20 @@ export default function CarnetC({ onClose, isDedicated = false, initialMood = nu
                       backgroundColor: m.color,
                       color: m.textColor,
                     }}
-                    onClick={() => setSelectedMood(m.label)}
+                    onClick={() => choisirMood(m.label)}
                   >
                     {m.label}
                   </button>
                 ))}
 
                 {moodSelected && mood && (
-                  <div
-                    className="sorea-heart-area"
-                    onClick={() => setSelectedMood(null)}
-                    title="Changer d'humeur"
-                  >
+                  <div className="sorea-heart-area">
                     <Heart
                       color={mood.color}
                       text={mood.label === 'Mal' ? undefined : mood.label}
                       textColor={'#000'}
                     />
+                    <p className="sorea-mood-message">{mood.message}</p>
                   </div>
                 )}
               </div>
