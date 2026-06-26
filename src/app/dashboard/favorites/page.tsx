@@ -108,8 +108,8 @@ export default function FavoritesPage() {
   };
 
   const packs: PackFavorite[] = [
-    ...coaches.map((fav) => ({ ...fav, type: "coach" })),
-    ...sessions.map((fav) => ({ ...fav, type: "session" })),
+    ...coaches.map((fav) => ({ ...fav, type: "coach" as const })),
+    ...sessions.map((fav) => ({ ...fav, type: "session" as const })),
   ].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 
   const tabs: { key: TabType; label: string; count: number }[] = [
