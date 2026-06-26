@@ -4,7 +4,6 @@ import prisma from "@/lib/prisma";
 import Link from "next/link";
 import MenstrualCalendar from "@/components/MenstrualCalendar";
 import StreakTracker from "@/components/StreakTracker";
-import { countMotAMoiMessagesForUser } from "@/lib/motAMoiMessages";
 
 export default async function DashboardPage() {
   const cookieStore = await cookies();
@@ -21,7 +20,8 @@ export default async function DashboardPage() {
 
   const user = session.user;
 
-  const [favoriteProducts, favoriteCoaches, favoriteSessions, reservations] =
+  // Récupération des favoris et du nombre d'articles en attente (panier)
+  const [favoriteProducts, favoriteCoaches, favoriteSessions, cartCount] =
     await Promise.all([
       prisma.favoriteProduct.count({ where: { userId: user.id } }),
       prisma.favoriteCoach.count({ where: { userId: user.id } }),
@@ -56,8 +56,7 @@ export default async function DashboardPage() {
     orderBy: { session: { startsAt: "asc" } },
   });
 
-  // Seulement Favoris et Réservations — Messages et Panier retirés
-  // (messagerie = bouton icône dans la sidebar, panier = sous la navbar)
+  // Liste des stats ajustée avec uniquement Favoris et Mon Panier
   const stats = [
     {
       label: "Favoris",
@@ -71,15 +70,15 @@ export default async function DashboardPage() {
       href: "/dashboard/favorites",
     },
     {
-      label: "Réservations",
-      value: reservations,
+      label: "Mon panier",
+      value: cartCount,
       icon: (
         <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
         </svg>
       ),
       color: "bg-violet-100 text-violet-600",
-      href: "/dashboard/reservations",
+      href: "/dashboard/panier",
     },
   ];
 
@@ -95,7 +94,7 @@ export default async function DashboardPage() {
         </p>
       </header>
 
-      {/* Stats : Favoris + Réservations uniquement */}
+      {/* Les deux carrés : Favoris et Mon Panier */}
       <div className="grid grid-cols-2 gap-5">
         {stats.map((stat) => (
           <Link
@@ -114,11 +113,11 @@ export default async function DashboardPage() {
         ))}
       </div>
 
-      {/* Prochaines séances */}
+      {/* Grand cadre : Mon panier */}
       <section>
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-xl font-bold">Prochaines séances</h2>
-          <Link href="/dashboard/sessions" className="text-sm text-purple-600 font-semibold hover:text-purple-800 transition-colors">
+          <h2 className="text-xl font-bold">Mon panier</h2>
+          <Link href="/dashboard/panier" className="text-sm text-purple-600 font-semibold hover:text-purple-800 transition-colors">
             Tout voir →
           </Link>
         </div>
@@ -131,10 +130,17 @@ export default async function DashboardPage() {
               </svg>
             </div>
             <p className="text-foreground/70 font-medium">Aucune séance à venir</p>
-            <p className="text-foreground/50 text-sm mt-1">Explorez nos séances de coaching pour commencer !</p>
-            <Link href="/#sessions" className="btn-primary inline-block mt-4 text-sm">
-              Découvrir les séances
-            </Link>
+            <p className="text-foreground/50 text-sm mt-1">Explorez nos séances de coaching ou notre boutique pour commencer !</p>
+            
+            {/* Zone des boutons jumeaux avec la même classe .btn-primary */}
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mt-5">
+              <Link href="/Coaching" className="btn-primary text-center w-full sm:w-auto text-sm">
+                Découvrir les séances
+              </Link>
+              <Link href="/shop" className="btn-primary text-center w-full sm:w-auto text-sm">
+                Shopping
+              </Link>
+            </div>
           </div>
         ) : (
           <div className="space-y-3">
@@ -173,35 +179,6 @@ export default async function DashboardPage() {
                 </div>
               );
             })}
-          </div>
-        )}
-      </section>
-
-      {/* Réservations en attente */}
-      <section>
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-xl font-bold">Réservations en attente</h2>
-          <Link href="/dashboard/reservations" className="text-sm text-purple-600 font-semibold hover:text-purple-800 transition-colors">
-            Tout voir →
-          </Link>
-        </div>
-
-        {reservations === 0 ? (
-          <div className="glass-panel rounded-3xl p-8 text-center">
-            <p className="text-foreground/70 font-medium">Aucune réservation en attente</p>
-            <p className="text-foreground/50 text-sm mt-1">Cliquez sur Réserver sur une séance pour l'ajouter ici.</p>
-            <Link href="/#sessions" className="btn-primary inline-block mt-4 text-sm">
-              Voir les séances
-            </Link>
-          </div>
-        ) : (
-          <div className="glass-panel rounded-3xl p-5">
-            <p className="text-foreground/70 font-medium">
-              Vous avez {reservations} réservation{reservations > 1 ? "s" : ""} en attente.
-            </p>
-            <Link href="/dashboard/reservations" className="btn-primary inline-block mt-4 text-sm">
-              Gérer mes réservations
-            </Link>
           </div>
         )}
       </section>
