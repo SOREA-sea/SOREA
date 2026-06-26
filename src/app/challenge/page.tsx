@@ -9,7 +9,7 @@ import MenstrualCalendar from "@/components/MenstrualCalendar";
 export default function MiroirDesAffirmations() {
     const sections = [
         {
-            img: "/image_ambassadrice_svg/miroire.png",
+            img: "/image_mirror/miroire.png",
             alt: "miroir",
             imgWidth: "280px",
             title: "Miroir mon beau miroir",
