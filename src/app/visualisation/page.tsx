@@ -23,7 +23,7 @@ export default function VisualisationPage() {
           <div className="w-full mb-10">
             <Link href="/challenge">
               <button className="flex items-center gap-2 bg-white text-[#8B47FF] font-bold px-6 py-3 rounded-2xl shadow-md transition-all duration-300 hover:scale-105 hover:shadow-xl cursor-pointer border-2 border-[#8B47FF] relative z-10">
-                ← Retour.
+                ← Retour
               </button>
             </Link>
           </div>
