@@ -207,55 +207,7 @@ export default async function DashboardPage() {
       </section>
 
       {/* Accès rapide */}
-      <section>
-        <h2 className="text-xl font-bold mb-4">Accès rapide</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <Link
-            href="/dashboard/profile"
-            className="glass-panel rounded-2xl p-5 flex items-center gap-4 hover:shadow-lg transition-all hover:scale-[1.01] group"
-          >
-            <div className="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center text-purple-600 transition-transform group-hover:scale-110 shrink-0">
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-              </svg>
-            </div>
-            <div>
-              <p className="font-bold text-foreground">Modifier mon profil</p>
-              <p className="text-foreground/50 text-sm">Gérez vos informations personnelles</p>
-            </div>
-          </Link>
-
-          <Link
-            href="/dashboard/messagerie"
-            className="glass-panel rounded-2xl p-5 flex items-center gap-4 hover:shadow-lg transition-all hover:scale-[1.01] group"
-          >
-            <div className="w-12 h-12 bg-fuchsia-100 rounded-xl flex items-center justify-center text-fuchsia-600 transition-transform group-hover:scale-110 shrink-0">
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-              </svg>
-            </div>
-            <div>
-              <p className="font-bold text-foreground">Ma messagerie</p>
-              <p className="text-foreground/50 text-sm">Recevez vos messages Mot à moi</p>
-            </div>
-          </Link>
-
-          <Link
-            href="/#products"
-            className="glass-panel rounded-2xl p-5 flex items-center gap-4 hover:shadow-lg transition-all hover:scale-[1.01] group"
-          >
-            <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center text-green-600 transition-transform group-hover:scale-110 shrink-0">
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
-              </svg>
-            </div>
-            <div>
-              <p className="font-bold text-foreground">Boutique</p>
-              <p className="text-foreground/50 text-sm">Découvrez nos essentiels bien-être</p>
-            </div>
-          </Link>
-        </div>
-      </section>
+      
     </div>
   );
 }
