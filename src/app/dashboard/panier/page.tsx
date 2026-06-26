@@ -45,13 +45,22 @@ export default function CartPage() {
             Vous n'avez pas encore sélectionné de séance de coaching ni d'objet dans la boutique.
           </p>
           
-          {/* C'est cette ligne qui gère la redirection vers les coachings */}
-          <Link 
-            href="/Coaching" 
-            className="inline-block mt-8 px-6 py-3 bg-purple-600 text-white font-medium rounded-2xl hover:bg-purple-700 shadow-md transition-all duration-200"
-          >
-            Découvrir les séances
-          </Link>
+          {/* Groupe de boutons d'action avec le même design identique */}
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mt-8">
+            <Link 
+              href="/coaching" 
+              className="w-full sm:w-auto px-6 py-3 bg-purple-600 text-white font-medium rounded-2xl hover:bg-purple-700 shadow-md transition-all duration-200 text-center"
+            >
+              Découvrir les séances
+            </Link>
+            
+            <Link 
+              href="/shop" 
+              className="w-full sm:w-auto px-6 py-3 bg-purple-600 text-white font-medium rounded-2xl hover:bg-purple-700 shadow-md transition-all duration-200 text-center"
+            >
+              Visiter la boutique
+            </Link>
+          </div>
         </div>
       ) : (
         /* ─── ÉTAT PANIER PLEIN ─── */
