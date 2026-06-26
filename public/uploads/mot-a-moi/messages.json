@@ -1,0 +1,38 @@
+[
+  {
+    "userId": 17,
+    "title": "Couleurs_dans_l'assiette(2)",
+    "note": "bonjour",
+    "mediaType": "photo",
+    "fileName": "Couleurs_dans_l'assiette(2).png",
+    "fileUrl": "/uploads/mot-a-moi/17/1781957873068-Couleurs_dans_l-assiette-2-.png",
+    "mimeType": "image/png",
+    "deliveryDate": "2026-06-20T00:00:00.000Z",
+    "id": "1781957873075-nylmrz9h",
+    "createdAt": "2026-06-20T12:17:53.075Z"
+  },
+  {
+    "userId": 17,
+    "title": "téléchargement (32)",
+    "note": "Hello",
+    "mediaType": "photo",
+    "fileName": "téléchargement (32).jpg",
+    "fileUrl": "/uploads/mot-a-moi/17/1781958924089-telechargement-32-.jpg",
+    "mimeType": "image/jpeg",
+    "deliveryDate": "2026-02-20T00:00:00.000Z",
+    "id": "1781958924218-ab33g3mp",
+    "createdAt": "2026-06-20T12:35:24.218Z"
+  },
+  {
+    "userId": 17,
+    "title": "téléchargement (21)",
+    "note": "J'aime trop la neige :)",
+    "mediaType": "photo",
+    "fileName": "téléchargement (21).jpg",
+    "fileUrl": "/uploads/mot-a-moi/17/1781959961334-telechargement-21-.jpg",
+    "mimeType": "image/jpeg",
+    "deliveryDate": "2026-06-21T00:00:00.000Z",
+    "id": "1781959961429-l0fo1f0w",
+    "createdAt": "2026-06-20T12:52:41.429Z"
+  }
+]
