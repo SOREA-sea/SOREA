@@ -1,8 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
-// On réutilise la même interface pour rester raccord
 interface Note {
     id: string;
     texte: string;
@@ -12,44 +11,77 @@ interface Note {
     tag?: string;
 }
 
-// Définition des props attendues par le Journal
 interface MonJournalProps {
     recherche?: string;
     setRecherche?: (val: string) => void;
-    notesFiltrees: Note[];
-    onSupprimerNote: (id: string) => void;
+    notesFiltrees?: Note[];
+    onSupprimerNote?: (id: string) => void;
     onAjouterNote?: (texte: string) => void;
 }
 
-export default function MonJournal({ recherche: rechercheProp = "", setRecherche, notesFiltrees, onSupprimerNote, onAjouterNote }: MonJournalProps) {
+function formatDateFr(iso: string) {
+    return new Date(iso).toLocaleDateString("fr-FR", {
+        weekday: "short",
+        day: "numeric",
+        month: "short",
+    });
+}
+
+export default function MonJournal({
+    recherche: rechercheProp = "",
+    setRecherche,
+    notesFiltrees,
+    onSupprimerNote,
+    onAjouterNote,
+}: MonJournalProps) {
     const [isFormVisible, setIsFormVisible] = useState(false);
     const [nouveauTexte, setNouveauTexte] = useState("");
-    const [notesInternes, setNotesInternes] = useState<Note[]>([]);
     const [rechercheLocale, setRechercheLocale] = useState("");
+    const [notesPersistantes, setNotesPersistantes] = useState<Note[]>([]);
+    const [chargement, setChargement] = useState(true);
+
+    // Mode autonome : pas de onAjouterNote fourni par le parent
+    // → le composant charge/sauvegarde lui-même via l'API
+    const modeAutonome = !onAjouterNote;
 
     const recherche = setRecherche ? rechercheProp : rechercheLocale;
 
     const handleRechercheChange = (val: string) => {
-        if (setRecherche) {
-            setRecherche(val);
-        } else {
-            setRechercheLocale(val);
-        }
+        if (setRecherche) setRecherche(val);
+        else setRechercheLocale(val);
     };
 
-    // 1. On détermine d'abord la base des notes à utiliser
-    const baseNotes = onAjouterNote ? notesFiltrees : [...notesInternes, ...notesFiltrees];
+    useEffect(() => {
+        if (!modeAutonome) {
+            setChargement(false);
+            return;
+        }
+        fetch("/api/carnet/journal")
+            .then((r) => r.json())
+            .then((res) => {
+                const notes: Note[] = (res.data || []).map((n: any) => ({
+                    id: String(n.id),
+                    texte: n.texte,
+                    date: formatDateFr(n.createdAt),
+                    humeurEmoji: n.humeurEmoji,
+                    humeurLabel: n.humeurLabel,
+                    tag: n.tag,
+                }));
+                setNotesPersistantes(notes);
+            })
+            .catch((err) => console.error("Erreur chargement journal:", err))
+            .finally(() => setChargement(false));
+    }, [modeAutonome]);
 
-    // 2. LOGIQUE DE RECHERCHE TEXTE GLOBALE
+    const baseNotes = modeAutonome ? notesPersistantes : (notesFiltrees || []);
+
     const notesAffichees = baseNotes.filter((note) => {
         const rechercheFormatee = recherche.toLowerCase();
         if (!rechercheFormatee) return true;
-
         const texteFormate = note.texte.toLowerCase();
         const tagFormate = note.tag?.toLowerCase() ?? "";
         const humeurFormatee = note.humeurLabel?.toLowerCase() ?? "";
         const dateFormatee = note.date.toLowerCase();
-
         return (
             texteFormate.includes(rechercheFormatee) ||
             tagFormate.includes(rechercheFormatee) ||
@@ -58,36 +90,88 @@ export default function MonJournal({ recherche: rechercheProp = "", setRecherche
         );
     });
 
-    const handleAjouterNote = () => {
+    const handleAjouterNote = async () => {
         const texteNettoye = nouveauTexte.trim();
         if (!texteNettoye) return;
 
-        const nouvelleNote: Note = {
-            id: Date.now().toString(),
+        if (!modeAutonome) {
+            onAjouterNote?.(texteNettoye);
+            setNouveauTexte("");
+            setIsFormVisible(false);
+            return;
+        }
+
+        const noteTemp: Note = {
+            id: `temp-${Date.now()}`,
             texte: texteNettoye,
-            date: new Date().toLocaleDateString("fr-FR", {
-                weekday: "short",
-                day: "numeric",
-                month: "short",
-            }),
+            date: formatDateFr(new Date().toISOString()),
             humeurEmoji: "😊",
             humeurLabel: "Humeur",
             tag: "rapide",
         };
-
-        if (onAjouterNote) {
-            onAjouterNote(texteNettoye);
-        } else {
-            setNotesInternes((prev) => [nouvelleNote, ...prev]);
-        }
-
+        setNotesPersistantes((prev) => [noteTemp, ...prev]);
         setNouveauTexte("");
         setIsFormVisible(false);
+
+        try {
+            const res = await fetch("/api/carnet/journal", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    texte: texteNettoye,
+                    humeurEmoji: "😊",
+                    humeurLabel: "Humeur",
+                    tag: "rapide",
+                }),
+            });
+            if (!res.ok) throw new Error("Échec sauvegarde");
+            const data = await res.json();
+            setNotesPersistantes((prev) =>
+                prev.map((n) =>
+                    n.id === noteTemp.id
+                        ? {
+                              id: String(data.data.id),
+                              texte: data.data.texte,
+                              date: formatDateFr(data.data.createdAt),
+                              humeurEmoji: data.data.humeurEmoji,
+                              humeurLabel: data.data.humeurLabel,
+                              tag: data.data.tag,
+                          }
+                        : n
+                )
+            );
+        } catch (err) {
+            console.error(err);
+            setNotesPersistantes((prev) => prev.filter((n) => n.id !== noteTemp.id));
+        }
     };
+
+    const handleSupprimerNote = async (id: string) => {
+        if (!modeAutonome) {
+            onSupprimerNote?.(id);
+            return;
+        }
+        const ancien = notesPersistantes;
+        setNotesPersistantes((prev) => prev.filter((n) => n.id !== id));
+        try {
+            const res = await fetch(`/api/carnet/journal?id=${id}`, { method: "DELETE" });
+            if (!res.ok) throw new Error("Échec suppression");
+        } catch (err) {
+            console.error(err);
+            setNotesPersistantes(ancien);
+        }
+    };
+
+    if (modeAutonome && chargement) {
+        return (
+            <div className="bg-white p-6 rounded-3xl shadow-sm border border-gray-100 text-center text-xs text-gray-400">
+                Chargement de votre journal…
+            </div>
+        );
+    }
 
     return (
         <div className="bg-white p-6 rounded-3xl shadow-sm border border-gray-100">
-            {/* Header */}
             <div className="flex items-start gap-3 mb-4">
                 <div className="w-8 h-8 rounded-lg bg-[#7b2fbf] flex items-center justify-center text-white text-sm">
                     📓
@@ -98,7 +182,6 @@ export default function MonJournal({ recherche: rechercheProp = "", setRecherche
                 </div>
             </div>
 
-            {/* Barre de Recherche et Bouton Nouvelle Entrée */}
             <div className="flex gap-2 items-center mb-4">
                 <div className="relative flex-1">
                     <span className="absolute left-3 top-2.5 text-gray-400 text-xs">🔍</span>
@@ -151,7 +234,6 @@ export default function MonJournal({ recherche: rechercheProp = "", setRecherche
                 </div>
             )}
 
-            {/* Liste des entrées de journal */}
             <div className="space-y-4">
                 {notesAffichees.length === 0 ? (
                     <div className="text-center py-8 text-xs text-gray-400 border border-dashed border-gray-200 rounded-2xl bg-gray-50/30">
@@ -160,7 +242,6 @@ export default function MonJournal({ recherche: rechercheProp = "", setRecherche
                 ) : (
                     notesAffichees.map((note) => (
                         <div key={note.id} className="p-4 bg-gray-50/40 rounded-2xl border border-gray-100/70 space-y-3">
-                            {/* Meta Données (Humeur, Date, Supprimer) */}
                             <div className="flex justify-between items-center text-[11px]">
                                 <div className="flex items-center gap-1.5 font-medium text-[#7b2fbf]">
                                     <span>{note.humeurEmoji}</span>
@@ -168,19 +249,15 @@ export default function MonJournal({ recherche: rechercheProp = "", setRecherche
                                     <span className="text-gray-400 font-normal">• {note.date}</span>
                                 </div>
                                 <button
-                                    onClick={() => onSupprimerNote(note.id)}
+                                    onClick={() => handleSupprimerNote(note.id)}
                                     className="text-gray-400 hover:text-red-500 transition underline cursor-pointer"
                                 >
                                     Supprimer
                                 </button>
                             </div>
-
-                            {/* Contenu du texte */}
                             <p className="text-xs text-gray-800 leading-relaxed font-normal whitespace-pre-wrap">
                                 {note.texte}
                             </p>
-
-                            {/* Badge Tag */}
                             {note.tag && (
                                 <div className="pt-1">
                                     <span className="text-[10px] px-2 py-0.5 bg-[#fef3c7] text-[#d97706] rounded font-medium">
