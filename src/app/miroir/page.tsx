@@ -12,6 +12,19 @@ export default function NouvellePage() {
   const audioStreamRef = useRef<MediaStream | null>(null);
   const [microActive, setMicroActive] = useState(true);
 
+// --- NOUVEAUX ÉTATS POUR L'IA ET LES RESTRICTIONS ---
+  const [affirmation, setAffirmation] = useState<string>("");
+  const [loading, setLoading] = useState<boolean>(false);
+  const [affirmationCount, setAffirmationCount] = useState<number>(0);
+  
+  // Simulation de l'utilisateur (à remplacer par mes vrais states ou props globaux)
+  const [loggedUser, setLoggedUser] = useState<any>({ name: "Test" }); // Mettre null pour tester le cas "non-inscrit"
+  const [hasSubscription, setHasSubscription] = useState<boolean>(false);
+
+  // --- NOUVEAUX ÉTATS RECONNAISSANCE VOCALE ---
+  const [isListening, setIsListening] = useState<boolean>(false);
+  const recognitionRef = useRef<any>(null);
+
     const startCamera = async () => {
   try {
     const stream = await navigator.mediaDevices.getUserMedia({
@@ -70,6 +83,7 @@ const stopMicro = () => {
   }
 
   setMicroActive(false);
+  if (recognitionRef.current) recognitionRef.current.stop(); //couper l'écoute si on éteint le micro manuellement
 };
 
 const toggleMicro = () => {
@@ -80,10 +94,112 @@ const toggleMicro = () => {
   }
 };
 
+// Charger le compteur d'affirmations du jour au démarrage
+  useEffect(() => {
+    const today = new Date().toISOString().split('T')[0];
+    const storedData = localStorage.getItem(`sorea_affirmations_${today}`);
+    if (storedData) {
+      setAffirmationCount(parseInt(storedData, 10));
+    }
+  }, []);
+
+  // --- FONCTION QUI APPELLE GEMINI ---
+  const genererAffirmationMiroir = async () => {
+    const today = new Date().toISOString().split('T')[0];
+    
+    // Définition des limites quotidiennes
+    let maxLimit = 3; // Utilisateur déconnecté / non inscrit
+    if (loggedUser) {
+      maxLimit = hasSubscription ? 999 : 5; // Inscrit sans abonnement = 5 max
+    }
+
+    if (affirmationCount >= maxLimit) {
+      alert(`Limite quotidienne atteinte ! Tu as utilisé tes ${maxLimit} reflets du jour. Reviens demain ! ✨`);
+      return;
+    }
+
+    setLoading(true);
+    setAffirmation("");
+
+    try {
+      // Phase fictive passée en paramètre (sera dynamique selon ton calendrier plus tard)
+      const phaseActuelle = "Printemps"; 
+      
+      const res = await fetch(`/api/miroir?phase=${phaseActuelle}`);
+      const data = await res.json();
+      
+      if (data.affirmation) {
+        setAffirmation(data.affirmation);
+        
+        // Mettre à jour et sauvegarder le compteur
+        const nextCount = affirmationCount + 1;
+        setAffirmationCount(nextCount);
+        localStorage.setItem(`sorea_affirmations_${today}`, nextCount.toString());
+      } else {
+        setAffirmation("Une petite erreur est survenue, réessaye dans un instant.");
+      }
+    } catch (error) {
+      console.error("Erreur API Miroir:", error);
+      setAffirmation("Impossible de se connecter au Miroir pour le moment.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // --- FONCTIONS DE RECONNAISSANCE VOCALE AUTOMATIQUE ---
+const startSpeechRecognition = (textToMatch: string) => {
+  if (!microActive || !textToMatch) return;
+
+  const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+  if (!SpeechRecognition) return;
+
+  if (recognitionRef.current) {
+    recognitionRef.current.abort();
+  }
+
+  const recognition = new SpeechRecognition();
+  recognition.lang = "fr-FR";
+  recognition.continuous = true;
+  recognition.interimResults = true;
+
+  recognition.onstart = () => setIsListening(true);
+  recognition.onend = () => setIsListening(false);
+
+  recognition.onresult = (event: any) => {
+    let currentTranscript = "";
+    for (let i = event.resultIndex; i < event.results.length; ++i) {
+      currentTranscript += event.results[i][0].transcript;
+    }
+
+    const clean = (str: string) => str.toLowerCase().replace(/[.,\/#!$%\^&\*;:{}=\-_`~()?"']/g, "").trim();
+    const spokenText = clean(currentTranscript);
+    const targetText = clean(textToMatch);
+
+    // Si l'utilisatrice a prononcé l'affirmation, on passe à la suite
+    if (spokenText.length > 5 && (targetText.includes(spokenText) || spokenText.includes(targetText))) {
+      recognition.onend = null;
+      recognition.stop();
+      genererAffirmationMiroir(); // Déclenche l'IA suivante !
+    }
+  };
+
+  recognitionRef.current = recognition;
+  recognition.start();
+};
+
+// Relancer l'écoute dès qu'une nouvelle affirmation arrive
+useEffect(() => {
+  if (affirmation && microActive) {
+    const timer = setTimeout(() => {
+      startSpeechRecognition(affirmation);
+    }, 500);
+    return () => clearTimeout(timer);
+  }
+}, [affirmation, microActive]);
+
 useEffect(() => { //Dès que l'utilisatrice clique sur <Link href="/challenge ou n'importe quelle autre page du site, la caméra et le micro sont automatiquement coupés.">
   startCamera();
   startMicro();
-
   return () => {
     stopCamera();
     stopMicro();
@@ -196,9 +312,12 @@ useEffect(() => { //Si l'utilisatrice change d'onglet ou minimise la fenêtre, l
       className="w-14 h-14"
     />
   </button>
+
+{/* Quand le micro est désactivé, le bouton "Suivant" appelle l'IA */}
   {!microActive && ( //Cette condition --> si le micro est désactivé, le bouton "suivant" s'affiche.
   <button
-    onClick={() => console.log("Étape suivante")}
+    onClick={genererAffirmationMiroir}
+    disabled={loading}
     className="
       absolute
       bottom-[120px]
@@ -219,13 +338,40 @@ useEffect(() => { //Si l'utilisatrice change d'onglet ou minimise la fenêtre, l
 
       hover:scale-105
       hover:shadow-xl
+
+      disabled:opacity-50 
     "
   >
-    Suivant
+    {loading ? "Chargement..." : "Suivant"}
   </button>
 )}
             </div>
-            
+ {/* --- AJOUT DE LA CONSIGNE + TEXTE GENERÉ --- */}
+{affirmation && (
+  <div className="mt-4 max-w-[500px] flex flex-col items-center gap-3">
+    {/* La consigne dynamique */}
+    <div className="flex items-center gap-2 px-4 py-1.5 bg-purple-100 text-[#8B47FF] rounded-full text-sm font-semibold animate-pulse">
+      <span className="w-2 h-2 rounded-full bg-[#8B47FF]"></span>
+      {isListening ? "Répétez à haute voix ce que vous voyez pour passer à la suivante..." : "Micro en attente..."}
+    </div>
+
+    {/* Ton bloc d'affirmation d'origine */}
+    <div className="text-center p-6 bg-white border border-purple-200 rounded-2xl shadow-md">
+      <p className="text-xl italic font-medium text-purple-900">"{affirmation}"</p>
+      <span className="text-xs text-gray-400 block mt-3">
+        Reflet généré ({affirmationCount} utilisé{affirmationCount > 1 ? 's' : ''} aujourd'hui)
+      </span>
+    </div>
+  </div>
+)}
+
+{/* Petit message s'il n'y a pas encore d'affirmation */}
+{!affirmation && (
+  <p className="text-gray-500 text-sm italic font-medium max-w-[300px] text-center">
+    Cliquez sur "Suivant" pour voir votre premier reflet...
+  </p>
+)}
+
           </div>
         </div>
       </main>
