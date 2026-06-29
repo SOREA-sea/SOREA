@@ -13,13 +13,15 @@ interface SessionCardProps{
 
 export default function SessionCard({id, title, price, kind, imageSrc}: SessionCardProps){
   const [isSaving, setIsSaving] = useState(false);
+  const [added, setAdded] = useState(false);
 
   const reserveLater = async () => {
     if (!id) return;
 
     setIsSaving(true);
     try {
-      const res = await fetch('/api/dashboard/reservations', {
+      // Add session to cart via dedicated API
+      const res = await fetch('/api/cart/session', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ sessionId: id }),
@@ -32,14 +34,17 @@ export default function SessionCard({id, title, price, kind, imageSrc}: SessionC
 
       const data = await res.json().catch(() => ({}));
       if (!res.ok) {
-        alert(data.error || 'Impossible d’ajouter cette réservation');
+        alert(data.error || 'Impossible d’ajouter cette séance au panier');
         return;
       }
 
-      alert('Séance ajoutée à vos réservations');
+      // Notify cart UI and give feedback
+      window.dispatchEvent(new Event('cart-updated'));
+      setAdded(true);
+      setTimeout(() => setAdded(false), 2000);
     } catch (error) {
-      console.error('Erreur reservation séance:', error);
-      alert('Erreur lors de la réservation');
+      console.error('Erreur ajout panier séance:', error);
+      alert('Erreur lors de l\'ajout au panier');
     } finally {
       setIsSaving(false);
     }
@@ -64,7 +69,7 @@ export default function SessionCard({id, title, price, kind, imageSrc}: SessionC
       <div className="mt-4 flex justify-between items-center">
         <span className="text-xs uppercase tracking-[0.22em] text-foreground/50">45 min</span>
         <button className="text-sm font-semibold text-violet-700 disabled:opacity-60" onClick={reserveLater} disabled={!id || isSaving}>
-          {isSaving ? 'Ajout...' : 'Réserver'}
+          {isSaving ? 'Ajout...' : added ? 'Ajouté !' : 'Réserver'}
         </button>
       </div>
     </div>
