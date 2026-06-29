@@ -12,7 +12,11 @@ export default function NouvellePage() {
   const audioStreamRef = useRef<MediaStream | null>(null);
   const [microActive, setMicroActive] = useState(true);
 
+<<<<<<< HEAD
 // --- NOUVEAUX ÉTATS POUR L'IA ET LES RESTRICTIONS ---
+=======
+// --- Nouveaux états pour l'IA et les restrictions ---
+>>>>>>> 3439d64dad54cb44abdc5fbeecf67c11fb89cfe9
   const [affirmation, setAffirmation] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
   const [affirmationCount, setAffirmationCount] = useState<number>(0);
@@ -103,14 +107,24 @@ const toggleMicro = () => {
     }
   }, []);
 
+<<<<<<< HEAD
   // --- FONCTION QUI APPELLE GEMINI ---
+=======
+  // --- Fonction qui appelle Gemini ---
+>>>>>>> 3439d64dad54cb44abdc5fbeecf67c11fb89cfe9
   const genererAffirmationMiroir = async () => {
     const today = new Date().toISOString().split('T')[0];
     
     // Définition des limites quotidiennes
+<<<<<<< HEAD
     let maxLimit = 3; // Utilisateur déconnecté / non inscrit
     if (loggedUser) {
       maxLimit = hasSubscription ? 999 : 5; // Inscrit sans abonnement = 5 max
+=======
+    let maxLimit = 3; // Limite d'utilisation pour l'Utilisateur déconnecté/non inscrit
+    if (loggedUser) {
+      maxLimit = hasSubscription ? 999 : 5; // Limite d'utilisation pour l'utilisateur inscrit mais sans l'abonnement = 5 max
+>>>>>>> 3439d64dad54cb44abdc5fbeecf67c11fb89cfe9
     }
 
     if (affirmationCount >= maxLimit) {
@@ -146,7 +160,11 @@ const toggleMicro = () => {
     }
   };
 
+<<<<<<< HEAD
   // --- FONCTIONS DE RECONNAISSANCE VOCALE AUTOMATIQUE ---
+=======
+  // --- Fonctions de reconnaissance vocale automatique ---
+>>>>>>> 3439d64dad54cb44abdc5fbeecf67c11fb89cfe9
 const startSpeechRecognition = (textToMatch: string) => {
   if (!microActive || !textToMatch) return;
 
@@ -346,7 +364,11 @@ useEffect(() => { //Si l'utilisatrice change d'onglet ou minimise la fenêtre, l
   </button>
 )}
             </div>
+<<<<<<< HEAD
  {/* --- AJOUT DE LA CONSIGNE + TEXTE GENERÉ --- */}
+=======
+ {/* --- Ajout de la consigne + texte genéré--- */}
+>>>>>>> 3439d64dad54cb44abdc5fbeecf67c11fb89cfe9
 {affirmation && (
   <div className="mt-4 max-w-[500px] flex flex-col items-center gap-3">
     {/* La consigne dynamique */}

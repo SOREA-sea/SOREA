@@ -39,4 +39,8 @@ Règles strictes de rédaction :
     console.error("Erreur Gemini Miroir:", error);
     return NextResponse.json({ error: "Erreur lors de la génération de l'affirmation" }, { status: 500 });
   }
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> 3439d64dad54cb44abdc5fbeecf67c11fb89cfe9
