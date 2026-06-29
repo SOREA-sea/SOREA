@@ -437,6 +437,7 @@ const styles = `
 `;
 
 export default function CarnetG({
+
   onClose,
   isDedicated = false,
   initialSection = null,
@@ -445,10 +446,12 @@ export default function CarnetG({
   isDedicated?: boolean;
   initialSection?: Section;
 }) {
+  const [isMounted, setIsMounted] = useState(false);
+
   const router = useRouter();
-  // ✅ En mode dédié, le "Saviez-vous" est ouvert par défaut (pas besoin de cliquer pour débloquer)
+  //  En mode dédié, le "Saviez-vous" est ouvert par défaut (pas besoin de cliquer pour débloquer)
   const [isOpen, setIsOpen] = useState(isDedicated);
-  // ✅ initialSection pré-sélectionne la bonne section dès le montage
+  //  initialSection pré-sélectionne la bonne section dès le montage
   const [activeSection, setActiveSection] = useState<Section>(initialSection);
   const [currentText, setCurrentText] = useState<SavezVousText>(FALLBACK);
   const [loading, setLoading] = useState(true);
@@ -498,7 +501,7 @@ export default function CarnetG({
     if (isDedicated) {
       setActiveSection(section);
     } else {
-      // ✅ On passe la section dans l'URL pour que la page dédiée l'ouvre directement
+      //  On passe la section dans l'URL pour que la page dédiée l'ouvre directement
       router.push(`/carnet/2?section=${section}`);
     }
   };
@@ -572,9 +575,9 @@ export default function CarnetG({
                 <div className="sorea-savez-expanded">
                   <div className="sorea-savez-expanded-title">
                     <u>{currentText.title}</u>
-                    <span className="sorea-countdown-label">
+                    {isMounted && (                    <span className="sorea-countdown-label">
                       Prochain dans {formatCountdown(secondsLeft)}
-                    </span>
+                    </span> )}
                   </div>
                   <div className="sorea-progress-bar-bg">
                     <div

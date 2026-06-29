@@ -54,7 +54,8 @@ export async function requireAuth(role?: string) {
   if (!user) {
     return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
   }
-  if (role && user.role !== role) {
+  // Normalise la casse et les espaces avant de comparer
+  if (role && !user.role?.toLowerCase().trim().split(",").map((r) => r.trim()).includes(role.toLowerCase())) {
     return NextResponse.json({ error: "Accès refusé" }, { status: 403 });
   }
   return user;

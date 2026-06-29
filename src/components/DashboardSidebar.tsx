@@ -3,6 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
+import { useMemo } from "react";
 
 interface DashboardSidebarProps {
   user: {
@@ -12,17 +13,66 @@ interface DashboardSidebarProps {
     avatarUrl: string | null;
     role: string;
     pseudo?: string | null;
-    // Stats
     favoritesCount?: number;
     reservationsCount?: number;
     sessionsCount?: number;
+    twoFactorEnabled?: boolean;
   };
+  notificationsCount?: number;
 }
 
+// Avatar SVG par défaut — silhouette homme ou femme, stable par user
+function DefaultAvatar({ seed, size = 80 }: { seed: string; size?: number }) {
+  const isFemale = seed.charCodeAt(0) % 2 === 0;
+
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 80 80"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      className="rounded-full"
+    >
+      <rect width="80" height="80" rx="40" fill="#E5E7EB" />
+      {isFemale ? (
+        <>
+          <ellipse cx="40" cy="28" rx="13" ry="14" fill="#9CA3AF" />
+          <path
+            d="M16 72c0-14.912 10.745-24 24-24s24 9.088 24 24"
+            fill="#9CA3AF"
+          />
+          <path
+            d="M27 32 Q26 50 28 54 Q30 56 32 54 Q33 52 33 48"
+            stroke="#9CA3AF"
+            strokeWidth="3"
+            fill="none"
+          />
+          <path
+            d="M53 32 Q54 50 52 54 Q50 56 48 54 Q47 52 47 48"
+            stroke="#9CA3AF"
+            strokeWidth="3"
+            fill="none"
+          />
+        </>
+      ) : (
+        <>
+          <ellipse cx="40" cy="28" rx="13" ry="14" fill="#9CA3AF" />
+          <path
+            d="M16 72c0-14.912 10.745-24 24-24s24 9.088 24 24"
+            fill="#9CA3AF"
+          />
+        </>
+      )}
+    </svg>
+  );
+}
+
+// Liste de navigation principale (accessible à tous, même aux coachs)
 const navItems = [
   {
     href: "/dashboard",
-    label: "Mon tableau de bord",
+    label: "Vue d'ensemble",
     icon: (
       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
@@ -32,32 +82,22 @@ const navItems = [
   {
     href: "/dashboard/favorites",
     label: "Mes favoris",
+    countKey: "favoritesCount" as const,
     icon: (
       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
       </svg>
     ),
-    countKey: "favoritesCount" as const,
   },
   {
-    href: "/dashboard/reservations",
-    label: "Mes réservations",
-    icon: (
-      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-      </svg>
-    ),
+    href: "/dashboard/panier",
+    label: "Mon panier",
     countKey: "reservationsCount" as const,
-  },
-  {
-    href: "/dashboard/sessions",
-    label: "Mes séances",
     icon: (
       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
       </svg>
     ),
-    countKey: "sessionsCount" as const,
   },
 ];
 
@@ -91,17 +131,15 @@ const adminNavItems = [
   },
 ];
 
-export default function DashboardSidebar({ user }: DashboardSidebarProps) {
+export default function DashboardSidebar({ user, notificationsCount = 0 }: DashboardSidebarProps) {
   const pathname = usePathname();
   const router = useRouter();
-
-  const handleEditProfile = () => router.push("/dashboard/profile");
 
   const isAdmin = user.role === "admin";
   const isCoach = user.role === "coach";
 
-  // Nom affiché : pseudo si défini, sinon prénom + nom
   const displayName = user.pseudo || `${user.firstName} ${user.lastName}`;
+  const avatarSeed = useMemo(() => user.email || user.firstName, [user.email, user.firstName]);
 
   const handleLogout = async () => {
     try {
@@ -117,7 +155,8 @@ export default function DashboardSidebar({ user }: DashboardSidebarProps) {
     item: { href: string; label: string; icon: React.ReactNode; countKey?: keyof typeof user },
     isAdminItem = false
   ) => {
-    const exactMatchPaths = ["/dashboard", "/dashboard/admin"];
+    // Ces chemins doivent matcher exactement (pas de startsWith)
+    const exactMatchPaths = ["/dashboard", "/dashboard/admin", "/dashboard/coach"];
     const isActive = exactMatchPaths.includes(item.href)
       ? pathname === item.href
       : pathname.startsWith(item.href);
@@ -142,7 +181,7 @@ export default function DashboardSidebar({ user }: DashboardSidebarProps) {
           {item.icon}
         </span>
         <span className="flex-1">{item.label}</span>
-        {count !== undefined && (
+        {count !== undefined && count > 0 && (
           <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${
             isActive
               ? isAdminItem ? "bg-red-100 text-red-700" : "bg-purple-100 text-purple-700"
@@ -162,58 +201,65 @@ export default function DashboardSidebar({ user }: DashboardSidebarProps) {
     >
       {/* ── PROFIL ── */}
       <div className="flex flex-col items-center text-center pb-6 border-b border-white/30">
-        {/* Photo de profil + bouton modifier */}
-        <div className="relative mb-3">
+        <div className="relative mb-3 group">
+          <div className="w-20 h-20 rounded-full overflow-hidden bg-gray-200 shadow-lg ring-2 ring-white/60">
+            {user.avatarUrl ? (
+              <Image
+                src={user.avatarUrl}
+                alt={displayName}
+                width={80}
+                height={80}
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <DefaultAvatar seed={avatarSeed} size={80} />
+            )}
+          </div>
+
           <button
-            onClick={handleEditProfile}
-            className="group w-20 h-20 rounded-full overflow-hidden bg-white/80 shadow-lg ring-2 ring-white/60 block cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-purple-400"
+            onClick={() => router.push("/dashboard/profile?tab=photo")}
+            className="absolute -bottom-1 -right-1 w-7 h-7 rounded-full bg-white shadow-md border border-gray-100 flex items-center justify-center text-purple-600 hover:bg-purple-50 transition-all"
             title="Modifier la photo de profil"
             aria-label="Modifier la photo de profil"
-          >
-            <Image
-              src={user.avatarUrl || "/images/logo_sorea.webp"}
-              alt={displayName}
-              width={80}
-              height={80}
-              className="w-full h-full object-cover transition-opacity group-hover:opacity-80"
-            />
-            {/* Overlay crayon au hover */}
-            <span className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/20 rounded-full">
-              <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536M9 13l6.586-6.586a2 2 0 112.828 2.828L11.828 15.828a4 4 0 01-1.414.828l-3 1 1-3a4 4 0 01.828-1.414z" />
-              </svg>
-            </span>
-          </button>
-        </div>
-
-        {/* Nom + bouton modifier infos + messagerie */}
-        <div className="flex items-center gap-2 justify-center">
-          <h3 className="font-bold text-lg text-foreground leading-tight">{displayName}</h3>
-          {/* Bouton modifier infos profil */}
-          <button
-            onClick={handleEditProfile}
-            className="w-7 h-7 rounded-full flex items-center justify-center bg-white/60 hover:bg-purple-50 text-foreground/40 hover:text-purple-600 transition-all shadow-sm"
-            title="Modifier mes informations"
-            aria-label="Modifier mes informations"
           >
             <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536M9 13l6.586-6.586a2 2 0 112.828 2.828L11.828 15.828a4 4 0 01-1.414.828l-3 1 1-3a4 4 0 01.828-1.414z" />
             </svg>
           </button>
-          {/* Bouton messagerie icône */}
+        </div>
+
+        <div className="flex items-center gap-2 justify-center mt-1">
+          <h3 className="font-bold text-lg text-foreground stroke-none leading-tight">{displayName}</h3>
+
           <Link
-            href="/dashboard/messagerie"
+            href="/mot-a-moi"
             className="w-7 h-7 rounded-full flex items-center justify-center bg-white/60 hover:bg-purple-50 text-foreground/40 hover:text-purple-600 transition-all shadow-sm"
-            title="Ma messagerie"
-            aria-label="Ma messagerie"
+            title="Messagerie"
+            aria-label="Messagerie"
           >
             <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
             </svg>
           </Link>
+
+          <Link
+            href="/dashboard/messagerie"
+            className="relative w-7 h-7 rounded-full flex items-center justify-center bg-white/60 hover:bg-purple-50 text-foreground/40 hover:text-purple-600 transition-all shadow-sm"
+            title="Notifications"
+            aria-label="Notifications"
+          >
+            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+            </svg>
+            {notificationsCount > 0 && (
+              <span className="absolute -top-0.5 -right-0.5 w-3.5 h-3.5 bg-fuchsia-500 text-white text-[8px] font-bold rounded-full flex items-center justify-center">
+                {notificationsCount > 9 ? "9+" : notificationsCount}
+              </span>
+            )}
+          </Link>
         </div>
 
-        <p className="text-foreground/50 text-xs mt-0.5">{user.email}</p>
+        <p className="text-foreground/50 text-xs mt-1">{user.email}</p>
 
         <span
           className={`mt-2 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${
@@ -228,54 +274,47 @@ export default function DashboardSidebar({ user }: DashboardSidebarProps) {
         </span>
       </div>
 
-      {/* ── STATS ── */}
-      <div className="grid grid-cols-2 gap-2 py-5 border-b border-white/30">
-        <div className="flex flex-col items-center gap-1 bg-white/50 rounded-2xl p-3">
-          <div className="w-9 h-9 rounded-xl bg-pink-50 flex items-center justify-center">
-            <svg className="w-5 h-5 text-pink-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-            </svg>
-          </div>
-          <span className="text-xl font-bold text-foreground">{user.favoritesCount ?? 0}</span>
-          <span className="text-[10px] text-foreground/50 font-medium">Favoris</span>
-        </div>
-        <div className="flex flex-col items-center gap-1 bg-white/50 rounded-2xl p-3">
-          <div className="w-9 h-9 rounded-xl bg-purple-50 flex items-center justify-center">
-            <svg className="w-5 h-5 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-            </svg>
-          </div>
-          <span className="text-xl font-bold text-foreground">{user.reservationsCount ?? 0}</span>
-          <span className="text-[10px] text-foreground/50 font-medium">Réservations</span>
-        </div>
-      </div>
-
       {/* ── NAVIGATION ── */}
       <nav className="flex-1 mt-5 space-y-1.5">
-        {navItems.map((item) => {
-          // Cacher réservations et séances pour les coachs
-          if (isCoach && (item.href === "/dashboard/reservations" || item.href === "/dashboard/sessions")) {
-            return null;
-          }
-          return renderNavItem(item);
-        })}
+        {navItems.map((item) => renderNavItem(item))}
 
-        {/* Bouton dashboard coach */}
+        {/* Espace dédié uniquement aux coachs */}
         {isCoach && (
-          <Link
-            href="/dashboard/coach"
-            className="flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-medium bg-blue-50/80 text-blue-700 hover:bg-blue-100/80 transition-all mt-2"
-          >
-            <span className="text-blue-500">
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-              </svg>
-            </span>
-            <span className="flex-1">Espace coach</span>
-            <svg className="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-            </svg>
-          </Link>
+          <>
+            <div className="pt-4 pb-2 mt-2">
+              <p className="text-[10px] uppercase tracking-widest text-foreground/40 font-bold px-4">Espace coach</p>
+            </div>
+            <Link
+              href="/dashboard/coach"
+              className={`flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-medium transition-all ${
+                pathname === "/dashboard/coach"
+                  ? "bg-blue-50/80 shadow-sm text-blue-700"
+                  : "text-foreground/70 hover:bg-blue-50/40 hover:text-blue-700"
+              }`}
+            >
+              <span className={pathname === "/dashboard/coach" ? "text-blue-600" : "text-foreground/50"}>
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                </svg>
+              </span>
+              <span className="flex-1">Tableau de bord coach</span>
+            </Link>
+            <Link
+              href="/dashboard/coach/session/create"
+              className={`flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-medium transition-all ${
+                pathname === "/dashboard/coach/session/create"
+                  ? "bg-blue-50/80 shadow-sm text-blue-700"
+                  : "text-foreground/70 hover:bg-blue-50/40 hover:text-blue-700"
+              }`}
+            >
+              <span className={pathname === "/dashboard/coach/session/create" ? "text-blue-600" : "text-foreground/50"}>
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M12 4v16m8-8H4" />
+                </svg>
+              </span>
+              <span className="flex-1">Créer une séance</span>
+            </Link>
+          </>
         )}
 
         {/* Section admin */}

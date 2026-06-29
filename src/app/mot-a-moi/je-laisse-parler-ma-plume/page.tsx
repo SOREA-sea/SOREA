@@ -58,6 +58,8 @@ export default function JeLaisseParleMaPlume() {
         loadAffirmation();
     }, []);
 
+    const isComplete = feedback === 'correct' && !isLoading;
+
     useEffect(() => {
         if (textareaRef.current) {
             textareaRef.current.style.height = 'auto';
@@ -68,8 +70,6 @@ export default function JeLaisseParleMaPlume() {
     const handleReveal = () => {
         setShowReveal(true);
     };
-
-    const isComplete = feedback === 'correct' && !isLoading;
 
     return (
         <div className="min-h-screen flex flex-col bg-gradient-to-b from-purple-50 to-[#f9f5fa] font-sans text-gray-800 relative items-center">
@@ -170,7 +170,7 @@ export default function JeLaisseParleMaPlume() {
 
                     {!isLoading && feedback === 'correct' && (
                         <div className="w-full bg-green-50 border-2 border-green-400 rounded-2xl p-4 text-center">
-                            <p className="text-lg font-bold text-green-700">✅ Bravo, c&apos;est correct !</p>
+                            <p className="text-lg font-bold text-green-700">Bravo, c&apos;est correct !</p>
                         </div>
                     )}
 
@@ -180,14 +180,14 @@ export default function JeLaisseParleMaPlume() {
                         </div>
                     )}
 
+                    {isComplete && (
+                        <div className="w-full bg-blue-50 border-2 border-blue-400 rounded-2xl p-4 text-center">
+                            <p className="text-lg font-bold text-blue-700">La phrase est validée automatiquement.</p>
+                        </div>
+                    )}
+
                     <div className="flex flex-col sm:flex-row gap-4 w-full justify-between items-center">
-                        <button
-                            type="button"
-                            onClick={handleReveal}
-                            className="flex-1 bg-white text-[#8B47FF] font-bold px-6 py-3 rounded-2xl shadow-md transition-all duration-300 hover:scale-105 hover:shadow-xl cursor-pointer border-2 border-[#8B47FF]"
-                        >
-                            Voir la réponse
-                        </button>
+
                         {phase && (
                             <span className="text-sm text-gray-600">Phase : {phase}</span>
                         )}
