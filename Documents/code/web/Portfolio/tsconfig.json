@@ -1,0 +1,23 @@
+{
+  "compilerOptions": {
+    "target": "ES2022", // <-- Remplace "es5" par "ES2022" ou "ESNext"
+    "moduleResolution": "bundler", // <-- Remplace "node" par "bundler"
+
+    // Tout le reste de ton fichier tsconfig reste inchangé...
+    "lib": ["dom", "dom.iterable", "esnext"],
+    "allowJs": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "noEmit": true,
+    "esModuleInterop": true,
+    "module": "esnext",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "jsx": "preserve",
+    "incremental": true,
+    "plugins": [{ "name": "next" }],
+    "paths": { "@/*": ["./src/*"] }
+  },
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
+  "exclude": ["node_modules"]
+}
