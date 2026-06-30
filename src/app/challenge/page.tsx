@@ -35,7 +35,7 @@ export default function MiroirDesAffirmations() {
 }, []);
 
     const sections = [
-        {
+        { // Miroir, mon beau miroir
             img: "/image_mirror/miroire.png",
             alt: "miroir",
             imgWidth: "280px",
@@ -50,7 +50,7 @@ export default function MiroirDesAffirmations() {
             btnLabel: <>Affirmer ma<br />lumière intérieure</>,
             href: "/miroir",
         },
-        {
+        { // Whim HOF au féminin
             img: "/image_ambassadrice_svg/lotus.png",
             alt: "wim hof",
             imgWidth: "180px",
@@ -65,7 +65,7 @@ export default function MiroirDesAffirmations() {
             btnLabel: <>Je me lance<br />dans ma séance</>,
             href: "/wim-hof",
         },
-        {
+        { //VISUALISATION
             img: "/image_ambassadrice_svg/appareilphoto.png",
             alt: "visualise toi",
             imgWidth: "280px",
@@ -81,7 +81,7 @@ export default function MiroirDesAffirmations() {
             btnLabel: <>Visualisation<br />de mon idéal</>,
             href: "/visualisation",
         },
-        {
+        { // Mot à moi
             img: "/image_ambassadrice_svg/envelope.png",
             alt: "mot à moi",
             imgWidth: "280px",
@@ -96,7 +96,7 @@ export default function MiroirDesAffirmations() {
             btnLabel: <>Je laisse parler<br />ma plume</>,
             href: "/mot-a-moi",
         },
-        {
+        { // Mon Potentiel intérieur
             img: "/images/wheelspinner.png",
             alt: "roue",
             imgWidth: "280px",
