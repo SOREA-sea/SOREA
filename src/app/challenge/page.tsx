@@ -1,12 +1,39 @@
 "use client";
 
+import { useState, useEffect } from "react"; // <-- Importation essentielle pour gérer l'état et le mock
 import Link from "next/link";
 import Navbar from '@/components/Navbar';
 import Footer from "@/components/Footer";
 import StreakTracker from "@/components/StreakTracker";
 import MenstrualCalendar from "@/components/MenstrualCalendar";
+import Fil_rouge from "@/components/Fil_rouge"; // <-- Gardez un seul import propre
+
+interface ProfileData {
+    id: number;
+    firstName: string;
+    lastName: string;
+    email: string;
+    avatarUrl: string | null;
+    role: string;
+    createdAt: string;
+}
 
 export default function MiroirDesAffirmations() {
+    const [profile, setProfile] = useState<ProfileData | null>(null);
+
+    useEffect(() => { //Attention pour le mock, à supprimer dès que l'API est fonctionnelle.
+    const fakeProfile: ProfileData = {
+        id: 1,
+        firstName: "Sarah", // Vous pouvez changer le prénom ici
+        lastName: "",
+        email: "contact@sorea.com",
+        avatarUrl: "/image_Fil-rouge/SOREA_little.png",
+        role: "USER",
+        createdAt: ""
+    };
+    setProfile(fakeProfile);
+}, []);
+
     const sections = [
         {
             img: "/image_mirror/miroire.png",
@@ -116,6 +143,10 @@ export default function MiroirDesAffirmations() {
                 <div className="w-full flex justify-center mt-8 px-[96px]">
                     <MenstrualCalendar />
                 </div>
+
+<div className="w-full flex justify-center mt-8 px-[96px]">
+    <Fil_rouge profile={profile} />
+</div>
 
                 <div className="flex flex-col mx-auto w-full max-w-[1440px] px-[96px] gap-[64px] py-16">
                     {sections.map((section, i) => (
