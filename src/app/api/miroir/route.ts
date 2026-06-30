@@ -30,7 +30,7 @@ Règles strictes de rédaction :
 7. Renvoie UNIQUEMENT le texte brut de l'affirmation, sans guillemets, sans tirets, sans introduction ni explications.`;
 
   try {
-    const model = ai.getGenerativeModel({ model: "gemini-2.5-flash-8b" }); /*-8b est une versionajoutée pour éviter la longue attente des affirmations suivantes*/
+    const model = ai.getGenerativeModel({ model: "gemini-2.5-flash-8b" }); /*-8b est une versiona joutée pour éviter la longue attente des affirmations suivantes*/
     const result = await model.generateContent(prompt);
     const affirmation = result.response.text().trim();
 
