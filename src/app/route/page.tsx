@@ -9,6 +9,9 @@ import StreakTracker from "@/components/StreakTracker";
 
 export default function RouteDesDefis() {
   const [showInstructions, setShowInstructions] = useState(true);
+  
+  
+  const [selectedCategory, setSelectedCategory] = useState<"bien-etre" | "nutrition" | "sport" | null>(null);
 
   const hideInstructions = () => {
     setShowInstructions(false);
@@ -35,17 +38,17 @@ export default function RouteDesDefis() {
             </Link>
           </div>
 
-          <h1 className="text-4xl font-bold text-black mb-10 underline">
+          <h1 className="text-4xl font-bold text-black mb-10 underline text-center">
             Relève tes défis bien-être avec SOREA
           </h1>
 
-          {showInstructions && (
+          {showInstructions && selectedCategory === null && (
             <div className="w-full max-w-3xl flex flex-col items-center mb-12 relative z-10 animate-in fade-in slide-in-from-top-4 duration-500">
               <p className="text-center text-[#4b3b5c] text-xl mb-1">
-                Bienvenue dans ton parcours d'équilibre ! Challenge toi et débloque d'incroyables défis bien-être.
+                Bienvenue dans ton parcours d'équilibre ! Challenge toi et débloque d'incroyables défis.
               </p>
               <p className="text-center text-[#4b3b5c] text-xl mb-6">
-                Chaque instant est une occasion de te reconnecter à toi-même.
+                Choisis une catégorie pour commencer.
               </p>
               
               <div className="flex gap-4">
@@ -69,9 +72,52 @@ export default function RouteDesDefis() {
             <StreakTracker />
           </div>
 
-          <div className="relative z-10">
-              <WellbeingWheel />
+          {/* MENU DE SÉLECTION OU AFFICHAGE DE LA ROUE */}
+          <div className="relative z-10 w-full flex flex-col items-center">
+            {selectedCategory === null ? (
+              // VUE 1 : Les 3 choix
+              <div className="flex gap-6 mt-4">
+                <button 
+                  onClick={() => setSelectedCategory("bien-etre")}
+                  className="flex flex-col items-center justify-center p-8 bg-white border-2 border-[#DBCEEF] rounded-3xl shadow-md hover:shadow-xl hover:-translate-y-1 transition-all duration-300 w-[240px] h-[240px]"
+                >
+                  <span className="text-4xl mb-4">🧘‍♀️</span>
+                  <span className="text-xl font-bold text-[#5A37AC]">Bien-être</span>
+                  <span className="text-sm text-gray-500 mt-2 text-center">Recentrage et positivité</span>
+                </button>
+
+                <button 
+                  onClick={() => setSelectedCategory("nutrition")}
+                  className="flex flex-col items-center justify-center p-8 bg-white border-2 border-[#DBCEEF] rounded-3xl shadow-md hover:shadow-xl hover:-translate-y-1 transition-all duration-300 w-[240px] h-[240px]"
+                >
+                  <span className="text-4xl mb-4">🍎</span>
+                  <span className="text-xl font-bold text-[#5A37AC]">Nutrition</span>
+                  <span className="text-sm text-gray-500 mt-2 text-center">Défis sains et gourmands</span>
+                </button>
+
+                <button 
+                  onClick={() => setSelectedCategory("sport")}
+                  className="flex flex-col items-center justify-center p-8 bg-white border-2 border-[#DBCEEF] rounded-3xl shadow-md hover:shadow-xl hover:-translate-y-1 transition-all duration-300 w-[240px] h-[240px]"
+                >
+                  <span className="text-4xl mb-4">🏃‍♂️</span>
+                  <span className="text-xl font-bold text-[#5A37AC]">Sport</span>
+                  <span className="text-sm text-gray-500 mt-2 text-center">Bouge et dépense-toi</span>
+                </button>
+              </div>
+            ) : (
+              // VUE 2 : La roue choisie
+              <div className="w-full flex flex-col items-center animate-in fade-in zoom-in duration-500">
+                <button 
+                  onClick={() => setSelectedCategory(null)}
+                  className="mb-8 text-[#8B47FF] font-medium underline hover:text-[#5A37AC] transition-colors"
+                >
+                  Changer de catégorie
+                </button>
+                <WellbeingWheel category={selectedCategory} />
+              </div>
+            )}
           </div>
+
         </div>
       </main>
 

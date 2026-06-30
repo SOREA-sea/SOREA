@@ -12,7 +12,6 @@ export default function JeLaisseParleMaPlume() {
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [userInput, setUserInput] = useState('');
-    const [showReveal, setShowReveal] = useState(false);
     const [phase, setPhase] = useState<string | null>(null);
 
     const textareaRef = useRef<HTMLTextAreaElement | null>(null);
@@ -67,10 +66,6 @@ export default function JeLaisseParleMaPlume() {
         }
     }, [userInput, currentSentence]);
 
-    const handleReveal = () => {
-        setShowReveal(true);
-    };
-
     return (
         <div className="min-h-screen flex flex-col bg-gradient-to-b from-purple-50 to-[#f9f5fa] font-sans text-gray-800 relative items-center">
             <div className="w-[1440px] pr-[96px] pl-[96px] mx-auto pb-[24px]">
@@ -97,11 +92,7 @@ export default function JeLaisseParleMaPlume() {
                             Phrase du jour :
                         </label>
                         <div className="relative">
-                            <div className="absolute inset-0 min-h-[140px] w-full p-4 border-2 border-[#8B47FF] rounded-2xl bg-white text-left text-lg leading-7 font-sans text-gray-300 whitespace-pre-wrap break-words z-0">
-                                {currentSentence}
-                            </div>
-
-                            <div className="pointer-events-none absolute inset-0 min-h-[140px] w-full p-4 rounded-2xl text-left text-lg leading-7 font-sans whitespace-pre-wrap break-words z-10">
+                            <div className="pointer-events-none absolute inset-0 min-h-[140px] w-full p-4 border-2 border-[#8B47FF] rounded-2xl bg-white text-left text-lg leading-7 font-sans whitespace-pre-wrap break-words z-10">
                                 {currentSentence.split('').map((char, index) => {
                                     const isTyped = index < userInput.length;
                                     const expected = currentSentence[index];
@@ -152,7 +143,6 @@ export default function JeLaisseParleMaPlume() {
                                     }
 
                                     setUserInput(nextValue);
-                                    setShowReveal(false);
                                 }}
                                 className="absolute inset-0 w-full h-full p-4 border-2 border-transparent rounded-2xl bg-transparent text-transparent caret-transparent resize-none overflow-hidden focus:outline-none focus:ring-transparent z-20"
                                 rows={4}
@@ -161,20 +151,13 @@ export default function JeLaisseParleMaPlume() {
                         </div>
                     </div>
 
-                    {showReveal && (
-                        <div className="w-full bg-yellow-50 border-2 border-yellow-400 rounded-2xl p-4">
-                            <p className="text-sm font-semibold text-yellow-800 mb-2">La phrase correcte :</p>
-                            <p className="text-lg text-yellow-900">{currentSentence}</p>
-                        </div>
-                    )}
-
                     {!isLoading && feedback === 'correct' && (
                         <div className="w-full bg-green-50 border-2 border-green-400 rounded-2xl p-4 text-center">
                             <p className="text-lg font-bold text-green-700">Bravo, c&apos;est correct !</p>
                         </div>
                     )}
 
-                    {!isLoading && feedback === 'incorrect' && !showReveal && (
+                    {!isLoading && feedback === 'incorrect' && (
                         <div className="w-full bg-red-50 border-2 border-red-400 rounded-2xl p-4 text-center">
                             <p className="text-lg font-bold text-red-700">Ce n&apos;est pas tout à fait ça...</p>
                         </div>
