@@ -136,6 +136,7 @@ export default function MiroirDesAffirmations() {
 
             {/* CONTENU */}
             <main className="flex-1 w-full flex flex-col">
+                
                 <div className="w-full flex justify-center">
                     <StreakTracker />
                 </div>
