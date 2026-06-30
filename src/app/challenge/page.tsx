@@ -5,6 +5,7 @@ import Navbar from '@/components/Navbar';
 import Footer from "@/components/Footer";
 import StreakTracker from "@/components/StreakTracker";
 import MenstrualCalendar from "@/components/MenstrualCalendar";
+import FilRouge from "@/components/FilRouge";
 
 export default function MiroirDesAffirmations() {
     const sections = [
@@ -115,6 +116,11 @@ export default function MiroirDesAffirmations() {
 
                 <div className="w-full flex justify-center mt-8 px-[96px]">
                     <MenstrualCalendar />
+                </div>
+
+                {/* FIL ROUGE — ajouté juste sous le calendrier, au-dessus des activités */}
+                <div className="w-full flex justify-center mt-8 px-[96px]">
+                    <FilRouge />
                 </div>
 
                 <div className="flex flex-col mx-auto w-full max-w-[1440px] px-[96px] gap-[64px] py-16">
