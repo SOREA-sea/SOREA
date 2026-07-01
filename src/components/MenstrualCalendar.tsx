@@ -63,11 +63,6 @@ const [isSnowflakeMode, setIsSnowflakeMode] = useState(false);
   const [phaseFilters, setPhaseFilters] = useState<string[]>([]);
 
   useEffect(() => {
-    fetchProfile();
-    fetchLoggedUser();
-  }, []);
-
-  useEffect(() => {
     if (!loggedUser) return;
     localStorage.setItem(`sorea_todos_${loggedUser.id}`, JSON.stringify(todosByDate));
   }, [todosByDate, loggedUser]);
@@ -111,6 +106,13 @@ const [isSnowflakeMode, setIsSnowflakeMode] = useState(false);
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    queueMicrotask(() => {
+      void fetchProfile();
+      void fetchLoggedUser();
+    });
+  }, []);
 
   const saveSettings = async () => {
     try {
