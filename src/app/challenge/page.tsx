@@ -1,195 +1,193 @@
 "use client";
 
-import { useState, useEffect } from "react"; // <-- Importation essentielle pour gérer l'état et le mock
 import Link from "next/link";
-import Navbar from '@/components/Navbar';
+import Image from "next/image";
+import { Clock, Sparkles } from "lucide-react";
+import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import StreakTracker from "@/components/StreakTracker";
 import MenstrualCalendar from "@/components/MenstrualCalendar";
-import Fil_rouge from "@/components/Fil_rouge"; // <-- Gardez un seul import propre
 
-interface ProfileData {
-    id: number;
-    firstName: string;
-    lastName: string;
-    email: string;
-    avatarUrl: string | null;
-    role: string;
-    createdAt: string;
-}
+const challengeCards = [
+  {
+    img: "/image_ambassadrice_svg/miroire.png",
+    alt: "Miroir violet",
+    title: "Miroir mon beau miroir",
+    description: "Répète une affirmation positive face à ton reflet.",
+    cta: "Ouvrir le miroir",
+    href: "/miroir",
+  },
+  {
+    img: "/image_ambassadrice_svg/envelope.png",
+    alt: "Enveloppe Mot à moi",
+    title: "Mot à moi",
+    description: "Écris une phrase douce à retrouver plus tard.",
+    cta: "Écrire mon mot",
+    href: "/mot-a-moi",
+  },
+  {
+    img: "/image_ambassadrice_svg/appareilphoto.png",
+    alt: "Appareil photo",
+    title: "Visualise-toi",
+    description: "Ajoute une image qui nourrit ton futur idéal.",
+    cta: "Visualiser",
+    href: "/visualisation",
+  },
+  {
+    img: "/image_ambassadrice_svg/lotus.png",
+    alt: "Lotus violet",
+    title: "Souffle féminin",
+    description: "Prends quelques minutes pour respirer et revenir à toi.",
+    cta: "Respirer",
+    href: "/wim-hof",
+  },
+];
 
-export default function MiroirDesAffirmations() {
-    const [profile, setProfile] = useState<ProfileData | null>(null);
+export default function ChallengePage() {
+  return (
+    <div className="min-h-screen bg-[radial-gradient(ellipse_at_top,#fff4fb_0%,#ffffff_48%,#f7efff_100%)] font-sans text-[#2f2238]">
+      <Navbar />
 
-    useEffect(() => { //Attention pour le mock, à supprimer dès que l'API est fonctionnelle.
-    const fakeProfile: ProfileData = {
-        id: 1,
-        firstName: "Sarah", // Vous pouvez changer le prénom ici
-        lastName: "",
-        email: "contact@sorea.com",
-        avatarUrl: "/image_Fil-rouge/SOREA_little.png",
-        role: "USER",
-        createdAt: ""
-    };
-    setProfile(fakeProfile);
-}, []);
-
-    const sections = [
-        { // Miroir, mon beau miroir
-            img: "/image_mirror/miroire.png",
-            alt: "miroir",
-            imgWidth: "280px",
-            title: "Miroir mon beau miroir",
-            description: (
-                <>
-                    Affirme-toi chaque jour face à ton miroir virtuel.
-                    Active ta caméra et ton micro, observe ton beau reflet et répète des phrases positives pour{" "}
-                    <span className="text-[#8B47FF] font-semibold">renforcer ta confiance et ton bien-être intérieur</span>.
-                </>
-            ),
-            btnLabel: <>Affirmer ma<br />lumière intérieure</>,
-            href: "/miroir",
-        },
-        { // Whim HOF au féminin
-            img: "/image_ambassadrice_svg/lotus.png",
-            alt: "wim hof",
-            imgWidth: "180px",
-            title: "Wim Hof féminine",
-            description: (
-                <>
-                    Plonge dans une expérience de souffle consciente, inspirée de la méthode Wim Hof et
-                    adapté pour la stabilité hormonal. Adopte un rythme doux, une énergie apaisante
-                    et <span className="text-[#8B47FF] font-semibold">reconnecte-toi à ton équilibre intérieur</span>.
-                </>
-            ),
-            btnLabel: <>Je me lance<br />dans ma séance</>,
-            href: "/wim-hof",
-        },
-        { //VISUALISATION
-            img: "/image_ambassadrice_svg/appareilphoto.png",
-            alt: "visualise toi",
-            imgWidth: "280px",
-            title: "Visualise toi, projète toi",
-            description: (
-                <>
-                    Ajoute tes images inspirantes et{" "}
-                    <span className="text-[#8B47FF] font-semibold">projette toi dans tes rêves</span>{" "}
-                    : voyage, carrière, projets, instants de gratitude, paysages...
-                    Nourris ta pellicule du bien-être, renforce ta visualisation et ancre toi dans le positif.
-                </>
-            ),
-            btnLabel: <>Visualisation<br />de mon idéal</>,
-            href: "/visualisation",
-        },
-        { // Mot à moi
-            img: "/image_ambassadrice_svg/envelope.png",
-            alt: "mot à moi",
-            imgWidth: "280px",
-            title: "Mot à moi",
-            description: (
-                <>
-                    Retape une affirmation positive, un mot de gratitude ou une pensée inspirante.
-                    Chaque mot que tu écris{" "}
-                    <span className="text-[#8B47FF] font-semibold">développera ta paix intérieur</span>.
-                </>
-            ),
-            btnLabel: <>Je laisse parler<br />ma plume</>,
-            href: "/mot-a-moi",
-        },
-        { // Mon Potentiel intérieur
-            img: "/images/wheelspinner.png",
-            alt: "roue",
-            imgWidth: "280px",
-            title: "Ton équilibre en un tour de roue",
-            description: (
-                <>
-                    Fais tourner la roue et découvre ton défi bien-être du jour parmi 10 thèmes inspirants.
-                    Chaque défi t'invite à{" "}
-                    <span className="text-[#8B47FF] font-semibold">cultiver ton équilibre</span> et à{" "}
-                    <span className="text-[#8B47FF] font-semibold">célébrer ton évolution au quotidien</span>.
-                </>
-            ),
-            btnLabel: <>Tourner la roue<br />de mes défis</>,
-            href: "/route",
-        },
-    ];
-
-    return (
-        <div
-            className="min-h-screen flex flex-col w-full text-gray-800"
-            style={{
-                background: "radial-gradient(ellipse at center, #FEF0F9 0%, #FFFFFF 100%)",
-                fontFamily: "'Inria Sans', sans-serif",
-            }}
+      <nav className="fixed left-1/2 top-6 z-30 hidden w-[calc(100%-96px)] max-w-5xl -translate-x-1/2 items-center justify-between rounded-full border border-[#cdb5ff] bg-white/85 px-6 py-3 shadow-xl shadow-purple-100/70 backdrop-blur md:flex">
+        {[
+          ["Shopping", "/shop"],
+          ["Coaching", "/coaching"],
+          ["Challenge", "/challenge"],
+          ["Mon carnet", "/carnet"],
+        ].map(([label, href]) => (
+          <Link
+            key={href}
+            href={href}
+            className="rounded-full px-5 py-2 text-sm font-black uppercase tracking-[0.22em] text-[#6c42bf] transition hover:bg-[#f2e8ff] hover:text-[#8B47FF]"
+          >
+            {label}
+          </Link>
+        ))}
+        <Link
+          href="/login"
+          className="rounded-full bg-[#8B47FF] px-8 py-3 text-sm font-black uppercase tracking-[0.2em] text-white shadow-md shadow-purple-200 transition hover:bg-[#7432e6]"
         >
-            <link
-                href="https://fonts.googleapis.com/css2?family=Inria+Sans:wght@400;700&display=swap"
-                rel="stylesheet"
-            />
+          CTA
+        </Link>
+      </nav>
 
-            {/* NAVBAR */}
-            <div className="w-full">
-                <div className="max-w-[1440px] mx-auto px-[96px] pt-8 pb-[24px]">
-                    <Navbar />
-                </div>
+      <div className="fixed right-2 top-20 z-40 w-[320px] max-w-[calc(100vw-24px)] origin-top-right scale-[0.72] md:right-6 md:top-24 md:scale-75 lg:right-8">
+        <StreakTracker floating joursConsecutifs={5} />
+      </div>
+
+      <main className="mx-auto flex w-full max-w-7xl flex-col gap-20 px-6 pb-20 pt-36 md:pt-44 lg:px-12">
+        <section className="grid items-center gap-10 lg:grid-cols-[1fr_1.05fr_0.85fr]">
+          <div className="space-y-7">
+            <p className="text-xs font-black uppercase tracking-[0.32em] text-[#8B47FF]/70">
+              Challenge SOREA
+            </p>
+            <div className="space-y-3">
+              <h1 className="text-5xl font-black tracking-[0.08em] text-[#2f2238] md:text-6xl">
+                Challenge
+              </h1>
+              <p className="max-w-sm text-lg leading-8 text-[#6f617a]">
+                Choisis ton défi bien-être du jour et avance avec douceur, une action après l&apos;autre.
+              </p>
             </div>
+            <Link
+              href="/route"
+              className="inline-flex min-w-48 items-center justify-center rounded-2xl bg-[#8B47FF] px-8 py-4 text-base font-black uppercase tracking-[0.18em] text-white shadow-lg shadow-purple-200 transition hover:-translate-y-0.5 hover:bg-[#7432e6]"
+            >
+              Tourner
+            </Link>
+          </div>
 
-            {/* CONTENU */}
-            <main className="flex-1 w-full flex flex-col">
-                
-                <div className="w-full flex justify-center">
-                    <StreakTracker />
+          <div className="flex justify-center">
+            <Image
+              src="/images/wheelspinner.png"
+              alt="Roue des défis SOREA"
+              width={350}
+              height={482}
+              className="w-full max-w-[360px] object-contain drop-shadow-[0_18px_28px_rgba(139,71,255,0.25)]"
+              priority
+            />
+          </div>
+
+          <article className="rounded-3xl border border-[#cdb5ff] bg-white/85 p-5 shadow-xl shadow-purple-100/70 backdrop-blur">
+            <div className="mb-5 inline-flex items-center gap-2 text-xs font-black uppercase tracking-[0.16em] text-[#8B47FF]">
+              <Sparkles className="h-4 w-4 fill-[#8B47FF]" />
+              Défi du jour
+            </div>
+            <h2 className="text-3xl font-black tracking-[0.08em] text-[#2f2238]">
+              Respire et rayonne
+            </h2>
+            <div className="my-5 rounded-2xl bg-[#f2e8ff] p-5 text-sm leading-6 text-[#6f617a]">
+              Prends 15 minutes pour respirer, relâcher tes épaules et écrire une intention simple.
+            </div>
+            <div className="mb-4 flex items-center gap-2 text-sm font-bold text-[#2f2238]">
+              <Clock className="h-4 w-4" />
+              15 min
+            </div>
+            <Link
+              href="/route"
+              className="flex w-full items-center justify-center rounded-2xl bg-[#8B47FF] px-6 py-4 font-black uppercase tracking-[0.18em] text-white transition hover:bg-[#7432e6]"
+            >
+              Commencer
+            </Link>
+          </article>
+        </section>
+
+        <section className="rounded-3xl border border-[#cdb5ff] bg-white/85 p-4 shadow-xl shadow-purple-100/70 backdrop-blur md:p-8">
+          <MenstrualCalendar />
+        </section>
+
+        <section>
+          <div className="mb-8 text-center">
+            <h2 className="text-4xl font-black tracking-[0.18em] text-[#2f2238]">
+              Défis bien-être
+            </h2>
+            <p className="mt-3 text-lg text-[#6f617a]">
+              Choisis le rituel qui te ressemble aujourd&apos;hui.
+            </p>
+          </div>
+
+          <div className="grid gap-6 lg:grid-cols-2">
+            {challengeCards.map((card) => (
+              <article
+                key={card.title}
+                className="grid items-center gap-5 rounded-3xl bg-white/75 p-5 shadow-lg shadow-purple-100/70 md:grid-cols-[120px_1fr]"
+              >
+                <div className="flex justify-center">
+                  <Image
+                    src={card.img}
+                    alt={card.alt}
+                    width={112}
+                    height={112}
+                    className="h-28 w-28 object-contain drop-shadow-md"
+                  />
                 </div>
-
-                <div className="w-full flex justify-center mt-8 px-[96px]">
-                    <MenstrualCalendar />
+                <div>
+                  <h3 className="mb-3 text-2xl font-black tracking-[0.14em] text-[#2f2238]">
+                    {card.title}
+                  </h3>
+                  <p className="mb-4 rounded-2xl bg-[#f2e8ff] p-4 text-sm leading-6 text-[#6f617a]">
+                    {card.description}
+                  </p>
+                  <Link
+                    href={card.href}
+                    className="inline-flex min-w-44 justify-center rounded-2xl bg-[#8B47FF] px-6 py-3 font-black uppercase tracking-[0.16em] text-white transition hover:bg-[#7432e6]"
+                  >
+                    {card.cta}
+                  </Link>
                 </div>
+              </article>
+            ))}
+          </div>
+        </section>
 
-<div className="w-full flex justify-center mt-8 px-[96px]">
-    <Fil_rouge profile={profile} />
-</div>
+        <section className="rounded-3xl bg-[linear-gradient(90deg,#f4ecff_0_12.5%,#ffffff_12.5%_25%,#f4ecff_25%_37.5%,#ffffff_37.5%_50%,#f4ecff_50%_62.5%,#ffffff_62.5%_75%,#f4ecff_75%_87.5%,#ffffff_87.5%_100%)] p-8 text-center shadow-inner">
+          <p className="text-xl font-bold text-[#2f2238]">
+            Chaque petit défi compte. Tu avances déjà.
+          </p>
+        </section>
+      </main>
 
-                <div className="flex flex-col mx-auto w-full max-w-[1440px] px-[96px] gap-[64px] py-16">
-                    {sections.map((section, i) => (
-                        <div key={i} className="flex flex-row items-center gap-12">
-                            <div
-                                className="flex-shrink-0 flex items-center justify-center"
-                                style={{ width: "320px" }}
-                            >
-                                <img
-                                    src={section.img}
-                                    alt={section.alt}
-                                    style={{ width: section.imgWidth, display: "block" }}
-                                />
-                            </div>
-
-                            <div
-                                className="flex flex-col border-2 border-[#8B47FF] rounded-2xl p-10 gap-6 flex-1 relative z-10"
-                                style={{
-                                    background: "radial-gradient(ellipse at center, #FEF0F9 0%, #FFFFFF 100%)",
-                                }}
-                            >
-                                <h2 className="text-3xl font-bold underline text-black text-center">
-                                    {section.title}
-                                </h2>
-                                <p className="text-center text-black text-xl leading-relaxed">
-                                    {section.description}
-                                </p>
-                                <div className="flex flex-row items-center justify-center gap-4 mt-2">
-                                    <Link href={section.href}>
-                                        <button className="bg-white text-[#8B47FF] font-bold px-8 py-5 rounded-2xl shadow-md transition-all duration-300 hover:scale-105 hover:shadow-xl text-sm text-center leading-tight cursor-pointer">
-                                            {section.btnLabel}
-                                        </button>
-                                    </Link>
-                                </div>
-                            </div>
-                        </div>
-                    ))}
-                </div>
-            </main>
-
-            {/* FOOTER */}
-            <Footer />
-        </div>
-    );
+      <Footer />
+    </div>
+  );
 }

@@ -25,6 +25,9 @@ export default function NouvellePage() {
   const [isListening, setIsListening] = useState<boolean>(false);
   const recognitionRef = useRef<any>(null);
 
+  // --- État pour la simulation du blocage multi-appareils (maquette, sans backend) ---
+  const [blockedByOtherDevice, setBlockedByOtherDevice] = useState<boolean>(false);
+
     const startCamera = async () => {
   try {
     const stream = await navigator.mediaDevices.getUserMedia({
@@ -54,6 +57,7 @@ const stopCamera = () => {
 };
 
 const toggleCamera = () => {
+  if (blockedByOtherDevice) return; // Bloqué si un autre appareil simule l'usage
   if (cameraActive) {
     stopCamera();
   } else {
@@ -87,6 +91,7 @@ const stopMicro = () => {
 };
 
 const toggleMicro = () => {
+  if (blockedByOtherDevice) return; // Bloqué si un autre appareil simule l'usage
   if (microActive) {
     stopMicro();
   } else {
@@ -240,17 +245,30 @@ useEffect(() => { //Si l'utilisatrice change d'onglet ou minimise la fenêtre, l
       {/* CONTENU */}
       <main className="flex-1 w-full flex flex-col items-center">
         <div className="w-full max-w-[1440px] mx-auto px-[96px] flex flex-col items-center pt-[150px] pb-[24px]">
-          <div className="w-full mb-6">
+          <div className="w-full mb-6 flex flex-col items-start gap-2">
             <Link href="/challenge">
               <button className="flex items-center gap-2 bg-white text-[#8B47FF] font-bold px-6 py-3 rounded-2xl shadow-md transition-all duration-300 hover:scale-105 hover:shadow-xl cursor-pointer border-2 border-[#8B47FF] relative z-10">
                 ← Retour
               </button>
             </Link>
+
+            {/* Bouton de test temporaire — à supprimer une fois la vraie détection backend branchée */}
+            <button
+              onClick={() => setBlockedByOtherDevice((prev) => !prev)}
+              className="text-xs text-gray-400 underline"
+            >
+              [Test] Simuler blocage multi-appareils
+            </button>
           </div>
 
           <div className="flex-grow flex flex-col items-center justify-center w-full min-h-[300px] gap-8 relative z-10">
             
-            <div className="relative flex justify-center items-center" style={{ width: "400px", height: "550px" }}>
+            <div 
+              className={`relative flex justify-center items-center rounded-3xl transition-all duration-300 ${
+                blockedByOtherDevice ? "ring-4 ring-red-500" : ""
+              }`} 
+              style={{ width: "400px", height: "550px" }}
+            >
               
               <img 
                 src="/image_mirror/miroire.png" 
@@ -346,6 +364,14 @@ useEffect(() => { //Si l'utilisatrice change d'onglet ou minimise la fenêtre, l
   </button>
 )}
             </div>
+
+{/* Message d'explication quand le miroir est bloqué (maquette, sans vraie détection multi-appareils) */}
+{blockedByOtherDevice && (
+  <div className="max-w-[400px] text-center bg-red-50 border border-red-300 text-red-600 text-sm font-medium px-4 py-3 rounded-2xl">
+    Ton miroir est déjà actif sur un autre appareil. Ferme-le là-bas pour l'activer ici.
+  </div>
+)}
+
  {/* --- Ajout de la consigne + texte genéré--- */}
 {affirmation && (
   <div className="mt-4 max-w-[500px] flex flex-col items-center gap-3">
