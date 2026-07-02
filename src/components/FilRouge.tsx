@@ -1,341 +1,241 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import React, { useState, useRef } from "react";
+import Image from "next/image";
 import Link from "next/link";
-import { MoreVertical, Trash2, Pencil, RotateCcw } from "lucide-react";
+import { useRouter } from "next/navigation";
 
-// La combinaison par défaut de SOREA
-const defaultRoutine = [
-  {
-    id: "wim-hof",
-    title: "Séance de Respiration",
-    img: "/image_ambassadrice_svg/lotus.png",
-    href: "/wim-hof",
-  },
-  {
-    id: "miroir",
-    title: "Miroir des affirmations",
-    img: "/image_mirror/miroire.png",
-    href: "/miroir",
-  },
-  {
-    id: "visualisation",
-    title: "Visualisation & Projection",
-    img: "/image_ambassadrice_svg/appareilphoto.png",
-    href: "/visualisation",
-  },
-  {
-    id: "mot-a-moi",
-    title: "Journaling",
-    img: "/image_ambassadrice_svg/envelope.png",
-    href: "/mot-a-moi",
-  },
-  {
-    id: "route",
-    title: "Défis introspectifs",
-    img: "/images/wheelspinner.png",
-    href: "/route",
-  },
+interface ProfileData {
+  id: number;
+  firstName: string;
+  lastName: string;
+  email: string;
+  avatarUrl: string | null;
+  role: string;
+}
+
+interface FilRougeProps {
+  profile?: ProfileData | null;
+}
+
+const allFeatures = [
+  { id: "wim-hof", src: "/image_Fil-rouge/Lotus.svg", alt: "Lotus", width: 80, height: 80, href: "/wim-hof", key: "fleure" },
+  { id: "miroir", src: "/image_Fil-rouge/miroir_affirmation_manche.svg", alt: "Miroir", width: 75, height: 110, href: "/miroir", key: "miroire" },
+  { id: "route", src: "/image_Fil-rouge/Wheel-Spinner.svg", alt: "Roulette", width: 80, height: 150, href: "/route", key: "roue" },
+  { id: "visualisation", src: "/image_Fil-rouge/Appareil_photo.svg", alt: "Appareil photo", width: 90, height: 70, href: "/visualisation", key: "appareil" },
+  { id: "mot-a-moi", src: "/image_Fil-rouge/Courrier.svg", alt: "Courrier", width: 80, height: 65, href: "/mot-a-moi", key: "enveloppe" },
 ];
 
-export default function FilRouge() {
-  const [routineSteps, setRoutineSteps] = useState(defaultRoutine);
-  const [removedSteps, setRemovedSteps] = useState<typeof defaultRoutine>([]);
+export default function FilRouge({ profile }: FilRougeProps) {
+  const router = useRouter();
+  const [routineSteps, setRoutineSteps] = useState(allFeatures);
+  const [giftBoxSteps, setGiftBoxSteps] = useState<typeof allFeatures>([]);
+  const dragItem = useRef<{ item: any; source: "routine" | "giftbox"; index: number } | null>(null);
 
-  // État pour savoir quel menu (les 3 points) est ouvert
-  const [activeMenu, setActiveMenu] = useState<string | null>(null);
-  const menuRef = useRef<HTMLDivElement>(null);
+  // --- MAPPING DE TES IMAGES FIGMA ---
+  const getBoxImage = () => {
+    if (giftBoxSteps.length === 0) return "/image_fil_rouge/Cadeaux_fermé.png";
+    if (giftBoxSteps.length === 5) return "/image_fil_rouge/Group 79-1.png"; // La boîte pleine
 
-  // Sous-titre éditable
-  const [subtitle, setSubtitle] = useState("Combinaison pour tous les matins");
-  const [isEditingSubtitle, setIsEditingSubtitle] = useState(false);
-  const subtitleInputRef = useRef<HTMLInputElement>(null);
+    // On récupère les éléments présents, on les trie par ordre alphabétique pour faire la clé
+    const presentKeys = giftBoxSteps.map(step => step.key).sort().join("_");
 
-  // Drag & drop pour réorganiser
-  const [draggedId, setDraggedId] = useState<string | null>(null);
-  const [dragOverId, setDragOverId] = useState<string | null>(null);
+    // Ton dictionnaire avec tes vrais noms de fichiers (avec les orthographes exactes de ton VSCode)
+    const imageMap: Record<string, string> = {
+      // 4 ÉLÉMENTS (Manque 1)
+      "appareil_enveloppe_fleure_miroire": "/image_fil_rouge/sans roue.png",
+      "appareil_enveloppe_miroire_roue": "/image_fil_rouge/sans-fleure_2.png",
+      "appareil_enveloppe_fleure_roue": "/image_fil_rouge/sans miroire.png",
+      "enveloppe_fleure_miroire_roue": "/image_fil_rouge/sans appareil photo.png",
+      
+      // 3 ÉLÉMENTS (Manquent 2)
+      "appareil_enveloppe_miroire": "/image_fil_rouge/sans roue et fleure.png",
+      "appareil_enveloppe_fleure": "/image_fil_rouge/sans roue et miroire.png",
+      "appareil_fleure_miroire": "/image_fil_rouge/sans roue et eneveloppe.png",
+      "enveloppe_fleure_miroire": "/image_fil_rouge/sans appreil et roue.png",
+      "fleure_miroire_roue": "/image_fil_rouge/sans-appareil-envellope.png",
+      "enveloppe_miroire_roue": "/image_fil_rouge/sans appareil et fleure.png",
+      "enveloppe_fleure_roue": "/image_fil_rouge/sans appareil et miroire.png",
 
-  // Boîte cadeau (les activités retirées)
-  const [showGiftBox, setShowGiftBox] = useState(false);
+      // 2 ÉLÉMENTS (Manquent 3)
+      "fleure_miroire": "/image_fil_rouge/miroire-fleure_2.png",
+      "appareil_miroire": "/image_fil_rouge/juste miroire et appareil.png",
 
-  // Fonction pour supprimer une étape de la routine -> elle va dans le cadeau
-  const removeStep = (idToRemove: string) => {
-    const stepToRemove = routineSteps.find((step) => step.id === idToRemove);
-    if (stepToRemove) {
-      setRemovedSteps((prev) => [...prev, stepToRemove]);
-    }
-    setRoutineSteps(routineSteps.filter((step) => step.id !== idToRemove));
-    setActiveMenu(null);
-  };
-
-  // Remettre une étape depuis le cadeau vers la routine
-  const restoreStep = (idToRestore: string) => {
-    const stepToRestore = removedSteps.find((step) => step.id === idToRestore);
-    if (stepToRestore) {
-      setRoutineSteps((prev) => [...prev, stepToRestore]);
-    }
-    setRemovedSteps(removedSteps.filter((step) => step.id !== idToRestore));
-  };
-
-  // Fermer le menu si on clique ailleurs sur la page
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
-        setActiveMenu(null);
-      }
+      // 1 ÉLÉMENT (Manquent 4)
+      "miroire": "/image_fil_rouge/miroire_2.png",
     };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
 
-  // Focus automatique sur l'input du sous-titre quand on passe en édition
-  useEffect(() => {
-    if (isEditingSubtitle && subtitleInputRef.current) {
-      subtitleInputRef.current.focus();
-      subtitleInputRef.current.select();
-    }
-  }, [isEditingSubtitle]);
+    // Retourne l'image associée, ou l'image de la boîte vide en attendant que tu crées l'image manquante
+    return imageMap[presentKeys] || "/image_fil_rouge/cadeau_ouvert.png";
+  };
 
-  // --- Drag & drop handlers ---
-  const handleDragStart = (e: React.DragEvent, id: string) => {
-    setDraggedId(id);
+  // --- FONCTIONS DU DRAG & DROP ---
+  const handleDragStart = (e: React.DragEvent, item: any, source: "routine" | "giftbox", index: number) => {
+    dragItem.current = { item, source, index };
     e.dataTransfer.effectAllowed = "move";
   };
 
-  const handleDragOver = (e: React.DragEvent, id: string) => {
+  const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
     e.dataTransfer.dropEffect = "move";
-    if (id !== dragOverId) setDragOverId(id);
   };
 
-  const handleDragEnd = () => {
-    setDraggedId(null);
-    setDragOverId(null);
-  };
-
-  const handleDrop = (e: React.DragEvent, targetId: string) => {
+  const handleDrop = (e: React.DragEvent, targetSource: "routine" | "giftbox", targetIndex?: number) => {
     e.preventDefault();
-    if (!draggedId || draggedId === targetId) {
-      setDraggedId(null);
-      setDragOverId(null);
-      return;
+    e.stopPropagation();
+
+    const dragged = dragItem.current;
+    if (!dragged) return;
+
+    let newRoutine = [...routineSteps];
+    let newGiftBox = [...giftBoxSteps];
+    let itemToMove;
+
+    if (dragged.source === "routine") itemToMove = newRoutine.splice(dragged.index, 1)[0];
+    else itemToMove = newGiftBox.splice(dragged.index, 1)[0];
+
+    if (targetSource === "routine") {
+      if (targetIndex !== undefined) newRoutine.splice(targetIndex, 0, itemToMove);
+      else newRoutine.push(itemToMove);
+    } else {
+      newGiftBox.push(itemToMove);
     }
 
-    const oldIndex = routineSteps.findIndex((step) => step.id === draggedId);
-    const newIndex = routineSteps.findIndex((step) => step.id === targetId);
-
-    if (oldIndex !== -1 && newIndex !== -1) {
-      const newSteps = [...routineSteps];
-      const [movedItem] = newSteps.splice(oldIndex, 1);
-      newSteps.splice(newIndex, 0, movedItem);
-      setRoutineSteps(newSteps);
-    }
-    setDraggedId(null);
-    setDragOverId(null);
+    setRoutineSteps(newRoutine);
+    setGiftBoxSteps(newGiftBox);
+    dragItem.current = null;
   };
 
-  const giftBoxBackground =
-    removedSteps.length > 0
-      ? "/image_fil_rouge/cadeau_ouvert.png"
-      : "/image_fil_rouge/Cadeaux_fermé.png";
+  const handleClick = (e: React.MouseEvent, href: string) => {
+    e.preventDefault();
+    router.push(href);
+  };
+
+  const displayName = profile ? `${profile.firstName} ${profile.lastName}` : "Utilisateur";
+  const avatarSrc = profile?.avatarUrl || "/image_Fil-rouge/SOREA_little.png";
 
   return (
-    <div className="flex flex-col items-center mx-auto w-full max-w-[1440px] px-4 md:px-[96px] py-16">
-      <h1 className="text-4xl font-bold text-[#8B47FF] mb-2 text-center">Mon Fil Rouge</h1>
-
-      {/* Sous-titre éditable */}
-      <div className="flex items-center gap-2 mb-2 group">
-        {isEditingSubtitle ? (
-          <input
-            ref={subtitleInputRef}
-            type="text"
-            value={subtitle}
-            onChange={(e) => setSubtitle(e.target.value)}
-            onBlur={() => setIsEditingSubtitle(false)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") setIsEditingSubtitle(false);
-            }}
-            className="text-gray-600 text-lg text-center bg-transparent border-b-2 border-[#8B47FF] outline-none px-1"
-          />
-        ) : (
-          <>
-            <p className="text-gray-600 text-lg text-center">{subtitle}</p>
-            <button
-              onClick={() => setIsEditingSubtitle(true)}
-              className="opacity-0 group-hover:opacity-100 transition-opacity text-gray-400 hover:text-[#8B47FF]"
-              aria-label="Modifier le sous-titre"
-            >
-              <Pencil size={14} />
-            </button>
-          </>
-        )}
-      </div>
-
-      {/* Message d'aide pour le drag & drop */}
-      {routineSteps.length > 1 && (
-        <p className="text-xs text-gray-400 italic mb-12">
-          Glisse-dépose les bulles pour changer leur emplacement
-        </p>
-      )}
-
-      {routineSteps.length > 0 ? (
-        <div className="flex items-center justify-center w-full max-w-5xl relative flex-wrap gap-y-12">
-          {routineSteps.map((step, index) => (
-            <div
-              key={step.id}
-              className={`flex items-center relative z-10 transition-opacity ${
-                draggedId === step.id ? "opacity-40" : ""
-              }`}
-              draggable
-              onDragStart={(e) => handleDragStart(e, step.id)}
-              onDragOver={(e) => handleDragOver(e, step.id)}
-              onDrop={(e) => handleDrop(e, step.id)}
-              onDragEnd={handleDragEnd}
-            >
-              {/* Conteneur de l'icône et du titre */}
-              <div className="flex flex-col items-center relative group cursor-grab active:cursor-grabbing">
-                {/* Anneau indicateur de zone de drop */}
-                {dragOverId === step.id && draggedId !== step.id && (
-                  <div className="absolute -inset-2 rounded-full border-2 border-dashed border-[#8B47FF] pointer-events-none" />
-                )}
-
-                {/* Bouton 3 points */}
-                <div
-                  className="absolute -top-3 -right-3 z-20"
-                  ref={activeMenu === step.id ? menuRef : null}
-                >
-                  <button
-                    onClick={() => setActiveMenu(activeMenu === step.id ? null : step.id)}
-                    className="bg-white p-1.5 rounded-full shadow-sm border border-gray-100 text-gray-400 hover:text-[#8B47FF] transition-colors"
-                  >
-                    <MoreVertical size={18} />
-                  </button>
-
-                  {/* Menu déroulant */}
-                  {activeMenu === step.id && (
-                    <div className="absolute top-8 right-0 bg-white rounded-xl shadow-lg border border-purple-100 p-2 w-40 flex flex-col gap-1 animate-in fade-in zoom-in duration-200">
-                      <button
-                        onClick={() => removeStep(step.id)}
-                        className="flex items-center gap-2 px-3 py-2 text-sm text-red-500 hover:bg-red-50 rounded-lg transition-colors text-left"
-                      >
-                        <Trash2 size={16} />
-                        Supprimer
-                      </button>
-                    </div>
-                  )}
-                </div>
-
-                <Link href={step.href}>
-                  <div className="w-28 h-28 md:w-32 md:h-32 bg-white rounded-full shadow-md flex items-center justify-center border-2 border-transparent hover:border-[#8B47FF] hover:shadow-xl transition-all duration-300 cursor-pointer">
-                    <img
-                      src={step.img}
-                      alt={step.title}
-                      className="w-14 h-14 md:w-16 md:h-16 object-contain"
-                    />
-                  </div>
-                </Link>
-                <span className="text-sm font-bold text-[#4b3b5c] mt-4 text-center max-w-[120px] leading-tight">
-                  {step.title}
-                </span>
-              </div>
-
-              {/* Ligne de connexion pointillée (cachée sur le dernier élément) */}
-              {index < routineSteps.length - 1 && (
-                <div className="w-8 md:w-16 h-[2px] mx-2 self-start mt-14 md:mt-16 border-t-2 border-dashed border-[#8B47FF]/40 hidden md:block" />
-              )}
-            </div>
-          ))}
+    <div className="mx-auto w-full max-w-[1200px] px-4 py-10">
+      <div className="bg-white rounded-[32px] border border-purple-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)] p-8 md:p-14 w-full flex flex-col items-center">
+        
+        <div className="text-center mb-16">
+          <h1 className="text-4xl md:text-5xl font-black tracking-wide text-[#592592]">Mon Fil Rouge</h1>
+          <p className="text-lg font-medium text-[#7d53b2] mt-2">Combinaison pour tous les matins</p>
         </div>
-      ) : (
-        <div className="text-center p-8 bg-white rounded-3xl shadow-sm border-2 border-dashed border-purple-200 w-full max-w-2xl">
-          <p className="text-[#4b3b5c] font-medium text-lg">Ton fil rouge est vide pour le moment.</p>
-          <p className="text-gray-400 text-sm mt-2">Ajoute de nouveaux défis pour créer ta routine parfaite.</p>
-        </div>
-      )}
 
-      {/* Boîte cadeau — alignée à gauche, plus grande, montre directement les icônes dedans */}
-      <div className="w-full max-w-5xl mt-16">
-        <button
-          onClick={() => setShowGiftBox(!showGiftBox)}
-          className="flex items-center gap-4 group"
+        <div 
+          className="flex flex-col lg:flex-row items-center justify-center w-full min-h-[180px] relative px-4"
+          onDragOver={handleDragOver}
+          onDrop={(e) => handleDrop(e, "routine")}
         >
-          <div className="relative w-32 h-32 flex items-center justify-center">
-            <img
-              src={giftBoxBackground}
-              alt="Boîte des défis retirés"
-              className="w-full h-full object-contain transition-transform group-hover:scale-105"
-            />
+          <div className="flex flex-col items-center text-center z-10 shrink-0">
+            <span className="text-sm font-bold text-[#592592] mb-3 block truncate max-w-[140px]">
+              {displayName}
+            </span>
+            <div className="relative w-20 h-20 rounded-full bg-white shadow-sm ring-4 ring-[#e1d5f5] flex items-center justify-center overflow-hidden">
+              <Image src={avatarSrc} alt={`Avatar`} fill className="object-cover p-1 rounded-full" priority />
+            </div>
+          </div>
 
-            {/* Icônes des activités retirées, affichées par-dessus le carton ouvert */}
-            {removedSteps.length > 0 && (
-              <div className="absolute inset-0 flex items-center justify-center gap-0.5 pb-3">
-                {removedSteps.slice(0, 3).map((step, i) => (
-                  <div
-                    key={step.id}
-                    className="w-8 h-8 bg-white rounded-full shadow-sm flex items-center justify-center"
-                    style={{
-                      marginLeft: i === 0 ? 0 : -6,
-                      zIndex: 10 - i,
-                    }}
-                  >
-                    <img src={step.img} alt={step.title} className="w-5 h-5 object-contain" />
-                  </div>
-                ))}
-                {removedSteps.length > 3 && (
-                  <div className="w-8 h-8 bg-[#8B47FF] rounded-full shadow-sm flex items-center justify-center text-white text-[10px] font-bold" style={{ marginLeft: -6, zIndex: 6 }}>
-                    +{removedSteps.length - 3}
-                  </div>
-                )}
+          {routineSteps.length === 0 && (
+            <div className="flex-1 mx-8 text-center text-purple-300 font-medium italic border-2 border-dashed border-purple-100 rounded-2xl p-6">
+              Glisse des éléments depuis ta boîte pour créer ta routine.
+            </div>
+          )}
+
+          {routineSteps.map((step, index) => (
+            <React.Fragment key={step.id}>
+              <div className="hidden lg:block flex-1 relative h-6 min-w-[40px] mx-2">
+                <div className="absolute inset-0 w-full h-full bg-contain bg-center bg-no-repeat opacity-60" style={{ backgroundImage: "url('/image_Fil-rouge/Fil-rouge.svg')" }} />
               </div>
-            )}
-          </div>
-
-          <div className="flex flex-col items-start">
-            <span className="text-sm font-bold text-[#4b3b5c]">
-              {removedSteps.length > 0 ? "Défis mis de côté" : "Boîte vide"}
-            </span>
-            <span className="text-xs text-gray-400">
-              {removedSteps.length > 0
-                ? `${removedSteps.length} défi${removedSteps.length > 1 ? "s" : ""} en attente`
-                : "Aucun défi retiré"}
-            </span>
-          </div>
-        </button>
-
-        {/* Contenu déplié de la boîte */}
-        {showGiftBox && removedSteps.length > 0 && (
-          <div className="mt-6 bg-white rounded-2xl shadow-md border-2 border-purple-100 p-6 flex flex-wrap gap-6 max-w-2xl animate-in fade-in zoom-in duration-200">
-            {removedSteps.map((step) => (
-              <div key={step.id} className="flex flex-col items-center">
-                <div className="relative">
-                  <div className="w-16 h-16 bg-[#FEF0F9] rounded-full flex items-center justify-center opacity-70">
-                    <img src={step.img} alt={step.title} className="w-8 h-8 object-contain" />
-                  </div>
-                  <button
-                    onClick={() => restoreStep(step.id)}
-                    className="absolute -bottom-1 -right-1 bg-white p-1 rounded-full shadow border border-gray-100 text-[#8B47FF] hover:bg-[#FEF0F9] transition-colors"
-                    aria-label="Remettre dans le fil rouge"
-                  >
-                    <RotateCcw size={12} />
-                  </button>
+              <div 
+                className="relative flex flex-col items-center justify-center z-10 cursor-grab active:cursor-grabbing hover:scale-110 transition-transform duration-300"
+                draggable
+                onDragStart={(e) => handleDragStart(e, step, "routine", index)}
+                onDragOver={handleDragOver}
+                onDrop={(e) => handleDrop(e, "routine", index)}
+                onClick={(e) => handleClick(e, step.href)}
+              >
+                <div className="relative pointer-events-none" style={{ width: step.width, height: step.height }}>
+                  <Image src={step.src} alt={step.alt} fill className="object-contain drop-shadow-md" draggable={false} />
                 </div>
-                <span className="text-xs text-gray-500 mt-2 text-center max-w-[80px] leading-tight">
-                  {step.title}
-                </span>
               </div>
-            ))}
-          </div>
-        )}
-      </div>
+            </React.Fragment>
+          ))}
 
-      {/* Bouton pour lancer la routine */}
-      {routineSteps.length > 0 && (
-        <div className="mt-12">
-          <button className="bg-gradient-to-r from-[#8B47FF] to-[#6D3AE0] text-white font-black px-10 py-4 rounded-full shadow-lg shadow-purple-200 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl cursor-pointer">
+          {routineSteps.length > 0 && (
+            <div className="hidden lg:block flex-1 relative h-6 min-w-[40px] mx-2">
+              <div className="absolute inset-0 w-full h-full bg-contain bg-center bg-no-repeat opacity-70" style={{ backgroundImage: "url('/image_Fil-rouge/Fil-rouge.svg')" }} />
+            </div>
+          )}
+
+          {routineSteps.length > 0 && (
+            <div className="flex flex-col items-center text-center z-10 shrink-0 min-w-[130px]">
+              <div className="relative w-16 h-16 mb-2">
+                <Image src="/image_Fil-rouge/Flag.png" alt="Drapeau" fill className="object-contain" draggable={false} />
+              </div>
+              <div className="text-[#592592] font-black text-sm leading-tight max-w-[120px]">
+                Défis introspectifs atteints
+              </div>
+            </div>
+          )}
+        </div>
+
+        <div className="mt-16">
+          <button 
+            disabled={routineSteps.length === 0}
+            onClick={(e) => routineSteps.length > 0 && handleClick(e, routineSteps[0].href)}
+            className="bg-[#8B47FF] text-white font-bold text-lg px-12 py-4 rounded-full shadow-lg shadow-purple-200 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl disabled:opacity-50 disabled:hover:translate-y-0"
+          >
             Lancer ma routine
           </button>
         </div>
-      )}
+      </div>
+
+      {/* --- LA BOÎTE À DÉFIS MAGIQUE --- */}
+      <div className="mt-16 w-full flex flex-col items-center">
+        <h3 className="text-xl font-bold text-[#592592] mb-2">Ta boîte à défis 🎁</h3>
+        <p className="text-sm text-gray-500 mb-8 text-center">
+          Maintiens et glisse les icônes ici pour les retirer de ta routine. Tu pourras les reprendre plus tard !
+        </p>
+        
+        <div 
+          className="relative flex flex-col items-center justify-start w-full max-w-[450px] min-h-[350px] transition-all duration-300 mx-auto"
+          onDragOver={handleDragOver}
+          onDrop={(e) => handleDrop(e, "giftbox")}
+        >
+          {/* L'image de la boîte générée dynamiquement */}
+          <div className="relative w-72 h-72 z-0">
+            <Image 
+              src={getBoxImage()} 
+              alt="Boîte à défis SOREA" 
+              fill 
+              className="object-contain drop-shadow-xl transition-all duration-500" 
+              draggable={false}
+            />
+          </div>
+
+          {/* Boutons invisibles par-dessus la boîte pour pouvoir "reprendre" un objet ! */}
+          {giftBoxSteps.length > 0 && (
+            <div className="relative z-10 flex gap-4 mt-2 px-6 py-3 bg-white/50 backdrop-blur-md rounded-2xl border border-purple-100/50 shadow-sm">
+              {giftBoxSteps.map((step, index) => (
+                <div
+                  key={step.id}
+                  draggable
+                  onDragStart={(e) => handleDragStart(e, step, "giftbox", index)}
+                  className="cursor-grab active:cursor-grabbing hover:scale-110 transition-transform duration-300 bg-white p-2 rounded-xl shadow-sm border border-purple-50"
+                  title={`Remettre dans la routine`}
+                >
+                  <div className="relative pointer-events-none" style={{ width: step.width * 0.4, height: step.height * 0.4 }}>
+                    <Image src={step.src} alt={step.alt} fill className="object-contain" draggable={false} />
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+
     </div>
   );
 }
