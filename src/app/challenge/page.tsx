@@ -7,6 +7,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import StreakTracker from "@/components/StreakTracker";
 import MenstrualCalendar from "@/components/MenstrualCalendar";
+import FilRouge from "@/components/FilRouge";
 
 const challengeCards = [
   {
@@ -76,6 +77,8 @@ export default function ChallengePage() {
       </div>
 
       <main className="mx-auto flex w-full max-w-7xl flex-col gap-20 px-6 pb-20 pt-36 md:pt-44 lg:px-12">
+
+        {/* HERO */}
         <section className="grid items-center gap-10 lg:grid-cols-[1fr_1.05fr_0.85fr]">
           <div className="space-y-7">
             <p className="text-xs font-black uppercase tracking-[0.32em] text-[#8B47FF]/70">
@@ -132,10 +135,17 @@ export default function ChallengePage() {
           </article>
         </section>
 
+        {/* CALENDRIER */}
         <section className="rounded-3xl border border-[#cdb5ff] bg-white/85 p-4 shadow-xl shadow-purple-100/70 backdrop-blur md:p-8">
           <MenstrualCalendar />
         </section>
 
+        {/* FIL ROUGE — juste après le calendrier */}
+        <section className="rounded-3xl border border-[#cdb5ff] bg-white/85 shadow-xl shadow-purple-100/70 backdrop-blur overflow-hidden">
+          <FilRouge />
+        </section>
+
+        {/* DÉFIS BIEN-ÊTRE */}
         <section>
           <div className="mb-8 text-center">
             <h2 className="text-4xl font-black tracking-[0.18em] text-[#2f2238]">
@@ -180,11 +190,13 @@ export default function ChallengePage() {
           </div>
         </section>
 
+        {/* BANDEAU BAS */}
         <section className="rounded-3xl bg-[linear-gradient(90deg,#f4ecff_0_12.5%,#ffffff_12.5%_25%,#f4ecff_25%_37.5%,#ffffff_37.5%_50%,#f4ecff_50%_62.5%,#ffffff_62.5%_75%,#f4ecff_75%_87.5%,#ffffff_87.5%_100%)] p-8 text-center shadow-inner">
           <p className="text-xl font-bold text-[#2f2238]">
             Chaque petit défi compte. Tu avances déjà.
           </p>
         </section>
+
       </main>
 
       <Footer />
