@@ -7,7 +7,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import StreakTracker from "@/components/StreakTracker";
 import MenstrualCalendar from "@/components/MenstrualCalendar";
-import FilRouge from "@/components/FilRouge";
+import FilRougeMatin  from "@/components/FilRouge";
 
 const challengeCards = [
   {
@@ -142,7 +142,7 @@ export default function ChallengePage() {
 
         {/* FIL ROUGE — juste après le calendrier */}
         <section className="rounded-3xl border border-[#cdb5ff] bg-white/85 shadow-xl shadow-purple-100/70 backdrop-blur overflow-hidden">
-          <FilRouge />
+          <FilRougeMatin  />
         </section>
 
         {/* DÉFIS BIEN-ÊTRE */}
