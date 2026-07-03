@@ -63,7 +63,7 @@ export default function CoachSessionCreator() {
         <div>
           <p className="text-sm uppercase tracking-[0.22em] text-foreground/50">Espace coach</p>
           <h2 className="text-2xl font-black text-foreground mt-1">Ajouter une séance</h2>
-          <p className="text-foreground/60 text-sm mt-1">Créez une séance qui pourra ensuite être vue par les clients les administrateurs, et même les autres coachs !</p>
+          <p className="text-foreground/60 text-sm mt-1">Créez une séance qui pourra ensuite être vue par les clients les administrateurs, et même par les autres coachs !</p>
         </div>
         <button type="button" className="btn-primary" onClick={() => setIsOpen((value) => !value)}>
           {isOpen ? "Fermer" : "Nouveau créneau"}
