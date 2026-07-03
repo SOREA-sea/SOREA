@@ -85,7 +85,7 @@ export default function FilRougeMatin({ profile }: FilRougeMatinProps) {
       
       {/* En-tête de la frise */}
       <div className="text-center mb-12">
-        <h1 className="text-4xl md:text-5xl font-black tracking-wide text-[#592592]">
+        <h1 className="text-4xl md:text-5xl font-black tracking-wide text-[#592592] uppercase">
           Mon Fil Rouge
         </h1>
         <p className="text-lg md:text-xl font-medium text-[#7d53b2] mt-2">
