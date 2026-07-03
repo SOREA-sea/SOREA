@@ -383,10 +383,34 @@ const CoachSearchBar = ({
           <SearchInput
             placeholder="Choisir une ville"
             value={cityInput}
-            onChange={e => { setCityInput(e.target.value); setCityFilter(e.target.value || "Toutes les villes"); setShowDropdown(true); }}
-            onFocus={() => setShowDropdown(true)}
+            onChange={e => {
+              const value = e.target.value;
+              setCityInput(value);
+              setCityFilter(value || "Toutes les villes");
+              setShowDropdown(value.trim().length > 0);
+            }}
+            onFocus={() => setShowDropdown(cityInput.trim().length > 0)}
           />
-          <DropdownList $visible={showDropdown && (filteredCities.length > 0 || cityInput === "")}>
+          <DropdownList
+            $visible={showDropdown && (filteredCities.length > 0 || cityInput === "")}
+            style={{
+              display: showDropdown && (filteredCities.length > 0 || cityInput === "") ? "block" : "none",
+              position: "absolute",
+              top: "calc(100% + 6px)",
+              left: 0,
+              right: 0,
+              background: "#fff",
+              borderRadius: 12,
+              boxShadow: "0 8px 32px rgba(106,24,164,0.15)",
+              border: "1.5px solid rgba(186,152,244,0.3)",
+              listStyle: "none",
+              margin: 0,
+              padding: "6px 0",
+              zIndex: 50,
+              maxHeight: 220,
+              overflowY: "auto",
+            }}
+          >
             <DropdownItem onClick={() => selectCity("")} $active={cityFilter === "Toutes les villes"}>
               Toutes les villes
             </DropdownItem>
@@ -403,10 +427,34 @@ const CoachSearchBar = ({
           <SearchInput
             placeholder="Tous les domaines"
             value={domainInput}
-            onChange={e => { setDomainInput(e.target.value); setDomainFilter(e.target.value || "Tous les domaines"); setShowDomainDropdown(true); }}
-            onFocus={() => setShowDomainDropdown(true)}
+            onChange={e => {
+              const value = e.target.value;
+              setDomainInput(value);
+              setDomainFilter(value || "Tous les domaines");
+              setShowDomainDropdown(value.trim().length > 0);
+            }}
+            onFocus={() => setShowDomainDropdown(domainInput.trim().length > 0)}
           />
-          <DropdownList $visible={showDomainDropdown && (filteredDomains.length > 0 || domainInput === "")}>
+          <DropdownList
+            $visible={showDomainDropdown && (filteredDomains.length > 0 || domainInput === "")}
+            style={{
+              display: showDomainDropdown && (filteredDomains.length > 0 || domainInput === "") ? "block" : "none",
+              position: "absolute",
+              top: "calc(100% + 6px)",
+              left: 0,
+              right: 0,
+              background: "#fff",
+              borderRadius: 12,
+              boxShadow: "0 8px 32px rgba(106,24,164,0.15)",
+              border: "1.5px solid rgba(186,152,244,0.3)",
+              listStyle: "none",
+              margin: 0,
+              padding: "6px 0",
+              zIndex: 50,
+              maxHeight: 220,
+              overflowY: "auto",
+            }}
+          >
             <DropdownItem onClick={() => selectDomain("")} $active={domainFilter === "Tous les domaines"}>
               Tous les domaines
             </DropdownItem>
@@ -647,50 +695,13 @@ const ModalBtnSecondary = styled.button`
 `;
 
 // =============================================================================
-// TESTIMONIALS (identique)
+// TESTIMONIALS
 // =============================================================================
-const TestimonialsSection = styled.section`
-  width: 100%; display: flex; flex-direction: column; align-items: center;
-  gap: 40px; background: rgba(106,24,164,0.04); padding: 60px 20px;
-`;
-const TestiTitle = styled.h2`
-  margin: 0 0 12px; font-size: clamp(26px, 4vw, 48px);
-  letter-spacing: 0.13em; font-weight: 700;
-  font-family: var(--font-inria-sans); color: var(--criture); text-align: center;
-`;
-const TestiSubtitle = styled.p`
-  margin: 0; font-size: clamp(16px, 2.5vw, 28px); letter-spacing: 0.1em; font-weight: 400;
-  font-family: var(--font-inria-sans); color: var(--criture); text-align: center;
-`;
-const TestiCardsRow = styled.div`
-  display: flex; gap: 20px; flex-wrap: wrap; justify-content: center; max-width: 1251px; width: 100%;
-`;
-const TestiCard = styled.div`
-  border-radius: 20px; background: #fff; box-shadow: 0 2px 12px rgba(0,0,0,0.07);
-  padding: 22px; width: 370px; max-width: 100%;
-  display: flex; flex-direction: column; gap: 12px; font-family: var(--font-inria-sans);
-`;
-const TestiUser = styled.div`display: flex; align-items: center; gap: 12px;`;
-const TestiAvatar = styled.div`
-  width: 44px; height: 44px; border-radius: 50%;
-  overflow: hidden; position: relative; flex-shrink: 0; background: var(--color-gainsboro);
-`;
-const TestiName = styled.div`font-size: 16px; font-weight: 800; color: var(--color-darkslategray);`;
-const TestiLocation = styled.div`font-size: 13px; color: var(--color-slategray-200);`;
-const TestiRatingRow = styled.div`display: flex; align-items: center; gap: 10px;`;
-const TestiDate = styled.div`font-size: 13px; color: var(--color-slategray-200); display: flex; align-items: center; gap: 6px;`;
-const TestiDot = styled.div`width: 5px; height: 5px; border-radius: 50%; background: var(--color-darkslategray);`;
-const TestiText = styled.p`margin: 0; font-size: 14px; line-height: 1.6; color: var(--color-dimgray-100);`;
-const TestiReadMore = styled.button`
-  background: none; border: none; padding: 0; font-size: 14px; font-weight: 800;
-  font-family: var(--font-inria-sans); color: var(--criture);
-  text-decoration: underline; cursor: pointer; text-align: left;
-`;
-
 const testimonialsData = [
-  { name: "Matie C.", location: "Lyon, France", avatar: "/images/Ellipse-1@2x.png", rating: 5, date: "avril 2025", text: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris..." },
-  { name: "Lila C.", location: "Paris, France", avatar: "/images/Ellipse-12@2x.png", rating: 5, date: "avril 2025", text: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris..." },
-  { name: "Hugo B.", location: "Bordeaux, France", avatar: "/images/Ellipse-11@2x.png", rating: 4, date: "avril 2025", text: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris..." },
+  { name: "Sophie.L", rating: 4.8, text: "SOREA a transformé ma routine quotidienne, le carnet m’aide à rester motivée chaque jour. DH" },
+  { name: "Samia.M", rating: 4.8, text: "Les séances de coaching sont exactement ce dont j'avais besoin. Les coachs sont bienveillantes et à l’écoute." },
+  { name: "Ambre.D", rating: 4.8, text: "J'adore les challenges surprises ! Ça me pousse à me dépasser tout en douceur." },
+  { name: "Nadia.H", rating: 4.8, text: "La communauté est incroyablement soudée et encourageante. Merci SOREA" },
 ];
 
 // =============================================================================
@@ -1113,35 +1124,178 @@ const CoachingPage: NextPage = () => {
           )}
         </CoachesSection>
 
-        <TestimonialsSection>
+        <section
+          style={{
+            width: "100%",
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            gap: 34,
+            background: "#fbf9ff",
+            padding: "82px 20px 94px",
+          }}
+        >
           <div style={{ textAlign: "center" }}>
-            <TestiTitle>
-              <span style={{ textDecoration: "underline" }}>Elles parlent de nos Coachs</span> !
-            </TestiTitle>
-            <TestiSubtitle>Elles ont osé, elles ont rayonné</TestiSubtitle>
+            <h2
+              style={{
+                margin: "0 0 28px",
+                fontSize: "clamp(30px, 4vw, 52px)",
+                lineHeight: 1.05,
+                letterSpacing: "0.02em",
+                fontWeight: 800,
+                color: "var(--criture)",
+                textTransform: "uppercase",
+              }}
+            >
+              Ce qu&apos;elles disent de <span style={{ color: "#8b47ff" }}>SOREA</span>
+            </h2>
+            <p
+              style={{
+                margin: 0,
+                fontSize: "clamp(18px, 2.2vw, 29px)",
+                letterSpacing: "0.01em",
+                fontWeight: 400,
+                color: "var(--criture)",
+              }}
+            >
+              De petites habitudes, de grands effets
+            </p>
           </div>
-          <TestiCardsRow>
-            {testimonialsData.map((t, i) => (
-              <TestiCard key={i}>
-                <TestiUser>
-                  <TestiAvatar>
-                    <Image src={t.avatar} alt={t.name} fill style={{ objectFit: "cover" }} sizes="44px" />
-                  </TestiAvatar>
+          <div
+            style={{
+              width: "100%",
+              maxWidth: 1136,
+              display: "grid",
+              gridTemplateColumns: "34px minmax(0, 1fr) 34px",
+              alignItems: "center",
+              gap: 14,
+            }}
+          >
+            <button
+              aria-label="Avis précédent"
+              style={{
+                border: 0,
+                background: "transparent",
+                color: "#844bd8",
+                fontSize: 34,
+                lineHeight: 1,
+                cursor: "pointer",
+              }}
+            >
+              ◀
+            </button>
+            <div
+              style={{
+                width: "100%",
+                display: "grid",
+                gridTemplateColumns: "repeat(4, minmax(0, 1fr))",
+                gap: 14,
+              }}
+            >
+              {testimonialsData.map((t, i) => (
+                <div
+                  key={i}
+                  style={{
+                    minHeight: 254,
+                    border: "2px solid #c7b6ff",
+                    borderRadius: 10,
+                    background: "#fbf9ff",
+                    padding: "18px 10px 14px",
+                    display: "flex",
+                    flexDirection: "column",
+                    justifyContent: "space-between",
+                    gap: 18,
+                  }}
+                >
                   <div>
-                    <TestiName>{t.name}</TestiName>
-                    <TestiLocation>{t.location}</TestiLocation>
+                    <div
+                      style={{
+                        color: "#a7a5ad",
+                        fontSize: 42,
+                        lineHeight: "28px",
+                        height: 26,
+                      }}
+                    >
+                      “
+                    </div>
+                    <p
+                      style={{
+                        margin: 0,
+                        minHeight: 92,
+                        fontSize: 16,
+                        lineHeight: 1.45,
+                        color: "var(--criture)",
+                      }}
+                    >
+                      {t.text}
+                    </p>
                   </div>
-                </TestiUser>
-                <TestiRatingRow>
-                  <StarsDisplay rating={t.rating} />
-                  <TestiDate><TestiDot />{t.date}</TestiDate>
-                </TestiRatingRow>
-                <TestiText>{t.text}</TestiText>
-                <TestiReadMore>En savoir plus</TestiReadMore>
-              </TestiCard>
-            ))}
-          </TestiCardsRow>
-        </TestimonialsSection>
+                    <div
+                      style={{
+                        minHeight: 60,
+                        borderRadius: 10,
+                        background: "#bdb1f5",
+                        padding: "9px 8px",
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 8,
+                      }}
+                    >
+                    <div
+                      style={{
+                        width: 38,
+                        height: 38,
+                        borderRadius: "50%",
+                        flexShrink: 0,
+                        background:
+                          "radial-gradient(circle at 50% 50%, rgba(255,255,255,0.9) 0 2px, transparent 2px 5px), #f6f5fb",
+                        backgroundSize: "7px 7px",
+                      }}
+                    />
+                    <div
+                      style={{
+                        fontSize: 13,
+                        lineHeight: 1,
+                        letterSpacing: "0.08em",
+                        fontWeight: 400,
+                        color: "var(--criture)",
+                      }}
+                    >
+                      {t.name}
+                    </div>
+                    <div
+                      style={{
+                        marginLeft: "auto",
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 4,
+                        color: "var(--criture)",
+                        fontSize: 13,
+                        whiteSpace: "nowrap",
+                      }}
+                    >
+                      <span aria-hidden="true">★</span>
+                      <span>{t.rating}</span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <button
+              aria-label="Avis suivant"
+              style={{
+                border: 0,
+                background: "transparent",
+                color: "#844bd8",
+                fontSize: 34,
+                lineHeight: 1,
+                cursor: "pointer",
+              }}
+            >
+              ▶
+            </button>
+          </div>
+        </section>
 
         <Footer />
       </PageWrapper>

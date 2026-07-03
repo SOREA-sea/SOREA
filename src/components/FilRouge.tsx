@@ -1,8 +1,7 @@
 "use client";
 
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import Image from "next/image";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 interface ProfileData {
@@ -26,51 +25,74 @@ const allFeatures = [
   { id: "mot-a-moi", src: "/image_Fil-rouge/Courrier.svg", alt: "Courrier", width: 80, height: 65, href: "/mot-a-moi", key: "enveloppe" },
 ];
 
-export default function FilRouge({ profile }: FilRougeProps) {
-  const router = useRouter();
-  const [routineSteps, setRoutineSteps] = useState(allFeatures);
-  const [giftBoxSteps, setGiftBoxSteps] = useState<typeof allFeatures>([]);
-  const dragItem = useRef<{ item: any; source: "routine" | "giftbox"; index: number } | null>(null);
+// --- LOGIQUE D'AFFICHAGE DE L'IMAGE DE LA BOÎTE ---
+const getBoxImage = (giftBoxSteps: typeof allFeatures) => {
+  if (giftBoxSteps.length === 0) return "/image_fil_rouge/Cadeaux_fermé.png";
+  if (giftBoxSteps.length === 5) return "/image_fil_rouge/cadeau_ouvert.png";
 
-  // --- MAPPING DE TES IMAGES FIGMA ---
-  const getBoxImage = () => {
-    if (giftBoxSteps.length === 0) return "/image_fil_rouge/Cadeaux_fermé.png";
-    if (giftBoxSteps.length === 5) return "/image_fil_rouge/Group 79-1.png"; // La boîte pleine
+  // On récupère les clés présentes dans la boîte, triées par ordre alphabétique
+  const keysInBox = giftBoxSteps.map((s) => s.key).sort().join("_");
 
-    // On récupère les éléments présents, on les trie par ordre alphabétique pour faire la clé
-    const presentKeys = giftBoxSteps.map(step => step.key).sort().join("_");
+  // Dictionnaire exact basé sur tes règles spécifiques
+  const imageMap: Record<string, string> = {
+    // ── 1 ÉLÉMENT dans la boîte ──────────────────────────────
+    "miroire": "/image_fil_rouge/miroire.png",
 
-    // Ton dictionnaire avec tes vrais noms de fichiers (avec les orthographes exactes de ton VSCode)
-    const imageMap: Record<string, string> = {
-      // 4 ÉLÉMENTS (Manque 1)
-      "appareil_enveloppe_fleure_miroire": "/image_fil_rouge/sans roue.png",
-      "appareil_enveloppe_miroire_roue": "/image_fil_rouge/sans-fleure_2.png",
-      "appareil_enveloppe_fleure_roue": "/image_fil_rouge/sans miroire.png",
-      "enveloppe_fleure_miroire_roue": "/image_fil_rouge/sans appareil photo.png",
-      
-      // 3 ÉLÉMENTS (Manquent 2)
-      "appareil_enveloppe_miroire": "/image_fil_rouge/sans roue et fleure.png",
-      "appareil_enveloppe_fleure": "/image_fil_rouge/sans roue et miroire.png",
-      "appareil_fleure_miroire": "/image_fil_rouge/sans roue et eneveloppe.png",
-      "enveloppe_fleure_miroire": "/image_fil_rouge/sans appreil et roue.png",
-      "fleure_miroire_roue": "/image_fil_rouge/sans-appareil-envellope.png",
-      "enveloppe_miroire_roue": "/image_fil_rouge/sans appareil et fleure.png",
-      "enveloppe_fleure_roue": "/image_fil_rouge/sans appareil et miroire.png",
+    // ── 2 ÉLÉMENTS dans la boîte ─────────────────────────────
+    "fleure_miroire": "/image_fil_rouge/miroire_fleure.png",
+    "appareil_miroire": "/image_fil_rouge/juste_miroire_et_appareil.png",
 
-      // 2 ÉLÉMENTS (Manquent 3)
-      "fleure_miroire": "/image_fil_rouge/miroire-fleure_2.png",
-      "appareil_miroire": "/image_fil_rouge/juste miroire et appareil.png",
+    // ── 3 ÉLÉMENTS dans la boîte ─────────────────────────────
+    // enveloppe + miroire + roue (ON UTILISE LE NOUVEAU NOM ICI POUR FORCER NEXT.JS)
+    "enveloppe_miroire_roue": "/image_fil_rouge/sans_appareil_et_fleure_ok.png",
+    
+    // roue + fleure + enveloppe
+    "enveloppe_fleure_roue": "/image_fil_rouge/sans_appareil_et_miroire.png",
+    // miroire + enveloppe + fleure
+    "enveloppe_fleure_miroire": "/image_fil_rouge/sans_appreil_et_roue.png",
+    // enveloppe + roue + appareil
+    "appareil_enveloppe_roue": "/image_fil_rouge/sans_fleure.png",
+    // miroire + appareil + fleure
+    "appareil_fleure_miroire": "/image_fil_rouge/sans_roue_et_eneveloppe.png",
+    // miroire + enveloppe + appareil
+    "appareil_enveloppe_miroire": "/image_fil_rouge/sans_roue_et_fleure.png",
+    // enveloppe + appareil + fleure
+    "appareil_enveloppe_fleure": "/image_fil_rouge/sans_roue_et_miroire.png",
+    // fleure + miroire + roue (règle ajoutée par sécurité)
+    "fleure_miroire_roue": "/image_fil_rouge/sans_appareil_envellope.png",
 
-      // 1 ÉLÉMENT (Manquent 4)
-      "miroire": "/image_fil_rouge/miroire_2.png",
-    };
-
-    // Retourne l'image associée, ou l'image de la boîte vide en attendant que tu crées l'image manquante
-    return imageMap[presentKeys] || "/image_fil_rouge/cadeau_ouvert.png";
+    // ── 4 ÉLÉMENTS dans la boîte ─────────────────────────────
+    // miroire + fleure + enveloppe + roue
+    "enveloppe_fleure_miroire_roue": "/image_fil_rouge/sans_appareil_photo.png",
+    // enveloppe + appareil + fleure + roue
+    "appareil_enveloppe_fleure_roue": "/image_fil_rouge/sans_miroire.png",
+    // fleure + miroire + appareil + enveloppe (tout sauf la roue)
+    "appareil_enveloppe_fleure_miroire": "/image_fil_rouge/sans_roue.png",
+    // miroire + appareil + enveloppe + roue (tout sauf la fleur, par logique)
+    "appareil_enveloppe_miroire_roue": "/image_fil_rouge/sans_fleure.png",
   };
 
-  // --- FONCTIONS DU DRAG & DROP ---
-  const handleDragStart = (e: React.DragEvent, item: any, source: "routine" | "giftbox", index: number) => {
+  // On retourne l'image correspondante, ou le cadeau ouvert par défaut si la combinaison manque
+  return imageMap[keysInBox] ?? "/image_fil_rouge/cadeau_ouvert.png";
+};
+
+export default function FilRouge({ profile }: FilRougeProps) {
+  const router = useRouter();
+  
+  const [routineSteps, setRoutineSteps] = useState(allFeatures);
+  const [giftBoxSteps, setGiftBoxSteps] = useState<typeof allFeatures>([]);
+  
+  const [imgError, setImgError] = useState(false);
+  const [failedPath, setFailedPath] = useState("");
+  
+  const dragItem = useRef<{ item: (typeof allFeatures)[0]; source: "routine" | "giftbox"; index: number } | null>(null);
+
+  useEffect(() => {
+    setImgError(false);
+    setFailedPath("");
+  }, [giftBoxSteps]);
+
+  const handleDragStart = (e: React.DragEvent, item: (typeof allFeatures)[0], source: "routine" | "giftbox", index: number) => {
     dragItem.current = { item, source, index };
     e.dataTransfer.effectAllowed = "move";
   };
@@ -83,16 +105,19 @@ export default function FilRouge({ profile }: FilRougeProps) {
   const handleDrop = (e: React.DragEvent, targetSource: "routine" | "giftbox", targetIndex?: number) => {
     e.preventDefault();
     e.stopPropagation();
-
+    
     const dragged = dragItem.current;
     if (!dragged) return;
 
     let newRoutine = [...routineSteps];
     let newGiftBox = [...giftBoxSteps];
-    let itemToMove;
+    let itemToMove: (typeof allFeatures)[0];
 
-    if (dragged.source === "routine") itemToMove = newRoutine.splice(dragged.index, 1)[0];
-    else itemToMove = newGiftBox.splice(dragged.index, 1)[0];
+    if (dragged.source === "routine") {
+      itemToMove = newRoutine.splice(dragged.index, 1)[0];
+    } else {
+      itemToMove = newGiftBox.splice(dragged.index, 1)[0];
+    }
 
     if (targetSource === "routine") {
       if (targetIndex !== undefined) newRoutine.splice(targetIndex, 0, itemToMove);
@@ -113,27 +138,26 @@ export default function FilRouge({ profile }: FilRougeProps) {
 
   const displayName = profile ? `${profile.firstName} ${profile.lastName}` : "Utilisateur";
   const avatarSrc = profile?.avatarUrl || "/image_Fil-rouge/SOREA_little.png";
+  const boxImage = imgError ? "/image_fil_rouge/cadeau_ouvert.png" : getBoxImage(giftBoxSteps);
 
   return (
     <div className="mx-auto w-full max-w-[1200px] px-4 py-10">
+      
       <div className="bg-white rounded-[32px] border border-purple-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)] p-8 md:p-14 w-full flex flex-col items-center">
-        
         <div className="text-center mb-16">
           <h1 className="text-4xl md:text-5xl font-black tracking-wide text-[#592592]">Mon Fil Rouge</h1>
           <p className="text-lg font-medium text-[#7d53b2] mt-2">Combinaison pour tous les matins</p>
         </div>
 
-        <div 
+        <div
           className="flex flex-col lg:flex-row items-center justify-center w-full min-h-[180px] relative px-4"
           onDragOver={handleDragOver}
           onDrop={(e) => handleDrop(e, "routine")}
         >
           <div className="flex flex-col items-center text-center z-10 shrink-0">
-            <span className="text-sm font-bold text-[#592592] mb-3 block truncate max-w-[140px]">
-              {displayName}
-            </span>
+            <span className="text-sm font-bold text-[#592592] mb-3 block truncate max-w-[140px]">{displayName}</span>
             <div className="relative w-20 h-20 rounded-full bg-white shadow-sm ring-4 ring-[#e1d5f5] flex items-center justify-center overflow-hidden">
-              <Image src={avatarSrc} alt={`Avatar`} fill className="object-cover p-1 rounded-full" priority />
+              <Image src={avatarSrc} alt="Avatar" fill className="object-cover p-1 rounded-full" priority />
             </div>
           </div>
 
@@ -148,7 +172,7 @@ export default function FilRouge({ profile }: FilRougeProps) {
               <div className="hidden lg:block flex-1 relative h-6 min-w-[40px] mx-2">
                 <div className="absolute inset-0 w-full h-full bg-contain bg-center bg-no-repeat opacity-60" style={{ backgroundImage: "url('/image_Fil-rouge/Fil-rouge.svg')" }} />
               </div>
-              <div 
+              <div
                 className="relative flex flex-col items-center justify-center z-10 cursor-grab active:cursor-grabbing hover:scale-110 transition-transform duration-300"
                 draggable
                 onDragStart={(e) => handleDragStart(e, step, "routine", index)}
@@ -174,15 +198,13 @@ export default function FilRouge({ profile }: FilRougeProps) {
               <div className="relative w-16 h-16 mb-2">
                 <Image src="/image_Fil-rouge/Flag.png" alt="Drapeau" fill className="object-contain" draggable={false} />
               </div>
-              <div className="text-[#592592] font-black text-sm leading-tight max-w-[120px]">
-                Défis introspectifs atteints
-              </div>
+              <div className="text-[#592592] font-black text-sm leading-tight max-w-[120px]">Défis introspectifs atteints</div>
             </div>
           )}
         </div>
 
         <div className="mt-16">
-          <button 
+          <button
             disabled={routineSteps.length === 0}
             onClick={(e) => routineSteps.length > 0 && handleClick(e, routineSteps[0].href)}
             className="bg-[#8B47FF] text-white font-bold text-lg px-12 py-4 rounded-full shadow-lg shadow-purple-200 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl disabled:opacity-50 disabled:hover:translate-y-0"
@@ -192,39 +214,49 @@ export default function FilRouge({ profile }: FilRougeProps) {
         </div>
       </div>
 
-      {/* --- LA BOÎTE À DÉFIS MAGIQUE --- */}
       <div className="mt-16 w-full flex flex-col items-center">
         <h3 className="text-xl font-bold text-[#592592] mb-2">Ta boîte à défis 🎁</h3>
         <p className="text-sm text-gray-500 mb-8 text-center">
-          Maintiens et glisse les icônes ici pour les retirer de ta routine. Tu pourras les reprendre plus tard !
+          Maintiens et glisse les icônes ici pour les retirer de ta routine.
         </p>
-        
-        <div 
-          className="relative flex flex-col items-center justify-start w-full max-w-[450px] min-h-[350px] transition-all duration-300 mx-auto"
+
+        <div
+          className="relative flex flex-col items-center justify-start w-full max-w-[450px] min-h-[350px] mx-auto"
           onDragOver={handleDragOver}
           onDrop={(e) => handleDrop(e, "giftbox")}
         >
-          {/* L'image de la boîte générée dynamiquement */}
           <div className="relative w-72 h-72 z-0">
-            <Image 
-              src={getBoxImage()} 
-              alt="Boîte à défis SOREA" 
-              fill 
-              className="object-contain drop-shadow-xl transition-all duration-500" 
+            <Image
+              src={boxImage}
+              alt="Boîte à défis SOREA"
+              fill
+              unoptimized
+              className="object-contain drop-shadow-xl transition-all duration-500"
               draggable={false}
+              onError={(e) => {
+                setImgError(true);
+                const url = new URL(e.currentTarget.src);
+                const realPath = url.searchParams.get('url') || url.pathname;
+                setFailedPath(realPath);
+              }}
             />
           </div>
 
-          {/* Boutons invisibles par-dessus la boîte pour pouvoir "reprendre" un objet ! */}
+          {imgError && giftBoxSteps.length > 0 && giftBoxSteps.length < 5 && (
+            <div className="absolute -bottom-6 text-red-500 text-xs font-bold bg-red-50 px-3 py-1 rounded-full border border-red-200 z-50">
+              ❌ Image introuvable : {failedPath.split('/').pop()}
+            </div>
+          )}
+
           {giftBoxSteps.length > 0 && (
-            <div className="relative z-10 flex gap-4 mt-2 px-6 py-3 bg-white/50 backdrop-blur-md rounded-2xl border border-purple-100/50 shadow-sm">
+            <div className="relative z-10 flex gap-4 mt-4 px-6 py-3 bg-white/60 backdrop-blur-sm rounded-2xl border border-purple-100 shadow-sm">
               {giftBoxSteps.map((step, index) => (
                 <div
                   key={step.id}
                   draggable
                   onDragStart={(e) => handleDragStart(e, step, "giftbox", index)}
                   className="cursor-grab active:cursor-grabbing hover:scale-110 transition-transform duration-300 bg-white p-2 rounded-xl shadow-sm border border-purple-50"
-                  title={`Remettre dans la routine`}
+                  title="Glisse pour remettre dans la routine"
                 >
                   <div className="relative pointer-events-none" style={{ width: step.width * 0.4, height: step.height * 0.4 }}>
                     <Image src={step.src} alt={step.alt} fill className="object-contain" draggable={false} />
@@ -235,7 +267,6 @@ export default function FilRouge({ profile }: FilRougeProps) {
           )}
         </div>
       </div>
-
     </div>
   );
 }
