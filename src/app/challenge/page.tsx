@@ -107,7 +107,7 @@ export default function MiroirDesAffirmations() {
                             Choisis ton défi bien-être du jour et avance avec douceur, une action après l&apos;autre.
                         </p>
                         <Link href="/route">
-                            <button className="bg-[#8B47FF] text-white font-bold px-10 py-5 rounded-2xl shadow-md transition-all duration-300 hover:scale-105 hover:shadow-xl tracking-[0.18em] uppercase cursor-pointer">
+                            <button className="bg-SOREA-V1 text-white font-bold px-10 py-5 rounded-2xl shadow-md transition-all duration-300 hover:scale-105 hover:shadow-xl tracking-[0.18em] uppercase cursor-pointer">
                                 Tourner
                             </button>
                         </Link>
