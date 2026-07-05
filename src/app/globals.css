@@ -8,13 +8,24 @@
 @import "tailwindcss";
 /* ─── Tailwind theme tokens ──────────────────────────────────────────────── */
 @theme {
-  --color-sorea-violet: #9B8FD9;
-  --color-sorea-lavande: #E2DCF9;
-  --color-sorea-peche: #F4C49E;
-  --color-sorea-gris: #3D3D3D;
-  --color-primary: #9B8FD9;
-  --color-primary-dark: #6A18A4;
-  --color-primary-darker: #280267;
+  --color-Ecriture: #212121;
+
+  --color-SOREA-V1: #7F4DC5;
+  --color-SOREA-V2: #C0ACFF;
+
+  --color-SOREA-R1: #E256B3;
+  --color-SOREA-R2: #F4C4E4;
+
+  --color-SOREA-B1: #00CEC9;
+  --color-SOREA-B2: #C0E3E1;
+  --color-Bleu-UX: #B7F8F5;
+
+  --color-Blanc-Violet: #FBFAFF;
+  --color-Rose-feature: #FEF0F9;
+  --color-Violet-appaisant: #FAF5FF;
+
+  --color-Gris-SOREA: #B9ADB4;
+
   --font-inria: var(--font-inria-sans);
   --btn--violet--degrade :  linear-gradient(93.09deg, #8B47FF 0%, #BA98F4 100%);
 
