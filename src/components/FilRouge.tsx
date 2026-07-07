@@ -18,17 +18,17 @@ interface FilRougeProps {
 }
 
 const allFeatures = [
-  { id: "wim-hof", src: "/image_Fil-rouge/Lotus.svg", alt: "Lotus", width: 80, height: 80, href: "/wim-hof", key: "fleure" },
-  { id: "miroir", src: "/image_Fil-rouge/miroir_affirmation_manche.svg", alt: "Miroir", width: 75, height: 110, href: "/miroir", key: "miroire" },
-  { id: "route", src: "/image_Fil-rouge/Wheel-Spinner.svg", alt: "Roulette", width: 80, height: 150, href: "/route", key: "roue" },
-  { id: "visualisation", src: "/image_Fil-rouge/Appareil_photo.svg", alt: "Appareil photo", width: 90, height: 70, href: "/visualisation", key: "appareil" },
-  { id: "mot-a-moi", src: "/image_Fil-rouge/Courrier.svg", alt: "Courrier", width: 80, height: 65, href: "/mot-a-moi", key: "enveloppe" },
+  { id: "wim-hof", src: "/image_icone/Lotus.svg", alt: "Lotus", width: 80, height: 80, href: "/wim-hof", key: "fleure" },
+  { id: "miroir", src: "/image_icone/miroir_affirmation_manche.svg", alt: "Miroir", width: 75, height: 110, href: "/miroir", key: "miroire" },
+  { id: "route", src: "/image_icone/image_Wheel-Spinner/WS_Bien-être1.png", alt: "Roulette", width: 80, height: 150, href: "/route", key: "roue" },
+  { id: "visualisation", src: "/image_icone/Appareil_photo.svg", alt: "Appareil photo", width: 90, height: 70, href: "/visualisation", key: "appareil" },
+  { id: "mot-a-moi", src: "/image_icone/Courrier.svg", alt: "Courrier", width: 80, height: 65, href: "/mot-a-moi", key: "enveloppe" },
 ];
 
 // --- LOGIQUE D'AFFICHAGE DE L'IMAGE DE LA BOÎTE ---
 const getBoxImage = (giftBoxSteps: typeof allFeatures) => {
-  if (giftBoxSteps.length === 0) return "/image_fil_rouge/Cadeaux_fermé.png";
-  if (giftBoxSteps.length === 5) return "/image_fil_rouge/cadeau_ouvert.png";
+  if (giftBoxSteps.length === 0) return "/image_icone/Cadeaux_fermé.png";
+  if (giftBoxSteps.length === 5) return "/image_icone/cadeau_ouvert.png";
 
   // On récupère les clés présentes dans la boîte, triées par ordre alphabétique
   const keysInBox = giftBoxSteps.map((s) => s.key).sort().join("_");
@@ -36,44 +36,44 @@ const getBoxImage = (giftBoxSteps: typeof allFeatures) => {
   // Dictionnaire exact basé sur tes règles spécifiques
   const imageMap: Record<string, string> = {
     // ── 1 ÉLÉMENT dans la boîte ──────────────────────────────
-    "miroire": "/image_fil_rouge/miroire.png",
+    "miroire": "/image_icone/miroire.png",
 
     // ── 2 ÉLÉMENTS dans la boîte ─────────────────────────────
-    "fleure_miroire": "/image_fil_rouge/miroire_fleure.png",
-    "appareil_miroire": "/image_fil_rouge/juste_miroire_et_appareil.png",
+    "fleure_miroire": "/image_icone/miroire_fleure.png",
+    "appareil_miroire": "/image_icone/juste_miroire_et_appareil.png",
 
     // ── 3 ÉLÉMENTS dans la boîte ─────────────────────────────
     // enveloppe + miroire + roue (ON UTILISE LE NOUVEAU NOM ICI POUR FORCER NEXT.JS)
-    "enveloppe_miroire_roue": "/image_fil_rouge/sans_appareil_et_fleure_ok.png",
+    "enveloppe_miroire_roue": "/image_icone/sans_appareil_et_fleure_ok.png",
     
     // roue + fleure + enveloppe
-    "enveloppe_fleure_roue": "/image_fil_rouge/sans_appareil_et_miroire.png",
+    "enveloppe_fleure_roue": "/image_icone/sans_appareil_et_miroire.png",
     // miroire + enveloppe + fleure
-    "enveloppe_fleure_miroire": "/image_fil_rouge/sans_appreil_et_roue.png",
+    "enveloppe_fleure_miroire": "/image_icone/sans_appreil_et_roue.png",
     // enveloppe + roue + appareil
-    "appareil_enveloppe_roue": "/image_fil_rouge/sans_fleure.png",
+    "appareil_enveloppe_roue": "/image_icone/sans_fleure.png",
     // miroire + appareil + fleure
-    "appareil_fleure_miroire": "/image_fil_rouge/sans_roue_et_eneveloppe.png",
+    "appareil_fleure_miroire": "/image_icone/sans_roue_et_eneveloppe.png",
     // miroire + enveloppe + appareil
-    "appareil_enveloppe_miroire": "/image_fil_rouge/sans_roue_et_fleure.png",
+    "appareil_enveloppe_miroire": "/image_icone/sans_roue_et_fleure.png",
     // enveloppe + appareil + fleure
-    "appareil_enveloppe_fleure": "/image_fil_rouge/sans_roue_et_miroire.png",
+    "appareil_enveloppe_fleure": "/image_icone/sans_roue_et_miroire.png",
     // fleure + miroire + roue (règle ajoutée par sécurité)
-    "fleure_miroire_roue": "/image_fil_rouge/sans_appareil_envellope.png",
+    "fleure_miroire_roue": "/image_icone/sans_appareil_envellope.png",
 
     // ── 4 ÉLÉMENTS dans la boîte ─────────────────────────────
     // miroire + fleure + enveloppe + roue
-    "enveloppe_fleure_miroire_roue": "/image_fil_rouge/sans_appareil_photo.png",
+    "enveloppe_fleure_miroire_roue": "/image_icone/sans_appareil_photo.png",
     // enveloppe + appareil + fleure + roue
-    "appareil_enveloppe_fleure_roue": "/image_fil_rouge/sans_miroire.png",
+    "appareil_enveloppe_fleure_roue": "/image_icone/sans_miroire.png",
     // fleure + miroire + appareil + enveloppe (tout sauf la roue)
-    "appareil_enveloppe_fleure_miroire": "/image_fil_rouge/sans_roue.png",
+    "appareil_enveloppe_fleure_miroire": "/image_icone/sans_roue.png",
     // miroire + appareil + enveloppe + roue (tout sauf la fleur, par logique)
-    "appareil_enveloppe_miroire_roue": "/image_fil_rouge/sans_fleure.png",
+    "appareil_enveloppe_miroire_roue": "/image_icone/sans_fleure.png",
   };
 
   // On retourne l'image correspondante, ou le cadeau ouvert par défaut si la combinaison manque
-  return imageMap[keysInBox] ?? "/image_fil_rouge/cadeau_ouvert.png";
+  return imageMap[keysInBox] ?? "/image_icone/cadeau_ouvert.png";
 };
 
 export default function FilRouge({ profile }: FilRougeProps) {
@@ -137,8 +137,8 @@ export default function FilRouge({ profile }: FilRougeProps) {
   };
 
   const displayName = profile ? `${profile.firstName} ${profile.lastName}` : "Utilisateur";
-  const avatarSrc = profile?.avatarUrl || "/image_Fil-rouge/SOREA_little.png";
-  const boxImage = imgError ? "/image_fil_rouge/cadeau_ouvert.png" : getBoxImage(giftBoxSteps);
+  const avatarSrc = profile?.avatarUrl || "/image_icone/SOREA_little.png";
+  const boxImage = imgError ? "/image_icone/cadeau_ouvert.png" : getBoxImage(giftBoxSteps);
 
   return (
     <div className="mx-auto w-full max-w-[1200px] px-4 py-10">
@@ -170,7 +170,7 @@ export default function FilRouge({ profile }: FilRougeProps) {
           {routineSteps.map((step, index) => (
             <React.Fragment key={step.id}>
               <div className="hidden lg:block flex-1 relative h-6 min-w-[40px] mx-2">
-                <div className="absolute inset-0 w-full h-full bg-contain bg-center bg-no-repeat opacity-60" style={{ backgroundImage: "url('/image_Fil-rouge/Fil-rouge.svg')" }} />
+                <div className="absolute inset-0 w-full h-full bg-contain bg-center bg-no-repeat opacity-60" style={{ backgroundImage: "url('/image_icone/Fil-rouge.svg')" }} />
               </div>
               <div
                 className="relative flex flex-col items-center justify-center z-10 cursor-grab active:cursor-grabbing hover:scale-110 transition-transform duration-300"
@@ -189,14 +189,14 @@ export default function FilRouge({ profile }: FilRougeProps) {
 
           {routineSteps.length > 0 && (
             <div className="hidden lg:block flex-1 relative h-6 min-w-[40px] mx-2">
-              <div className="absolute inset-0 w-full h-full bg-contain bg-center bg-no-repeat opacity-70" style={{ backgroundImage: "url('/image_Fil-rouge/Fil-rouge.svg')" }} />
+              <div className="absolute inset-0 w-full h-full bg-contain bg-center bg-no-repeat opacity-70" style={{ backgroundImage: "url('/image_icone/Fil-rouge.svg')" }} />
             </div>
           )}
 
           {routineSteps.length > 0 && (
             <div className="flex flex-col items-center text-center z-10 shrink-0 min-w-[130px]">
               <div className="relative w-16 h-16 mb-2">
-                <Image src="/image_Fil-rouge/Flag.png" alt="Drapeau" fill className="object-contain" draggable={false} />
+                <Image src="/image_icone/Flag.png" alt="Drapeau" fill className="object-contain" draggable={false} />
               </div>
               <div className="text-[#592592] font-black text-sm leading-tight max-w-[120px]">Défis introspectifs atteints</div>
             </div>
@@ -215,7 +215,7 @@ export default function FilRouge({ profile }: FilRougeProps) {
       </div>
 
       <div className="mt-16 w-full flex flex-col items-center">
-        <h3 className="text-xl font-bold text-[#592592] mb-2">Ta boîte à défis 🎁</h3>
+        <h3 className="text-xl font-bold text-[#592592] mb-2">Ta boîte à défis</h3>
         <p className="text-sm text-gray-500 mb-8 text-center">
           Maintiens et glisse les icônes ici pour les retirer de ta routine.
         </p>
