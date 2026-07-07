@@ -77,32 +77,34 @@ export default function RouteDesDefis() {
             {selectedCategory === null ? (
               // VUE 1 : Les 3 choix
               <div className="flex gap-6 mt-4">
+          
+                <button 
+                  onClick={() => setSelectedCategory("sport")}
+                  className="flex flex-col items-center justify-center p-8 rounded-3xl hover:xl hover:-translate-y-1 transition-all duration-300 w-[240px] h-[240px]"
+                >
+                  <img src="/image_icone/image_Wheel-Spinner/WS_Sport1.png" alt="Wheel-Spinner Sport" className="mb-4" />
+                  <span className="text-xl font-bold text-[#5A37AC]">Sport</span>
+                  <span className="text-sm text-gray-500 mt-2 text-center">Bouge et dépense-toi</span>
+                </button>
+
                 <button 
                   onClick={() => setSelectedCategory("bien-etre")}
-                  className="flex flex-col items-center justify-center p-8 bg-white border-2 border-[#DBCEEF] rounded-3xl shadow-md hover:shadow-xl hover:-translate-y-1 transition-all duration-300 w-[240px] h-[240px]"
+                  className="flex flex-col items-center justify-center p-8 rounded-3xl hover:xl hover:-translate-y-1 transition-all duration-300 w-[240px] h-[240px]"
                 >
-                  <span className="text-4xl mb-4">🧘‍♀️</span>
+                  <img src="/image_icone/image_Wheel-Spinner/WS_Bien-être1.png" alt="Wheel-Spinner Bien-être" className="mb-4" />
                   <span className="text-xl font-bold text-[#5A37AC]">Bien-être</span>
                   <span className="text-sm text-gray-500 mt-2 text-center">Recentrage et positivité</span>
                 </button>
 
                 <button 
                   onClick={() => setSelectedCategory("nutrition")}
-                  className="flex flex-col items-center justify-center p-8 bg-white border-2 border-[#DBCEEF] rounded-3xl shadow-md hover:shadow-xl hover:-translate-y-1 transition-all duration-300 w-[240px] h-[240px]"
+                  className="flex flex-col items-center justify-center p-8 rounded-3xl hover:xl hover:-translate-y-1 transition-all duration-300 w-[240px] h-[240px]"
                 >
-                  <span className="text-4xl mb-4">🍎</span>
+                  <img src="/image_icone/image_Wheel-Spinner/WS_Nutrition1.png" alt="Wheel-Spinner Nutrition" className="mb-4" />
                   <span className="text-xl font-bold text-[#5A37AC]">Nutrition</span>
                   <span className="text-sm text-gray-500 mt-2 text-center">Défis sains et gourmands</span>
                 </button>
 
-                <button 
-                  onClick={() => setSelectedCategory("sport")}
-                  className="flex flex-col items-center justify-center p-8 bg-white border-2 border-[#DBCEEF] rounded-3xl shadow-md hover:shadow-xl hover:-translate-y-1 transition-all duration-300 w-[240px] h-[240px]"
-                >
-                  <span className="text-4xl mb-4">🏃‍♂️</span>
-                  <span className="text-xl font-bold text-[#5A37AC]">Sport</span>
-                  <span className="text-sm text-gray-500 mt-2 text-center">Bouge et dépense-toi</span>
-                </button>
               </div>
             ) : (
               // VUE 2 : La roue choisie

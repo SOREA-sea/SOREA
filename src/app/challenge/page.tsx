@@ -11,7 +11,7 @@ import FilRougeMatin from "@/components/FilRouge";
 export default function MiroirDesAffirmations() {
     const sections = [
         {
-            img: "/image_ambassadrice_svg/envelope.png",
+            img: "/image_icone/Courrier.svg",
             alt: "mot à moi",
             imgWidth: "280px",
             title: "Mot à moi",
@@ -26,7 +26,7 @@ export default function MiroirDesAffirmations() {
             href: "/mot-a-moi",
         },
         {
-            img: "/image_ambassadrice_svg/appareilphoto.png",
+            img: "/image_icone/Appareil_photo.svg",
             alt: "visualise toi",
             imgWidth: "280px",
             title: "Visualise-toi",
@@ -42,7 +42,7 @@ export default function MiroirDesAffirmations() {
             href: "/visualisation",
         },
         {
-            img: "/image_ambassadrice_svg/lotus.png",
+            img: "/image_icone/Lotus.svg",
             alt: "wim hof",
             imgWidth: "180px",
             title: "Wim Hof féminine",
@@ -57,7 +57,7 @@ export default function MiroirDesAffirmations() {
             href: "/wim-hof",
         },
         {
-            img: "/image_mirror/miroire.png",
+            img: "/image_icone/miroire.png",
             alt: "miroir",
             imgWidth: "280px",
             title: "Miroir mon beau miroir",
@@ -115,7 +115,7 @@ export default function MiroirDesAffirmations() {
 
                     <div className="flex items-center justify-center">
                         <img
-                            src="/images/wheelspinner.png"
+                            src="/image_icone/image_Wheel-Spinner/WS_Bien-être1.png"
                             alt="roue"
                             style={{ width: "280px", display: "block" }}
                         />
