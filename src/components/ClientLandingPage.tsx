@@ -124,37 +124,49 @@ export default function ClientLandingPage() {
           <div className="flex flex-col items-center mb-10">
             <h2 className="text-2xl md:text-3xl font-medium tracking-wide">Nos essentiels bien-être</h2>
             <div className="h-px bg-[linear-gradient(90deg,#d3cced_0%,#fbf7f2_100%)] w-full max-w-[260px] mt-2 mb-4"></div>
-            <p className="text-center italic font-light text-lg">Des objectifs doux & beaux, sélectionnés<br />pour vous accompagner chaque jour.</p>
+            <p className="text-center font-light text-lg md:text-xl leading-relaxed">Des objectifs doux & beaux,<br />sélectionnés pour vous accompagner chaque jour.</p>
           </div>
           
-          <div className="flex overflow-x-auto gap-6 hide-scrollbars pb-8 snap-x snap-mandatory px-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5 md:gap-6">
             {[
-              { name: "Kit anti-anxiété", desc: "Respiration guidée, roll-on, carte rituels : votre pause apaisante à portée de main.", price: 29 },
-              { name: "Lunettes anti-lumière bleue", desc: "Protection premium pour tes yeux, design léger et confortable.", price: 49 },
-              { name: "Coffret relaxation", desc: "Gua-sha, brume d'oreiller, carnet de nuit : un moment rien que pour vous", price: 59 },
-              { name: "Soin skin care", desc: "Profitez d'une crème de l'un de nos masque (jour/nuit)", price: 29 },
+              { name: "Kit anti anxiété", desc: "Respiration guidée, roll-on et cartes rituels, votre pause apaisante à portée de main.", price: 29 },
+              { name: "Lunettes anti lumière bleue", desc: "Protection premium pour les yeux, design léger et confortable.", price: 49 },
+              { name: "Coffret relaxation", desc: "Gua-sha, brume d'oreiller et carnet de nuit, un moment rien que pour vous", price: 59 },
             ].map((product, idx) => (
-              <div key={idx} className="shrink-0 w-64 bg-white rounded-[1.5rem] p-3 shadow-sm border border-purple-100 flex flex-col snap-center">
-                <div className="w-full aspect-[4/5] bg-pink-100 rounded-xl mb-4 relative overflow-hidden"></div>
-                <h3 className="font-semibold text-[#2A2340] mb-2 leading-tight">{product.name}</h3>
-                <p className="text-xs text-gray-500 mb-4 h-12">{product.desc}</p>
-                <div className="mt-auto">
-                  <p className="font-bold text-lg mb-3">{product.price}€</p>
-                  <button 
-                    onClick={() => addToCart(product.name, product.price)}
-                    className="w-full py-2.5 bg-[#A18FE3] text-white text-xs font-semibold rounded-md hover:bg-[#8D7CD4] transition-colors"
-                  >
-                    Ajouter au panier
-                  </button>
+              <div key={idx} className="min-h-[312px] bg-white rounded-[10px] shadow-sm border border-[#cfc9d5] overflow-hidden flex flex-col">
+                <div className="h-[138px] bg-[linear-gradient(90deg,rgba(255,255,255,0.65)_0_24px,rgba(234,234,234,0.9)_24px_48px),linear-gradient(0deg,rgba(255,255,255,0.65)_0_34px,rgba(234,234,234,0.9)_34px_68px)] bg-[length:68px_68px]"></div>
+                <div className="p-3 md:p-4 flex flex-1 flex-col">
+                  <h3 className="font-bold text-[#2A2340] mb-2 leading-tight">{product.name}</h3>
+                  <p className="text-sm text-[#2A2340]/85 leading-snug max-w-[440px]">{product.desc}</p>
+                  <div className="mt-auto flex items-end justify-between gap-4 pt-6">
+                    <p className="font-bold text-lg text-[#8B47FF]">{product.price}€</p>
+                    <button
+                      onClick={() => addToCart(product.name, product.price)}
+                      className="min-w-[120px] py-2.5 px-5 bg-[#8B47FF] text-white text-sm font-semibold rounded-[7px] hover:opacity-90 transition-opacity shadow-[0_5px_0_rgba(154,132,204,0.45),0_10px_24px_rgba(67,56,114,0.12)]"
+                    >
+                      Découvrir
+                    </button>
+                  </div>
                 </div>
               </div>
             ))}
+
+            <button
+              type="button"
+              onClick={() => router.push("/shop")}
+              className="min-h-[312px] rounded-[10px] border-2 border-dashed border-[#8B47FF] bg-[#E9E7FF] flex flex-col items-center justify-center gap-4 text-[#000] hover:bg-[#e2ddff] transition-colors"
+            >
+              <span className="w-12 h-12 rounded-full bg-[#8B47FF] text-white flex items-center justify-center text-3xl leading-none shadow-[0_5px_0_rgba(154,132,204,0.45),0_10px_24px_rgba(67,56,114,0.12)]">
+                →
+              </span>
+              <span className="text-lg md:text-xl font-medium">Voir toutes les catégories</span>
+            </button>
           </div>
           
-          <div className="mt-8 flex justify-center">
-            <button 
+          <div className="mt-10 flex justify-center">
+            <button
               onClick={() => router.push("/shop")}
-              className={`text-xs font-semibold border border-purple-300 text-[#665D8B] py-2 px-6 rounded-full bg-white hover:bg-purple-50 transition-colors ${gradientButtonClass}`}
+              className="text-base md:text-lg font-semibold text-white py-3 px-10 rounded-full bg-[#8B47FF] hover:opacity-90 transition-opacity shadow-[0_5px_0_rgba(154,132,204,0.45),0_10px_24px_rgba(67,56,114,0.12)]"
             >
               Accéder à la boutique
             </button>
