@@ -30,10 +30,10 @@ interface SymptomLog {
 }
 
 const phaseIcons: { [key: string]: string } = {
-  Hiver: "/image_MenstrualCalendar/Hiver.svg",
-  Printemps: "/image_MenstrualCalendar/Printemps.svg",
-  Été: "/image_MenstrualCalendar/Été.svg",
-  Automne: "/image_MenstrualCalendar/Automne.svg",
+  Hiver: "/image_Design-SOREA/Hiver.svg",
+  Printemps: "/image_icone/Printemps.svg",
+  Été: "/image_icone/Été.svg",
+  Automne: "/image_icone/Automne.svg",
 };
 
 export default function MenstrualCalendar() {
@@ -287,7 +287,7 @@ const [isSnowflakeMode, setIsSnowflakeMode] = useState(false);
         phaseColor = "text-[#8B47FF] hover:bg-[#E8D9FF]";
         icon = (
           <img 
-            src={isSnowflakeMode ? "/image_MenstrualCalendar/Flocon.svg" : phaseIcons[phase]} 
+            src={isSnowflakeMode ? "/image_icone/Flocon.svg" : phaseIcons[phase]} 
             alt={isSnowflakeMode ? "Icône Flocon" : "Icône Hiver"} 
             className="w-6 h-6 absolute bottom-1 right-1" 
           />
@@ -327,7 +327,7 @@ const [isSnowflakeMode, setIsSnowflakeMode] = useState(false);
         >
           {allTodosCompleted && (
       <img 
-        src="/image_MenstrualCalendar/Okey-Calendar.svg" 
+        src="/image_icone/Okey-Calendar.svg" 
         alt="Toutes les tâches terminées" 
         className="w-5 h-5 absolute left-1 top-1 object-contain" 
       />
@@ -431,7 +431,7 @@ const [isSnowflakeMode, setIsSnowflakeMode] = useState(false);
 <div className="Hiver group relative flex items-center gap-2 cursor-pointer">
           <div className="w-5 h-5 shrink-0 flex items-center justify-center">
             <img 
-              src={isSnowflakeMode ? "/image_MenstrualCalendar/Flocon.svg" : phaseIcons["Hiver"]} 
+              src={isSnowflakeMode ? "/image_icone/Flocon.svg" : phaseIcons["Hiver"]} 
               alt={isSnowflakeMode ? "Icône Flocon" : "Icône Hiver"} 
               className="w-full h-full object-contain" 
             />

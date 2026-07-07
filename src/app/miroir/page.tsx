@@ -271,7 +271,7 @@ useEffect(() => { //Si l'utilisatrice change d'onglet ou minimise la fenêtre, l
             >
               
               <img 
-                src="/image_mirror/miroire.png" 
+                src="/image_icone/miroire.png" 
                 alt="Cadre du miroir" 
                 className="absolute z-0 w-full h-full object-contain pointer-events-none"
               />
@@ -308,8 +308,8 @@ useEffect(() => { //Si l'utilisatrice change d'onglet ou minimise la fenêtre, l
   <img
     src={
       microActive
-        ? "/image_mirror/Micro_active.svg"
-        : "/image_mirror/Micro_desactive.svg"
+        ? "/image_icone/Micro_active.svg"
+        : "/image_icone/Micro_desactive.svg"
     }
     alt="Micro"
     className="w-14 h-14"
@@ -323,8 +323,8 @@ useEffect(() => { //Si l'utilisatrice change d'onglet ou minimise la fenêtre, l
     <img
       src={
         cameraActive
-          ? "/image_mirror/Camera_active.svg"
-          : "/image_mirror/Camera_desactive.svg"
+          ? "/image_icone/Camera_active.svg"
+          : "/image_icone/Camera_desactive.svg"
       }
       alt="Caméra"
       className="w-14 h-14"
