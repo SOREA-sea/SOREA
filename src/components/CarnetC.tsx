@@ -48,7 +48,7 @@ const styles = `
   }
   .sorea-btn-retour:hover { text-decoration: underline; }
 
-  .sorea-btn-commander {
+  {/*.sorea-btn-commander {
     background: white;
     border: 2.5px solid #7B4FC8;
     border-radius: 12px;
@@ -63,7 +63,7 @@ const styles = `
     width: 130px;
     transition: background 0.2s;
   }
-  .sorea-btn-commander:hover { background: #F3EEFF; }
+  .sorea-btn-commander:hover { background: #F3EEFF; }*/}
 
   .sorea-book {
     width: 860px;
@@ -509,9 +509,9 @@ export default function CarnetC({ onClose, isDedicated = false, initialMood = nu
           <button className="sorea-btn-retour" onClick={onClose}>
             ← Retour
           </button>
-          <button className="sorea-btn-commander">
+          {/*<button className="sorea-btn-commander">
             Commander mon<br />Carnet Challenge
-          </button>
+          </button>*/}
         </div>
 
         {/* Book */}
