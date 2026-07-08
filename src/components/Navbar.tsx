@@ -1,38 +1,24 @@
 "use client";
-import { usePathname } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+
 import Image from "next/image";
 import Link from "next/link";
-// on doit changer les # apresss
+import { usePathname } from "next/navigation";
+import { useEffect, useState } from "react";
+
 const NAV_LINKS = [
   { label: "Shopping", href: "/shop" },
   { label: "Coaching", href: "/coaching" },
-  { label: "Challenge", href: "/challenge" },
-  { label: "Mon carnet", href: "/carnet" },
+  { label: "Challenges", href: "/challenge" },
+  { label: "Mon Carnet", href: "/carnet" },
 ];
 
 export default function Navbar({ isLoggedIn = false }: { isLoggedIn?: boolean }) {
   const pathname = usePathname();
-  const [visible, setVisible] = useState(false);
   const [sessionUser, setSessionUser] = useState<{ id: string } | null>(null);
-  const [sessionChecked, setSessionChecked] = useState(false);
-  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  const show = () => { if (timerRef.current) clearTimeout(timerRef.current); setVisible(true); };
-  const hide = () => { timerRef.current = setTimeout(() => setVisible(false), 250); };
-  const toggleVisibility = () => setVisible((prev) => !prev);
-
-  // Nettoyage du timer lors du démontage pour éviter les fuites de mémoire
-  useEffect(() => {
-    return () => {
-      if (timerRef.current) clearTimeout(timerRef.current);
-    };
-  }, []);
+  const [sessionChecked, setSessionChecked] = useState(isLoggedIn);
 
   useEffect(() => {
-    // Optimisation : on évite le fetch si le composant sait déjà qu'on est connecté
     if (isLoggedIn) {
-      setSessionChecked(true);
       return;
     }
 
@@ -47,9 +33,7 @@ export default function Navbar({ isLoggedIn = false }: { isLoggedIn?: boolean })
         }
 
         const data = await response.json();
-        if (!cancelled) {
-          setSessionUser(data.user ?? null);
-        }
+        if (!cancelled) setSessionUser(data.user ?? null);
       } catch {
         if (!cancelled) setSessionUser(null);
       } finally {
@@ -67,246 +51,198 @@ export default function Navbar({ isLoggedIn = false }: { isLoggedIn?: boolean })
   const isAuthenticated = isLoggedIn || !!sessionUser;
   const ctaLabel = isAuthenticated ? "Mon dossier personnel" : "Se connecter";
   const ctaHref = isAuthenticated ? "/dashboard" : "/login";
-  const isLoginPage = pathname === "/login";
-  const showFloatingLoginButton = isLoginPage;
-  const showNavbarButton = pathname !== "/login" && visible;
 
   return (
     <>
-      {showFloatingLoginButton ? (
-        <Link
-          href={ctaHref}
-          className="sorea-cta-btn sorea-cta-btn--floating sorea-cta-btn--login"
-          onMouseEnter={show}
-          onMouseLeave={hide}
-        >
-          {sessionChecked || isAuthenticated ? ctaLabel : "Se connecter"}
-        </Link>
-      ) : null}
-
-      {/* Ajout d'un événement onClick pour les appareils mobiles */}
-      <div 
-        className="sorea-hotzone" 
-        onMouseEnter={show} 
-        onMouseLeave={hide} 
-        onClick={toggleVisibility}
-      />
-
-      <header
-        className={`sorea-navbar ${visible ? "sorea-navbar--visible" : ""}`}
-        onMouseEnter={show}
-        onMouseLeave={hide}
-      >
-        <Link href="/" style={{ display: "flex", alignItems: "center", textDecoration: "none", flexShrink: 0 }}>
-          <Image src="/images/logo_sorea.webp" alt="Logo SOREA" width={84} height={84} priority />
+      <header className="sorea-navbar">
+        <Link href="/" className="sorea-logo-link" aria-label="Accueil SOREA">
+          <Image
+            src="/images/sorea-navbar-logo.png"
+            alt="Logo SOREA"
+            width={64}
+            height={64}
+            priority
+          />
         </Link>
 
-        <nav className="sorea-navbar-nav">
-          {NAV_LINKS.map((link) => (
-            <Link key={link.label} href={link.href} className="sorea-navbar-link">
-              {link.label}
-            </Link>
-          ))}
-        </nav>
+        <div className="sorea-navbar-panel">
+          <nav className="sorea-navbar-nav" aria-label="Navigation principale">
+            {NAV_LINKS.map((link) => (
+              <Link
+                key={link.label}
+                href={link.href}
+                className={`sorea-navbar-link ${pathname === link.href ? "sorea-navbar-link--active" : ""}`}
+              >
+                {link.label}
+              </Link>
+            ))}
+          </nav>
 
-        {showNavbarButton ? (
-          <Link
-            href={ctaHref}
-            className={`sorea-cta-btn sorea-cta-btn--navbar ${pathname === "/dashboard" && isAuthenticated ? "sorea-cta-btn--login" : "sorea-cta-btn--default"}`}
-          >
+          <Link href={ctaHref} className="sorea-cta-btn">
             {sessionChecked || isAuthenticated ? ctaLabel : "Se connecter"}
           </Link>
-        ) : null}
-
-        {/* Bouton de fermeture pour mobile */}
-        {visible && (
-          <button 
-            className="sorea-mobile-close" 
-            onClick={hide}
-            aria-label="Fermer le menu"
-          >
-            ✕
-          </button>
-        )}
+        </div>
       </header>
 
       <style>{`
-        .sorea-cta-btn {
-          z-index: 60;
-          font-family: var(--font-inria-sans), serif;
-          font-weight: 700;
-          font-size: 20px;
-          letter-spacing: 0.04em;
-          border-radius: 20px;
-          padding: 11px 28px;
-          white-space: nowrap;
-          text-decoration: none;
-          display: inline-block;
-          flex-shrink: 0;
-          border: 3px solid #9B6FD9;
-          transition: background 0.22s ease, color 0.22s ease, border-color 0.22s ease;
-        }
-
-        .sorea-cta-btn--floating {
-          position: fixed;
-          top: 22px;
-          right: 56px;
-        }
-
-        .sorea-cta-btn--navbar {
-          position: relative;
-          margin-left: auto;
-        }
-
-        .sorea-cta-btn--login {
-          background: #fff;
-          color: #9B6FD9;
-        }
-
-        .sorea-cta-btn--login:hover {
-          background: #fff;
-          color: #9B6FD9;
-        }
-
-        .sorea-cta-btn--default {
-          background: #9B6FD9;
-          color: #fff;
-        }
-
-        .sorea-cta-btn--default:hover {
-          background: #9B6FD9;
-          color: #fff;
-        }
-
-        .sorea-hotzone {
-          position: fixed;
-          top: 0; left: 0; right: 0;
-          height: 50px;
-          z-index: 30;
-          cursor: pointer; /* Indique qu'on peut cliquer pour ouvrir (mobile) */
-          -webkit-tap-highlight-color: transparent; /* Retire le fond bleu natif sur mobile */
-        }
-
         .sorea-navbar {
           position: fixed;
-          top: 0; left: 0; right: 0;
+          top: 0;
+          left: 0;
+          right: 0;
           z-index: 40;
-          height: 125px;
           display: flex;
           align-items: center;
-          justify-content: space-between;
-          padding: 0 56px;
-          background: linear-gradient(90deg, #ddd8ef 0%, #e4dff2 40%, #ecdfe8 100%);
-          border-bottom: 1px solid rgba(180,170,210,0.3);
-          opacity: 0;
-          transform: scale(0.95);
-          transform-origin: top center;
-          transition: opacity 0.28s ease, transform 0.28s ease;
-          pointer-events: none;
+          gap: 30px;
+          height: 78px;
+          padding: 7px 46px 7px 16px;
+          background: transparent;
+          pointer-events: all;
         }
 
-        .sorea-navbar--visible {
-          opacity: 1;
-          transform: scale(1);
-          pointer-events: all;
+        .sorea-logo-link {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          width: 64px;
+          height: 64px;
+          flex-shrink: 0;
+          overflow: hidden;
+          border-radius: 999px;
+          text-decoration: none;
+          filter: drop-shadow(0 2px 2px rgba(35, 18, 58, 0.18));
+        }
+
+        .sorea-logo-link img {
+          width: 64px;
+          height: 64px;
+          object-fit: cover;
+        }
+
+        .sorea-navbar-panel {
+          display: flex;
+          align-items: center;
+          gap: 24px;
+          flex: 1;
+          min-width: 0;
+          min-height: 66px;
+          padding: 0 22px;
+          border-radius: 18px;
+          background: #fff3fb;
+          box-shadow: 0 1px 0 rgba(126, 60, 200, 0.06);
         }
 
         .sorea-navbar-nav {
           display: flex;
           align-items: center;
-          gap: 50px;
-          position: absolute;
-          left: 50%;
-          transform: translateX(-50%);
+          gap: clamp(28px, 4.4vw, 56px);
+          flex: 1;
+          min-width: 0;
+          overflow-x: auto;
+          scrollbar-width: none;
         }
 
-        /* ── Liens : blanc + contour violet par défaut ── */
+        .sorea-navbar-nav::-webkit-scrollbar {
+          display: none;
+        }
+
         .sorea-navbar-link {
-          font-family: var(--font-inria-sans), serif;
-          font-weight: 700;
-          font-size: 20px;
-          letter-spacing: 0.05em;
-          text-decoration: none;
-          white-space: nowrap;
           position: relative;
           padding: 4px 0;
-          color: #fff;
-          -webkit-text-stroke: 3px var(--color-primary-dark);
-          paint-order: stroke fill;
-          transition: transform 0.18s ease, -webkit-text-stroke 0.2s ease;
-          transform-origin: center;
+          color: #8b47ff;
+          font-family: var(--font-inria-sans), serif;
+          font-size: 16px;
+          font-weight: 500;
+          line-height: 1;
+          letter-spacing: 0;
+          text-decoration: none;
+          white-space: nowrap;
+          transition: color 0.18s ease, transform 0.18s ease;
         }
 
-        /* Soulignement dégradé direct (sans animation) */
         .sorea-navbar-link::after {
-          content: '';
+          content: "";
           position: absolute;
-          left: 0; right: 0; bottom: -3px;
+          left: 0;
+          right: 0;
+          bottom: -7px;
           height: 2px;
-          border-radius: 2px;
-          background: linear-gradient(259.12deg, #8b47ff, #f498c5);
+          border-radius: 999px;
+          background: linear-gradient(90deg, #8b47ff, #ff80c4);
           opacity: 0;
           transition: opacity 0.18s ease;
         }
 
-        /* Hover : texte en dégradé + soulignement direct + petit pop */
-        .sorea-navbar-link:hover {
-          background-image: linear-gradient(259.12deg, #8b47ff, #f498c5);
-          -webkit-background-clip: text;
-          background-clip: text;
-          color: transparent;
-          -webkit-text-stroke: 0px transparent;
-          transform: scale(1.08);
+        .sorea-navbar-link:hover,
+        .sorea-navbar-link--active {
+          color: #7133b8;
+          transform: translateY(-1px);
         }
 
-        .sorea-navbar-link:hover::after {
+        .sorea-navbar-link:hover::after,
+        .sorea-navbar-link--active::after {
           opacity: 1;
         }
 
-        .sorea-mobile-close {
-          display: none;
-          background: none;
-          border: none;
-          font-size: 28px;
-          color: #9B6FD9;
-          cursor: pointer;
-          padding: 10px;
-          position: absolute;
-          right: 20px;
-          top: 50%;
-          transform: translateY(-50%);
+        .sorea-cta-btn {
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          min-width: 150px;
+          min-height: 42px;
+          padding: 12px 22px;
+          flex-shrink: 0;
+          border-radius: 12px;
+          background: #7f3cc8;
+          color: #fff;
+          font-family: var(--font-inria-sans), serif;
+          font-size: 16px;
+          font-weight: 700;
+          line-height: 1;
+          letter-spacing: 0;
+          text-decoration: none;
+          white-space: nowrap;
+          transition: background 0.22s ease, transform 0.22s ease;
+        }
+
+        .sorea-cta-btn:hover {
+          background: #7133b8;
+          transform: translateY(-1px);
         }
 
         @media (max-width: 768px) {
           .sorea-navbar {
-            padding: 0 20px;
-            justify-content: flex-start;
+            gap: 12px;
+            height: auto;
+            min-height: 78px;
+            padding: 8px 14px;
           }
-          
+
+          .sorea-logo-link,
+          .sorea-logo-link img {
+            width: 56px;
+            height: 56px;
+          }
+
+          .sorea-navbar-panel {
+            min-height: 58px;
+            padding: 0 16px;
+            gap: 16px;
+            border-radius: 16px;
+          }
+
           .sorea-navbar-nav {
             gap: 20px;
-            position: relative;
-            left: 0;
-            transform: none;
-            margin-left: 20px;
-          }
-          
-          .sorea-mobile-close {
-            display: block;
           }
 
-          .sorea-cta-btn--navbar {
-            display: none; /* Masqué sur petit écran */
+          .sorea-navbar-link {
+            font-size: 15px;
           }
-          
-          .sorea-cta-btn--floating {
-            top: 10px;
-            right: 10px;
-            font-size: 14px;
-            padding: 8px 16px;
+
+          .sorea-cta-btn {
+            display: none;
           }
         }
-
       `}</style>
     </>
   );
