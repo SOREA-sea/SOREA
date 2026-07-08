@@ -205,9 +205,7 @@ export default function MiroirDesAffirmations() {
         </section>
       </main>
 
-      <div className="w-full max-w-[1440px] px-6 lg:px-[96px] mx-auto pb-[24px]">
         <Footer />
-      </div>
     </div>
   );
 }
