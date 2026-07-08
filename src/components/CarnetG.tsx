@@ -92,6 +92,8 @@ const styles = `
   .sorea-btn-retour:hover { text-decoration: underline; }
 
   .sorea-btn-commander {
+
+pointer-vents: non;
     background: white;
     border: 2.5px solid #7B4FC8;
     border-radius: 12px;
