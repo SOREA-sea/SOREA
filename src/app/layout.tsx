@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono, Inria_Sans, Roboto } from "next/font/google";
 import Chatbot from "@/components/Chatbot";
-import "./globals.css";
+import "@/lib/globals.css";
 
 const inriaSans = Inria_Sans({
   variable: "--font-inria-sans",
