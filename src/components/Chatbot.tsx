@@ -87,7 +87,11 @@ export default function Chatbot() {
         <div className="w-80 md:w-96 h-96 bg-white rounded-2xl shadow-2xl flex flex-col overflow-hidden mb-4 border border-[rgba(117,94,173,0.16)]">
           <div className="bg-gradient-to-r from-[#8B47FF] to-[#BA98F4] p-4 text-white flex justify-between items-center shadow-sm">
             <div className="flex items-center gap-2">
-              <Bot size={20} />
+              <div className="w-5 h-5 rounded-full bg-gradient-to-r from-[#C0ACFF] to-[#F4C4E4] p-[1.5px] flex items-center justify-center">
+                <div className="w-full h-full rounded-full bg-white flex items-center justify-center overflow-hidden">
+                  <img src="/image_Design-SOREA/meduse.png" alt="Meduse" className="w-full h-full object-cover" />
+                </div>
+              </div>
               <span className="font-semibold text-lg font-['Inria_Sans']">Assistant SOREA</span>
             </div>
             <button 
@@ -106,9 +110,17 @@ export default function Chatbot() {
                     key={index} 
                     className={`flex gap-2 max-w-[85%] ${msg.role === "user" ? "ml-auto flex-row-reverse" : "mr-auto"}`}
                   >
-                    <div className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center ${msg.role === "user" ? "bg-gray-200" : "bg-[#9B8FD9] text-white"}`}>
-                      {msg.role === "user" ? <User size={16} /> : <Bot size={16} />}
+                    {msg.role === "user" ? (
+                    <div className="flex-shrink-0 w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-gray-600">
+                      <User size={16} />
                     </div>
+                  ) : (
+                    <div className="flex-shrink-0 w-8 h-8 rounded-full bg-gradient-to-r from-[#C0ACFF] to-[#F4C4E4] p-[2px] flex items-center justify-center">
+                      <div className="w-full h-full rounded-full bg-white flex items-center justify-center overflow-hidden">
+                        <img src="/image_Design-SOREA/meduse.png" alt="Meduse" className="w-full h-full object-cover" />
+                      </div>
+                    </div>
+                  )}
                     <div className={`p-3 rounded-2xl ${msg.role === "user" ? "bg-white text-[#2b2540] border border-[rgba(117,94,173,0.16)] text-sm shadow-sm rounded-tr-sm" : "bg-white text-[#2b2540] border border-[rgba(117,94,173,0.16)] text-sm shadow-sm rounded-tl-sm"}`}>
                       {msg.role === "model" ? (
                         <div className="text-sm">
@@ -132,9 +144,12 @@ export default function Chatbot() {
                 ))}
                 {isLoading && (
                   <div className="flex gap-2 max-w-[85%] mr-auto">
-                    <div className="flex-shrink-0 w-8 h-8 rounded-full bg-[#9B8FD9] text-white flex items-center justify-center">
-                      <Bot size={16} />
+                    <div className="flex-shrink-0 w-8 h-8 rounded-full bg-gradient-to-r from-[#C0ACFF] to-[#F4C4E4] p-[2px] flex items-center justify-center">
+                      <div className="w-full h-full rounded-full bg-white flex items-center justify-center overflow-hidden">
+                        <img src="/image_Design-SOREA/meduse.png" alt="Meduse" className="w-full h-full object-cover" />
+                      </div>
                     </div>
+
                     <div className="p-3 bg-white text-[#2b2540] border border-[rgba(117,94,173,0.16)] rounded-2xl rounded-tl-sm text-sm shadow-sm flex items-center gap-1">
                       <div className="w-1.5 h-1.5 bg-[#9B8FD9] rounded-full animate-bounce" style={{ animationDelay: "0ms" }}></div>
                       <div className="w-1.5 h-1.5 bg-[#9B8FD9] rounded-full animate-bounce" style={{ animationDelay: "150ms" }}></div>
@@ -165,8 +180,10 @@ export default function Chatbot() {
             </>
           ) : (
             <div className="flex-1 flex flex-col items-center justify-center p-6 text-center bg-[#faf7ff]">
-              <div className="w-16 h-16 bg-[#E2DCF9] rounded-full flex items-center justify-center text-[#6A18A4] mb-4">
-                <Bot size={32} />
+              <div className="w-16 h-16 rounded-full bg-gradient-to-r from-[#C0ACFF] to-[#F4C4E4] p-[3px] flex items-center justify-center mb-4">
+                <div className="w-full h-full rounded-full bg-white flex items-center justify-center overflow-hidden">
+                  <img src="/image_Design-SOREA/meduse.png" alt="Meduse" className="w-full h-full object-cover" />
+                </div>
               </div>
               <h3 className="text-lg font-semibold text-[#2b2540] mb-2 font-['Inria_Sans']">Connexion requise</h3>
               <p className="text-sm text-[#4d4d57] mb-6">
@@ -188,7 +205,13 @@ export default function Chatbot() {
           className="w-14 h-14 bg-gradient-to-r from-[#8B47FF] to-[#BA98F4] rounded-full shadow-[0_20px_60px_rgba(67,56,114,0.12)] flex items-center justify-center text-white hover:scale-105 transition-all duration-300"
           aria-label="Ouvrir l'assistant"
         >
-          <Bot size={28} />
+          <div className="rounded-full bg-white flex items-center justify-center overflow-hidden p-1">
+            <img 
+              src="/image_Design-SOREA/meduse.png" 
+              alt="Meduse" 
+              className="w-full h-full object-cover"
+            />
+          </div>
         </button>
       )}
     </div>
