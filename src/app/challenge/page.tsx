@@ -5,7 +5,7 @@ import Link from "next/link";
 import { Clock, Sparkles } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import StreakTracker from "@/components/StreakTracker";
+/*import StreakTracker from "@/components/StreakTracker";*/
 import MenstrualCalendar from "@/components/MenstrualCalendar";
 import { useRouter } from "next/navigation";
 import { getFavoriFilRouge, FilRougeItem } from "@/lib/fil-rouge-store";
@@ -95,9 +95,9 @@ export default function MiroirDesAffirmations() {
         <Navbar />
       </div>
 
-      <div className="fixed right-3 sm:right-6 lg:right-[56px] top-[132px] z-30 w-[340px] max-w-[calc(100vw-24px)] origin-top-right scale-[0.62] sm:scale-[0.68] lg:scale-75">
+      {/*}<div className="fixed right-3 sm:right-6 lg:right-[56px] top-[132px] z-30 w-[340px] max-w-[calc(100vw-24px)] origin-top-right scale-[0.62] sm:scale-[0.68] lg:scale-75">
         <StreakTracker floating joursConsecutifs={5} />
-      </div>
+      </div>*/}
 
       <main className="flex flex-col mx-auto w-full max-w-[1440px] px-6 lg:px-[96px] gap-[72px] py-12">
         <section className="grid grid-cols-1 xl:grid-cols-[1fr_360px_1fr] items-center gap-12">

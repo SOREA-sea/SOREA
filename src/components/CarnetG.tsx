@@ -91,7 +91,7 @@ const styles = `
   }
   .sorea-btn-retour:hover { text-decoration: underline; }
 
-  .sorea-btn-commander {
+  /*.sorea-btn-commander {
 
 pointer-vents: non;
     background: white;
@@ -107,7 +107,7 @@ pointer-vents: non;
     text-align: center;
     width: 130px;
   }
-  .sorea-btn-commander:hover { background: #F3EEFF; }
+  .sorea-btn-commander:hover { background: #F3EEFF; }*/
 
   /* ── BOOK – mode normal ── */
   .sorea-book {
@@ -532,11 +532,11 @@ export default function CarnetG({
         <button className="sorea-btn-retour" onClick={onClose}>
           ← Retour
         </button>
-        <button className="sorea-btn-commander">
+        {/*<button className="sorea-btn-commander">
           Commander mon
           <br />
           Carnet Gratitude
-        </button>
+        </button>*/}
       </div>
 
       <div className="sorea-book">
