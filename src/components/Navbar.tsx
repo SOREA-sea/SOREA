@@ -128,7 +128,7 @@ export default function Navbar({ isLoggedIn = false }: { isLoggedIn?: boolean })
           min-height: 66px;
           padding: 0 22px;
           border-radius: 18px;
-          background: #fff3fb;
+          background: var(--color-Violet-Blanc);
           box-shadow: 0 1px 0 rgba(126, 60, 200, 0.06);
         }
 
@@ -149,7 +149,7 @@ export default function Navbar({ isLoggedIn = false }: { isLoggedIn?: boolean })
         .sorea-navbar-link {
           position: relative;
           padding: 4px 0;
-          color: #8b47ff;
+          color: var(--color-SOREA-V1);
           font-family: var(--font-inria-sans), serif;
           font-size: 16px;
           font-weight: 500;
@@ -193,7 +193,7 @@ export default function Navbar({ isLoggedIn = false }: { isLoggedIn?: boolean })
           padding: 12px 22px;
           flex-shrink: 0;
           border-radius: 12px;
-          background: #7f3cc8;
+          background: var(--color-SOREA-V1);
           color: #fff;
           font-family: var(--font-inria-sans), serif;
           font-size: 16px;
