@@ -78,23 +78,10 @@ export default function MotAMoiPage() {
       return;
     }
 
-    const formData = new FormData();
-    formData.append("file", file);
-    formData.append("title", title);
-    formData.append("note", note);
-    formData.append("deliveryDate", deliveryDate);
 
     setIsUploading(true);
     try {
-      const response = await fetch("/api/mot-a-moi/messages", {
-        method: "POST",
-        body: formData,
-      });
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || "Impossible d'enregistrer ce message.");
-      }
+      
 
       setFile(null);
       if (previewUrlRef.current) {
@@ -106,7 +93,7 @@ export default function MotAMoiPage() {
       setNote("");
       setDeliveryDate("");
       if (fileInputRef.current) fileInputRef.current.value = "";
-      setMessage({ type: "success", text: "Ton message a ete ajoute a ta messagerie Mot a moi." });
+      setMessage({ type: "success", text: "Ton message a ete ajoute localement." });
     } catch (error: unknown) {
       const errorMessage = error instanceof Error ? error.message : "Une erreur est survenue.";
       setMessage({ type: "error", text: errorMessage });
