@@ -5,14 +5,16 @@ import Link from 'next/link';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 
-const defaultAffirmation = "Ta phrase du jour se charge...";
+// Ta phrase est maintenant directement inscrite ici en dur
+const defaultAffirmation = "Je me construis avec ce qui est aligné à mes valeurs.";
 
 export default function JeLaisseParleMaPlume() {
+    // La phrase s'initialise directement avec la valeur statique
     const [currentSentence, setCurrentSentence] = useState(defaultAffirmation);
-    const [isLoading, setIsLoading] = useState(true);
+    const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [userInput, setUserInput] = useState('');
-    const [phase, setPhase] = useState<string | null>(null);
+    const [phase, setPhase] = useState<string | null>("Ancrage"); // Optionnel : une phase par défaut en dur si besoin
 
     const textareaRef = useRef<HTMLTextAreaElement | null>(null);
 
@@ -36,26 +38,6 @@ export default function JeLaisseParleMaPlume() {
         : isCorrect
             ? 'correct'
             : 'incorrect';
-
-    useEffect(() => {
-        async function loadAffirmation() {
-            try {
-                const response = await fetch('/api/mot-a-moi/daily-affirmation');
-                if (!response.ok) throw new Error('Erreur de chargement');
-                const data = await response.json();
-                setCurrentSentence(data.affirmation || defaultAffirmation);
-                setPhase(data.phase || null);
-            } catch (err) {
-                console.error(err);
-                setError('Impossible de charger la phrase du jour.');
-                setCurrentSentence('Je me connecte à ma force interieure.');
-            } finally {
-                setIsLoading(false);
-            }
-        }
-
-        loadAffirmation();
-    }, []);
 
     const isComplete = feedback === 'correct' && !isLoading;
 
@@ -170,7 +152,6 @@ export default function JeLaisseParleMaPlume() {
                     )}
 
                     <div className="flex flex-col sm:flex-row gap-4 w-full justify-between items-center">
-
                         {phase && (
                             <span className="text-sm text-gray-600">Phase : {phase}</span>
                         )}
@@ -189,7 +170,7 @@ export default function JeLaisseParleMaPlume() {
             </main>
 
             <div className="w-[1440px] pr-[96px] pl-[96px] mx-auto pb-[24px]">
-                <Footer />
+                <Navbar />
             </div>
         </div>
     );
