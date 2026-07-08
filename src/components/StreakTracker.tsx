@@ -8,7 +8,7 @@ interface StreakTrackerProps {
 }
 
 export default function StreakTracker({ joursConsecutifs = 2, floating = false }: StreakTrackerProps) {
-  const joursSemaineBase = ['L', 'M', 'M', 'J', 'V', 'S', 'D'];
+  const joursSemaineBase = ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sa', 'Di'];
 
   return (
     <div className={`${floating ? "w-full rounded-2xl border-2 border-[#8B47FF] bg-white/95 p-4 shadow-xl backdrop-blur" : "w-full max-w-3xl my-12 mx-auto"} flex flex-col items-center z-10`}>
