@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
@@ -18,8 +18,12 @@ export default function MiroirDesAffirmations() {
   const [isLoaded, setIsLoaded] = useState(false);
 
   useEffect(() => {
-    setFavori(getFavoriFilRouge());
-    setIsLoaded(true);
+    const timeoutId = window.setTimeout(() => {
+      setFavori(getFavoriFilRouge());
+      setIsLoaded(true);
+    }, 0);
+
+    return () => window.clearTimeout(timeoutId);
   }, []);
 
   const sections = [
@@ -31,7 +35,7 @@ export default function MiroirDesAffirmations() {
       description: (
         <>
           Retape une affirmation positive, un mot de gratitude ou une pensée inspirante. Chaque mot que tu écris{" "}
-          <span className="text-[#8B47FF] font-semibold">développera ta paix intérieur</span>.
+          <span className="text-[#8B47FF] font-semibold">développera ta paix intérieure</span>.
         </>
       ),
       btnLabel: <>Je laisse parler<br />ma plume</>,
@@ -58,7 +62,7 @@ export default function MiroirDesAffirmations() {
       title: "Wim Hof féminine",
       description: (
         <>
-          Plonge dans une expérience de souffle consciente, inspirée de la méthode Wim Hof et adapté pour la stabilité hormonal.
+          Plonge dans une expérience de souffle consciente, inspirée de la méthode Wim Hof et adaptée pour la stabilité hormonale.
           <span className="text-[#8B47FF] font-semibold"> Reconnecte-toi à ton équilibre intérieur</span>.
         </>
       ),
@@ -153,12 +157,12 @@ export default function MiroirDesAffirmations() {
                   onClick={() => router.push("/fil_rouge")}
                   className="mx-auto flex items-center gap-2 text-[#7d53b2] font-semibold hover:text-[#592592] transition-colors"
                 >
-                  <Sparkles size={18} /> Découvrir d'autres Fils Rouges
+                  <Sparkles size={18} /> Découvrir d&apos;autres Fils Rouges
                 </button>
               </div>
             ) : (
               <div className="flex flex-col items-center justify-center gap-6 py-10">
-                <p className="text-purple-300 italic">Tu n'as pas encore de Fil Rouge favori.</p>
+                <p className="text-purple-300 italic">Tu n&apos;as pas encore de Fil Rouge favori.</p>
                 <button
                   onClick={() => router.push("/fil_rouge")}
                   className="flex items-center gap-2 bg-[#8B47FF] text-white font-bold text-lg px-10 py-4 rounded-full shadow-lg shadow-purple-200 hover:-translate-y-1 transition-transform"
@@ -180,7 +184,12 @@ export default function MiroirDesAffirmations() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
             {sections.map((section, i) => (
-              <div key={i} className="grid grid-cols-[96px_minmax(0,1fr)] lg:grid-cols-[120px_minmax(0,1fr)] items-center gap-4 bg-white/60 px-4 py-4 shadow-sm">
+              <Link
+                key={i}
+                href={section.href}
+                className="group grid grid-cols-[96px_minmax(0,1fr)] lg:grid-cols-[120px_minmax(0,1fr)] items-center gap-4 bg-white/60 px-4 py-4 shadow-sm border border-[#8B47FF]/20 transition-all duration-300 hover:scale-105 hover:shadow-xl hover:border-[#8B47FF]/55 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#8B47FF]/50"
+                aria-label={`Ouvrir ${section.title}`}
+              >
                 <div className="flex-shrink-0 flex items-center justify-center" style={{ width: "100%" }}>
                   <img src={section.img} alt={section.alt} style={{ width: section.imgWidth, maxWidth: "100%", display: "block" }} />
                 </div>
@@ -189,13 +198,11 @@ export default function MiroirDesAffirmations() {
                   <p className="w-full bg-[#F4EBFF] rounded-xl px-4 py-3 text-center text-black text-sm lg:text-base leading-relaxed">
                     {section.description}
                   </p>
-                  <Link href={section.href}>
-                    <button className="bg-[#8B47FF] text-white font-bold px-7 py-3 rounded-xl shadow-md transition-all duration-300 hover:scale-105 hover:shadow-xl text-xs lg:text-sm text-center leading-tight tracking-[0.14em] uppercase cursor-pointer">
-                      {section.btnLabel}
-                    </button>
-                  </Link>
+                  <span className="bg-[#8B47FF] text-white font-bold px-7 py-3 rounded-xl shadow-md transition-shadow duration-300 group-hover:shadow-lg ring-0 group-hover:ring-2 group-hover:ring-[#8B47FF]/20 text-xs lg:text-sm text-center leading-tight tracking-[0.14em] uppercase cursor-pointer">
+                    {section.btnLabel}
+                  </span>
                 </div>
-              </div>
+              </Link>
             ))}
           </div>
         </section>
@@ -209,3 +216,4 @@ export default function MiroirDesAffirmations() {
     </div>
   );
 }
+
