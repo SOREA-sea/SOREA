@@ -23,10 +23,10 @@ export interface FilRougeItem {
   steps: string[];
 }
 
-// J'ai ajouté "_v2" ici pour forcer ton navigateur à oublier l'ancienne sauvegarde
-const STORAGE_KEY = "sorea_fil_rouges_data_v2";
 
-// On ne laisse que le Fil Rouge conseillé par défaut
+const STORAGE_KEY = "sorea_fil_rouges_data_v3";
+const WHEEL_STORAGE_KEY = "sorea_favori_wheel";
+
 const defaultFilRouges: FilRougeItem[] = [
   {
     id: "conseille",
@@ -34,6 +34,20 @@ const defaultFilRouges: FilRougeItem[] = [
     objectif: "Bien démarrer la journée",
     favori: true,
     steps: ["fleure", "miroire", "appareil", "enveloppe", "roue"],
+  },
+  {
+    id: "speciale-vacance",
+    title: "Spéciale Vacance",
+    objectif: "Être plus productive",
+    favori: false,
+    steps: ["miroire", "appareil", "roue"],
+  },
+  {
+    id: "journee-chargee",
+    title: "Pour ma journée chargée",
+    objectif: "Me reposer le plus tôt",
+    favori: false,
+    steps: ["fleure", "miroire"],
   }
 ];
 
@@ -76,4 +90,18 @@ export function upsertFilRouge(item: FilRougeItem) {
   const exists = items.some((f) => f.id === item.id);
   items = exists ? items.map((f) => (f.id === item.id ? item : f)) : [...items, item];
   save(items);
+}
+
+// --- GESTION DE LA ROULETTE FAVORITE ---
+export type WheelCategory = "bien-etre" | "nutrition" | "sport";
+
+export function getFavoriWheel(): WheelCategory {
+  if (typeof window === "undefined") return "bien-etre";
+  return (localStorage.getItem(WHEEL_STORAGE_KEY) as WheelCategory) || "bien-etre";
+}
+
+export function setFavoriWheel(category: WheelCategory) {
+  if (typeof window !== "undefined") {
+    localStorage.setItem(WHEEL_STORAGE_KEY, category);
+  }
 }
