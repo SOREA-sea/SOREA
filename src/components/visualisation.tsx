@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from "react";
+import { createPortal } from "react-dom";
 
 interface VisualImage {
   id: string;
@@ -78,6 +79,10 @@ export default function Visualisation() {
   const [isPanning, setIsPanning] = useState(false);
   const [panStart, setPanStart] = useState({ x: 0, y: 0 });
 
+  // ÉTATS POUR LE PLEIN ÉCRAN
+  const [isFullscreenPellicule, setIsFullscreenPellicule] = useState(false);
+  const [isFullscreenImage, setIsFullscreenImage] = useState(false);
+
   const [toastMessage, setToastMessage] = useState<{
     text: string;
     type: "success" | "info" | "error" | "premium";
@@ -123,6 +128,31 @@ export default function Visualisation() {
       }
     }
   }, [galerie, archives, trash, isLoaded]);
+
+  // --- GESTION DU CLAVIER (Échap, Flèche Haut, Flèche Bas) ---
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Quitter les pleins écrans avec Echap
+      if (e.key === "Escape") {
+        setIsFullscreenImage(false);
+        setIsFullscreenPellicule(false);
+      }
+      
+      // Faire défiler la pellicule avec les flèches du clavier si elle est en plein écran
+      if (isFullscreenPellicule && galerie.length > 0) {
+        if (e.key === "ArrowUp") {
+          e.preventDefault(); // Empêche le scroll de la page
+          setCarouselIndex((prev) => (prev - 1 + galerie.length) % galerie.length);
+        } else if (e.key === "ArrowDown") {
+          e.preventDefault(); // Empêche le scroll de la page
+          setCarouselIndex((prev) => (prev + 1 + galerie.length) % galerie.length);
+        }
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isFullscreenPellicule, galerie.length]);
 
   const triggerToast = (text: string, type: "success" | "info" | "error" | "premium") => {
     setToastMessage({ text, type });
@@ -315,20 +345,107 @@ export default function Visualisation() {
           0% { transform: translateY(-100%); opacity: 0; }
           100% { transform: translateY(0); opacity: 1; }
         }
-
-        .animate-slide-down {
-          animation: slideDown 0.4s ease-out forwards;
-        }
-
+        .animate-slide-down { animation: slideDown 0.4s ease-out forwards; }
         @keyframes fall {
           0% { transform: translateY(-10vh) rotate(0deg); opacity: 1; }
           100% { transform: translateY(100vh) rotate(360deg); opacity: 0; }
         }
-
-        .animate-fall {
-          animation: fall linear forwards;
-        }
+        .animate-fall { animation: fall linear forwards; }
       `}</style>
+
+      {/* IMAGE PLEIN ÉCRAN  */}
+      {isLoaded && isFullscreenImage && zoomedImage && createPortal(
+        <div className="fixed inset-0 z-[99999] bg-black/95 flex items-center justify-center animate-in fade-in duration-300">
+          <button
+            onClick={() => setIsFullscreenImage(false)}
+            className="absolute top-6 right-8 text-white/70 hover:text-white transition-colors z-[100000]"
+          >
+            <CloseIcon />
+          </button>
+          <div className="w-full h-full p-4 flex items-center justify-center">
+            {zoomedImage.imageUrl ? (
+              <img
+                src={zoomedImage.imageUrl}
+                alt="Zoom Fullscreen"
+                className="w-full h-full object-contain pointer-events-none"
+              />
+            ) : (
+              <div className={`w-full h-full max-w-5xl max-h-[80vh] rounded-3xl ${zoomedImage.colorClass}`}></div>
+            )}
+          </div>
+        </div>,
+        document.body
+      )}
+
+      {/* PELLICULE PLEIN ÉCRAN  */}
+      {isLoaded && isFullscreenPellicule && createPortal(
+        <div className="fixed inset-0 z-[99999] bg-gradient-to-b from-purple-50 to-[#f9f5fa] flex items-center justify-center animate-in fade-in duration-300">
+          <button
+            onClick={() => setIsFullscreenPellicule(false)}
+            className="absolute top-6 right-8 text-[#592592] hover:text-[#8B47FF] transition-colors z-[100000]"
+          >
+            <CloseIcon />
+          </button>
+
+          <div className="flex items-center justify-center gap-8 md:gap-16 w-full h-[100vh]">
+            <div className="h-[100vh] aspect-square overflow-hidden relative drop-shadow-2xl">
+              {galerie.length > 0 ? (
+                <div
+                  className="absolute top-0 left-0 w-full flex flex-col transition-transform duration-500 ease-in-out"
+                  style={{ transform: `translateY(calc(-${carouselIndex} * 100vh))` }}
+                >
+                  {galerie.map((img) => (
+                    <div key={img.id} className="w-full h-[100vh] flex-shrink-0 relative">
+                      <img
+                        src="/image_Design-SOREA/Pellicule.svg"
+                        alt="Cadre Pellicule"
+                        className="absolute inset-0 w-full h-full object-cover z-0 pointer-events-none"
+                      />
+                      <div className="absolute z-10 w-[69.1%] h-[69.1%] overflow-hidden flex items-center justify-center bg-white top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
+                        {img.imageUrl ? (
+                          <img
+                            src={img.imageUrl}
+                            alt="Photo"
+                            draggable={false}
+                            className="w-full h-full object-cover pointer-events-none select-none"
+                            style={{
+                              objectPosition: `calc(50% + ${img.offsetX || 0}px) calc(50% + ${img.offsetY || 0}px)`,
+                              transform: `scale(${img.scale || 1})`,
+                            }}
+                          />
+                        ) : (
+                          <div className={`w-full h-full ${img.colorClass}`}></div>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="w-full h-full flex-shrink-0 relative">
+                  <img
+                    src="/image_visualisation/Pellicule.svg"
+                    alt="Cadre Pellicule Vide"
+                    className="absolute inset-0 w-full h-full object-cover z-0 pointer-events-none"
+                  />
+                  <div className="absolute z-10 w-[69.1%] h-[69.1%] overflow-hidden flex items-center justify-center bg-gray-50 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
+                    <span className="text-gray-400 font-medium text-xl">Vide</span>
+                  </div>
+                </div>
+              )}
+            </div>
+            
+            <div className="flex flex-col gap-12 z-[100000]">
+              <button onClick={() => changeSlide(-1)} className="hover:scale-110 active:scale-95 transition-transform bg-white p-2 rounded-xl shadow-md border border-purple-100">
+                <img src="/image_icone/Flèche_carré_haute.svg" alt="Haut" className="w-16 h-16" />
+              </button>
+              <button onClick={() => changeSlide(1)} className="hover:scale-110 active:scale-95 transition-transform bg-white p-2 rounded-xl shadow-md border border-purple-100">
+                <img src="/image_icone/Flèche_carré_basse.svg" alt="Bas" className="w-16 h-16" />
+              </button>
+            </div>
+          </div>
+        </div>,
+        document.body
+      )}
 
       {/* NOTIFICATION */}
       {toastMessage && (
@@ -381,10 +498,20 @@ export default function Visualisation() {
         Visualisation de <br /> projection
       </h1>
 
-      {/* PELLICULE */}
+      {/* PELLICULE CLASSIQUE */}
       <div className="w-full flex justify-center mt-8">
         <div className="flex items-center gap-16">
-          <div className="w-[550px] h-[550px] overflow-hidden relative rounded-2xl">
+          <div 
+            onClick={() => setIsFullscreenPellicule(true)}
+            title="Appuyer pour voir en plein écran"
+            className="w-[550px] h-[550px] overflow-hidden relative rounded-2xl cursor-pointer hover:shadow-[0_0_40px_rgba(139,71,255,0.2)] hover:scale-[1.02] transition-all group"
+          >
+            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors z-50 flex items-center justify-center">
+              <div className="bg-white/90 p-4 rounded-full opacity-0 group-hover:opacity-100 transition-all transform scale-75 group-hover:scale-100 shadow-xl text-[#8B47FF]">
+                <FullscreenIcon />
+              </div>
+            </div>
+
             {galerie.length > 0 ? (
               <div
                 className="absolute top-0 left-0 w-full flex flex-col transition-transform duration-500 ease-in-out"
@@ -522,6 +649,14 @@ export default function Visualisation() {
             ) : (
               <>
                 <div className="flex gap-4 items-center">
+                  <button 
+                    onClick={() => setIsFullscreenImage(true)} 
+                    className="text-[#8B47FF] hover:scale-110 transition-transform bg-white px-4 py-2 rounded-full shadow-sm flex items-center gap-2"
+                  >
+                    <FullscreenIcon />
+                    <span className="text-sm font-bold text-gray-700">Plein écran</span>
+                  </button>
+
                   {zoomedImage.imageUrl && (
                     <button onClick={startEditing} className="text-[#5EEAD4] hover:scale-110 transition-transform bg-white px-4 py-2 rounded-full shadow-sm flex items-center gap-2">
                       <CropIcon />
@@ -657,6 +792,7 @@ export default function Visualisation() {
   );
 }
 
+// --- ICONS ---
 const GridIcon = () => (
   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
     <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
@@ -674,7 +810,7 @@ const ArchiveIcon = () => (
 const TrashIcon = () => (
   <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
     <polyline points="3 6 5 6 21 6"></polyline>
-    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2-2v2"></path>
   </svg>
 );
 
@@ -689,5 +825,18 @@ const CropIcon = () => (
   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
     <path d="M6.13 1L6 16a2 2 0 0 0 2 2h15"></path>
     <path d="M1 6.13L16 6a2 2 0 0 1 2 2v15"></path>
+  </svg>
+);
+
+const FullscreenIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path>
+  </svg>
+);
+
+const CloseIcon = () => (
+  <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <line x1="18" y1="6" x2="6" y2="18"></line>
+    <line x1="6" y1="6" x2="18" y2="18"></line>
   </svg>
 );

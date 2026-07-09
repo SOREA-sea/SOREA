@@ -2,8 +2,9 @@
 
 import React, { useRef, useState, useEffect } from "react";
 import confetti from "canvas-confetti";
+import { Star } from "lucide-react";
+import { getFavoriWheel, setFavoriWheel, WheelCategory } from "../lib/favorites-store";
 
-// --- 1. CONFIGURATION DES DÉFIS ---
 const categoriesData = {
   "bien-etre": {
     taches: [
@@ -19,16 +20,16 @@ const categoriesData = {
       { title: "Lâcher-prise & Libération", text: "Réécris une croyance limitante puis sa version libératrice" },
     ],
     images: [
-      { url: "image_icone/image_Wheel-Spinner/Introspection.png", rotationCarte: -36 },
-      { url: "image_icone/image_Wheel-Spinner/Gratitude.png", rotationCarte: -72 },
-      { url: "image_icone/image_Wheel-Spinner/Pleine_conscience.png", rotationCarte: -108 },
-      { url: "image_icone/image_Wheel-Spinner/Intelligence_émotionnelle.png", rotationCarte: -144 },
-      { url: "image_icone/image_Wheel-Spinner/Action_&_Défis_de_confiance.png", rotationCarte: -180 },
-      { url: "image_icone/image_Wheel-Spinner/Maîtrise_de_soi.png", rotationCarte: 144 },
-      { url: "image_icone/image_Wheel-Spinner/Inspiration.png", rotationCarte: 108 },
-      { url: "image_icone/image_Wheel-Spinner/Reconnexion_à_soi.png", rotationCarte: 72 },
-      { url: "image_icone/image_Wheel-Spinner/Vision_&_Projection.png", rotationCarte: 36 },
-      { url: "image_icone/image_Wheel-Spinner/Lâcher-prise & Libération.png", rotationCarte: 0 },
+      { url: "/image_icone/image_Wheel-Spinner/Introspection.png", rotationCarte: -36 },
+      { url: "/image_icone/image_Wheel-Spinner/Gratitude.png", rotationCarte: -72 },
+      { url: "/image_icone/image_Wheel-Spinner/Pleine_conscience.png", rotationCarte: -108 },
+      { url: "/image_icone/image_Wheel-Spinner/Intelligence_émotionnelle.png", rotationCarte: -144 },
+      { url: "/image_icone/image_Wheel-Spinner/Action_&_Défis_de_confiance.png", rotationCarte: -180 },
+      { url: "/image_icone/image_Wheel-Spinner/Maîtrise_de_soi.png", rotationCarte: 144 },
+      { url: "/image_icone/image_Wheel-Spinner/Inspiration.png", rotationCarte: 108 },
+      { url: "/image_icone/image_Wheel-Spinner/Reconnexion_à_soi.png", rotationCarte: 72 },
+      { url: "/image_icone/image_Wheel-Spinner/Vision_&_Projection.png", rotationCarte: 36 },
+      { url: "/image_icone/image_Wheel-Spinner/Lâcher-prise & Libération.png", rotationCarte: 0 },
     ]
   },
   "nutrition": {
@@ -45,16 +46,16 @@ const categoriesData = {
       { title: "Relation alimentaire", text: "Choisis un repas par plaisir." },
     ],
     images: [
-      { url: "image_icone/image_Wheel-Spinner/Nourrir_mon_corps.png", rotationCarte: -36 },
-      { url: "image_icone/image_Wheel-Spinner/Équilibre_&_harmonie.png", rotationCarte: -72 },
-      { url: "image_icone/image_Wheel-Spinner/Hydratation_consciente.png", rotationCarte: -108 },
-      { url: "image_icone/image_Wheel-Spinner/Énergie_&_vitalité.png", rotationCarte: -144 },
-      { url: "image_icone/image_Wheel-Spinner/Couleurs_dans_l'assiette.png", rotationCarte: -180 },
-      { url: "image_icone/image_Wheel-Spinner/Savourer_l'instant.png", rotationCarte: 144 },
-      { url: "image_icone/image_Wheel-Spinner/Saveurs_du_monde.png", rotationCarte: 108 },
-      { url: "image_icone/image_Wheel-Spinner/Digestion_sereine.png", rotationCarte: 72 },
-      { url: "image_icone/image_Wheel-Spinner/Mon_assiette_intelligente.png", rotationCarte: 36 },
-      { url: "image_icone/image_Wheel-Spinner/Relation_alimentaire.png", rotationCarte: 0 },
+      { url: "/image_icone/image_Wheel-Spinner/Nourrir_mon_corps.png", rotationCarte: -36 },
+      { url: "/image_icone/image_Wheel-Spinner/Équilibre_&_harmonie.png", rotationCarte: -72 },
+      { url: "/image_icone/image_Wheel-Spinner/Hydratation_consciente.png", rotationCarte: -108 },
+      { url: "/image_icone/image_Wheel-Spinner/Énergie_&_vitalité.png", rotationCarte: -144 },
+      { url: "/image_icone/image_Wheel-Spinner/Couleurs_dans_l'assiette.png", rotationCarte: -180 },
+      { url: "/image_icone/image_Wheel-Spinner/Savourer_l'instant.png", rotationCarte: 144 },
+      { url: "/image_icone/image_Wheel-Spinner/Saveurs_du_monde.png", rotationCarte: 108 },
+      { url: "/image_icone/image_Wheel-Spinner/Digestion_sereine.png", rotationCarte: 72 },
+      { url: "/image_icone/image_Wheel-Spinner/Mon_assiette_intelligente.png", rotationCarte: 36 },
+      { url: "/image_icone/image_Wheel-Spinner/Relation_alimentaire.png", rotationCarte: 0 },
     ]
   },
   "sport": {
@@ -71,36 +72,34 @@ const categoriesData = {
       { title: "Bien dans son corps", text: "Écris une affirmation positive sur ton corps." },
     ],
     images: [
-      { url: "image_icone/image_Wheel-Spinner/Force_intérieure.png", rotationCarte: -36 },
-      { url: "image_icone/image_Wheel-Spinner/Équilibre_corporel.png", rotationCarte: -72 },
-      { url: "image_icone/image_Wheel-Spinner/Fluidité_du_corps.png", rotationCarte: -108 },
-      { url: "image_icone/image_Wheel-Spinner/Énergie_&_Motivation.png", rotationCarte: -144 },
-      { url: "image_icone/image_Wheel-Spinner/Écoute_corporelle.png", rotationCarte: -180 },
-      { url: "image_icone/image_Wheel-Spinner/Récupération_active.png", rotationCarte: 144 },
-      { url: "image_icone/image_Wheel-Spinner/Le_plaisir_de_bouger.png", rotationCarte: 108 },
-      { url: "image_icone/image_Wheel-Spinner/Oser_se_dépasser.png", rotationCarte: 72 },
-      { url: "image_icone/image_Wheel-Spinner/Mouvement_&_Régularité.png", rotationCarte: 36 },
-      { url: "image_icone/image_Wheel-Spinner/Bien_dans_son_corps.png", rotationCarte: 0 },
+      { url: "/image_icone/image_Wheel-Spinner/Force_intérieure.png", rotationCarte: -36 },
+      { url: "/image_icone/image_Wheel-Spinner/Équilibre_corporel.png", rotationCarte: -72 },
+      { url: "/image_icone/image_Wheel-Spinner/Fluidité_du_corps.png", rotationCarte: -108 },
+      { url: "/image_icone/image_Wheel-Spinner/Énergie_&_Motivation.png", rotationCarte: -144 },
+      { url: "/image_icone/image_Wheel-Spinner/Écoute_corporelle.png", rotationCarte: -180 },
+      { url: "/image_icone/image_Wheel-Spinner/Récupération_active.png", rotationCarte: 144 },
+      { url: "/image_icone/image_Wheel-Spinner/Le_plaisir_de_bouger.png", rotationCarte: 108 },
+      { url: "/image_icone/image_Wheel-Spinner/Oser_se_dépasser.png", rotationCarte: 72 },
+      { url: "/image_icone/image_Wheel-Spinner/Mouvement_&_Régularité.png", rotationCarte: 36 },
+      { url: "/image_icone/image_Wheel-Spinner/Bien_dans_son_corps.png", rotationCarte: 0 },
     ]
   }
 };
 
-// --- 2. GESTION DES COULEURS (PASTEL et VIF) ---
 const getThemeForCategory = (category: string, themeType: string) => {
   if (category === "nutrition") {
     return themeType === "sorea_dark"
-      ? { clair: "#FEF0F9", fonce: "#E91E63", bordure: "#FF80AB", pointeur: "#C2185B", particules: ["#E91E63", "#FF80AB", "#ffffff"] } // Rose Vif
-      : { clair: "#FEF0F9", fonce: "#FFB2C8", bordure: "#FFD6E1", pointeur: "#FF8FAB", particules: ["#FFB2C8", "#FFD6E1", "#ffffff"] }; // Rose Pastel
+      ? { clair: "#FEF0F9", fonce: "#E91E63", bordure: "#FF80AB", pointeur: "#C2185B", particules: ["#E91E63", "#FF80AB", "#ffffff"] } 
+      : { clair: "#FEF0F9", fonce: "#FFB2C8", bordure: "#FFD6E1", pointeur: "#FF8FAB", particules: ["#FFB2C8", "#FFD6E1", "#ffffff"] }; 
   }
   if (category === "sport") {
     return themeType === "sorea_dark"
-      ? { clair: "#FEF0F9", fonce: "#00CED1", bordure: "#6CE1E0", pointeur: "#0097A7", particules: ["#00CED1", "#6CE1E0", "#ffffff"] } // Cyan Vif
-      : { clair: "#FEF0F9", fonce: "#8DE2E0", bordure: "#C4F0EE", pointeur: "#5CC2C0", particules: ["#8DE2E0", "#C4F0EE", "#ffffff"] }; // Cyan Pastel
+      ? { clair: "#FEF0F9", fonce: "#00CED1", bordure: "#6CE1E0", pointeur: "#0097A7", particules: ["#00CED1", "#6CE1E0", "#ffffff"] } 
+      : { clair: "#FEF0F9", fonce: "#8DE2E0", bordure: "#C4F0EE", pointeur: "#5CC2C0", particules: ["#8DE2E0", "#C4F0EE", "#ffffff"] }; 
   }
-  // Par défaut (Bien-être - Violet)
   return themeType === "sorea_dark"
-    ? { clair: "#FEF0F9", fonce: "#5A37AC", bordure: "#BA98F4", pointeur: "#5A37AC", particules: ["#5A37AC", "#BA98F4", "#ffffff"] } // Violet Vif
-    : { clair: "#FEF0F9", fonce: "#BA98F4", bordure: "#DBCEEF", pointeur: "#BA98F4", particules: ["#BA98F4", "#DBCEEF", "#ffffff"] }; // Violet Pastel
+    ? { clair: "#FEF0F9", fonce: "#5A37AC", bordure: "#BA98F4", pointeur: "#5A37AC", particules: ["#5A37AC", "#BA98F4", "#ffffff"] } 
+    : { clair: "#FEF0F9", fonce: "#BA98F4", bordure: "#DBCEEF", pointeur: "#BA98F4", particules: ["#BA98F4", "#DBCEEF", "#ffffff"] }; 
 };
 
 const nombreDeCases = 10;
@@ -124,7 +123,7 @@ function dessinerUneCase(index: number) {
   const pointX1 = centreX + rayonRoue * Math.cos(angleDepart);
   const pointY1 = centreY + rayonRoue * Math.sin(angleDepart);
   const pointX2 = centreX + rayonRoue * Math.cos(angleFin);
-  const pointY2 = centreY + rayonRoue * Math.sin(angleFin);
+  const pointY2 = centreY + Math.sin(angleFin) * rayonRoue;
   return `M ${centreX} ${centreY} L ${pointX1} ${pointY1} A ${rayonRoue} ${rayonRoue} 0 0 1 ${pointX2} ${pointY2} Z`;
 }
 
@@ -144,13 +143,11 @@ function lancerConfettis(couleurs: string[]) {
   confetti({ particleCount: 60, spread: 90, origin: { x: 0.5, y: 0.5 }, colors: couleurs, scalar: 0.9, zIndex: 9999 });
 }
 
-
 interface WellbeingWheelProps {
   category?: string | null;
 }
 
 export default function RoueDuBienEtre(props: WellbeingWheelProps) {
-  
   const categoryName = (props.category && props.category in categoriesData) 
     ? (props.category as keyof typeof categoriesData) 
     : "bien-etre";
@@ -164,10 +161,9 @@ export default function RoueDuBienEtre(props: WellbeingWheelProps) {
   const animationAttenteRef = useRef<number | null>(null);
   const dernierIndexGagnant = useRef<number | null>(null);
 
-  
   const [themeActif, setThemeActif] = useState<string>("original");
   const [menuThemeOuvert, setMenuThemeOuvert] = useState(false);
-  
+  const [isFavori, setIsFavori] = useState(false);
   
   const theme = getThemeForCategory(categoryName, themeActif);
 
@@ -181,6 +177,10 @@ export default function RoueDuBienEtre(props: WellbeingWheelProps) {
 
   const angleActuel = useRef(0);
   const minuteurAnimationRebond = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    setIsFavori(getFavoriWheel() === categoryName);
+  }, [categoryName]);
 
   useEffect(() => {
     if (estEnTrainDeTourner || afficherFenetreResultat) {
@@ -199,6 +199,11 @@ export default function RoueDuBienEtre(props: WellbeingWheelProps) {
       if (animationAttenteRef.current) cancelAnimationFrame(animationAttenteRef.current);
     };
   }, [estEnTrainDeTourner, afficherFenetreResultat]);
+
+  const handleToggleFavori = () => {
+    setFavoriWheel(categoryName as WheelCategory);
+    setIsFavori(true);
+  };
 
   const tournerLaRoue = () => {
     if (estEnTrainDeTourner) return;
@@ -300,6 +305,18 @@ export default function RoueDuBienEtre(props: WellbeingWheelProps) {
         .card-resultat { animation: slideInRight 0.5s cubic-bezier(0.17,0.67,0.1,1) forwards; }
       `}</style>
 
+      {/* BOUTON FAVORIS */}
+      <div className="absolute top-4 left-4 md:left-8 z-50">
+        <button
+          onClick={handleToggleFavori}
+          className="flex items-center gap-2 px-4 py-2 bg-white/80 backdrop-blur border border-purple-100 rounded-full shadow-sm hover:bg-white transition-colors"
+        >
+          <Star size={20} className={isFavori ? "fill-[#8B47FF] text-[#8B47FF]" : "text-purple-200"} />
+          <span className="text-sm font-bold text-[#592592]">{isFavori ? "Roue Favorite" : "Mettre en favori"}</span>
+        </button>
+      </div>
+
+      {/* BOUTON THÈME */}
       <div className="absolute top-4 right-8 md:right-12 z-50">
         <div className="relative">
           <button 
@@ -324,9 +341,7 @@ export default function RoueDuBienEtre(props: WellbeingWheelProps) {
       </div>
 
       <div className="w-full max-w-[1100px] grid grid-cols-3 items-start pt-8">
-        
         <div className="col-span-1" />
-
         <div className="col-span-1 flex flex-col items-center justify-center relative">
           <div style={{ position: "relative", zIndex: 10 }}>
             <div className="pointer-wrap" ref={referencePointeur}>
