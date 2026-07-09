@@ -1,9 +1,9 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { Sparkles, Plus, X } from "lucide-react";
+import { Plus, X } from "lucide-react";
 import {
   getAllFilRouges,
   toggleFavori,
@@ -12,14 +12,12 @@ import {
   allFeatures,
   getFeature,
   FilRougeItem,
-} from "../../lib/fil-rouge-store";
+} from "../../lib/favorites-store";
 import FilRougeCard from "../../components/FilRougeCard";
-
-type View = "choice" | "existing";
 
 export default function FilRougeDiscoverPage() {
   const router = useRouter();
-  const [view, setView] = useState<View>("choice");
+  
   const [filRouges, setFilRougesState] = useState<FilRougeItem[]>([]);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [showCreate, setShowCreate] = useState(false);
@@ -59,79 +57,43 @@ export default function FilRougeDiscoverPage() {
       </div>
 
       <button
-        onClick={() => {
-          if (view === "choice") router.push("/challenge");
-          else setView("choice");
-        }}
-        className="mb-8 flex items-center gap-1 text-sm text-gray-400 hover:text-gray-600"
+        onClick={() => router.push("/challenge")}
+        className="mb-8 flex items-center gap-1 text-sm text-gray-400 hover:text-gray-600 transition-colors"
       >
         ← Retour
       </button>
 
-      {view === "choice" && (
-        <div className="grid md:grid-cols-2 gap-6">
-          <button
-            onClick={() => setView("existing")}
-            className="bg-white rounded-[28px] border border-purple-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)] p-10 flex flex-col items-center gap-4 hover:shadow-lg hover:-translate-y-1 transition-all"
-          >
-            <div className="w-16 h-16 rounded-full bg-purple-50 flex items-center justify-center">
-              <Sparkles size={28} className="text-[#8B47FF]" />
-            </div>
-            <span className="font-bold text-lg text-[#592592]">Choisir un Fil Rouge existant</span>
-            <span className="text-sm text-gray-500 text-center">
-              Le Fil Rouge conseillé ou une routine spéciale déjà prête
-            </span>
-          </button>
-
-          <button
-            onClick={() => {
-              setView("existing");
-              setShowCreate(true);
-            }}
-            className="bg-white rounded-[28px] border border-purple-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)] p-10 flex flex-col items-center gap-4 hover:shadow-lg hover:-translate-y-1 transition-all"
-          >
-            <div className="w-16 h-16 rounded-full bg-purple-50 flex items-center justify-center">
-              <Plus size={28} className="text-[#8B47FF]" />
-            </div>
-            <span className="font-bold text-lg text-[#592592]">Créer mon propre Fil Rouge</span>
-            <span className="text-sm text-gray-500 text-center">Choisis tes étapes, ton titre et ton objectif</span>
-          </button>
-        </div>
-      )}
-
-      {view === "existing" && (
-        <div className="flex flex-col gap-8">
-          {filRouges.map((item) =>
-            editingId === item.id ? (
-              <FilRougeEditor key={item.id} initial={item} onCancel={() => setEditingId(null)} onSave={handleSave} />
-            ) : (
-              <FilRougeCard
-                key={item.id}
-                item={item}
-                onDelete={() => handleDelete(item.id)}
-                onEdit={() => setEditingId(item.id)}
-                onToggleFavori={() => handleToggleFavori(item.id)}
-              />
-            )
-          )}
-
-          {showCreate ? (
-            <FilRougeEditor
-              initial={{ id: `custom-${Date.now()}`, title: "", objectif: "", favori: false, steps: [] }}
-              onCancel={() => setShowCreate(false)}
-              onSave={handleSave}
-            />
+      <div className="flex flex-col gap-8">
+        {filRouges.map((item) =>
+          editingId === item.id ? (
+            <FilRougeEditor key={item.id} initial={item} onCancel={() => setEditingId(null)} onSave={handleSave} />
           ) : (
-            <button
-              onClick={() => setShowCreate(true)}
-              className="border-2 border-dashed border-purple-200 rounded-[28px] py-10 flex flex-col items-center justify-center gap-2 text-[#7d53b2] hover:bg-purple-50 transition-colors"
-            >
-              <Plus size={32} />
-              <span className="font-bold">Créer mon Fil Rouge</span>
-            </button>
-          )}
-        </div>
-      )}
+            <FilRougeCard
+              key={item.id}
+              item={item}
+              onDelete={() => handleDelete(item.id)}
+              onEdit={() => setEditingId(item.id)}
+              onToggleFavori={() => handleToggleFavori(item.id)}
+            />
+          )
+        )}
+
+        {showCreate ? (
+          <FilRougeEditor
+            initial={{ id: `custom-${Date.now()}`, title: "", objectif: "", favori: false, steps: [] }}
+            onCancel={() => setShowCreate(false)}
+            onSave={handleSave}
+          />
+        ) : (
+          <button
+            onClick={() => setShowCreate(true)}
+            className="border-2 border-dashed border-purple-200 rounded-[28px] py-10 flex flex-col items-center justify-center gap-2 text-[#7d53b2] hover:bg-purple-50 transition-colors"
+          >
+            <Plus size={32} />
+            <span className="font-bold">Créer mon Fil Rouge</span>
+          </button>
+        )}
+      </div>
     </div>
   );
 }
@@ -149,6 +111,9 @@ function FilRougeEditor({
   const [objectif, setObjectif] = useState(initial.objectif || "");
   const [steps, setSteps] = useState<string[]>(initial.steps);
 
+  const dragItem = useRef<number | null>(null);
+  const dragOverItem = useRef<number | null>(null);
+
   const toggleStep = (key: string) => {
     setSteps((prev) => (prev.includes(key) ? prev.filter((k) => k !== key) : [...prev, key]));
   };
@@ -163,11 +128,31 @@ function FilRougeEditor({
     });
   };
 
+  const handleDragStart = (index: number) => {
+    dragItem.current = index;
+  };
+
+  const handleDragEnter = (index: number) => {
+    dragOverItem.current = index;
+  };
+
+  const handleDragEnd = () => {
+    if (dragItem.current !== null && dragOverItem.current !== null && dragItem.current !== dragOverItem.current) {
+      const newSteps = [...steps];
+      const draggedItemContent = newSteps[dragItem.current];
+      newSteps.splice(dragItem.current, 1);
+      newSteps.splice(dragOverItem.current, 0, draggedItemContent);
+      setSteps(newSteps);
+    }
+    dragItem.current = null;
+    dragOverItem.current = null;
+  };
+
   return (
     <div className="bg-white rounded-[28px] border-2 border-[#8B47FF]/30 shadow-lg p-8">
       <div className="flex justify-between items-center mb-6">
         <h3 className="text-lg font-bold text-[#592592]">{initial.title ? "Modifier le Fil Rouge" : "Nouveau Fil Rouge"}</h3>
-        <button onClick={onCancel} className="p-1 rounded-full hover:bg-purple-50 text-gray-400">
+        <button onClick={onCancel} className="p-1 rounded-full hover:bg-purple-50 text-gray-400 transition-colors">
           <X size={20} />
         </button>
       </div>
@@ -189,8 +174,8 @@ function FilRougeEditor({
         />
       </div>
 
-      <p className="text-sm font-semibold text-[#592592] mb-2">Choisis tes étapes (dans l'ordre voulu) :</p>
-      <div className="flex gap-3 flex-wrap mb-6">
+      <p className="text-sm font-semibold text-[#592592] mb-2">Choisis tes étapes en cliquant dessus :</p>
+      <div className="flex gap-3 flex-wrap mb-8">
         {allFeatures.map((f) => (
           <button
             key={f.key}
@@ -199,7 +184,7 @@ function FilRougeEditor({
               steps.includes(f.key) ? "border-[#8B47FF] bg-purple-50" : "border-purple-100 hover:bg-purple-50"
             }`}
           >
-            <div className="relative w-10 h-10">
+            <div className="relative w-10 h-10 pointer-events-none">
               <Image src={f.src} alt={f.alt} fill sizes="40px" className="object-contain" draggable={false} />
             </div>
           </button>
@@ -207,36 +192,58 @@ function FilRougeEditor({
       </div>
 
       {steps.length > 0 && (
-        <div className="flex items-center gap-2 flex-wrap mb-6">
-          {steps.map((key, index) => {
-            const feature = getFeature(key);
-            return (
-              <div key={key} className="flex flex-col items-center gap-1">
-                <div className="relative w-10 h-10">
-                  <Image src={feature.src} alt={feature.alt} fill sizes="40px" className="object-contain" draggable={false} />
+        <div className="mb-6">
+          <p className="text-sm text-gray-400 italic mb-4 font-medium text-center">
+            Maintenez et glissez les icônes ci-dessous ou utilisez les flèches pour changer leur ordre.
+          </p>
+          <div className="flex items-center justify-center gap-4 flex-wrap">
+            {steps.map((key, index) => {
+              const feature = getFeature(key);
+              return (
+                <div
+                  key={key}
+                  draggable
+                  onDragStart={() => handleDragStart(index)}
+                  onDragEnter={() => handleDragEnter(index)}
+                  onDragEnd={handleDragEnd}
+                  onDragOver={(e) => e.preventDefault()}
+                  className="cursor-grab active:cursor-grabbing flex flex-col items-center gap-1 hover:scale-105 transition-transform"
+                  title="Glisser pour réorganiser"
+                >
+                  <div className="relative w-10 h-10 pointer-events-none">
+                    <Image src={feature.src} alt={feature.alt} fill sizes="40px" className="object-contain" draggable={false} />
+                  </div>
+                  <div className="flex gap-2 mt-1">
+                    <button 
+                      type="button"
+                      onClick={(e) => { e.stopPropagation(); moveStep(index, -1); }} 
+                      className="text-xs text-[#8B47FF] hover:text-purple-700 font-bold px-1"
+                    >
+                      ◀
+                    </button>
+                    <button 
+                      type="button"
+                      onClick={(e) => { e.stopPropagation(); moveStep(index, 1); }} 
+                      className="text-xs text-[#8B47FF] hover:text-purple-700 font-bold px-1"
+                    >
+                      ▶
+                    </button>
+                  </div>
                 </div>
-                <div className="flex gap-1">
-                  <button onClick={() => moveStep(index, -1)} className="text-xs text-purple-400 hover:text-purple-600">
-                    ◀
-                  </button>
-                  <button onClick={() => moveStep(index, 1)} className="text-xs text-purple-400 hover:text-purple-600">
-                    ▶
-                  </button>
-                </div>
-              </div>
-            );
-          })}
+              );
+            })}
+          </div>
         </div>
       )}
 
-      <div className="flex justify-end gap-3">
-        <button onClick={onCancel} className="px-5 py-2 rounded-full text-gray-500 hover:bg-gray-50">
+      <div className="flex justify-end gap-3 mt-4">
+        <button onClick={onCancel} className="px-5 py-2 rounded-full text-gray-500 hover:bg-gray-50 transition-colors">
           Annuler
         </button>
         <button
           onClick={() => onSave({ ...initial, title, objectif, steps })}
           disabled={!title || steps.length === 0}
-          className="bg-[#8B47FF] text-white font-bold px-6 py-2 rounded-full disabled:opacity-40"
+          className="bg-[#8B47FF] text-white font-bold px-6 py-2 rounded-full disabled:opacity-40 hover:shadow-md transition-all"
         >
           Enregistrer
         </button>

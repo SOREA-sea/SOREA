@@ -4,7 +4,7 @@ import React from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { Trash2, Pencil, Star, Play } from "lucide-react";
-import { FilRougeItem, getFeature } from "../lib/fil-rouge-store";
+import { FilRougeItem, getFeature } from "../lib/favorites-store";
 
 interface Props {
   item: FilRougeItem;
