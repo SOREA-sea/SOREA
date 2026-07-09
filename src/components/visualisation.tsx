@@ -393,7 +393,7 @@ export default function Visualisation() {
                 {galerie.map((img) => (
                   <div key={img.id} className="w-[550px] h-[550px] flex-shrink-0 relative">
                     <img
-                      src="/image_visualisation/Pellicule.svg"
+                      src="/image_Design-SOREA/Pellicule.svg"
                       alt="Cadre Pellicule"
                       className="absolute inset-0 w-full h-full object-cover z-0 drop-shadow-xl pointer-events-none"
                     />
@@ -434,11 +434,11 @@ export default function Visualisation() {
 
           <div className="flex flex-col gap-8">
             <button onClick={() => changeSlide(-1)} className="hover:scale-110 active:scale-95 transition-transform">
-              <img src="/image_visualisation/Flèche_carré_bas.svg" alt="Haut" className="w-16 h-16 rotate-180 drop-shadow-md" />
+              <img src="/image_icone/Flèche_carré_haute.svg" alt="Haut" className="w-16 h-16 drop-shadow-md" />
             </button>
 
             <button onClick={() => changeSlide(1)} className="hover:scale-110 active:scale-95 transition-transform">
-              <img src="/image_visualisation/Flèche_carré_bas.svg" alt="Bas" className="w-16 h-16 drop-shadow-md" />
+              <img src="/image_icone/Flèche_carré_basse.svg" alt="Bas" className="w-16 h-16 drop-shadow-md" />
             </button>
           </div>
         </div>
