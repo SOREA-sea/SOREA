@@ -57,7 +57,7 @@ export default function Navbar({ isLoggedIn = false }: { isLoggedIn?: boolean })
       <header className="sorea-navbar">
         <Link href="/" className="sorea-logo-link" aria-label="Accueil SOREA">
           <Image
-            src="/images/sorea-navbar-logo.png"
+            src="/image_icone/Logo-SOREA.png"
             alt="Logo SOREA"
             width={64}
             height={64}
@@ -95,8 +95,7 @@ export default function Navbar({ isLoggedIn = false }: { isLoggedIn?: boolean })
           align-items: center;
           gap: 30px;
           height: 78px;
-          padding: 7px 46px 7px 16px;
-          background: transparent;
+          padding: 7px 46px 7px 46px;
           pointer-events: all;
         }
 
@@ -127,9 +126,9 @@ export default function Navbar({ isLoggedIn = false }: { isLoggedIn?: boolean })
           min-width: 0;
           min-height: 66px;
           padding: 0 22px;
-          border-radius: 18px;
+          border-radius: 46px;
           background: var(--color-Violet-Blanc);
-          box-shadow: 0 1px 0 rgba(126, 60, 200, 0.06);
+          box-shadow: inset 0 -4px 2px 0 rgba(171, 160, 189, 0.76), 0 3px 13.6px 0 rgba(0, 0, 0, 0.13);
         }
 
         .sorea-navbar-nav {
@@ -140,6 +139,7 @@ export default function Navbar({ isLoggedIn = false }: { isLoggedIn?: boolean })
           min-width: 0;
           overflow-x: auto;
           scrollbar-width: none;
+          margin-left: 35px; /* Ajustez la valeur en pixels selon le décalage souhaité */
         }
 
         .sorea-navbar-nav::-webkit-scrollbar {
@@ -173,14 +173,12 @@ export default function Navbar({ isLoggedIn = false }: { isLoggedIn?: boolean })
           transition: opacity 0.18s ease;
         }
 
-        .sorea-navbar-link:hover,
+        sorea-navbar-link:hover,
         .sorea-navbar-link--active {
           color: #7133b8;
-          transform: translateY(-1px);
         }
 
-        .sorea-navbar-link:hover::after,
-        .sorea-navbar-link--active::after {
+        .sorea-navbar-link:hover::after {
           opacity: 1;
         }
 
@@ -192,7 +190,7 @@ export default function Navbar({ isLoggedIn = false }: { isLoggedIn?: boolean })
           min-height: 42px;
           padding: 12px 22px;
           flex-shrink: 0;
-          border-radius: 12px;
+          border-radius: 40px;
           background: var(--color-SOREA-V1);
           color: #fff;
           font-family: var(--font-inria-sans), serif;
@@ -202,12 +200,11 @@ export default function Navbar({ isLoggedIn = false }: { isLoggedIn?: boolean })
           letter-spacing: 0;
           text-decoration: none;
           white-space: nowrap;
-          transition: background 0.22s ease, transform 0.22s ease;
+          
         }
 
         .sorea-cta-btn:hover {
           background: #7133b8;
-          transform: translateY(-1px);
         }
 
         @media (max-width: 768px) {
