@@ -122,18 +122,21 @@ export default function NouvellePage() {
 
     setLoading(true);
 
-    const chosen = pickAffirmation(currentPhase, usedAffirmationIds);
-    setAffirmation(chosen.text);
+    // Petit délai de 3,5s avant que la phrase suivante n'apparaisse
+    setTimeout(() => {
+      const chosen = pickAffirmation(currentPhase, usedAffirmationIds);
+      setAffirmation(chosen.text);
 
-    const nextUsed = [...usedAffirmationIds, chosen.id];
-    setUsedAffirmationIds(nextUsed);
-    localStorage.setItem(`sorea_affirmations_used_${today}`, JSON.stringify(nextUsed));
+      const nextUsed = [...usedAffirmationIds, chosen.id];
+      setUsedAffirmationIds(nextUsed);
+      localStorage.setItem(`sorea_affirmations_used_${today}`, JSON.stringify(nextUsed));
 
-    const nextCount = affirmationCount + 1;
-    setAffirmationCount(nextCount);
-    localStorage.setItem(`sorea_affirmations_${today}`, nextCount.toString());
+      const nextCount = affirmationCount + 1;
+      setAffirmationCount(nextCount);
+      localStorage.setItem(`sorea_affirmations_${today}`, nextCount.toString());
 
-    setLoading(false);
+      setLoading(false);
+    }, 3500);
   };
 
   // --- Reconnaissance vocale automatique (mode "perroquet") ---
@@ -305,6 +308,23 @@ export default function NouvellePage() {
                   {loading ? "Chargement..." : "Suivant"}
                 </button>
               )}
+
+              {/* Affirmation superposée sur le miroir, en bas de l'ovale (cf. maquette Figma) */}
+              {affirmation && (
+                <div
+                  className="absolute z-20 text-center text-white text-sm font-medium rounded-lg"
+                  style={{
+                    width: "210px",
+                    top: "72%",
+                    left: "50%",
+                    transform: "translate(-50%, -50%)",
+                    backgroundColor: "rgba(33, 33, 33, 0.5)",
+                    padding: "10px 25px",
+                  }}
+                >
+                  {affirmation}
+                </div>
+              )}
             </div>
 
             {/* Mention de protection des données, visible dès que la caméra est active */}
@@ -321,20 +341,14 @@ export default function NouvellePage() {
               </div>
             )}
 
-            {/* Consigne + affirmation générée */}
+            {/* Consigne (indicateur d'écoute) sous le miroir */}
             {affirmation && (
-              <div className="mt-4 max-w-[500px] flex flex-col items-center gap-3">
-                <div className="flex items-center gap-2 px-4 py-1.5 bg-purple-100 text-[#8B47FF] rounded-full text-sm font-semibold animate-pulse">
-                  <span className="w-2 h-2 rounded-full bg-[#8B47FF]"></span>
-                  {isListening ? "Répétez à haute voix ce que vous voyez pour passer à la suivante..." : "Micro en attente..."}
-                </div>
-
-                <div className="text-center p-6 bg-white border border-purple-200 rounded-2xl shadow-md">
-                  <p className="text-xl italic font-medium text-purple-900">"{affirmation}"</p>
-                  <span className="text-xs text-gray-400 block mt-3">
-                    Reflet généré ({affirmationCount} utilisé{affirmationCount > 1 ? 's' : ''} aujourd'hui — phase {currentPhase})
-                  </span>
-                </div>
+              <div className="flex items-center gap-2 px-4 py-1.5 bg-purple-100 text-[#8B47FF] rounded-full text-sm font-semibold animate-pulse">
+                <span className="w-2 h-2 rounded-full bg-[#8B47FF]"></span>
+                {isListening ? "Répétez à haute voix ce que vous voyez pour passer à la suivante..." : "Micro en attente..."}
+                <span className="text-xs text-purple-400 font-normal ml-1">
+                  ({affirmationCount} utilisé{affirmationCount > 1 ? 's' : ''} aujourd'hui — phase {currentPhase})
+                </span>
               </div>
             )}
 
