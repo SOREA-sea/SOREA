@@ -56,12 +56,14 @@ export default function FilRougeDiscoverPage() {
         <p className="text-lg font-medium text-[#7d53b2] mt-2">Choisis ta prochaine routine</p>
       </div>
 
-      <button
-        onClick={() => router.push("/challenge")}
-        className="mb-8 flex items-center gap-1 text-sm text-gray-400 hover:text-gray-600 transition-colors"
-      >
-        ← Retour
-      </button>
+      <div className="w-full mb-8 flex flex-col items-start gap-2">
+        <button
+          onClick={() => router.push("/challenge")}
+          className="flex items-center gap-2 bg-white text-[#8B47FF] font-bold px-6 py-3 rounded-2xl shadow-md transition-all duration-300 hover:scale-105 hover:shadow-xl cursor-pointer border-2 border-[#8B47FF] relative z-10"
+        >
+          ← Retour
+        </button>
+      </div>
 
       <div className="flex flex-col gap-8">
         {filRouges.map((item) =>
