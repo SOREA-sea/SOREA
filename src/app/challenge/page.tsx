@@ -37,18 +37,9 @@ export default function MiroirDesAffirmations() {
   const [isLoaded, setIsLoaded] = useState(false);
 
   useEffect(() => {
-<<<<<<< HEAD
     setFavori(getFavoriFilRouge());
     setFavoriWheel(getFavoriWheel());
     setIsLoaded(true);
-=======
-    const timeoutId = window.setTimeout(() => {
-      setFavori(getFavoriFilRouge());
-      setIsLoaded(true);
-    }, 0);
-
-    return () => window.clearTimeout(timeoutId);
->>>>>>> 25a23821c6fee9055970eca29bd46648e8a68315
   }, []);
 
   const currentWheelData = wheelDataConfig[favoriWheel];
