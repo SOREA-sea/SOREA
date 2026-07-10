@@ -20,7 +20,9 @@ export default function FilRougeCard({ item, readOnly = false, onDelete, onEdit,
   const handlePlayDirect = (e: React.MouseEvent) => {
     e.stopPropagation();
     if (item.steps.length > 0) {
-      router.push(getFeature(item.steps[0]).href);
+      const featureHref = getFeature(item.steps[0]).href;
+      // On ajoute ?play=true pour dire à la page de zapper l'intro
+      router.push(featureHref.includes('?') ? `${featureHref}&play=true` : `${featureHref}?play=true`);
     }
   };
 
