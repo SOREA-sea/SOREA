@@ -17,7 +17,7 @@ export default function Footer() {
 
     const infoLinks = [
         { href: '/about', label: 'A propos' },
-        { href: '/termandprivacy', label: 'Politique de confidentialite' },
+        { href: '/termandprivacy', label: 'Politique de confidentialité' },
         { href: '/termandprivacy', label: 'CGU' },
     ];
 
@@ -42,7 +42,7 @@ export default function Footer() {
     };
 
     return (
-        <footer className="w-full bg-[radial-gradient(circle_at_92%_7%,rgba(255,128,196,0.72)_0,rgba(255,128,196,0)_20%),radial-gradient(circle_at_58%_38%,rgba(170,204,220,0.95)_0,rgba(170,204,220,0)_32%),radial-gradient(circle_at_39%_64%,rgba(231,176,241,0.75)_0,rgba(231,176,241,0)_29%),linear-gradient(105deg,#eef2f8_0%,#B6C0F8_31%,#E7B0F1_55%,#AACCDC_78%,#e9eef4_100%)] px-5 py-6 font-['Inria_Sans'] text-[#201a2b] shadow-sm sm:px-7 sm:py-8 lg:px-9">
+        <footer className="relative left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] w-screen bg-[radial-gradient(circle_at_92%_7%,rgba(255,128,196,0.72)_0,rgba(255,128,196,0)_20%),radial-gradient(circle_at_58%_38%,rgba(170,204,220,0.95)_0,rgba(170,204,220,0)_32%),radial-gradient(circle_at_39%_64%,rgba(231,176,241,0.75)_0,rgba(231,176,241,0)_29%),linear-gradient(105deg,#eef2f8_0%,#B6C0F8_31%,#E7B0F1_55%,#AACCDC_78%,#e9eef4_100%)] px-5 py-6 font-['Inria_Sans'] text-[#201a2b] shadow-sm sm:px-7 sm:py-8 lg:px-9">
             <div className="mx-auto flex max-w-7xl flex-col gap-6 px-5 py-8 sm:px-8 lg:px-12">
                 <div className="grid gap-8 rounded-lg bg-white/55 p-5 backdrop-blur-md sm:p-7 lg:grid-cols-[1.05fr_1fr_1fr_1.4fr_72px] lg:items-start">
                     <div className="flex flex-col items-start gap-5">
@@ -102,7 +102,7 @@ export default function Footer() {
                             </div>
                             <div className="flex items-center gap-2.5">
                                 <i className="fa-solid fa-location-dot text-SOREA-V1" />
-                                <span>02400 Chateau-Thierry</span>
+                                <span>02400 Château-Thierry</span>
                             </div>
                         </div>
                     </div>
@@ -134,7 +134,7 @@ export default function Footer() {
                         <div>
                             <p className="text-2xl font-bold text-[#201a2b]">SOREA, votre bulle de sérénité où que vous soyez.</p>
                             <p className="mt-2 max-w-md text-sm font-medium leading-relaxed text-[#201a2b]/70">
-                                Prenez soin de vous avec des kits bien-etre personnalises, un espace digital apaisant et du coaching inspirant.
+                                Prenez soin de vous avec des kits bien-être personnalisés, un espace digital apaisant et du coaching inspirant.
                             </p>
                         </div>
                     </div>
@@ -162,7 +162,7 @@ export default function Footer() {
                 </div>
 
                 <p className="text-center text-xs font-medium text-[#201a2b]/60">
-                    &copy; {new Date().getFullYear()} SOREA. Tous Droits Reserves.
+                    &copy; {new Date().getFullYear()} SOREA. Tous Droits Réservés.
                 </p>
             </div>
         </footer>
