@@ -7,13 +7,28 @@ import Footer from "@/components/Footer";
 import Visualisation from "@/components/visualisation";
 import { Play, Brain, Target, Heart, Sparkles } from "lucide-react";
 
-export default function VisualisationPage() {
-  // Cet état gère si on est sur la page de présentation (false) ou dans le jeu (true)
-  const [isStarted, setIsStarted] = useState(false);
+// On recrée l'interface ici pour pouvoir lire correctement les données sauvegardées
+interface VisualImage {
+  id: string;
+  colorClass?: string;
+  imageUrl?: string;
+  scale?: number;
+  offsetX?: number;
+  offsetY?: number;
+  dateAdded?: string;
+}
 
-  // On vérifie l'URL au chargement de la page
+type TabType = "galerie" | "archives" | "trash";
+
+export default function VisualisationPage() {
+  const [isStarted, setIsStarted] = useState(false);
+  const [galerie, setGalerie] = useState<VisualImage[]>([]);
+  const [archives, setArchives] = useState<VisualImage[]>([]);
+  const [trash, setTrash] = useState<VisualImage[]>([]);
+  const [activeTab, setActiveTab] = useState<TabType>("galerie");
+
+  // On vérifie l'URL au chargement de la page (pour le bouton "Jouer directement" du fil rouge)
   useEffect(() => {
-    // On s'assure qu'on est bien côté client avant d'utiliser window
     if (typeof window !== "undefined") {
       const params = new URLSearchParams(window.location.search);
       if (params.get("play") === "true") {
@@ -21,6 +36,23 @@ export default function VisualisationPage() {
       }
     }
   }, []);
+
+  // On récupère toutes les listes locales à chaque fois qu'on revient sur la présentation
+  useEffect(() => {
+    if (!isStarted && typeof window !== "undefined") {
+      const savedGalerie = localStorage.getItem("sorea_visualisation_galerie");
+      if (savedGalerie) setGalerie(JSON.parse(savedGalerie));
+
+      const savedArchives = localStorage.getItem("sorea_visualisation_archives");
+      if (savedArchives) setArchives(JSON.parse(savedArchives));
+
+      const savedTrash = localStorage.getItem("sorea_visualisation_trash");
+      if (savedTrash) setTrash(JSON.parse(savedTrash));
+    }
+  }, [isStarted]);
+
+  // Récupère la liste actuellement sélectionnée par l'onglet
+  const currentImages = activeTab === "galerie" ? galerie : activeTab === "archives" ? archives : trash;
 
   // === VUE 2 : L'ACTIVITÉ (Le jeu) ===
   if (isStarted) {
@@ -43,7 +75,6 @@ export default function VisualisationPage() {
               </button>
             </div>
             
-            {/* L'application de visualisation */}
             <div className="w-full flex-grow flex flex-col items-center relative z-10">
               <Visualisation />
             </div>
@@ -59,18 +90,15 @@ export default function VisualisationPage() {
   return (
     <div className="min-h-screen flex flex-col w-full bg-gradient-to-b from-purple-50 to-[#f9f5fa] font-sans text-gray-800">
       
-      {/* NAVBAR */}
       <div className="w-full">
         <div className="max-w-[1440px] mx-auto px-[96px] pb-[24px]">
           <Navbar />
         </div>
       </div>
 
-      {/* CONTENU DE PRÉSENTATION */}
       <main className="flex-1 w-full flex flex-col items-center overflow-hidden">
         <div className="w-full max-w-[1440px] mx-auto px-[96px] flex flex-col pt-12 pb-24 gap-24">
           
-          {/* Bouton retour Challenge */}
           <div className="w-full flex flex-col items-start gap-2">
             <Link href="/challenge">
               <button className="flex items-center gap-2 bg-white text-[#8B47FF] font-bold px-6 py-3 rounded-2xl shadow-md transition-all duration-300 hover:scale-105 hover:shadow-xl cursor-pointer border-2 border-[#8B47FF] relative z-10">
@@ -79,7 +107,6 @@ export default function VisualisationPage() {
             </Link>
           </div>
 
-          {/* 1. HERO SECTION */}
           <section className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center relative -mt-10">
             <div className="flex flex-col gap-6 z-10">
               <h1 className="text-5xl lg:text-7xl font-black text-black tracking-wide">
@@ -98,7 +125,6 @@ export default function VisualisationPage() {
               </button>
             </div>
             
-            {/* Grande Pellicule diagonale */}
             <div className="relative h-[400px] lg:h-[600px] flex justify-end items-center pointer-events-none">
               <img 
                 src="/image_icone/image_visualisation/pellicule_penché.svg" 
@@ -108,37 +134,52 @@ export default function VisualisationPage() {
             </div>
           </section>
 
-          {/* 2. MIDDLE SECTION (Galerie & Pellicule d'exemple) */}
+          {/* Pellicule à gauche, Galerie à droite */}
           <section className="grid grid-cols-1 md:grid-cols-2 gap-16 mt-10">
             
-            {/* Aperçu Galerie */}
-            <div className="bg-white rounded-[32px] p-8 md:p-12 shadow-sm border border-purple-100 flex flex-col gap-8">
-              <div className="flex gap-8 border-b border-purple-100 pb-4">
-                <span className="font-bold text-[#8B47FF] border-b-2 border-[#8B47FF] pb-4 -mb-[17px] cursor-default">Votre galerie</span>
-                <span className="font-medium text-gray-400 hover:text-gray-600 transition-colors cursor-pointer">Archives</span>
-                <span className="font-medium text-gray-400 hover:text-gray-600 transition-colors cursor-pointer">Corbeille</span>
-              </div>
-              
-              <div className="grid grid-cols-2 gap-6 mt-4">
-                {/* Fausses images de remplissage */}
-                <div className="aspect-square bg-gradient-to-br from-gray-100 to-gray-50 rounded-2xl"></div>
-                <div className="aspect-square bg-gradient-to-br from-purple-50 to-white rounded-2xl"></div>
-                <div className="aspect-square bg-gradient-to-br from-gray-50 to-gray-100 rounded-2xl"></div>
-                {/* Faux bouton "Ajouter" */}
-                <div className="aspect-square bg-[#FAF5FF] border-2 border-dashed border-purple-200 rounded-2xl flex items-center justify-center text-purple-300 hover:bg-purple-50 transition-colors cursor-pointer">
-                  <span className="text-5xl font-light">+</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Aperçu Pellicule */}
+            {/* Aperçu Pellicule Dynamique (À GAUCHE) */}
             <div className="bg-[#FAF5FF] rounded-[32px] p-8 md:p-12 shadow-inner border border-purple-100 flex flex-col items-center justify-between gap-8 relative overflow-hidden">
               <h3 className="text-xl font-bold text-[#592592] z-10 bg-white/90 px-8 py-3 rounded-full backdrop-blur-sm shadow-sm">
                 Votre Pellicule SOREA
               </h3>
               
-              <div className="relative h-[350px] w-[130px] z-10 flex flex-col items-center">
-                <img src="/image_icone/image_visualisation/pellicule_visualisation.svg" alt="Pellicule verticale" className="h-full object-contain drop-shadow-lg" />
+              {/* Conteneur de la pellicule : Taille exacte 1/3 (120x360) et sans fond blanc ! */}
+              <div 
+                className="relative z-10 rounded-sm overflow-hidden shadow-xl"
+                style={{ width: '120px', height: '360px' }} 
+              >
+                {/* 1. Le SVG en background css forcé à 100% 100% (Z-20) pour couvrir parfaitement les bords ! */}
+                <div 
+                  className="absolute inset-0 z-20 pointer-events-none"
+                  style={{
+                    backgroundImage: "url('/image_icone/image_visualisation/pellicule_vide.svg')",
+                    backgroundSize: "100% 100%", // Oblige le SVG à toucher tous les bords de la div 120x360
+                    backgroundPosition: "center",
+                    backgroundRepeat: "no-repeat"
+                  }}
+                />
+
+                {/* 2. Les images EN DESSOUS (Z-10) alignées parfaitement derrière les trous */}
+                <div className="absolute inset-0 z-10 flex flex-col items-center justify-evenly py-[10%]">
+                  {[0, 1, 2].map((i) => {
+                    const img = galerie[i];
+                    return (
+                      <div key={i} className="w-[78%] aspect-square bg-gray-100 overflow-hidden relative rounded-[2px]">
+                        {img?.imageUrl ? (
+                          <img
+                            src={img.imageUrl}
+                            alt={`Film ${i}`}
+                            className="w-full h-full object-cover"
+                            style={{
+                              objectPosition: `calc(50% + ${img.offsetX || 0}px) calc(50% + ${img.offsetY || 0}px)`,
+                              transform: `scale(${img.scale || 1})`,
+                            }}
+                          />
+                        ) : null}
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
 
               <button 
@@ -148,6 +189,66 @@ export default function VisualisationPage() {
                 Lancer la projection <Play size={16} className="fill-current group-hover:text-white" />
               </button>
             </div>
+
+            {/* Aperçu Galerie Dynamique (À DROITE) */}
+            <div className="bg-white rounded-[32px] p-8 md:p-12 shadow-sm border border-purple-100 flex flex-col gap-8">
+              {/* Onglets dynamiques */}
+              <div className="flex gap-8 border-b border-purple-100 pb-4">
+                <span 
+                  onClick={() => setActiveTab("galerie")}
+                  className={`font-bold pb-4 -mb-[17px] cursor-pointer ${activeTab === "galerie" ? "text-[#8B47FF] border-b-2 border-[#8B47FF]" : "text-gray-400 hover:text-gray-600 transition-colors"}`}
+                >
+                  Votre galerie
+                </span>
+                <span 
+                  onClick={() => setActiveTab("archives")}
+                  className={`font-bold pb-4 -mb-[17px] cursor-pointer ${activeTab === "archives" ? "text-[#8B47FF] border-b-2 border-[#8B47FF]" : "text-gray-400 hover:text-gray-600 transition-colors"}`}
+                >
+                  Archives
+                </span>
+                <span 
+                  onClick={() => setActiveTab("trash")}
+                  className={`font-bold pb-4 -mb-[17px] cursor-pointer ${activeTab === "trash" ? "text-[#8B47FF] border-b-2 border-[#8B47FF]" : "text-gray-400 hover:text-gray-600 transition-colors"}`}
+                >
+                  Corbeille
+                </span>
+              </div>
+              
+              <div className="grid grid-cols-2 gap-6 mt-4">
+                {/* On affiche les 3 premières images de la liste sélectionnée */}
+                {currentImages.slice(0, 3).map((img, index) => (
+                  <div key={img.id} className="aspect-square rounded-2xl overflow-hidden shadow-sm border border-gray-100 relative bg-gray-100 group">
+                    {img.imageUrl ? (
+                      <img
+                        src={img.imageUrl}
+                        alt={`${activeTab} ${index + 1}`}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                        style={{
+                          objectPosition: `calc(50% + ${img.offsetX || 0}px) calc(50% + ${img.offsetY || 0}px)`,
+                          transform: `scale(${img.scale || 1})`,
+                        }}
+                      />
+                    ) : (
+                      <div className={`w-full h-full ${img.colorClass || "bg-gray-100"}`}></div>
+                    )}
+                  </div>
+                ))}
+                
+                {/* Cases vides de remplissage (s'il y a moins de 3 images) */}
+                {Array.from({ length: Math.max(0, 3 - currentImages.length) }).map((_, index) => (
+                  <div key={`empty-${index}`} className="aspect-square bg-gradient-to-br from-gray-100 to-gray-50 rounded-2xl border border-gray-100"></div>
+                ))}
+
+                {/* Bouton "Ajouter" qui lance le jeu */}
+                <div 
+                  onClick={() => setIsStarted(true)}
+                  className="aspect-square bg-[#FAF5FF] border-2 border-dashed border-purple-200 rounded-2xl flex items-center justify-center text-purple-300 hover:bg-purple-50 transition-colors cursor-pointer"
+                >
+                  <span className="text-5xl font-light">+</span>
+                </div>
+              </div>
+            </div>
+
           </section>
 
           {/* 3. BIENFAITS SECTION */}
@@ -195,7 +296,6 @@ export default function VisualisationPage() {
         </div>
       </main>
 
-      {/* FOOTER */}
       <Footer />
       
     </div>
