@@ -428,9 +428,9 @@ export default function RoueDuBienEtre(props: WellbeingWheelProps) {
                 <div style={{ position: "absolute", width: "20px", height: "20px", borderRadius: "50%", background: `radial-gradient(circle, #ffffff, ${theme.pointeur})`, border: "2px solid #fff", boxShadow: "0 0 6px rgba(0,0,0,0.2)", left: `${centreX - 10}px`, top: `${centreY - 10}px`, zIndex: 5, transition: "background 0.5s ease" }} />
               </div>
             </div>
-          </div>
+            </div>
 
-          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", marginTop: "-65px", zIndex: 1, position: "relative" }}>
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", marginTop: "-65px", zIndex: 1, position: "relative" }}>
             <div style={{ position: "relative", width: "162px", height: "150px" }}>
               <svg width="162" height="150" viewBox="0 0 162 150" style={{ position: "absolute", top: 0, left: 0 }}>
                 <defs>
@@ -452,10 +452,10 @@ export default function RoueDuBienEtre(props: WellbeingWheelProps) {
               </div>
             </div>
             <div style={{ width: "168px", height: "27px", backgroundColor: theme.bordure, boxShadow: "inset 0px 6px 10px rgba(0,0,0,0.18), inset 6px 0px 8px rgba(0,0,0,0.1), inset -6px 0px 8px rgba(0,0,0,0.1)", transition: "background-color 0.5s ease" }} />
-          </div>
-        </div>
+           </div>
+            </div>
 
-        <div className="col-span-1 flex justify-start pl-8 relative z-20 pt-16">
+         <div className="col-span-1 flex justify-start pl-8 relative z-20 pt-16">
           {afficherFenetreResultat && tacheGagnante && (
             <div className="card-resultat bg-white p-8 rounded-3xl text-center shadow-[0_12px_40px_rgba(186,152,244,0.3)] border-2 w-[340px]" style={{ borderColor: theme.bordure }}>
               <div className="flex flex-col items-center mb-6">
@@ -504,8 +504,8 @@ export default function RoueDuBienEtre(props: WellbeingWheelProps) {
               )}
             </div>
           )}
-        </div>
-      </div>
-    </div>
+          </div>
+          </div>
+          </div>
   );
 }
