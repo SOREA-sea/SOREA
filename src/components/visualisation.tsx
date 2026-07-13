@@ -244,11 +244,22 @@ export default function VisualisationPage() {
                     )}
                   </div>
                 ))}
+<<<<<<< Updated upstream
                 
                 {/* Cases vides de remplissage (s'il y a moins de 3 images) */}
                 {Array.from({ length: Math.max(0, 3 - currentImages.length) }).map((_, index) => (
                   <div key={`empty-${index}`} className="aspect-square bg-gradient-to-br from-gray-100 to-gray-50 rounded-2xl border border-gray-100"></div>
                 ))}
+=======
+              </div>
+            ) : (
+              <div className="w-[550px] h-[550px] flex-shrink-0 relative">
+                <img
+                  src="/image_icone/Pellicule.svg"
+                  alt="Cadre Pellicule Vide"
+                  className="absolute inset-0 w-full h-full object-cover z-0 drop-shadow-xl pointer-events-none"
+                />
+>>>>>>> Stashed changes
 
                 {/* Bouton "Ajouter" qui lance le jeu */}
                 <div 
