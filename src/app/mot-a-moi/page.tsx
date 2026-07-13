@@ -2,29 +2,21 @@
 
 import { ChangeEvent, FormEvent, useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { CalendarDays, FileAudio, ImageIcon, Inbox, Upload, Video } from "lucide-react";
+import { FileAudio, ImageIcon, Upload, Video } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 
+const navItems = [
+  { label: "Plume", href: "/mot-a-moi/je-laisse-parler-ma-plume" },
+  { label: "Futur moi", href: "/mot-a-moi/ecrire-pour-mon-futur-moi" },
+  { label: "Messagerie", href: "/dashboard/messagerie" },
+  { label: "Challenge", href: "/challenge" },
+];
+
 const mediaOptions = [
-  {
-    label: "Photo",
-    accept: "image/*",
-    icon: ImageIcon,
-    helper: "JPG, PNG ou WEBP",
-  },
-  {
-    label: "Audio",
-    accept: "audio/*",
-    icon: FileAudio,
-    helper: "MP3, WAV, M4A",
-  },
-  {
-    label: "Video",
-    accept: "video/mp4",
-    icon: Video,
-    helper: "MP4 uniquement",
-  },
+  { label: "Photo", accept: "image/*", icon: ImageIcon, helper: "JPG, PNG ou WEBP" },
+  { label: "Audio", accept: "audio/*", icon: FileAudio, helper: "MP3, WAV, M4A" },
+  { label: "Video", accept: "video/mp4", icon: Video, helper: "MP4 uniquement" },
 ];
 
 export default function MotAMoiPage() {
@@ -32,12 +24,11 @@ export default function MotAMoiPage() {
   const previewUrlRef = useRef<string | null>(null);
   const [selectedAccept, setSelectedAccept] = useState(mediaOptions[0].accept);
   const [file, setFile] = useState<File | null>(null);
-  const [title, setTitle] = useState("");
-  const [note, setNote] = useState("");
-  const [deliveryDate, setDeliveryDate] = useState("");
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
-  const [isUploading, setIsUploading] = useState(false);
-  const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
+  const [title, setTitle] = useState("");
+  const [content, setContent] = useState("");
+  const [deliveryDate, setDeliveryDate] = useState("");
+  const [message, setMessage] = useState<string | null>(null);
 
   useEffect(() => {
     return () => {
@@ -54,6 +45,7 @@ export default function MotAMoiPage() {
 
   const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
     const selectedFile = event.target.files?.[0] || null;
+
     if (previewUrlRef.current) {
       URL.revokeObjectURL(previewUrlRef.current);
       previewUrlRef.current = null;
@@ -64,127 +56,106 @@ export default function MotAMoiPage() {
     previewUrlRef.current = nextPreviewUrl;
     setPreviewUrl(nextPreviewUrl);
     setMessage(null);
+
     if (selectedFile && !title) {
       setTitle(selectedFile.name.replace(/\.[^/.]+$/, ""));
     }
   };
 
-  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    setMessage(null);
-
-    if (!file) {
-      setMessage({ type: "error", text: "Ajoute une photo, un audio ou une video avant d'envoyer." });
-      return;
-    }
-
-
-    setIsUploading(true);
-    try {
-      
-
-      setFile(null);
-      if (previewUrlRef.current) {
-        URL.revokeObjectURL(previewUrlRef.current);
-        previewUrlRef.current = null;
-      }
-      setPreviewUrl(null);
-      setTitle("");
-      setNote("");
-      setDeliveryDate("");
-      if (fileInputRef.current) fileInputRef.current.value = "";
-      setMessage({ type: "success", text: "Ton message a ete ajoute localement." });
-    } catch (error: unknown) {
-      const errorMessage = error instanceof Error ? error.message : "Une erreur est survenue.";
-      setMessage({ type: "error", text: errorMessage });
-    } finally {
-      setIsUploading(false);
-    }
+    setMessage("Ton mot est scellé. Il t'attendra au bon moment.");
   };
 
-  const renderPreview = () => {
+  const renderMediaPreview = () => {
     if (!file || !previewUrl) {
       return (
-        <div className="flex h-full min-h-[320px] flex-col items-center justify-center gap-4 text-center">
-          <div className="flex h-20 w-20 items-center justify-center rounded-[28px] bg-[#8B47FF]/10 text-[#8B47FF]">
-            <Upload className="h-10 w-10" />
+        <div className="flex min-h-[170px] flex-col items-center justify-center gap-3 text-center">
+          <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-[#8B47FF]/10 text-[#8B47FF]">
+            <Upload className="h-7 w-7" />
           </div>
-          <div>
-            <p className="text-2xl font-black text-[#2f2238]">Importe ton message du futur</p>
-            <p className="mt-2 max-w-xl text-sm leading-6 text-gray-500">
-              Choisis une photo, un audio ou une video MP4 a recevoir plus tard dans ton espace personnel.
-            </p>
-          </div>
+          <p className="text-sm font-bold text-[#2f2238]">Ajoute une photo, un audio ou une vidéo.</p>
+          <p className="max-w-sm text-xs leading-relaxed text-[#7d53b2]">
+            Ce média restera associé à ton mot à toi.
+          </p>
         </div>
       );
     }
 
     if (file.type.startsWith("image/")) {
-      return <img src={previewUrl} alt="Apercu du message" className="h-full min-h-[320px] w-full rounded-[28px] object-cover" />;
+      return <img src={previewUrl} alt="Aperçu du message" className="max-h-[260px] w-full object-contain" />;
     }
 
     if (file.type.startsWith("audio/")) {
       return (
-        <div className="flex h-full min-h-[320px] flex-col items-center justify-center gap-5 rounded-[28px] bg-white/70">
-          <FileAudio className="h-16 w-16 text-[#8B47FF]" />
-          <p className="max-w-sm text-center font-semibold text-[#2f2238]">{file.name}</p>
+        <div className="flex min-h-[170px] flex-col items-center justify-center gap-4">
+          <FileAudio className="h-12 w-12 text-[#8B47FF]" />
+          <p className="text-center text-sm font-bold text-[#2f2238]">{file.name}</p>
           <audio controls src={previewUrl} className="w-full max-w-md" />
         </div>
       );
     }
 
-    return <video controls src={previewUrl} className="h-full min-h-[320px] w-full rounded-[28px] bg-black object-contain" />;
+    return <video controls src={previewUrl} className="max-h-[260px] w-full bg-black object-contain" />;
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-purple-50 to-[#f9f5fa] font-sans text-gray-800">
-      <div className="mx-auto w-full max-w-7xl px-6 pb-6">
+    <div className="min-h-screen bg-[radial-gradient(circle_at_top,#F4EBFF_0%,#FFFFFF_45%,#FEF0F9_100%)] text-[#2f2238]">
+      <div className="mx-auto w-full max-w-[1440px] px-4 pb-6 md:px-12 lg:px-[96px]">
         <Navbar />
       </div>
 
-      <main className="mx-auto flex w-full max-w-7xl flex-col gap-8 px-6 pb-14 pt-24">
-        <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
-          <div>
-            <Link href="/challenge" className="mb-5 inline-flex items-center rounded-full border border-[#8B47FF]/30 bg-white px-5 py-2.5 text-sm font-bold text-[#8B47FF] shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
-              Retour
-            </Link>
-            <p className="text-xs font-bold uppercase tracking-[0.28em] text-[#8B47FF]/60">Mot a moi</p>
-            <h1 className="mt-2 text-4xl font-black text-[#2f2238] md:text-5xl">Message pour mon futur moi</h1>
-            <p className="mt-3 max-w-2xl text-gray-600">
-              Envoie-toi une photo, un audio ou une video a retrouver dans ta messagerie personnelle le jour choisi.
-            </p>
-          </div>
+      <main className="mx-auto w-full max-w-[860px] px-5 pb-16 pt-28 md:pt-36">
+        <p className="mb-5 text-lg font-bold tracking-[0.12em] text-[#8B47FF]/70">Mots à moi</p>
 
-          <Link href="/dashboard/messagerie" className="inline-flex items-center justify-center gap-2 rounded-full bg-[#8B47FF] px-6 py-3 font-bold text-white shadow-lg shadow-purple-200 transition hover:-translate-y-0.5 hover:bg-[#7432e6]">
-            <Inbox className="h-5 w-5" />
-            Ma messagerie
+        <nav className="mx-auto flex max-w-[690px] items-center justify-between rounded-full bg-[#F4EBFF] px-3 py-1 shadow-sm ring-1 ring-[#8B47FF]/15">
+          {navItems.map((item) => (
+            <Link
+              key={item.label}
+              href={item.href}
+              className="rounded-full px-4 py-2 text-xs font-bold tracking-[0.12em] text-[#8B47FF] transition-colors hover:bg-white"
+            >
+              {item.label}
+            </Link>
+          ))}
+          <Link
+            href="/challenge"
+            className="rounded-full bg-[#8B47FF] px-6 py-2 text-xs font-bold uppercase tracking-[0.12em] text-white transition-shadow hover:ring-2 hover:ring-[#8B47FF]/30"
+          >
+            CTA
           </Link>
-        </div>
+        </nav>
 
-        <section className="grid gap-4 md:grid-cols-[0.85fr_1fr] md:items-center">
-          <div className="flex justify-center rounded-[32px] bg-[#efe5ff] p-6">
-            <img
-              src="/image_ambassadrice_svg/envelope.png"
-              alt="Enveloppe Mot a moi"
-              className="h-48 w-auto object-contain"
-            />
-          </div>
-          <div className="grid gap-4 sm:grid-cols-2">
-            <Link href="/mot-a-moi/je-laisse-parler-ma-plume" className="rounded-3xl bg-white p-6 text-center font-black text-[#8B47FF] shadow-md transition hover:-translate-y-0.5 hover:shadow-lg">
-              Je laisse parler ma plume
-            </Link>
-            <Link href="/mot-a-moi/ecrire-pour-mon-futur-moi" className="rounded-3xl bg-[#8B47FF] p-6 text-center font-black text-white shadow-md shadow-purple-200 transition hover:-translate-y-0.5 hover:bg-[#7432e6] hover:shadow-lg">
-              Ecrire pour mon futur moi
-            </Link>
-          </div>
+        <section className="mx-auto mt-24 max-w-[430px] text-center">
+          <h1 className="text-3xl font-bold tracking-[0.08em] text-black">Headline/tittle</h1>
+          <p className="mt-6 text-base leading-relaxed tracking-[0.04em] text-[#7d53b2]">
+            Please add your content here. Keep it short and simple. And smile :)
+          </p>
         </section>
 
-        <form onSubmit={handleSubmit} className="grid gap-6 lg:grid-cols-[1.35fr_0.65fr]">
-          <section className="rounded-[32px] border border-white/80 bg-white/70 p-4 shadow-xl shadow-purple-100/70 backdrop-blur">
-            <div className="relative min-h-[360px] overflow-hidden rounded-[28px] bg-gradient-to-br from-[#f7efff] via-white to-[#fff8fb] p-3">
-              {renderPreview()}
-            </div>
+        <form
+          onSubmit={handleSubmit}
+          className="mx-auto mt-20 max-w-[700px] border-[4px] border-[#8B47FF] bg-white p-2 shadow-xl shadow-purple-100"
+        >
+          <input
+            value={title}
+            onChange={(event) => setTitle(event.target.value)}
+            placeholder="Title"
+            required
+            className="w-[76%] border-2 border-dotted border-[#8B47FF]/70 bg-white px-3 py-2 text-sm outline-none placeholder:text-[#8B47FF]/45 focus:border-solid"
+            aria-label="Titre du mot"
+          />
 
+          <textarea
+            value={content}
+            onChange={(event) => setContent(event.target.value)}
+            placeholder="Please add your content here."
+            required
+            className="mt-2 min-h-[250px] w-full resize-none border-2 border-dotted border-[#8B47FF]/70 bg-white px-3 py-5 text-base outline-none placeholder:text-[#8B47FF]/45 focus:border-solid"
+            aria-label="Contenu du mot"
+          />
+
+          <section className="mt-5 border-2 border-dotted border-[#8B47FF]/70 px-6 py-5">
             <input
               ref={fileInputRef}
               type="file"
@@ -193,97 +164,82 @@ export default function MotAMoiPage() {
               className="hidden"
             />
 
-            <div className="mt-4 grid gap-3 sm:grid-cols-3">
-              {mediaOptions.map((option) => {
-                const Icon = option.icon;
-                return (
-                  <button
-                    key={option.label}
-                    type="button"
-                    onClick={() => openPicker(option.accept)}
-                    className="flex items-center gap-3 rounded-2xl border border-purple-100 bg-white/85 px-4 py-4 text-left shadow-sm transition hover:-translate-y-0.5 hover:border-[#8B47FF]/50 hover:shadow-md"
-                    title={`Importer ${option.label.toLowerCase()}`}
-                  >
-                    <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#8B47FF]/10 text-[#8B47FF]">
-                      <Icon className="h-5 w-5" />
-                    </span>
-                    <span>
-                      <span className="block font-black text-[#2f2238]">{option.label}</span>
-                      <span className="text-xs text-gray-500">{option.helper}</span>
-                    </span>
-                  </button>
-                );
-              })}
+            <div className="rounded-xl bg-[#F4EBFF] px-5 py-5">
+              {renderMediaPreview()}
+
+              <div className="mt-5 grid gap-3 sm:grid-cols-3">
+                {mediaOptions.map((option) => {
+                  const Icon = option.icon;
+                  return (
+                    <button
+                      key={option.label}
+                      type="button"
+                      onClick={() => openPicker(option.accept)}
+                      className="flex items-center justify-center gap-2 rounded-lg bg-white px-3 py-3 text-xs font-bold text-[#8B47FF] shadow-sm transition-shadow hover:ring-2 hover:ring-[#8B47FF]/30"
+                    >
+                      <Icon className="h-4 w-4" />
+                      <span>{option.label}</span>
+                    </button>
+                  );
+                })}
+              </div>
             </div>
-          </section>
 
-          <section className="rounded-[32px] border border-white/80 bg-white/75 p-6 shadow-xl shadow-purple-100/70 backdrop-blur">
-            <h2 className="text-2xl font-black text-[#2f2238]">Programmer l&apos;envoi</h2>
-            <p className="mt-2 text-sm leading-6 text-gray-500">
-              Le media apparaitra dans l&apos;espace perso a la date choisie.
-            </p>
-
-            <div className="mt-6 space-y-5">
-              <div>
-                <label className="ml-1 text-sm font-bold text-[#2f2238]">Titre</label>
+            <div className="mt-5 rounded-xl bg-[#F4EBFF] px-7 py-9">
+              <div className="grid gap-5 md:grid-cols-[1fr_150px] md:items-center">
+                <div>
+                  <p className="text-sm font-bold text-[#2f2238]">Quand veux-tu recevoir ce mot ?</p>
+                  <p className="mt-4 max-w-[330px] text-xs leading-relaxed text-[#7d53b2]">
+                    Sans choix de ta part, il te sera envoyé demain à minuit.
+                  </p>
+                </div>
                 <input
-                  value={title}
-                  onChange={(event) => setTitle(event.target.value)}
-                  required
-                  placeholder="Ex: Pour les jours de doute"
-                  className="mt-2 w-full rounded-2xl border border-purple-100 bg-white px-4 py-3 outline-none transition focus:border-[#8B47FF] focus:ring-4 focus:ring-purple-100"
+                  type="date"
+                  value={deliveryDate}
+                  onChange={(event) => setDeliveryDate(event.target.value)}
+                  className="rounded-lg bg-[#8B47FF] px-4 py-4 text-sm font-bold text-white outline-none transition-shadow hover:ring-2 hover:ring-[#8B47FF]/30"
                 />
               </div>
+            </div>
 
-              <div>
-                <label className="ml-1 text-sm font-bold text-[#2f2238]">Date de reception</label>
-                <div className="relative mt-2">
-                  <CalendarDays className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-[#8B47FF]" />
-                  <input
-                    type="date"
-                    value={deliveryDate}
-                    onChange={(event) => setDeliveryDate(event.target.value)}
-                    required
-                    className="w-full rounded-2xl border border-purple-100 bg-white py-3 pl-12 pr-4 outline-none transition focus:border-[#8B47FF] focus:ring-4 focus:ring-purple-100"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="ml-1 text-sm font-bold text-[#2f2238]">Petit mot optionnel</label>
-                <textarea
-                  value={note}
-                  onChange={(event) => setNote(event.target.value)}
-                  rows={5}
-                  placeholder="Une intention, une phrase, une douceur..."
-                  className="mt-2 w-full resize-none rounded-2xl border border-purple-100 bg-white px-4 py-3 outline-none transition focus:border-[#8B47FF] focus:ring-4 focus:ring-purple-100"
-                />
-              </div>
-
-              {message && (
-                <div className={`rounded-2xl border px-4 py-3 text-sm font-semibold ${
-                  message.type === "success"
-                    ? "border-green-200 bg-green-50 text-green-700"
-                    : "border-red-200 bg-red-50 text-red-600"
-                }`}>
-                  {message.text}
-                </div>
-              )}
-
+            <div className="flex flex-wrap items-center justify-center gap-5 py-8">
               <button
                 type="submit"
-                disabled={isUploading}
-                className="flex w-full items-center justify-center gap-2 rounded-full bg-[#8B47FF] px-6 py-4 font-black text-white shadow-lg shadow-purple-200 transition hover:-translate-y-0.5 hover:bg-[#7432e6] disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:translate-y-0"
+                className="rounded-lg bg-[#8B47FF] px-7 py-4 text-xs font-bold text-white shadow-md shadow-purple-200 transition-shadow hover:ring-2 hover:ring-[#8B47FF]/35"
               >
-                <Upload className="h-5 w-5" />
-                {isUploading ? "Envoi en cours..." : "Envoyer a mon futur moi"}
+                Sceller son mot
+              </button>
+              <button
+                type="button"
+                onClick={() => setMessage("Brouillon enregistré.")}
+                className="text-xs font-semibold text-[#8B47FF]/70 transition-colors hover:text-[#8B47FF]"
+              >
+                Enregistrer en brouillon
               </button>
             </div>
+
+            {message && (
+              <p className="pb-5 text-center text-xs font-bold text-[#7d53b2]">
+                {message}
+              </p>
+            )}
           </section>
         </form>
+
+        <section className="mx-auto mt-12 max-w-[700px] rounded-xl bg-[#F4EBFF] px-8 py-8 text-center shadow-sm">
+          <p className="mx-auto max-w-[380px] text-sm leading-relaxed text-[#2f2238]">
+            Please add your content here. Keep it short and simple. And smile :)
+          </p>
+          <Link
+            href="/challenge"
+            className="mt-5 inline-flex rounded-lg bg-[#8B47FF] px-10 py-4 text-xs font-bold text-white shadow-md shadow-purple-200 transition-shadow hover:ring-2 hover:ring-[#8B47FF]/35"
+          >
+            Retour au Challenge
+          </Link>
+        </section>
       </main>
 
-      <div className="mx-auto w-full max-w-7xl px-6 pb-6">
+      <div className="mx-auto w-full max-w-[1440px] px-4 pb-6 md:px-12 lg:px-[96px]">
         <Footer />
       </div>
     </div>
