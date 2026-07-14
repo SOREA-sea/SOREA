@@ -8,8 +8,12 @@ import { useEffect, useState } from "react";
 const NAV_LINKS = [
   { label: "Shopping", href: "/shop" },
   { label: "Coaching", href: "/coaching" },
+  { label: "Ambassadeur", href: "/ambassador" },
   { label: "Challenges", href: "/challenge" },
+  { label: "Vibe", href: "/vibe" },
   { label: "Mon Carnet", href: "/carnet" },
+  { label: "Ma progression", href: "/progression" },
+  
 ];
 
 export default function Navbar({ isLoggedIn = false }: { isLoggedIn?: boolean }) {
