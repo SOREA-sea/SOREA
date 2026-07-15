@@ -12,7 +12,7 @@ const NAV_LINKS = [
   { label: "Challenges", href: "/challenge" },
   { label: "Vibe", href: "/vibe" },
   { label: "Mon Carnet", href: "/carnet" },
-  { label: "Ma progression", href: "/progression" },
+  { label: "Mon suivi", href: "/suivi" },
   
 ];
 
