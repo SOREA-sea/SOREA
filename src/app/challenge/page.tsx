@@ -10,7 +10,6 @@ import MenstrualCalendar from "../../components/MenstrualCalendar";
 import { useRouter } from "next/navigation";
 import { getFavoriFilRouge, FilRougeItem, getFavoriWheel, WheelCategory } from "../../lib/favorites-store";
 import FilRougeCard from "../../components/FilRougeCard";
-
 const wheelDataConfig = {
   "bien-etre": {
     img: "/image_icone/image_Wheel-Spinner/WS_Bien-être1.png",
@@ -29,7 +28,7 @@ const wheelDataConfig = {
   }
 };
 
-export default function MiroirDesAffirmations() {
+  export default function MiroirDesAffirmations() {
   const router = useRouter();
   
   const [favori, setFavori] = useState<FilRougeItem | null>(null);
