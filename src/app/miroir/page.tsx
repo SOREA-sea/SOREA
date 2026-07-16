@@ -238,6 +238,15 @@ export default function NouvellePage() {
             >
               [Test] Simuler blocage multi-appareils
             </button>
+
+            {/* Renvoie vers la page d'abonnement dédiée au Miroir */}
+            {!hasSubscription && (
+              <Link href="/miroir/abonnement">
+                <button className="flex items-center gap-2 bg-[#8B47FF] text-white font-bold px-6 py-3 rounded-2xl shadow-md transition-all duration-300 hover:scale-105 hover:shadow-xl cursor-pointer">
+                  ✨ Passer à l'abonnement illimité
+                </button>
+              </Link>
+            )}
           </div>
 
           <div className="flex-grow flex flex-col items-center justify-center w-full min-h-[300px] gap-8 relative z-10">
