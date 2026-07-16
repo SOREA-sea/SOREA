@@ -5,13 +5,10 @@ import Navbar from "@/components/Navbar";
 import WeatherModal from "@/components/WeatherModal";
 import WeatherBadge from "@/app/vibe/WeatherBadge";
 import NewsContent from "@/app/vibe/NewsContent";
-import NowContent from "@/app/vibe/NowContent";
 import { C } from "@/app/vibe/styles";
 import { WeatherData as VWeatherData, DayForecast as VDayForecast } from "@/app/vibe/types";
 import { reverseGeocode } from "@/app/vibe/helpers";
 
-const TABS = [{ key: "news", label: "News" }, { key: "now", label: "Now" }] as const;
-type TabKey = "news" | "now";
 const OWM_API_KEY = process.env.NEXT_PUBLIC_OPENWEATHERMAP_API_KEY;
 
 interface OpenWeatherCurrentResponse {
@@ -63,7 +60,6 @@ interface IpApiResponse {
 }
 
 export default function SoreaVibe() {
-  const [tab, setTab] = useState<TabKey>("news");
   const [weatherData, setWeatherData] = useState<VWeatherData | null>(null);
   const [showWeather, setShowWeather] = useState(false);
   const navRef = useRef<HTMLDivElement>(null);
@@ -233,9 +229,6 @@ export default function SoreaVibe() {
         .weather-badge-wrapper { position: fixed; top: 54px; right: 24px; z-index: 110; }
         .weather-badge-btn { display: flex; align-items: center; gap: 5px; background: rgba(255,255,255,0.92); border: 1px solid #EDEAF7; border-radius: 30px; padding: 5px 12px; cursor: pointer; backdrop-filter: blur(8px); box-shadow: 0 2px 12px rgba(123,63,228,0.12); transition: border-color 0.18s, box-shadow 0.18s; }
         .weather-badge-btn:hover { border-color: #38D9C0; box-shadow: 0 0 0 3px rgba(56,217,192,0.18); }
-        .sorea-tab-btn { transition: border-bottom-color 0.25s, filter 0.25s; position: relative; }
-        .sorea-tab-btn:hover { border-bottom-color: ${C.teal} !important; filter: drop-shadow(0 4px 10px rgba(56,217,192,0.60)); }
-        .sorea-tab-btn.active-tab { filter: drop-shadow(0 4px 12px rgba(56,217,192,0.70)); }
         .arrow-btn { background: none; border: none; color: ${C.purple}; font-size: 32px; font-weight: 900; cursor: pointer; padding: 0 6px; line-height: 1; flex-shrink: 0; user-select: none; transition: transform 0.15s, color 0.15s, filter 0.15s; }
         .arrow-btn:hover { transform: scale(1.3); color: #bf80ff; filter: drop-shadow(0 0 8px rgba(123,63,228,0.75)); }
         .sorea-cta { display: inline-block; padding: 14px 52px; border-radius: 12px; font-weight: 800; font-size: 15px; cursor: pointer; border: none; font-family: 'DM Sans', sans-serif; letter-spacing: 0.2px; background: ${C.cardBg}; color: ${C.purple}; box-shadow: 0 3px 0 #D8D3E8, 0 2px 12px rgba(0,0,0,0.06); transition: background 0.22s ease, color 0.22s ease, box-shadow 0.22s ease; }
@@ -251,17 +244,7 @@ export default function SoreaVibe() {
           <h1 style={{ textAlign: "center", fontSize: "clamp(28px,4vw,46px)", fontWeight: 950, color: C.textDark, margin: "40px 0 12px", letterSpacing: -0.5 }}>SOREA Vibe</h1>
           <p style={{ textAlign: "center", fontSize: 18, color: C.textDark, fontWeight: 400, margin: "0 0 50px", opacity: 0.85 }}>Inspiration, conseils bien-être et nouveautés SOREA au quotidien.</p>
 
-          <div style={{ maxWidth: 900, margin: "0 auto 48px", display: "flex", position: "relative" }}>
-            <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: 2, background: "#E2DDF5" }} />
-            {TABS.map(({ key, label }) => {
-              const isActive = tab === key;
-              return (
-                <button key={key} className={`sorea-tab-btn${isActive ? " active-tab" : ""}`} onClick={() => setTab(key)} style={{ flex: 1, padding: "16px 0", background: "none", border: "none", cursor: "pointer", fontSize: 16, fontWeight: 800, letterSpacing: 0.3, color: C.purple, borderBottom: isActive ? `3px solid ${C.teal}` : "3px solid transparent", zIndex: 1 }}>{label}</button>
-              );
-            })}
-          </div>
-
-          {tab === "news" ? <NewsContent weatherData={weatherData} onOpenWeather={() => setShowWeather(true)} /> : <NowContent />}
+          <NewsContent weatherData={weatherData} onOpenWeather={() => setShowWeather(true)} />
 
           <div style={{ textAlign: "center", marginTop: 64 }}>
             <button className="sorea-cta" onClick={handleMagazine}>Recevoir mon magazine</button>

@@ -25,8 +25,6 @@ export default function MotAMoiPage() {
   const [selectedAccept, setSelectedAccept] = useState(mediaOptions[0].accept);
   const [file, setFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
-  const [title, setTitle] = useState("");
-  const [content, setContent] = useState("");
   const [deliveryDate, setDeliveryDate] = useState("");
   const [message, setMessage] = useState<string | null>(null);
 
@@ -56,10 +54,6 @@ export default function MotAMoiPage() {
     previewUrlRef.current = nextPreviewUrl;
     setPreviewUrl(nextPreviewUrl);
     setMessage(null);
-
-    if (selectedFile && !title) {
-      setTitle(selectedFile.name.replace(/\.[^/.]+$/, ""));
-    }
   };
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
@@ -106,6 +100,15 @@ export default function MotAMoiPage() {
       </div>
 
       <main className="mx-auto w-full max-w-[860px] px-5 pb-16 pt-28 md:pt-36">
+        <Link
+          href="/challenge"
+          className="mb-6 inline-flex items-center gap-2 rounded-full bg-white/80 px-4 py-2 text-xs font-bold text-[#8B47FF] shadow-sm ring-1 ring-[#8B47FF]/20 transition-all hover:-translate-y-0.5 hover:bg-[#F4EBFF] hover:shadow-md"
+          aria-label="Retour"
+        >
+          <span aria-hidden="true">←</span>
+          Retour
+        </Link>
+
         <p className="mb-5 text-lg font-bold tracking-[0.12em] text-[#8B47FF]/70">Mots à moi</p>
 
         <nav className="mx-auto flex max-w-[690px] items-center justify-between rounded-full bg-[#F4EBFF] px-3 py-1 shadow-sm ring-1 ring-[#8B47FF]/15">
@@ -137,25 +140,7 @@ export default function MotAMoiPage() {
           onSubmit={handleSubmit}
           className="mx-auto mt-20 max-w-[700px] border-[4px] border-[#8B47FF] bg-white p-2 shadow-xl shadow-purple-100"
         >
-          <input
-            value={title}
-            onChange={(event) => setTitle(event.target.value)}
-            placeholder="Title"
-            required
-            className="w-[76%] border-2 border-dotted border-[#8B47FF]/70 bg-white px-3 py-2 text-sm outline-none placeholder:text-[#8B47FF]/45 focus:border-solid"
-            aria-label="Titre du mot"
-          />
-
-          <textarea
-            value={content}
-            onChange={(event) => setContent(event.target.value)}
-            placeholder="Please add your content here."
-            required
-            className="mt-2 min-h-[250px] w-full resize-none border-2 border-dotted border-[#8B47FF]/70 bg-white px-3 py-5 text-base outline-none placeholder:text-[#8B47FF]/45 focus:border-solid"
-            aria-label="Contenu du mot"
-          />
-
-          <section className="mt-5 border-2 border-dotted border-[#8B47FF]/70 px-6 py-5">
+          <section className="border-2 border-dotted border-[#8B47FF]/70 px-6 py-5">
             <input
               ref={fileInputRef}
               type="file"
