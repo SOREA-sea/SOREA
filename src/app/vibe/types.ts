@@ -21,6 +21,7 @@ export interface WeatherData {
 }
 
 export interface NewsArticle {
+  id?: string;
   img: string | null;
   imgAlt: string;
   emoji: string;

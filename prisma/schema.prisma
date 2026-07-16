@@ -64,7 +64,23 @@ model User {
 
   symptomLogs      SymptomLog[]
   periodHistories  PeriodHistory[]
+  vibeNews         VibeNews[]
 
+}
+
+model VibeNews {
+  id          Int      @id @default(autoincrement())
+  title       String
+  content     String
+  category    String   @default("bien-etre")
+  isPublished Boolean  @default(true)
+  authorId    Int
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  author User @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  @@index([isPublished, createdAt])
 }
 
 model MenstrualProfile {
