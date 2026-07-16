@@ -1,12 +1,12 @@
 "use client";
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import { NewsArticle, ArticleCat, WeatherData } from "./types";
 import { C } from "./styles";
 import WeatherBadge from "./WeatherBadge";
 import rawNewsArticles from "./newsData.json";
 
-const newsArticles = rawNewsArticles as NewsArticle[];
+const defaultNewsArticles = rawNewsArticles as NewsArticle[];
 
 function ArticleCard({ article, tall = false, onClick }: { article: NewsArticle; tall?: boolean; onClick: () => void }) {
   const [hovered, setHovered] = useState(false);
@@ -189,10 +189,26 @@ function pillStyle(active: boolean): React.CSSProperties {
 }
 
 export default function NewsContent({ weatherData, onOpenWeather }: { weatherData: WeatherData | null; onOpenWeather: () => void }) {
+  const [newsArticles, setNewsArticles] = useState<NewsArticle[]>(defaultNewsArticles);
   const [currentArticle, setCurrentArticle] = useState<NewsArticle | null>(null);
   const [search,    setSearch]    = useState("");
   const [catFilter, setCatFilter] = useState<CatFilter>("all");
   const [sortMode,  setSortMode]  = useState<SortMode>("recent");
+
+  useEffect(() => {
+    let active = true;
+    fetch("/api/vibe-news")
+      .then((response) => response.ok ? response.json() : Promise.reject())
+      .then((data) => {
+        if (active && Array.isArray(data.articles)) {
+          setNewsArticles([...data.articles, ...defaultNewsArticles]);
+        }
+      })
+      .catch(() => {
+        // Les articles statiques restent disponibles si l'API est momentanément indisponible.
+      });
+    return () => { active = false; };
+  }, []);
 
   const filtered = useMemo(() => {
     const query = search.trim().toLowerCase();
@@ -208,7 +224,7 @@ export default function NewsContent({ weatherData, onOpenWeather }: { weatherDat
       if (sortMode === "populaire") return b.likes - a.likes;
       return 0;
     });
-  }, [search, catFilter, sortMode]);
+  }, [search, catFilter, sortMode, newsArticles]);
 
   const similar = currentArticle
     ? newsArticles.filter(a => a.cat === currentArticle.cat && a.title !== currentArticle.title)
