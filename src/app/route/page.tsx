@@ -6,7 +6,6 @@ import Navbar from '@/components/Navbar';
 import Footer from "@/components/Footer";
 import StreakTracker from "@/components/StreakTracker";
 
-// Import des 3 nouvelles roues séparées
 import WheelSpinnerBienEtre from "@/components/WheelSpinnerBienEtre";
 import WheelSpinnerNutrition from "@/components/WheelSpinnerNutrition";
 import WheelSpinnerSport from "@/components/WheelSpinnerSport";
