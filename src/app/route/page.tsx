@@ -1,17 +1,27 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import Navbar from '@/components/Navbar';
 import Footer from "@/components/Footer";
 import WellbeingWheel from "@/components/WellbeingWheel";
 import StreakTracker from "@/components/StreakTracker";
+import { getFavoriWheel } from "@/lib/favorites-store";
 
 export default function RouteDesDefis() {
+  const searchParams = useSearchParams();
   const [showInstructions, setShowInstructions] = useState(true);
-  
-  
   const [selectedCategory, setSelectedCategory] = useState<"bien-etre" | "nutrition" | "sport" | null>(null);
+
+  // Si on vient d'un fil rouge en mode "jouer directement",
+  // on saute l'intro + le choix de catégorie, et on ouvre direct la roue favorite.
+  useEffect(() => {
+    if (searchParams.get("play") === "true") {
+      setSelectedCategory(getFavoriWheel());
+      setShowInstructions(false);
+    }
+  }, [searchParams]);
 
   const hideInstructions = () => {
     setShowInstructions(false);

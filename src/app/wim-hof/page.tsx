@@ -3,6 +3,7 @@ import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Play, Star } from "lucide-react";
+import WimHofPlayer from "@/components/WimHofPlayer";
 
 const sessions = [
   {
@@ -25,9 +26,19 @@ const sessions = [
   },
 ];
 
-const mainSession = sessions.find((session) => session.favorite) ?? sessions[0];
+export default function WimHofPage({
+  searchParams,
+}: {
+  searchParams?: { play?: string };
+}) {
+  const mainSession = sessions.find((session) => session.favorite) ?? sessions[0];
 
-export default function WimHofPage() {
+  // Si on vient d'un fil rouge en mode "jouer directement",
+  // on saute la page de présentation et on ouvre le player directement.
+  if (searchParams?.play === "true") {
+    return <WimHofPlayer session={mainSession} />;
+  }
+
   return (
     <div className="relative flex min-h-screen flex-col bg-white text-[#201A2B]">
       <div className="mx-auto w-full max-w-[1440px] px-4 pb-6 md:px-12 lg:px-[96px]">
