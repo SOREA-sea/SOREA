@@ -4,12 +4,15 @@ import React, { useState } from "react";
 import Link from "next/link";
 import Navbar from '@/components/Navbar';
 import Footer from "@/components/Footer";
-import WellbeingWheel from "@/components/WellbeingWheel";
 import StreakTracker from "@/components/StreakTracker";
+
+// Import des 3 nouvelles roues séparées
+import WheelSpinnerBienEtre from "@/components/WheelSpinnerBienEtre";
+import WheelSpinnerNutrition from "@/components/WheelSpinnerNutrition";
+import WheelSpinnerSport from "@/components/WheelSpinnerSport";
 
 export default function RouteDesDefis() {
   const [showInstructions, setShowInstructions] = useState(true);
-  
   
   const [selectedCategory, setSelectedCategory] = useState<"bien-etre" | "nutrition" | "sport" | null>(null);
 
@@ -111,11 +114,16 @@ export default function RouteDesDefis() {
               <div className="w-full flex flex-col items-center animate-in fade-in zoom-in duration-500">
                 <button 
                   onClick={() => setSelectedCategory(null)}
-                  className="mb-8 text-[#8B47FF] font-medium underline hover:text-[#5A37AC] transition-colors"
+                  className="mb-8 text-[#8B47FF] font-bold px-6 py-2 rounded-2xl border-2 border-[#8B47FF] hover:bg-[#8B47FF] hover:text-white transition-all shadow-sm"
                 >
                   Changer de catégorie
                 </button>
-                <WellbeingWheel category={selectedCategory} />
+                
+                {/* Affichage conditionnel des 3 nouveaux composants */}
+                {selectedCategory === "bien-etre" && <WheelSpinnerBienEtre />}
+                {selectedCategory === "nutrition" && <WheelSpinnerNutrition />}
+                {selectedCategory === "sport" && <WheelSpinnerSport />}
+                
               </div>
             )}
           </div>
