@@ -244,11 +244,11 @@ function lancerConfettis() {
 export default function WheelSpinnerBienEtre() {
   const [isFavori, setIsFavori] = useState(false);
   
-  // États de la roue et des interactions
+  
   const [estEnTrainDeTourner, setEstEnTrainDeTourner] = useState(false);
   const [afficherFenetreResultat, setAfficherFenetreResultat] = useState(false);
   
-  // On stocke le résultat complet tiré au sort
+  
   const [resultatGagnant, setResultatGagnant] = useState<{
       name: string;
       iconPath: string;
@@ -264,7 +264,7 @@ export default function WheelSpinnerBienEtre() {
   const angleActuel = useRef(0);
   const idleRafRef = useRef<number | null>(null);
 
-  // Charger les favoris au démarrage
+ 
   useEffect(() => {
     setIsFavori(getFavoriWheel() === "bien-etre");
   }, []);
@@ -303,7 +303,7 @@ export default function WheelSpinnerBienEtre() {
 
     if (idleRafRef.current) cancelAnimationFrame(idleRafRef.current);
 
-    // Calcul mathématique de l'angle gagnant
+    
     const sectorIndex = Math.floor(Math.random() * 10);
     const angleSecteur = 360 - (sectorIndex * 36) - 18;
     const toursSuplementaires = (5 + Math.floor(Math.random() * 4)) * 360;
@@ -314,7 +314,7 @@ export default function WheelSpinnerBienEtre() {
       wheelGroupRef.current.style.transform = `rotate(${angleFinal}deg)`;
     }
 
-    // Ce qui se passe à la fin de la rotation
+    
     setTimeout(() => {
       setEstEnTrainDeTourner(false);
       angleActuel.current = angleFinal % 360; 
@@ -324,7 +324,7 @@ export default function WheelSpinnerBienEtre() {
         wheelGroupRef.current.style.transform = `rotate(${angleActuel.current}deg)`;
       }
 
-      // Pioche un défi aléatoire dans le thème gagnant
+     
       const themeGagnant = themesData[sectorIndex];
       const randomDefi = themeGagnant.defis[Math.floor(Math.random() * themeGagnant.defis.length)];
 
@@ -346,13 +346,13 @@ export default function WheelSpinnerBienEtre() {
   };
 
   return (
-    // Padding-top augmenté à pt-24 pour laisser de la place au bouton absolute au-dessus de la carte
+    
     <div className="w-full flex justify-evenly items-center relative pt-24 pb-64 overflow-hidden" style={{ fontFamily: "'Inter', sans-serif" }}>
       
       {/* --- COLONNE GAUCHE : LA CARTE DÉFI + BOUTON FAVORIS --- */}
       <div className="relative w-[320px] flex flex-col">
         
-        {/* BOUTON FAVORIS - Toujours visible, ancré à 70px au-dessus de la carte d'explication */}
+        
         <div className="absolute -top-[70px] left-0 z-50">
           <button
             onClick={handleToggleFavori}
@@ -366,28 +366,28 @@ export default function WheelSpinnerBienEtre() {
         {/* LA CARTE (qui s'anime et s'affiche quand le jeu se termine) */}
         <div className={`w-full min-h-[480px] bg-[#E6DFFF] border-[2px] border-dashed border-[#7F4DC5] rounded-[24px] p-[30px_24px] shadow-[0px_10px_30px_rgba(0,0,0,0.05)] flex flex-col transition-all duration-[600ms] ease-[cubic-bezier(0.16,1,0.3,1)] ${afficherFenetreResultat ? 'opacity-100 translate-x-0 pointer-events-auto' : 'opacity-0 -translate-x-[40px] pointer-events-none'}`}>
           
-          {/* Bulle d'icône */}
+          
           <div className="w-[72px] h-[72px] rounded-full bg-[#FEF0F9] border-[1.5px] border-[#E9D5FF] flex items-center justify-center mx-auto mb-[15px] shadow-[0px_4px_12px_rgba(127,77,197,0.08)]">
             {resultatGagnant && <img src={resultatGagnant.iconPath} alt={resultatGagnant.name} className="w-[40px] h-[40px] object-contain" />}
           </div>
 
-          {/* Header (Titre du thème) */}
+          
           <div className="flex items-center justify-center gap-[6px] mb-[20px]">
             <span className="text-[#7F4DC5] text-[22px] font-[800] text-center">
               {resultatGagnant?.name}
             </span>
           </div>
 
-          {/* Boîte principale du Défi */}
+          
           <div className="text-[15px] font-[700] text-[#1A1A1A] text-center mb-[20px] leading-[1.4] px-[10px]">
             <strong>Défi du jour :</strong> <br />
             <span className="font-medium mt-1 inline-block">{resultatGagnant?.defiDuJour}</span>
           </div>
 
-          {/* Diviseur */}
+          
           <div className="h-[1px] w-full my-[15px]" style={{ background: "radial-gradient(circle, #7F4DC5 0%, transparent 100%)" }}></div>
           
-          {/* Section Objectifs */}
+          
           <div className="text-[20px] font-[800] text-[#1A1A1A] text-center mb-[15px]">Objectif</div>
           <ul className="text-[14px] leading-[1.6] text-[#333333] pl-[20px] m-0 list-disc">
             {resultatGagnant?.objectifs.map((obj, i) => (
@@ -400,7 +400,7 @@ export default function WheelSpinnerBienEtre() {
       {/* --- COLONNE CENTRALE : LA ROUE --- */}
       <div className="flex items-center justify-center relative mt-[-55px] transform scale-[1.35] origin-top">
         
-        {/* Le socle (Indicateurs SOREA) */}
+        
         <div className="absolute top-[34%] left-1/2 -translate-x-1/2 flex flex-col items-center justify-center z-0">
           <div className="relative w-[161.93px] h-[311px] bg-[#DBCEEF] flex justify-center items-end pb-[10px] drop-shadow-[0px_38px_26px_rgba(0,0,0,0.25)]" style={{ clipPath: 'polygon(50% 0%, 0% 100%, 100% 100%)' }}>
             <div className="absolute inset-0 bg-gradient-to-b from-black/25 to-transparent pointer-events-none"></div>
@@ -409,20 +409,20 @@ export default function WheelSpinnerBienEtre() {
           <div className="w-[210px] h-[35px] bg-[#DBCEEF] shadow-[inset_0px_5px_15px_rgba(0,0,0,0.25)] relative" style={{ clipPath: 'polygon(7% 0%, 93% 0%, 100% 100%, 0% 100%)' }}></div>
         </div>
 
-        {/* Conteneur principal de la roue */}
+        
         <div className="relative w-[340px] h-[340px] flex justify-center items-center cursor-pointer" onClick={tournerLaRoue}>
           
           <div className="w-[330px] h-[330px] relative flex justify-center items-center" style={{ transformStyle: 'preserve-3d' }}>
-            {/* Ombre du tore */}
+            
             <div className="absolute inset-0 rounded-full drop-shadow-[0px_8px_15px_#000000] pointer-events-none z-[2]" style={{ background: 'radial-gradient(circle, transparent 65%, #DBCEEF 65%)', transform: 'translateZ(2px)' }}></div>
             
-            {/* GROUPE EN ROTATION */}
+            
             <div ref={wheelGroupRef} className="absolute inset-0 flex justify-center items-center z-[3]" style={{ transformStyle: 'preserve-3d', willChange: 'transform' }}>
               
               {/* Le fond coloré (Conic Gradient) */}
               <div className="absolute w-[330px] h-[330px] rounded-full flex justify-center items-center z-[1]" style={{ transform: 'translateZ(1px)', background: 'conic-gradient(#C0ACFF 0deg 36deg, #FEF0F9 36deg 72deg, #C0ACFF 72deg 108deg, #FEF0F9 108deg 144deg, #C0ACFF 144deg 180deg, #FEF0F9 180deg 216deg, #C0ACFF 216deg 252deg, #FEF0F9 252deg 288deg, #C0ACFF 288deg 324deg, #FEF0F9 324deg 360deg)' }}>
                 
-                {/* Les 10 Icônes */}
+                
                 {themesData.map((theme, i) => (
                   <div key={`icon-${i}`} className="absolute w-[25px] h-[25px] flex justify-center items-center" style={{ transform: `rotate(${i * 36 + 18}deg) translateY(-115px)` }}>
                     <img src={theme.iconPath} alt={theme.name} className="w-full h-full object-contain" />
@@ -431,7 +431,7 @@ export default function WheelSpinnerBienEtre() {
 
               </div>
 
-              {/* Les 10 Pastilles de bordure (Jaune et Violette) */}
+              
               {Array.from({ length: 10 }).map((_, i) => {
                 const isYellow = i % 2 === 0;
                 return (
