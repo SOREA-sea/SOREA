@@ -7,7 +7,7 @@ import Footer from "@/components/Footer";
 import Visualisation from "@/components/visualisation";
 import { Play, Brain, Target, Heart, Sparkles } from "lucide-react";
 
-// On recrée l'interface ici pour pouvoir lire correctement les données sauvegardées
+// Interface pour les données sauvegardées
 interface VisualImage {
   id: string;
   colorClass?: string;
@@ -27,7 +27,6 @@ export default function VisualisationPage() {
   const [trash, setTrash] = useState<VisualImage[]>([]);
   const [activeTab, setActiveTab] = useState<TabType>("galerie");
 
-  // On vérifie l'URL au chargement de la page (pour le bouton "Jouer directement" du fil rouge)
   useEffect(() => {
     if (typeof window !== "undefined") {
       const params = new URLSearchParams(window.location.search);
@@ -37,7 +36,6 @@ export default function VisualisationPage() {
     }
   }, []);
 
-  // On récupère toutes les listes locales à chaque fois qu'on revient sur la présentation
   useEffect(() => {
     if (!isStarted && typeof window !== "undefined") {
       const savedGalerie = localStorage.getItem("sorea_visualisation_galerie");
@@ -51,7 +49,6 @@ export default function VisualisationPage() {
     }
   }, [isStarted]);
 
-  // Récupère la liste actuellement sélectionnée par l'onglet
   const currentImages = activeTab === "galerie" ? galerie : activeTab === "archives" ? archives : trash;
 
   // === VUE 2 : L'ACTIVITÉ (Le jeu) ===
@@ -63,7 +60,6 @@ export default function VisualisationPage() {
             <Navbar />
           </div>
         </div>
-
         <main className="flex-1 w-full flex flex-col items-center">
           <div className="w-full max-w-[1440px] mx-auto px-[96px] flex flex-col items-center pt-[50px] pb-[24px]">
             <div className="w-full mb-10 flex flex-col items-start gap-2">
@@ -74,22 +70,19 @@ export default function VisualisationPage() {
                 ← Retour à la présentation
               </button>
             </div>
-            
             <div className="w-full flex-grow flex flex-col items-center relative z-10">
               <Visualisation />
             </div>
           </div>
         </main>
-
         <Footer />
       </div>
     );
   }
 
-  // === VUE 1 : LA PRÉSENTATION (Wireframe) ===
+  // === VUE 1 : LA PRÉSENTATION ===
   return (
     <div className="min-h-screen flex flex-col w-full bg-gradient-to-b from-purple-50 to-[#f9f5fa] font-sans text-gray-800">
-      
       <div className="w-full">
         <div className="max-w-[1440px] mx-auto px-[96px] pb-[24px]">
           <Navbar />
@@ -134,53 +127,18 @@ export default function VisualisationPage() {
             </div>
           </section>
 
-          {/* Pellicule à gauche, Galerie à droite */}
           <section className="grid grid-cols-1 md:grid-cols-2 gap-16 mt-10">
             
-            {/* Aperçu Pellicule Dynamique (À GAUCHE) */}
+            {/* Aperçu Pellicule Vide (À GAUCHE) */}
             <div className="bg-[#FAF5FF] rounded-[32px] p-8 md:p-12 shadow-inner border border-purple-100 flex flex-col items-center justify-between gap-8 relative overflow-hidden">
               <h3 className="text-xl font-bold text-[#592592] z-10 bg-white/90 px-8 py-3 rounded-full backdrop-blur-sm shadow-sm">
                 Votre Pellicule SOREA
               </h3>
               
-              {/* Conteneur de la pellicule : Taille exacte 1/3 (120x360) et sans fond blanc ! */}
               <div 
-                className="relative z-10 rounded-sm overflow-hidden shadow-xl"
-                style={{ width: '120px', height: '360px' }} 
-              >
-                {/* 1. Le SVG en background css forcé à 100% 100% (Z-20) pour couvrir parfaitement les bords ! */}
-                <div 
-                  className="absolute inset-0 z-20 pointer-events-none"
-                  style={{
-                    backgroundImage: "url('/image_icone/image_visualisation/pellicule_vide.svg')",
-                    backgroundSize: "100% 100%", // Oblige le SVG à toucher tous les bords de la div 120x360
-                    backgroundPosition: "center",
-                    backgroundRepeat: "no-repeat"
-                  }}
-                />
-
-                {/* 2. Les images EN DESSOUS (Z-10) alignées parfaitement derrière les trous */}
-                <div className="absolute inset-0 z-10 flex flex-col items-center justify-evenly py-[10%]">
-                  {[0, 1, 2].map((i) => {
-                    const img = galerie[i];
-                    return (
-                      <div key={i} className="w-[78%] aspect-square bg-gray-100 overflow-hidden relative rounded-[2px]">
-                        {img?.imageUrl ? (
-                          <img
-                            src={img.imageUrl}
-                            alt={`Film ${i}`}
-                            className="w-full h-full object-cover"
-                            style={{
-                              objectPosition: `calc(50% + ${img.offsetX || 0}px) calc(50% + ${img.offsetY || 0}px)`,
-                              transform: `scale(${img.scale || 1})`,
-                            }}
-                          />
-                        ) : null}
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
+                className="relative z-10 shadow-xl"
+                style={{ width: '120px', height: '360px', backgroundImage: "url('/image_icone/image_visualisation/pellicule_visualisation.svg')", backgroundSize: "100% 100%" }} 
+              />
 
               <button 
                 onClick={() => setIsStarted(true)}
@@ -190,56 +148,31 @@ export default function VisualisationPage() {
               </button>
             </div>
 
-            {/* Aperçu Galerie Dynamique (À DROITE) */}
+            {/* Aperçu Galerie (À DROITE) */}
             <div className="bg-white rounded-[32px] p-8 md:p-12 shadow-sm border border-purple-100 flex flex-col gap-8">
-              {/* Onglets dynamiques */}
               <div className="flex gap-8 border-b border-purple-100 pb-4">
-                <span 
-                  onClick={() => setActiveTab("galerie")}
-                  className={`font-bold pb-4 -mb-[17px] cursor-pointer ${activeTab === "galerie" ? "text-[#8B47FF] border-b-2 border-[#8B47FF]" : "text-gray-400 hover:text-gray-600 transition-colors"}`}
-                >
-                  Votre galerie
-                </span>
-                <span 
-                  onClick={() => setActiveTab("archives")}
-                  className={`font-bold pb-4 -mb-[17px] cursor-pointer ${activeTab === "archives" ? "text-[#8B47FF] border-b-2 border-[#8B47FF]" : "text-gray-400 hover:text-gray-600 transition-colors"}`}
-                >
-                  Archives
-                </span>
-                <span 
-                  onClick={() => setActiveTab("trash")}
-                  className={`font-bold pb-4 -mb-[17px] cursor-pointer ${activeTab === "trash" ? "text-[#8B47FF] border-b-2 border-[#8B47FF]" : "text-gray-400 hover:text-gray-600 transition-colors"}`}
-                >
-                  Corbeille
-                </span>
+                {["galerie", "archives", "trash"].map((tab) => (
+                  <span 
+                    key={tab}
+                    onClick={() => setActiveTab(tab as TabType)}
+                    className={`font-bold pb-4 -mb-[17px] cursor-pointer capitalize ${activeTab === tab ? "text-[#8B47FF] border-b-2 border-[#8B47FF]" : "text-gray-400 hover:text-gray-600 transition-colors"}`}
+                  >
+                    {tab === "trash" ? "Corbeille" : tab}
+                  </span>
+                ))}
               </div>
               
               <div className="grid grid-cols-2 gap-6 mt-4">
-                {/* On affiche les 3 premières images de la liste sélectionnée */}
                 {currentImages.slice(0, 3).map((img, index) => (
                   <div key={img.id} className="aspect-square rounded-2xl overflow-hidden shadow-sm border border-gray-100 relative bg-gray-100 group">
                     {img.imageUrl ? (
-                      <img
-                        src={img.imageUrl}
-                        alt={`${activeTab} ${index + 1}`}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                        style={{
-                          objectPosition: `calc(50% + ${img.offsetX || 0}px) calc(50% + ${img.offsetY || 0}px)`,
-                          transform: `scale(${img.scale || 1})`,
-                        }}
-                      />
-                    ) : (
-                      <div className={`w-full h-full ${img.colorClass || "bg-gray-100"}`}></div>
-                    )}
+                      <img src={img.imageUrl} alt="img" className="w-full h-full object-cover" />
+                    ) : <div className={`w-full h-full ${img.colorClass || "bg-gray-100"}`}></div>}
                   </div>
                 ))}
-                
-                {/* Cases vides de remplissage (s'il y a moins de 3 images) */}
                 {Array.from({ length: Math.max(0, 3 - currentImages.length) }).map((_, index) => (
                   <div key={`empty-${index}`} className="aspect-square bg-gradient-to-br from-gray-100 to-gray-50 rounded-2xl border border-gray-100"></div>
                 ))}
-
-                {/* Bouton "Ajouter" qui lance le jeu */}
                 <div 
                   onClick={() => setIsStarted(true)}
                   className="aspect-square bg-[#FAF5FF] border-2 border-dashed border-purple-200 rounded-2xl flex items-center justify-center text-purple-300 hover:bg-purple-50 transition-colors cursor-pointer"
@@ -248,56 +181,11 @@ export default function VisualisationPage() {
                 </div>
               </div>
             </div>
-
           </section>
-
-          {/* 3. BIENFAITS SECTION */}
-          <section className="flex flex-col items-center gap-16 mt-16 w-full">
-            <h2 className="text-3xl lg:text-4xl font-black text-[#592592] text-center">
-              Les bienfaits de se visualiser
-            </h2>
-            
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 w-full">
-              <div className="flex flex-col items-center text-center gap-5 p-10 bg-white rounded-[32px] shadow-sm border border-purple-50 hover:-translate-y-2 transition-transform duration-300">
-                <div className="w-20 h-20 bg-purple-50 text-[#8B47FF] rounded-2xl flex items-center justify-center mb-2">
-                  <Target size={36} />
-                </div>
-                <h4 className="text-xl font-bold text-black">Clarté Mentale</h4>
-                <p className="text-[#4b3b5c] leading-relaxed">Aide à définir tes objectifs avec précision et à voir clairement le chemin pour y parvenir.</p>
-              </div>
-
-              <div className="flex flex-col items-center text-center gap-5 p-10 bg-white rounded-[32px] shadow-sm border border-purple-50 hover:-translate-y-2 transition-transform duration-300">
-                <div className="w-20 h-20 bg-purple-50 text-[#8B47FF] rounded-2xl flex items-center justify-center mb-2">
-                  <Brain size={36} />
-                </div>
-                <h4 className="text-xl font-bold text-black">Motivation Accrue</h4>
-                <p className="text-[#4b3b5c] leading-relaxed">Maintient l'enthousiasme et l'engagement en gardant tes rêves à portée de vue chaque jour.</p>
-              </div>
-
-              <div className="flex flex-col items-center text-center gap-5 p-10 bg-white rounded-[32px] shadow-sm border border-purple-50 hover:-translate-y-2 transition-transform duration-300">
-                <div className="w-20 h-20 bg-purple-50 text-[#8B47FF] rounded-2xl flex items-center justify-center mb-2">
-                  <Heart size={36} />
-                </div>
-                <h4 className="text-xl font-bold text-black">Baisse du Stress</h4>
-                <p className="text-[#4b3b5c] leading-relaxed">Apaise l'esprit en se concentrant sur le positif et l'abondance plutôt que sur les manques.</p>
-              </div>
-            </div>
-          </section>
-
-          {/* 4. CITATION */}
-          <section className="w-full bg-[#592592] rounded-[32px] p-16 text-center relative overflow-hidden mt-10 shadow-xl">
-            <Sparkles className="absolute top-8 left-12 text-yellow-300 opacity-60 animate-pulse" size={48} />
-            <Sparkles className="absolute bottom-8 right-12 text-purple-300 opacity-60 animate-pulse" size={36} />
-            <h3 className="text-2xl md:text-4xl font-bold text-white italic leading-relaxed relative z-10 max-w-4xl mx-auto">
-              "La visualisation est le rêve éveillé qui façonne la réalité."
-            </h3>
-          </section>
-
+          
+          <Footer />
         </div>
       </main>
-
-      <Footer />
-      
     </div>
   );
 }
