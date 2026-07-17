@@ -7,7 +7,7 @@ import Footer from "@/components/Footer";
 import Visualisation from "@/components/visualisation";
 import { Play, Brain, Target, Heart, Sparkles } from "lucide-react";
 
-// Interface pour les données sauvegardées
+
 interface VisualImage {
   id: string;
   colorClass?: string;
@@ -129,7 +129,7 @@ export default function VisualisationPage() {
 
           <section className="grid grid-cols-1 md:grid-cols-2 gap-16 mt-10">
             
-            {/* Aperçu Pellicule Vide (À GAUCHE) */}
+            
             <div className="bg-[#FAF5FF] rounded-[32px] p-8 md:p-12 shadow-inner border border-purple-100 flex flex-col items-center justify-between gap-8 relative overflow-hidden">
               <h3 className="text-xl font-bold text-[#592592] z-10 bg-white/90 px-8 py-3 rounded-full backdrop-blur-sm shadow-sm">
                 Votre Pellicule SOREA
@@ -148,7 +148,7 @@ export default function VisualisationPage() {
               </button>
             </div>
 
-            {/* Aperçu Galerie (À DROITE) */}
+            
             <div className="bg-white rounded-[32px] p-8 md:p-12 shadow-sm border border-purple-100 flex flex-col gap-8">
               <div className="flex gap-8 border-b border-purple-100 pb-4">
                 {["galerie", "archives", "trash"].map((tab) => (
