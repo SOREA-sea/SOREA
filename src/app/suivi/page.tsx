@@ -23,9 +23,9 @@ export default function MyPage() {
         <Navbar />
       </div>
 
-      <div className="fixed right-3 sm:right-6 lg:right-[56px] top-[132px] z-30 w-[340px] max-w-[calc(100vw-24px)] origin-top-right scale-[0.62] sm:scale-[0.68] lg:scale-75">
-        <StreakTracker floating joursConsecutifs={5} />
-      </div>
+    <section className="w-full flex justify-center">
+        <StreakTracker />
+      </section>
 
       <section className="w-full flex justify-center">
         <MenstrualCalendar />
