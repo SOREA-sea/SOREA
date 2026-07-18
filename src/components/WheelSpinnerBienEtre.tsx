@@ -413,11 +413,80 @@ export default function WheelSpinnerBienEtre() {
             {resultatGagnant && <img src={resultatGagnant.iconPath} alt={resultatGagnant.name} className="w-[40px] h-[40px] object-contain" />}
           </div>
 
-          <div className="flex items-center justify-center gap-[6px] mb-[20px]">
-            <span className="text-[22px] font-[800] text-center transition-colors duration-500" style={{ color: theme.textAccent }}>
-              {resultatGagnant?.name}
-            </span>
-          </div>
+          <div className="flex items-center justify-center gap-[6px] mb-[20px] relative">
+
+  <span
+    className="text-[22px] font-[800] text-center transition-colors duration-500"
+    style={{ color: theme.textAccent }}
+  >
+    {resultatGagnant?.name}
+  </span>
+
+  {/* 🔽 AJOUTER À PARTIR D'ICI */}
+  <div className="relative flex items-center cursor-pointer group">
+
+    <img
+  src="/image_icone/Help.svg"
+  alt="Aide"
+  className="w-[18px] h-[18px] transition-transform duration-200 group-hover:scale-110"
+/>
+
+    <div
+      className="
+        invisible
+        opacity-0
+        group-hover:visible
+        group-hover:opacity-100
+        transition-all
+        duration-300
+
+        absolute
+        bottom-[125%]
+        left-1/2
+        -translate-x-1/2
+
+        w-[220px]
+        rounded-[8px]
+        px-[12px]
+        py-[10px]
+
+        text-[12px]
+        leading-[1.4]
+        text-white
+        font-normal
+        text-center
+
+        shadow-lg
+        z-20
+      "
+      style={{ backgroundColor: theme.borderCarte }}
+    >
+
+      {themesData.find(t => t.name === resultatGagnant?.name)?.desc}
+
+      <div
+        className="
+          absolute
+          top-full
+          left-1/2
+          -translate-x-1/2
+          w-0
+          h-0
+          border-l-[5px]
+          border-r-[5px]
+          border-t-[5px]
+          border-l-transparent
+          border-r-transparent
+        "
+        style={{ borderTopColor: theme.borderCarte }}
+      />
+
+    </div>
+
+  </div>
+  {/* 🔼 FIN DE L'AJOUT */}
+
+</div>
 
           <div className="text-[15px] font-[700] text-[#1A1A1A] text-center mb-[20px] leading-[1.4] px-[10px]">
             <strong>Défi du jour :</strong> <br />
