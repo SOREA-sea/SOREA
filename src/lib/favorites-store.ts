@@ -21,6 +21,7 @@ export interface FilRougeItem {
   objectif?: string;
   favori: boolean;
   steps: string[];
+  datesValides?: string[];
 }
 
 
