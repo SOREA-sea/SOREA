@@ -5,6 +5,7 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { Trash2, Pencil, Star, Play } from "lucide-react";
 import { FilRougeItem, getFeature } from "../lib/favorites-store";
+import StreakTracker from "../components/StreakTracker";
 
 interface Props {
   item: FilRougeItem;
@@ -66,6 +67,10 @@ export default function FilRougeCard({ item, readOnly = false, onDelete, onEdit,
       </button>
 
       <h2 className="text-xl font-bold text-[#592592] text-center mb-8">{item.title || "Sans titre"}</h2>
+      {/*Integration du tracker propre à l'item */}
+<div className="mb-6 w-full px-4">
+  <StreakTracker floating datesValides={item.datesValides || []} />
+</div>
 
       <div className="flex items-center justify-center gap-2 flex-wrap">
         {item.steps.map((key, index) => {
