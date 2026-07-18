@@ -442,8 +442,12 @@ export default function WheelSpinnerBienEtre() {
             onClick={basculerTheme}
             className="flex items-center gap-2 px-4 py-2 bg-white/80 backdrop-blur border border-purple-100 rounded-full shadow-sm hover:bg-white transition-colors cursor-pointer"
           >
-            <span className="text-xl">🎨</span>
-            <span className="text-sm font-bold text-[#592592]">Style</span>
+            <img 
+    src="/image_icone/Palette-peinture.svg" 
+    alt="Palette de style" 
+    className="w-7 h-7 object-contain" 
+  />
+  <span className="text-sm font-bold text-[#592592]">Style</span>
           </button>
         </div>
 

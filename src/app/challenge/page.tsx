@@ -46,9 +46,9 @@ const wheelDataConfig = {
   const sections = [
     {
       img: "/image_icone/Courrier.svg",
-      alt: "mot à moi",
+      alt: "Au fil de mes mots",
       imgWidth: "280px",
-      title: "Mot à moi",
+      title: "Au fil de mes mots",
       description: (
         <>
           Retape une affirmation positive, un mot de gratitude ou une pensée inspirante. Chaque mot que tu écris{" "}
@@ -60,9 +60,9 @@ const wheelDataConfig = {
     },
     {
       img: "/image_icone/Appareil_photo.svg",
-      alt: "visualise toi",
+      alt: "Visualisation de mes possibles",
       imgWidth: "280px",
-      title: "Visualise-toi",
+      title: "Je visualise, je me projette",
       description: (
         <>
           Ajoute tes images inspirantes et{" "}
@@ -74,9 +74,9 @@ const wheelDataConfig = {
     },
     {
       img: "/image_icone/Lotus.svg",
-      alt: "wim hof",
+      alt: "Mon souffle, mon équilibre",
       imgWidth: "180px",
-      title: "Wim Hof féminine",
+      title: "Mon souffle, mon équilibre",
       description: (
         <>
           Plonge dans une expérience de souffle consciente, inspirée de la méthode Wim Hof et adaptée pour la stabilité hormonale.
