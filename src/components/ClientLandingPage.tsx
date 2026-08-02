@@ -29,40 +29,41 @@ export default function ClientLandingPage() {
 
   return (
     <>
-      <div className="w-full overflow-x-hidden bg-[linear-gradient(180deg,#fbf7f2_0%,#f5eefb_48%,#fbf7f2_100%)] text-[#1a0533] font-['Inria_Sans',sans-serif]">
+      <div className="w-full overflow-x-hidden font-['Inria_Sans',sans-serif]">
         <main className="w-full max-w-[1440px] mx-auto flex flex-col items-center gap-[72px] py-[64px] px-4 md:px-0">
       {/* 1. HERO SECTION */}
-      <section className={`${pageSectionClass} flex flex-col md:flex-row items-center justify-between gap-12 lg:gap-20 pt-16 pb-4`}>
-        {/* Left Side: Text */}
-        <div className="w-full md:w-1/2 flex flex-col items-center text-center mb-12 md:mb-0 max-w-[540px] mx-auto md:mx-0">
-          <p className="text-lg tracking-[0.5em] mb-4 font-normal text-[#2A2340]">SOREA</p>
-          <h1 className="text-3xl md:text-4xl lg:text-5xl leading-tight font-semibold mb-8 text-[#2A2340]">
-            Votre bulle de sérénité<br />
-            où que vous soyez
-          </h1>
-          <p className="text-base md:text-lg text-gray-700 font-medium mb-10 max-w-md">
-            Des essentiels pensés pour apaiser<br />l&apos;esprit et harmoniser votre quotidien.
-          </p>
-          <p className="text-sm md:text-base tracking-wide text-gray-800">
-            SOREA, ton allié bien-être au<br />quotidien
-          </p>
-        </div>
+      <section className="relative w-full h-[600px] md:h-[750px] flex items-center justify-center overflow-hidden">
+        {/* Image de fond : Welcome.png */}
+        <Image
+          src="/image_LandingPage/Welcome.png"
+          alt="SOREA Welcome"
+          fill
+          priority
+          className="object-cover object-center"
+        />
 
-        {/* Right Side: Image */}
-        <div className="w-full md:w-1/2 flex justify-center relative">
-          <Image 
-            src="/images/yoga.webp" 
-            alt="Yoga" 
-            width={600} 
-            height={600} 
-            className="w-full max-w-[360px] lg:max-w-[460px] h-auto mix-blend-multiply object-contain"
-            priority
-          />
+        {/* Overlay translucide (Glassmorphism) centré */}
+        <div className="relative z-10 w-full max-w-[900px] mx-4 bg-white/25 backdrop-blur-md border border-white/30 rounded-[32px] p-8 md:p-14 text-white shadow-xl flex flex-col items-start gap-6">
+          <h1 className="text-4xl md:text-6xl font-light tracking-wide text-white drop-shadow-sm">
+            SOREA
+          </h1>
+          
+          <p className="text-lg md:text-2xl font-light leading-relaxed max-w-xl text-[var(--color-Ecriture)] drop-shadow-sm">
+            Des essentiels pensés pour apaiser l&apos;esprit<br className="hidden sm:inline" />
+            et harmoniser votre quotidien.
+          </p>
+
+          <button
+            onClick={() => router.push("/shop")}
+            className="mt-2 px-8 py-3 bg-[#8B47FF] hover:bg-[#7833ee] text-white text-sm md:text-base font-medium rounded-full transition-all shadow-md"
+          >
+            Je commence
+          </button>
         </div>
       </section>
 
       {/* 2. L'UNIVERS QUE VOUS PROPOSE SOREA */}
-      <section className="w-full py-16 px-4 bg-[linear-gradient(90deg,#d3cced_0%,#fbf7f2_100%)]">
+      <section className="w-full py-16 px-4">
         <div className={pageSectionClass}>
           <div className="flex flex-col items-center mb-12">
             <h2 className="text-2xl md:text-3xl font-medium tracking-wide">L&apos;univers que vous propose SOREA</h2>
@@ -119,7 +120,7 @@ export default function ClientLandingPage() {
       </section>
 
       {/* 3. NOS ESSENTIELS BIEN-ETRE */}
-      <section className="w-full py-16 px-4 bg-[linear-gradient(90deg,#d3cced_0%,#fbf7f2_100%)]">
+      <section className="w-full py-16 px-4">
         <div className="w-full max-w-[1180px] mx-auto px-4">
           <div className="flex flex-col items-center mb-10">
             <h2 className="text-2xl md:text-3xl font-medium tracking-wide">Nos essentiels bien-être</h2>
@@ -175,7 +176,7 @@ export default function ClientLandingPage() {
       </section>
 
       {/* 4. NOS CHALLENGES SURPRISES */}
-      <section className="w-full py-16 px-4 bg-[linear-gradient(90deg,#d3cced_0%,#fbf7f2_100%)] overflow-hidden">
+      <section className="w-full py-16 px-4 overflow-hidden">
         <div className={pageSectionClass + " flex flex-col items-center"}>
           <div className="flex flex-col items-center mb-16">
             <h2 className="text-2xl md:text-3xl font-medium tracking-wide text-center">Nos challenges<br />surprises</h2>
@@ -218,7 +219,7 @@ export default function ClientLandingPage() {
       </section>
 
       {/* 5. SUIVRE, ECRIRE, PROGRESSER */}
-      <section className="w-full py-16 px-4 bg-[linear-gradient(90deg,#d3cced_0%,#fbf7f2_100%)]">
+      <section className="w-full py-16 px-4">
         <div className="w-full max-w-[1080px] mx-auto flex flex-col items-center">
           <div className="flex flex-col items-center mb-6">
             <h2 className="text-2xl md:text-3xl font-medium tracking-wide">Suivre, écrire, progresser</h2>
@@ -248,7 +249,7 @@ export default function ClientLandingPage() {
       </section>
 
       {/* 6. COACHING */}
-      <section className="w-full py-16 px-4 bg-[linear-gradient(90deg,#d3cced_0%,#fbf7f2_100%)]">
+      <section className="w-full py-16 px-4">
         <div className="w-full max-w-[1180px] mx-auto flex flex-col items-center">
           <div className="flex flex-col items-center mb-8">
             <h2 className="text-2xl md:text-3xl font-medium tracking-wide">Coaching</h2>
@@ -301,7 +302,7 @@ export default function ClientLandingPage() {
       </section>
 
       {/* 7. ELLES PARLENT DE SOREA */}
-      <section id="review" className="w-full py-16 px-4 bg-[linear-gradient(90deg,#d3cced_0%,#fbf7f2_100%)]">
+      <section id="review" className="w-full py-16 px-4">
         <div className="w-full max-w-[1180px] mx-auto flex flex-col items-center">
           <div className="flex flex-col items-center mb-6">
             <h2 className="text-2xl md:text-3xl font-medium tracking-wide">Elles parlent de SOREA !</h2>
@@ -348,7 +349,7 @@ export default function ClientLandingPage() {
       </section>
 
       {/* 8. SOREA NEWS */}
-      <section className="w-full py-16 px-4 bg-[linear-gradient(90deg,#d3cced_0%,#fbf7f2_100%)]">
+      <section className="w-full py-16 px-4">
         <div className="w-full max-w-[1120px] mx-auto flex flex-col items-center">
           <div className="flex flex-col items-center mb-6">
             <h2 className="text-2xl md:text-3xl font-medium tracking-wide">SOREA NEWS</h2>
@@ -381,7 +382,7 @@ export default function ClientLandingPage() {
       </section>
 
       {/* 9. REJOINS L'AVENTURE SOREA */}
-      <section className="w-full py-16 px-4 bg-[linear-gradient(90deg,#d3cced_0%,#fbf7f2_100%)]">
+      <section className="w-full py-16 px-4">
         <div className="w-full max-w-[1120px] mx-auto flex flex-col items-center mb-6">
           <h2 className="text-2xl md:text-3xl font-medium tracking-wide">Rejoindre la communauté SOREA</h2>
           <div className="h-px bg-[linear-gradient(90deg,#d3cced_0%,#fbf7f2_100%)] w-[180px] mt-2 mb-4"></div>
@@ -417,7 +418,7 @@ export default function ClientLandingPage() {
                     <div className="text-purple-300 text-2xl mt-0.5">
                       <Image src="/images/fleur.png" alt="Fleur" width={30} height={30} />
                     </div>
-                    <p className="text-sm leading-relaxed max-w-[340px] text-[#2A2340] font-medium">
+                    <p className="text-sm leading-relaxed max-w-[340px] font-medium">
                       {text}
                     </p>
                   </div>
