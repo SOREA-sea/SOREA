@@ -63,57 +63,85 @@ export default function ClientLandingPage() {
       </section>
 
       {/* 2. L'UNIVERS QUE VOUS PROPOSE SOREA */}
-      <section className="w-full py-16 px-4">
-        <div className={pageSectionClass}>
-          <div className="flex flex-col items-center mb-12">
-            <h2 className="text-2xl md:text-3xl font-medium tracking-wide">L&apos;univers que vous propose SOREA</h2>
-            <div className="h-px bg-[#2A2340] w-full max-w-[400px] mt-2 mb-8"></div>
+      <section className="w-full py-[48px] px-4 flex flex-col items-center gap-[50px]">
+        {/* Titres */}
+        <div className="flex flex-col items-center text-center gap-3">
+          <h2 className="text-3xl md:text-4xl font-semibold tracking-wide text-[#2A2340]">
+            L&apos;UNIVERS QUE VOUS PROPOSE <span className="text-[#8B47FF]">SOREA</span>
+          </h2>
+          <p className="text-base md:text-lg text-[#2A2340]/80 font-medium">
+            Ton kit, ton espace, ton coaching, ton bien-être sur mesure.
+          </p>
+        </div>
+
+        {/* Grille des 3 Cartes (306px x 365px) */}
+        <div className="flex flex-col md:flex-row items-center justify-center gap-[32px] w-full max-w-[1440px]">
+          {/* Carte 1 */}
+          <div className="w-[306px] h-[365px] relative rounded-[20px] overflow-hidden flex flex-col justify-end p-2">
+            <Image
+              src="/image_LandingPage/KitPersonnalisable.png"
+              alt="Kit personnalisable"
+              fill
+              className="object-cover"
+            />
+            {/* Overlay Glassmorphism Figma */}
+            <div className="relative z-10 w-full h-[162px] bg-[#1E1E1E]/20 backdrop-blur-md rounded-[12px] px-[25px] py-[12px] flex flex-col justify-between items-center text-center text-[var(--color-Blanc-Violet)]">
+              <h3 className="text-base font-semibold leading-tight">Kit personnalisé</h3>
+              <p className="text-xs font-normal text-[var(--color-Blanc-Violet)] leading-snug">
+                Un coffret sur-mesure, pensé pour vos besoins.
+              </p>
+              <button
+                onClick={() => router.push("/shop")}
+                className="w-full py-2 bg-[#8B47FF] hover:bg-[#7833ee] text-[var(--color-Blanc-Violet)] text-xs font-medium rounded-full transition-colors"
+              >
+                En savoir plus
+              </button>
+            </div>
           </div>
-          
-          <div className="max-w-3xl mx-auto flex flex-col gap-4 text-lg mb-16">
-            <div className="flex items-start gap-4">
-              <span className="mt-2 text-xs">⚫</span>
-              <p>SOREA t&apos;accompagne pour prendre soin de ton corps, apaiser ton esprit et tes émotions avec simplicité.</p>
-            </div>
-            <div className="flex items-start gap-4">
-              <span className="mt-2 text-xs">⚫</span>
-              <p>Ton kit, ton espace, ton coaching : ton bien-être sur mesure.</p>
+
+          {/* Carte 2 */}
+          <div className="w-[306px] h-[365px] relative rounded-[20px] overflow-hidden flex flex-col justify-end p-2">
+            <Image
+              src="/image_LandingPage/EspaceDigital.jpg"
+              alt="Espace Digital"
+              fill
+              className="object-cover"
+            />
+            {/* Overlay Glassmorphism Figma */}
+            <div className="relative z-10 w-full h-[162px] bg-[#1E1E1E]/20 backdrop-blur-md rounded-[12px] px-[25px] py-[12px] flex flex-col justify-between items-center text-center text-[var(--color-Blanc-Violet)]">
+              <h3 className="text-base font-semibold leading-tight">Espace Digital Personnalisable</h3>
+              <p className="text-xs font-normal text-[var(--color-Blanc-Violet)] leading-snug">
+                Suivez vos progrès et découvrez du contenu inspirant.
+              </p>
+              <button
+                onClick={() => router.push("/carnet")}
+                className="w-full py-2 bg-[#8B47FF] hover:bg-[#7833ee] text-[var(--color-Blanc-Violet)] text-xs font-medium rounded-full transition-colors"
+              >
+                En savoir plus
+              </button>
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 xl:gap-8">
-            <div className="bg-white rounded-[2rem] p-6 shadow-sm border border-purple-100 flex flex-col items-center text-center">
-              <div className="w-full aspect-square rounded-[1.5rem] bg-[#EAE5F8] mb-6 overflow-hidden relative border-4 border-white shadow-sm">
-                <Image src="/images/product_3.webp" alt="Kit personnalisé" fill sizes="(min-width: 768px) 33vw, 100vw" className="object-cover" />
-              </div>
-              <h3 className="text-lg font-semibold text-[#665D8B] mb-4">Kit personnalisé</h3>
-              <p className="text-xs text-left text-gray-600 leading-relaxed pl-3 border-l-2 border-purple-200">
-                Un coffret bien-être unique, composé d&apos;accessoires de pilates, d&apos;un carnet et de soins skincare. 
-                Pensé pour allier activité physique, journaling et beauté, il t&apos;accompagne dans les moments de détente et de ressourcement.
+          {/* Carte 3 */}
+          <div className="w-[306px] h-[365px] relative rounded-[20px] overflow-hidden flex flex-col justify-end p-2">
+            <Image
+              src="/image_LandingPage/LevelUp.jpg"
+              alt="Coaching et inspiration"
+              fill
+              className="object-cover"
+            />
+            {/* Overlay Glassmorphism Figma */}
+            <div className="relative z-10 w-full h-[162px] bg-[#1E1E1E]/20 backdrop-blur-md rounded-[12px] px-[25px] py-[12px] flex flex-col justify-between items-center text-center text-[var(--color-Blanc-Violet)]">
+              <h3 className="text-base font-semibold leading-tight">Coaching et inspiration</h3>
+              <p className="text-xs font-normal text-[var(--color-Blanc-Violet)] leading-snug">
+                Des séances guidées par des coachs passionnées.
               </p>
-            </div>
-
-            <div className="bg-white rounded-[2rem] p-6 shadow-sm border border-purple-100 flex flex-col items-center text-center">
-              <div className="w-full aspect-square rounded-[1.5rem] bg-[#F7E5D4] mb-6 overflow-hidden relative border-4 border-white shadow-sm">
-                <Image src="/images/illustration_features.webp" alt="Espace digital personnel" fill sizes="(min-width: 768px) 33vw, 100vw" className="object-cover object-left-top" />
-              </div>
-              <h3 className="text-lg font-semibold text-[#665D8B] mb-4 leading-tight">Espace digital<br />personnel</h3>
-              <p className="text-xs text-left text-gray-600 leading-relaxed pl-3 border-l-2 border-purple-200">
-                Du contenu inspirant sous forme de news, du shopping bien-être et surtout un carnet intime connecté 
-                pour noter tes humeurs, relever des challenges, suivre tes routines et les habitudes. Ton 
-                compagnon digital pour cultiver ton bien-être au quotidien.
-              </p>
-            </div>
-
-            <div className="bg-white rounded-[2rem] p-6 shadow-sm border border-purple-100 flex flex-col items-center text-center">
-              <div className="w-full aspect-square rounded-[1.5rem] bg-[#EAE5F8] mb-6 overflow-hidden relative border-4 border-white shadow-sm">
-                <Image src="/images/coaching_pilate.webp" alt="Coaching et inspiration" fill sizes="(min-width: 768px) 33vw, 100vw" className="object-cover object-center" />
-              </div>
-              <h3 className="text-lg font-semibold text-[#665D8B] mb-4 leading-tight">Coaching et<br />inspiration</h3>
-              <p className="text-xs text-left text-gray-600 leading-relaxed pl-3 border-l-2 border-purple-200">
-                Des séances de coaching (en ligne ou guidées), des conseils inspirants et des pratiques bien-être 
-                simples à intégrer chaque jour pour prendre soin de ton corps et de ton esprit.
-              </p>
+              <button
+                onClick={() => router.push("/coaching")}
+                className="w-full py-2 bg-[#8B47FF] hover:bg-[#7833ee] text-[var(--color-Blanc-Violet)] text-xs font-medium rounded-full transition-colors"
+              >
+                En savoir plus
+              </button>
             </div>
           </div>
         </div>
@@ -248,106 +276,6 @@ export default function ClientLandingPage() {
         </div>
       </section>
 
-      {/* 6. COACHING */}
-      <section className="w-full py-16 px-4">
-        <div className="w-full max-w-[1180px] mx-auto flex flex-col items-center">
-          <div className="flex flex-col items-center mb-8">
-            <h2 className="text-2xl md:text-3xl font-medium tracking-wide">Coaching</h2>
-            <div className="h-px bg-[linear-gradient(90deg,#d3cced_0%,#fbf7f2_100%)] w-[120px] mt-2 mb-4"></div>
-          </div>
-          <p className="text-base italic font-light mb-12">Un moment d&apos;accompagnement à vivre ensemble.</p>
-
-          <div className="w-full bg-[#FAF8FC] border border-purple-50 flex flex-col md:flex-row items-center mb-8 shadow-sm">
-            <div className="w-full md:w-1/2 relative aspect-video md:aspect-auto md:h-[400px]">
-              <Image src="/images/coaching_pilate.webp" alt="Coaching" fill sizes="(min-width: 768px) 50vw, 100vw" className="object-cover" />
-              <button onClick={() => router.push("/coaching")} className={`absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 bg-white/50 backdrop-blur rounded-full flex items-center justify-center hover:bg-white text-gray-700 ${gradientButtonClass}`}>
-                <i className="fa-solid fa-chevron-left"></i>
-              </button>
-            </div>
-            
-            <div className="w-full md:w-1/2 p-10 flex flex-col justify-center items-center text-center relative border-l border-white h-full min-h-[400px]">
-              <p className="text-lg md:text-xl font-medium leading-relaxed max-w-sm mb-16">
-                Explorez une<br />
-                multitude de séance<br />
-                de coaching pour tous<br />
-                les besoins et tous les<br />
-                niveau, animés par<br />
-                nos coachs<br />
-                passionnées.
-              </p>
-              
-              <div className="absolute bottom-0 w-full left-0 right-0 h-14 bg-[#7627A8] flex items-center justify-between px-6 text-white font-medium tracking-widest text-lg">
-                <span className="w-6"></span>
-                <span>Pilate</span>
-                <i className="fa-solid fa-chevron-right text-xl"></i>
-              </div>
-            </div>
-          </div>
-
-          <div className="flex gap-4">
-            <button 
-              onClick={() => router.push("/dashboard/sessions")}
-              className={`py-2.5 px-8 text-[#584D7C] bg-[#F2EBF9] rounded-md text-xs font-semibold hover:bg-purple-100 transition-colors ${gradientButtonClass}`}
-            >
-              Je réserve ma séance
-            </button>
-            <button 
-              onClick={() => router.push("/dashboard")}
-              className={`py-2.5 px-8 text-[#584D7C] bg-[#F2EBF9] rounded-md text-xs font-semibold hover:bg-purple-100 transition-colors ${gradientButtonClass}`}
-            >
-              Proposer une séance
-            </button>
-          </div>
-        </div>
-      </section>
-
-      {/* 7. ELLES PARLENT DE SOREA */}
-      <section id="review" className="w-full py-16 px-4">
-        <div className="w-full max-w-[1180px] mx-auto flex flex-col items-center">
-          <div className="flex flex-col items-center mb-6">
-            <h2 className="text-2xl md:text-3xl font-medium tracking-wide">Elles parlent de SOREA !</h2>
-            <div className="h-px bg-[linear-gradient(90deg,#d3cced_0%,#fbf7f2_100%)] w-full max-w-[280px] mt-2 mb-4"></div>
-          </div>
-          <p className="text-lg italic font-light mb-12">De petites habitudes, de grands effets</p>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full">
-            {[
-              { name: "Marie C.", loc: "Toulouse, France", m: 4, review: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris." },
-              { name: "Lila C.", loc: "Toulouse, France", m: 4, review: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris." },
-              { name: "Hugo B.", loc: "Toulouse, France", m: 4, review: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris." },
-            ].map((t, idx) => (
-              <div key={idx} className="bg-white p-6 shadow-sm border border-gray-100 flex flex-col">
-                <div className="flex items-center gap-3 mb-3">
-                  <div className="w-10 h-10 bg-gray-200 rounded-full overflow-hidden shrink-0">
-                    <Image src={`/images/product_${(idx % 6) + 1}.webp`} alt={t.name} width={40} height={40} className="object-cover w-full h-full" />
-                  </div>
-                  <div>
-                    <h4 className="font-semibold text-sm m-0 leading-tight">{t.name}</h4>
-                    <p className="text-[10px] text-gray-500 m-0">{t.loc}</p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-2 mb-3">
-                  <div className="flex text-xs text-black">
-                    <i className="fa-solid fa-star"></i>
-                    <i className="fa-solid fa-star"></i>
-                    <i className="fa-solid fa-star"></i>
-                    <i className="fa-solid fa-star"></i>
-                    <i className="fa-regular fa-star"></i>
-                  </div>
-                  <span className="text-[10px] text-gray-400">avril 2025</span>
-                </div>
-                <p className="text-[11px] text-gray-600 leading-relaxed mb-4">
-                  {t.review}
-                </p>
-                <a href="#review" className="text-[10px] font-bold uppercase underline mt-auto text-black">
-                  En savoir plus
-                </a>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
       {/* 8. SOREA NEWS */}
       <section className="w-full py-16 px-4">
         <div className="w-full max-w-[1120px] mx-auto flex flex-col items-center">
@@ -381,87 +309,12 @@ export default function ClientLandingPage() {
         </div>
       </section>
 
-      {/* 9. REJOINS L'AVENTURE SOREA */}
-      <section className="w-full py-16 px-4">
-        <div className="w-full max-w-[1120px] mx-auto flex flex-col items-center mb-6">
-          <h2 className="text-2xl md:text-3xl font-medium tracking-wide">Rejoindre la communauté SOREA</h2>
-          <div className="h-px bg-[linear-gradient(90deg,#d3cced_0%,#fbf7f2_100%)] w-[180px] mt-2 mb-4"></div>
-        </div>
-        <p className="text-base text-center italic font-light mb-12 max-w-[720px] mx-auto">
-          Rejoins nous et incarne nos valeurs <br />
-          en tant qu&apos; ambassadrice.
-        </p>
-        <div className="w-full max-w-[1120px] mx-auto flex flex-col items-center text-center">
-          <div className="relative w-full rounded-[28px] overflow-hidden px-6 md:px-10 py-10 md:py-12 min-h-[500px]">
-            {/* Background */}
-            <div 
-              className="absolute inset-0 z-0 bg-[linear-gradient(180deg,#fadcce_0%,#fbddcf_100%)]"
-              style={{
-                WebkitMaskImage: 'linear-gradient(to right, transparent 0%, black 50%)',
-                maskImage: 'linear-gradient(to right, transparent 0%, black 100%)'
-              }}
-            />
-
-            {/* Content */}
-            <div className="relative z-10 flex flex-col md:flex-row items-center gap-10 lg:gap-12">
-              
-              {/* Left Block: Text */}
-              <div className="w-full md:w-1/2 flex flex-col gap-7">
-                {[
-                  "Développe ton activité et transforme ta passion pour le bien-être en véritable opportunité",
-                  "Partage avec tes proches l'univers des soins naturels SOREA",
-                  "Organise tes séances en toute liberté, selon tes envies et ton rythme",
-                  "Rejoins un réseau inspirant d'ambassadrice de SOREA et inspire ta communauté.",
-                  "Accède à des événements exclusifs réservés à la communauté SOREA"
-                ].map((text, i) => (
-                  <div key={i} className="flex gap-4 items-start">
-                    <div className="text-purple-300 text-2xl mt-0.5">
-                      <Image src="/images/fleur.png" alt="Fleur" width={30} height={30} />
-                    </div>
-                    <p className="text-sm leading-relaxed max-w-[340px] font-medium">
-                      {text}
-                    </p>
-                  </div>
-                ))}
-
-                <div className="mt-4 flex justify-center md:justify-start">
-                  <button
-                    onClick={() => router.push("/ambassador-bientot")}
-                    className={`py-2.5 px-6 bg-white border border-purple-200 text-[#665D8B] rounded-md text-xs font-bold hover:bg-purple-50 shadow-sm transition-all ${gradientButtonClass}`}
-                  >
-                    Je veux être membre de SOREA !
-                  </button>
-                </div>
-              </div>
-              
-              {/* Right Block: Image */}
-              <div className="w-full md:w-1/2 flex flex-col items-center justify-center relative min-h-[400px]">
-                <div className="absolute top-6">
-                  <span className="text-4xl text-[#782ca7] font-semibold tracking-widest drop-shadow-[2px_2px_0_rgba(255,255,255,1)]">
-                    Rayonne
-                  </span>
-                </div>
-                
-                <Image 
-                  src="/images/rejoindre_SOREA.png" 
-                  alt="Communauté SOREA" 
-                  width={400} 
-                  height={400} 
-                  className="w-full max-w-[420px] h-auto mt-8 mix-blend-multiply object-contain" 
-                />
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
 
       {/* Footer Text */}
       <div className="w-full max-w-[1180px] mx-auto px-4">
         <h2 className="text-2xl md:text-3xl font-medium tracking-wide text-center mb-6"><strong>S</strong>érénité, <strong>É</strong>quilibre et <strong>A</strong>lignement. SOREA ton bien-être au quotidien.</h2>
       </div>
-      <div className="pb-8">
-        <Image src="/images/etoile1.png" alt="Etoile" width={60} height={60} className="mx-auto" />
-      </div>
+
         </main>
       </div>
     </>
