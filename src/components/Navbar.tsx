@@ -131,7 +131,7 @@ export default function Navbar({ isLoggedIn = false }: { isLoggedIn?: boolean })
           min-height: 66px;
           padding: 0 22px;
           border-radius: 46px;
-          background: var(--color-Violet-Blanc);
+          background: var(--color-Blanc-Violet);
           box-shadow: inset 0 -4px 2px 0 rgba(171, 160, 189, 0.76), 0 3px 13.6px 0 rgba(0, 0, 0, 0.13);
         }
 
@@ -179,7 +179,7 @@ export default function Navbar({ isLoggedIn = false }: { isLoggedIn?: boolean })
 
         sorea-navbar-link:hover,
         .sorea-navbar-link--active {
-          color: #7133b8;
+          color: var(--color-SOREA-R1);
         }
 
         .sorea-navbar-link:hover::after {

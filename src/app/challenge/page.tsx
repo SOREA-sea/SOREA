@@ -5,7 +5,6 @@ import Link from "next/link";
 import { Clock, Sparkles } from "lucide-react";
 import Navbar from "../../components/Navbar";
 import Footer from "../../components/Footer";
-import MenstrualCalendar from "../../components/MenstrualCalendar";
 import { useRouter } from "next/navigation";
 import { getFavoriFilRouge, FilRougeItem, getFavoriWheel, WheelCategory } from "../../lib/favorites-store";
 import FilRougeCard from "../../components/FilRougeCard";
@@ -103,11 +102,7 @@ const wheelDataConfig = {
 
   return (
     <div
-      className="relative min-h-screen flex flex-col text-gray-800"
-      style={{
-        background: "radial-gradient(ellipse at center, #FEF0F9 0%, #FFFFFF 100%)",
-        fontFamily: "'Inria Sans', sans-serif",
-      }}
+      className="relative min-h-screen flex flex-col"
     >
       <link href="https://fonts.googleapis.com/css2?family=Inria+Sans:wght@400;700&display=swap" rel="stylesheet" />
 
@@ -160,9 +155,6 @@ const wheelDataConfig = {
           </article>
         </section>
 
-        <section className="w-full flex justify-center">
-          <MenstrualCalendar />
-        </section>
 
         <section className="rounded-2xl border-2 border-[#8B47FF] bg-white/85 shadow-xl shadow-purple-100/70 backdrop-blur overflow-hidden p-8">
           {isLoaded ? (
