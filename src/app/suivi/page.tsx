@@ -14,10 +14,6 @@ export default function MyPage() {
   return (
     <div
       className="relative min-h-screen flex flex-col text-gray-800"
-      style={{
-        background: "radial-gradient(ellipse at center, #FEF0F9 0%, #FFFFFF 100%)",
-        fontFamily: "'Inria Sans', sans-serif",
-      }}
     >
       <div className="w-full max-w-[1440px] px-6 lg:px-[96px] mx-auto pb-[24px] gap-[50px] pt-8">
         <Navbar />

@@ -1,5 +1,6 @@
 "use client";
-
+import Footer from '../../components/Footer';
+import Navbar from '../../components/Navbar';
 import React, { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -50,7 +51,9 @@ export default function FilRougeDiscoverPage() {
   if (!isLoaded) return <div className="text-center py-20 text-purple-400">Chargement...</div>;
 
   return (
-    <div className="mx-auto w-full max-w-[1200px] px-4 py-10">
+    <div className="flex flex-col min-h-screen">
+      <Navbar />
+      <main className="flex-1 mx-auto w-full max-w-[1200px] px-4 py-10">
       <div className="text-center mb-12">
         <h1 className="text-4xl md:text-5xl font-black tracking-wide text-[#592592]">Découvrir un Fil Rouge</h1>
         <p className="text-lg font-medium text-[#7d53b2] mt-2">Choisis ta prochaine routine</p>
@@ -96,6 +99,8 @@ export default function FilRougeDiscoverPage() {
           </button>
         )}
       </div>
+    </main>
+      <Footer />
     </div>
   );
 }
