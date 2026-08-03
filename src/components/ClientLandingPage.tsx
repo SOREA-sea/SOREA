@@ -83,6 +83,7 @@ export default function ClientLandingPage() {
               alt="Kit personnalisable"
               fill
               className="object-cover"
+              sizes="(max-width: 768px) 100vw, 50vw"
             />
             {/* Overlay Glassmorphism Figma */}
             <div className="relative z-10 w-full h-[162px] bg-[#1E1E1E]/20 backdrop-blur-md rounded-[12px] px-[25px] py-[12px] flex flex-col justify-between items-center text-center text-[var(--color-Blanc-Violet)]">
@@ -147,132 +148,86 @@ export default function ClientLandingPage() {
         </div>
       </section>
 
-      {/* 3. NOS ESSENTIELS BIEN-ETRE */}
-      <section className="w-full py-16 px-4">
-        <div className="w-full max-w-[1180px] mx-auto px-4">
-          <div className="flex flex-col items-center mb-10">
-            <h2 className="text-2xl md:text-3xl font-medium tracking-wide">Nos essentiels bien-être</h2>
-            <div className="h-px bg-[linear-gradient(90deg,#d3cced_0%,#fbf7f2_100%)] w-full max-w-[260px] mt-2 mb-4"></div>
-            <p className="text-center font-light text-lg md:text-xl leading-relaxed">Des objectifs doux & beaux,<br />sélectionnés pour vous accompagner chaque jour.</p>
-          </div>
+      {/* 3. SECTION : LES CHALLENGES ET SURPRISES SOREA */}
+      <section className="w-full bg-[#DAC3FF]/30 py-[48px] px-4 md:px-[106px] flex items-center justify-center">
+        <div className="w-full max-w-[1440px] flex flex-col md:flex-row items-center justify-center gap-10 md:gap-[50px]">
           
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-5 md:gap-6">
-            {[
-              { name: "Kit anti anxiété", desc: "Respiration guidée, roll-on et cartes rituels, votre pause apaisante à portée de main.", price: 29 },
-              { name: "Lunettes anti lumière bleue", desc: "Protection premium pour les yeux, design léger et confortable.", price: 49 },
-              { name: "Coffret relaxation", desc: "Gua-sha, brume d'oreiller et carnet de nuit, un moment rien que pour vous", price: 59 },
-            ].map((product, idx) => (
-              <div key={idx} className="min-h-[312px] bg-white rounded-[10px] shadow-sm border border-[#cfc9d5] overflow-hidden flex flex-col">
-                <div className="h-[138px] bg-[linear-gradient(90deg,rgba(255,255,255,0.65)_0_24px,rgba(234,234,234,0.9)_24px_48px),linear-gradient(0deg,rgba(255,255,255,0.65)_0_34px,rgba(234,234,234,0.9)_34px_68px)] bg-[length:68px_68px]"></div>
-                <div className="p-3 md:p-4 flex flex-1 flex-col">
-                  <h3 className="font-bold text-[#2A2340] mb-2 leading-tight">{product.name}</h3>
-                  <p className="text-sm text-[#2A2340]/85 leading-snug max-w-[440px]">{product.desc}</p>
-                  <div className="mt-auto flex items-end justify-between gap-4 pt-6">
-                    <p className="font-bold text-lg text-[#8B47FF]">{product.price}€</p>
-                    <button
-                      onClick={() => addToCart(product.name, product.price)}
-                      className="min-w-[120px] py-2.5 px-5 bg-[#8B47FF] text-white text-sm font-semibold rounded-[7px] hover:opacity-90 transition-opacity shadow-[0_5px_0_rgba(154,132,204,0.45),0_10px_24px_rgba(67,56,114,0.12)]"
-                    >
-                      Découvrir
-                    </button>
-                  </div>
-                </div>
-              </div>
-            ))}
+          {/* Illustration (Cadeau / Spinner) */}
+          <div className="w-full md:w-1/2 flex justify-center">
+            <Image
+              src="/image_LandingPage/DefisBienEtre.png"
+              alt="Les challenges et surprises SOREA"
+              width={361}
+              height={439.45}
+              className="w-[300px] h-auto object-contain"
+            />
+          </div>
+
+          {/* Contenu Texte & Bouton */}
+          <div className="w-full md:w-1/2 flex flex-col items-center md:items-start text-center md:text-left gap-4">
+            <h2 className="text-2xl md:text-4xl font-semibold tracking-wide text-[#2A2340]">
+              LES CHALLENGES ET SURPRISES <span className="text-[#8B47FF]">SOREA</span>
+            </h2>
+            
+            <p className="text-sm md:text-base text-[#2A2340]/80 font-normal max-w-md">
+              Des défis de développement personnel pensés pour vous inspirer et vous faire grandir, un jour à la fois.
+            </p>
 
             <button
-              type="button"
-              onClick={() => router.push("/shop")}
-              className="min-h-[312px] rounded-[10px] border-2 border-dashed border-[#8B47FF] bg-[#E9E7FF] flex flex-col items-center justify-center gap-4 text-[#000] hover:bg-[#e2ddff] transition-colors"
-            >
-              <span className="w-12 h-12 rounded-full bg-[#8B47FF] text-white flex items-center justify-center text-3xl leading-none shadow-[0_5px_0_rgba(154,132,204,0.45),0_10px_24px_rgba(67,56,114,0.12)]">
-                →
-              </span>
-              <span className="text-lg md:text-xl font-medium">Voir toutes les catégories</span>
-            </button>
-          </div>
-          
-          <div className="mt-10 flex justify-center">
-            <button
-              onClick={() => router.push("/shop")}
-              className="text-base md:text-lg font-semibold text-white py-3 px-10 rounded-full bg-[#8B47FF] hover:opacity-90 transition-opacity shadow-[0_5px_0_rgba(154,132,204,0.45),0_10px_24px_rgba(67,56,114,0.12)]"
-            >
-              Accéder à la boutique
-            </button>
-          </div>
-        </div>
-      </section>
-
-      {/* 4. NOS CHALLENGES SURPRISES */}
-      <section className="w-full py-16 px-4 overflow-hidden">
-        <div className={pageSectionClass + " flex flex-col items-center"}>
-          <div className="flex flex-col items-center mb-16">
-            <h2 className="text-2xl md:text-3xl font-medium tracking-wide text-center">Nos challenges<br />surprises</h2>
-            <div className="h-px bg-[linear-gradient(90deg,#d3cced_0%,#fbf7f2_100%)] w-[200px] mt-2"></div>
-          </div>
-
-          <div className="flex flex-col md:flex-row items-center justify-between w-full gap-8 relative">
-            {/* Wheel Spinner */}
-            <div>
-              <Image src="/images/wheelspinner.png" alt="Roulette des défis" width={400} height={400} className="w-full h-auto object-contain" />
-            </div>
-
-            {/* Middle: Text and Buttons */}
-            <div className="w-full md:w-1/3 flex flex-col items-center text-center">
-              <p className="text-base mb-8 max-w-sm">
-                Tes défis SOREA t&apos;attendent, avec une multitude de challenges intégrés pour te dépasser et te développer personnellement !
-              </p>
-              <div className="flex flex-col sm:flex-row gap-4">
-                <button 
-                  onClick={() => router.push("/carnet")}
-                  className={`py-2.5 px-6 border border-[#2A2340] bg-white rounded-md text-xs font-semibold hover:bg-gray-50 ${gradientButtonClass}`}
-                >
-                  Découvrir tous<br/>les défis SOREA
-                </button>
-                <button 
-                  onClick={() => addToCart("Kit Défis SOREA", 49)}
-                  className={`py-2.5 px-6 bg-[#A18FE3] border border-[#A18FE3] text-white rounded-md text-xs font-semibold hover:bg-[#8D7CD4] ${gradientButtonClass}`}
-                >
-                  Recevoir mon kit<br/>à défis SOREA
-                </button>
-              </div>
-            </div>
-
-            {/* GiftBox */}
-            <div>
-              <Image src="/images/cadeaux.png" alt="Roulette des défis" width={400} height={400} className="w-full h-auto object-contain" />
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* 5. SUIVRE, ECRIRE, PROGRESSER */}
-      <section className="w-full py-16 px-4">
-        <div className="w-full max-w-[1080px] mx-auto flex flex-col items-center">
-          <div className="flex flex-col items-center mb-6">
-            <h2 className="text-2xl md:text-3xl font-medium tracking-wide">Suivre, écrire, progresser</h2>
-            <div className="h-px bg-[linear-gradient(90deg,#d3cced_0%,#fbf7f2_100%)] w-full max-w-[300px] mt-2 mb-4"></div>
-          </div>
-          <p className="text-sm tracking-wider uppercase mb-16 text-center">Notes, Humeurs, Habitudes, Challenges et<br />Coin divertissement</p>
-
-          <div>
-            <Image src="/images/Diary_SOREA.png" alt="Carnet SOREA" width={1200} height={800} className="w-full max-w-[1080px] h-auto object-cover" />
-          </div>
-
-          <div className="flex gap-4">
-            <button 
               onClick={() => router.push("/carnet")}
-              className={`py-2 px-6 border border-[#2A2340] bg-white rounded-md text-xs font-semibold hover:bg-gray-50 ${gradientButtonClass}`}
+              className="mt-2 px-8 py-3 bg-[var(--color-SOREA-V1)] hover:bg-[#7833ee] text-white text-sm font-medium rounded-full transition-colors shadow-sm"
             >
-              Découvrir mon Carnet
-            </button>
-            <button 
-              onClick={() => addToCart("Carnet Challenge SOREA", 39)}
-              className={`py-2 px-6 border border-[#2A2340] bg-white rounded-md text-xs font-semibold hover:bg-gray-50 ${gradientButtonClass}`}
-            >
-              Commander mon Carnet Challenge
+              Commencer mon défi
             </button>
           </div>
+
+        </div>
+      </section>
+
+      {/* 4. SECTION : SUIVRE, ÉCRIRE, PROGRESSER */}
+      <section className="w-full py-[48px] px-4 md:px-[32px] flex items-center justify-center">
+        <div className="w-full max-w-[1440px] flex flex-col md:flex-row items-center justify-center gap-[22px]">
+          
+          {/* Bloc Texte & Boutons (Gauche) */}
+          <div className="w-full md:w-1/2 flex flex-col items-center text-center gap-6">
+            <h2 className="text-2xl md:text-4xl font-semibold tracking-wide text-[#2A2340]">
+              SUIVRE, ÉCRIRE, PROGRESSER
+            </h2>
+            
+            <p className="text-base md:text-lg text-[#2A2340]/80 font-normal">
+              Notes, Humeurs, Habitudes, Challenges<br />et Coin divertissement
+            </p>
+
+            <div className="flex flex-col sm:flex-row items-center gap-4 mt-2">
+              <button
+                onClick={() => router.push("/carnet")}
+                className="px-6 py-3 bg-[#8B47FF] hover:bg-[#7833ee] text-white text-sm font-medium rounded-full transition-colors shadow-sm"
+              >
+                Découvrir mon carnet
+              </button>
+              
+              <button
+                onClick={() => router.push("/shop")}
+                className="px-6 py-3 bg-[#8B47FF] hover:bg-[#7833ee] text-white text-sm font-medium rounded-full transition-colors shadow-sm"
+              >
+                Commander mon carnet
+              </button>
+            </div>
+          </div>
+
+          {/* Bloc Image Carnet (Droite) */}
+          <div className="w-full md:w-1/2 flex justify-center">
+            <div className="relative overflow-hidden ">
+              <Image
+                src="/image_LandingPage/Carnet.png"
+                alt="Mon carnet SOREA"
+                width={500}
+                height={700}
+                className="max-w-[500px] h-auto object-cover rounded-[4px] drop-shadow-[18px_17px_10px_#F8DAEA]"
+              />
+            </div>
+          </div>
+
         </div>
       </section>
 
@@ -309,11 +264,66 @@ export default function ClientLandingPage() {
         </div>
       </section>
 
+      {/* 4. SECTION : LES CHALLENGES ET SURPRISES SOREA (WHEEL SPINNER) */}
+      <section className="w-full bg-[#DAC3FF]/30 py-[48px] px-4 md:px-[106px] flex items-center justify-center">
+        <div className="w-full max-w-[1440px] flex flex-col md:flex-row items-center justify-center gap-10 md:gap-[60px]">
+          
+          {/* Roue de la fortune (Gauche) */}
+          <div className="w-full md:w-1/2 flex justify-center items-center">
+            <Image
+              src="/image_icone/image_Wheel-Spinner/WS_Bien-être1.png"
+              alt="Roue des challenges SOREA"
+              width={300}
+              height={300}
+              className="w-full max-w-[300px] md:max-w-[380px] h-auto object-contain drop-shadow-md"
+              priority
+            />
+          </div>
+
+          {/* Contenu Texte + Tag + Bouton (Droite) */}
+          <div className="w-full md:w-1/2 flex flex-col items-center md:items-start text-center md:text-left gap-5">
+            <h2 className="text-2xl md:text-4xl font-semibold tracking-wide text-[#2A2340]">
+              LES CHALLENGES ET SURPRISES <span className="text-[#8B47FF]">SOREA</span>
+            </h2>
+            
+            <p className="text-sm md:text-base text-[#2A2340]/80 font-normal max-w-md">
+              Des défis de développement personnel pensés pour vous inspirer et vous faire grandir, un jour à la fois.
+            </p>
+
+            {/* Carte/Encadré translucide "Exemple de défis" */}
+            <div className="w-full max-w-[340px] bg-[#D6BBFF]/60 rounded-[14px] p-3 px-4 flex items-center gap-3">
+              <Image
+                src="/image_icone/image_Wheel-Spinner/Introspection.png"
+                alt="Loupe Introspection"
+                width={36}
+                height={36}
+                className="w-9 h-9 object-contain shrink-0"
+              />
+              <span className="text-white text-sm font-medium">
+                Exemple de défis
+              </span>
+            </div>
+
+            {/* Bouton Commencer */}
+            <button
+              onClick={() => router.push("/carnet")}
+              className="mt-1 px-8 py-3 bg-[#8B47FF] hover:bg-[#7833ee] text-white text-sm font-medium rounded-full transition-colors shadow-sm"
+            >
+              Commencer mon défi
+            </button>
+          </div>
+
+        </div>
+      </section>
 
       {/* Footer Text */}
       <div className="w-full max-w-[1180px] mx-auto px-4">
         <h2 className="text-2xl md:text-3xl font-medium tracking-wide text-center mb-6"><strong>S</strong>érénité, <strong>É</strong>quilibre et <strong>A</strong>lignement. SOREA ton bien-être au quotidien.</h2>
       </div>
+
+<section className="rounded-2xl bg-[linear-gradient(90deg,#F4EBFF_0_12.5%,#FFFFFF_12.5%_25%,#F4EBFF_25%_37.5%,#FFFFFF_37.5%_50%,#F4EBFF_50%_62.5%,#FFFFFF_62.5%_75%,#F4EBFF_75%_87.5%,#FFFFFF_87.5%_100%)] p-8 text-center">
+          <p className="w-full text-xl font-bold text-black">Chaque petit défi compte. Tu avances déjà.</p>
+        </section>
 
         </main>
       </div>
