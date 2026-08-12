@@ -1,0 +1,281 @@
+[33mcommit 92632f7e29803361759e35a0cf34b57a38e7aa22[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mdev_v2[m[33m)[m
+Author: Tasnim CHARIFFOU <tasnim.chariffou@gmail.com>
+Date:   Wed Jul 8 11:48:13 2026 +0200
+
+    mercredi 08
+
+[33mcommit 39c4d61c357c543c49b7a5ec6329269c98ebc7c0[m[33m ([m[1;31morigin/dev_v2[m[33m)[m
+Author: Tasnim CHARIFFOU <tasnim.chariffou@gmail.com>
+Date:   Wed Jul 8 08:41:15 2026 +0200
+
+    global.css déplacé dans la librairie
+
+[33mcommit 673b5e5b779150f71f7c3534d7829843c1860a64[m
+Merge: a341970 2b2e220
+Author: raoudache <raoud@email.com>
+Date:   Tue Jul 7 15:03:55 2026 +0200
+
+    Merge branch 'dev_v2' of https://github.com/SOREA-sea/SOREA into dev_v2
+
+[33mcommit 2b2e220f23810a7bb25447c95efb89451c797fa1[m
+Author: Jtnfs <francoisjonathan774@gmail.com>
+Date:   Tue Jul 7 14:59:59 2026 +0200
+
+    fil rouge
+
+[33mcommit f0e14bc22f6b16858b45df45b96f54336e82251e[m
+Author: Tasnim CHARIFFOU <tasnim.chariffou@gmail.com>
+Date:   Tue Jul 7 13:33:22 2026 +0200
+
+    image WS
+
+[33mcommit a3419705346fa32de87042d73eda783607fbe1be[m
+Author: raoudache <raoud@email.com>
+Date:   Tue Jul 7 13:16:15 2026 +0200
+
+    fix miroir
+
+[33mcommit 0eae92c3c17bfe440c0b4fb9a9b80e52ad453e11[m
+Author: caissani2-dev <caissani2@outlook.com>
+Date:   Tue Jul 7 09:43:22 2026 +0200
+
+    Pointage Chaïma
+
+[33mcommit b559841a33e3326390f80cd3890523832af87ede[m
+Author: Jtnfs <francoisjonathan774@gmail.com>
+Date:   Tue Jul 7 09:42:06 2026 +0200
+
+    Pointage Matin
+
+[33mcommit 0c49fccb34032fcacf3bf05c6e48bc12db513726[m
+Author: caissani2-dev <caissani2@outlook.com>
+Date:   Tue Jul 7 09:25:31 2026 +0200
+
+    Refine wellbeing essentials section
+
+[33mcommit 1f2c1203a66f37433c6331d168c675a038134d50[m
+Author: Tasnim CHARIFFOU <tasnim.chariffou@gmail.com>
+Date:   Tue Jul 7 09:05:37 2026 +0200
+
+    Dossier image et page route
+
+[33mcommit 8ecef5a69f72008447a63dc0e85d5eab2cc862fd[m
+Author: Tasnim CHARIFFOU <tasnim.chariffou@gmail.com>
+Date:   Mon Jul 6 18:06:43 2026 +0200
+
+    Nouveaux dossier image
+
+[33mcommit 4f6ddf9915162b82807974f1cd062dc21064a2c1[m
+Author: Tasnim CHARIFFOU <tasnim.chariffou@gmail.com>
+Date:   Sun Jul 5 17:54:39 2026 +0200
+
+    bibliothèque d'asset officialisée & fonctionnelle
+
+[33mcommit d4ec61f7a7067f76c9cffec6c6654fea92a3f80c[m
+Author: Tasnim CHARIFFOU <tasnim.chariffou@gmail.com>
+Date:   Fri Jul 3 18:19:51 2026 +0200
+
+    ...
+
+[33mcommit fcecb4e4a688f93c0ac5d40242f4aa2be3abd927[m
+Merge: 3e24ca0 e8ded8b
+Author: Tasnim CHARIFFOU <tasnim.chariffou@gmail.com>
+Date:   Fri Jul 3 18:15:29 2026 +0200
+
+    Merge branch 'dev_v2' of https://github.com/SOREA-sea/SOREA into dev_v2
+
+[33mcommit 3e24ca0197b1e8b6b8cec7fe9887259337fe85ee[m
+Author: Tasnim CHARIFFOU <tasnim.chariffou@gmail.com>
+Date:   Fri Jul 3 18:14:44 2026 +0200
+
+    ...
+
+[33mcommit e8ded8b38e9911eba5fd2cb71301eed7b97e60ae[m
+Author: caissani2-dev <caissani2@outlook.com>
+Date:   Fri Jul 3 17:07:52 2026 +0200
+
+    Pointage Matin
+
+[33mcommit 77069f15797eecdc40873e8ab0047380d2b9a9e3[m
+Author: caissani2-dev <caissani2@outlook.com>
+Date:   Fri Jul 3 17:05:54 2026 +0200
+
+    Update coaching testimonials layout
+
+[33mcommit 21d7ebd08c03954133fc848d85b69670daeeb62b[m
+Author: Jtnfs <francoisjonathan774@gmail.com>
+Date:   Fri Jul 3 17:01:46 2026 +0200
+
+    Pointage Aprem
+
+[33mcommit e781d98c01c12cf49582c9234282e62220c52362[m
+Author: Jtnfs <francoisjonathan774@gmail.com>
+Date:   Fri Jul 3 17:01:28 2026 +0200
+
+    fin 03/07/2026
+
+[33mcommit 60b9e3debfda15a286c926d995e67edbd54cd00c[m
+Author: caissani2-dev <caissani2@outlook.com>
+Date:   Fri Jul 3 11:23:43 2026 +0200
+
+    Pointage Matin
+
+[33mcommit 7f006639549815b78529c28f2d1176fb789aaa1e[m
+Merge: 4b9f914 3249d68
+Author: Tasnim CHARIFFOU <tasnim.chariffou@gmail.com>
+Date:   Fri Jul 3 10:05:22 2026 +0200
+
+    Merge branch 'dev_v2' of https://github.com/SOREA-sea/SOREA into dev_v2
+
+[33mcommit d2dc152e141ad9f7ad33fded0ae58cb5fa87be6b[m
+Author: Jtnfs <francoisjonathan774@gmail.com>
+Date:   Fri Jul 3 10:05:21 2026 +0200
+
+    Pointage Matin
+
+[33mcommit 5f323fecfdfbdf2452cf9fc058996bd9b3e29b90[m
+Merge: 26be990 3249d68
+Author: Jtnfs <francoisjonathan774@gmail.com>
+Date:   Fri Jul 3 10:05:12 2026 +0200
+
+    fixation
+
+[33mcommit 26be99092779a4d7c633569681f9093c239686d0[m
+Author: Jtnfs <francoisjonathan774@gmail.com>
+Date:   Fri Jul 3 10:04:26 2026 +0200
+
+    Pointage Matin
+
+[33mcommit 3249d689ff032b038ea2a84dabb75218bd3aba57[m
+Author: raoudache <raoud@email.com>
+Date:   Fri Jul 3 09:00:55 2026 +0200
+
+    Pointage Apres Midi
+
+[33mcommit 1631b48627be614ef58f65eda2b2e9f23a63129c[m
+Author: caissani2-dev <caissani2@outlook.com>
+Date:   Thu Jul 2 16:50:33 2026 +0200
+
+    Pointage Matin
+
+[33mcommit 286762e0316117138588856f9f9a72982daa16a0[m
+Author: caissani2-dev <caissani2@outlook.com>
+Date:   Thu Jul 2 16:45:54 2026 +0200
+
+    Update challenge streak layout
+
+[33mcommit 4b9f914f8fb2d8e391889dba7474d4fd9f7a13e7[m
+Merge: 46d3ac7 1631b48
+Author: Tasnim CHARIFFOU <tasnim.chariffou@gmail.com>
+Date:   Thu Jul 2 16:43:56 2026 +0200
+
+    Merge branch 'dev_v2' of https://github.com/SOREA-sea/SOREA into dev_v2
+
+[33mcommit b83a4edbbe0a446794fee8ae1de1ba6a037f82c0[m
+Author: Jtnfs <francoisjonathan774@gmail.com>
+Date:   Thu Jul 2 16:35:22 2026 +0200
+
+    Pointage Aprem
+
+[33mcommit 143c36c30f0dd78c08b2546e0a97df8af2d6bfe9[m
+Author: Jtnfs <francoisjonathan774@gmail.com>
+Date:   Thu Jul 2 16:35:11 2026 +0200
+
+    fin 02/07/2026
+
+[33mcommit c44fef905e6fffa3bb3aeb665352bd39663f8129[m
+Author: Jtnfs <francoisjonathan774@gmail.com>
+Date:   Thu Jul 2 10:34:05 2026 +0200
+
+    import fil rouge
+
+[33mcommit a5fd96be39c0170ee7fbf93ee3bf232e4667ca39[m
+Author: Jtnfs <francoisjonathan774@gmail.com>
+Date:   Thu Jul 2 10:06:15 2026 +0200
+
+    Pointage Matin
+
+[33mcommit c51d452b9af9384df9b13f06b4aea92446f1d70f[m
+Author: raoudache <raoud@email.com>
+Date:   Thu Jul 2 10:04:32 2026 +0200
+
+    Pointage Apres Midi
+
+[33mcommit 46d3ac78625714885787bfb3994d716806873579[m
+Merge: 18be7f3 a5fd96b
+Author: Tasnim CHARIFFOU <tasnim.chariffou@gmail.com>
+Date:   Thu Jul 2 09:53:50 2026 +0200
+
+    Merge branch 'dev_v2' of https://github.com/SOREA-sea/SOREA into dev_v2
+
+[33mcommit 1fb6ebf8cbaeed6de2ab57143c04e308d43f7f37[m
+Author: Jtnfs <francoisjonathan774@gmail.com>
+Date:   Wed Jul 1 17:01:24 2026 +0200
+
+    Pointage Aprem
+
+[33mcommit 95e05f0913476feb1f631ff46dcf5db21bcad924[m
+Author: Jtnfs <francoisjonathan774@gmail.com>
+Date:   Wed Jul 1 10:09:50 2026 +0200
+
+    Pointage Matin
+
+[33mcommit 18be7f33e6c3583bb62c63f3e976e92d50b8d815[m
+Merge: 4a8a033 db9b090
+Author: Tasnim CHARIFFOU <tasnim.chariffou@gmail.com>
+Date:   Wed Jul 1 09:43:05 2026 +0200
+
+    Fix: résolution du conflit sur la page challenge
+
+[33mcommit 4a8a033972568c896b2bb501422ab7f3b26c061a[m
+Author: Tasnim CHARIFFOU <tasnim.chariffou@gmail.com>
+Date:   Wed Jul 1 09:38:13 2026 +0200
+
+    challenge Tasnim
+
+[33mcommit db9b090bc7ceab042c6152b248a6d6467f463fcc[m
+Author: caissani2-dev <caissani2@outlook.com>
+Date:   Wed Jul 1 09:23:14 2026 +0200
+
+    Pointage Matin
+
+[33mcommit a58f4478e567f56747059d5ba4c07325a47b9604[m
+Author: caissani2-dev <caissani2@outlook.com>
+Date:   Wed Jul 1 09:17:28 2026 +0200
+
+    Update challenge page layout
+
+[33mcommit ab91491e4ed59d7b7e5f14b640049914bb060752[m
+Author: raoudache <raoud@email.com>
+Date:   Wed Jul 1 08:59:58 2026 +0200
+
+    Pointage Apres Midi
+
+[33mcommit 4ce0f9678a77a26b4cc72e42d09549bf75e361fc[m
+Merge: 53a5762 61a217b
+Author: raoudache <raoud@email.com>
+Date:   Wed Jul 1 08:59:45 2026 +0200
+
+    Merge branch 'dev_v2' of https://github.com/SOREA-sea/SOREA into dev_v2
+
+[33mcommit 53a576277a5e92bd700a3cff7189176656128006[m
+Author: raoudache <raoud@email.com>
+Date:   Wed Jul 1 08:59:32 2026 +0200
+
+    fix mirroir
+
+[33mcommit 9141aba99b81b77eae5df832dc23b3febd9439e3[m
+Author: raoudache <raoud@email.com>
+Date:   Wed Jul 1 08:59:08 2026 +0200
+
+    Pointage Apres Midi
+
+[33mcommit 5f41fa335fe5fbb2bb5c1e8d0403193411a6142d[m
+Author: raoudache <raoud@email.com>
+Date:   Wed Jul 1 08:58:49 2026 +0200
+
+    Pointage Apres Midi
+
+[33mcommit 61a217b0def6004195cc9d0b16fab5b6721ddf9e[m
+Author: Jtnfs <francoisjonathan774@gmail.com>
+Date:   Tue Jun 30 17:0

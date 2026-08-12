@@ -1,0 +1,74 @@
+import type { Metadata } from "next";
+import { Geist, Geist_Mono, Inria_Sans, Roboto } from "next/font/google";
+import Chatbot from "@/components/Chatbot";
+import "@/lib/globals.css";
+
+const inriaSans = Inria_Sans({
+  variable: "--font-inria-sans",
+  subsets: ["latin"],
+  weight: ["300", "400", "700"],
+});
+
+const roboto = Roboto({
+  variable: "--font-roboto",
+  subsets: ["latin"],
+  weight: ["400", "700", "800", "900"],
+});
+
+const geistSans = Geist({
+  variable: "--font-geist-sans",
+  subsets: ["latin"],
+});
+
+const geistMono = Geist_Mono({
+  variable: "--font-geist-mono",
+  subsets: ["latin"],
+});
+
+export const metadata: Metadata = {
+  title: "SOREA - Votre bulle de sérénité",
+  description: "SOREA propose des rituels, des produits et des accompagnements pour mieux vivre chaque jour. Découvrez nos kits bien-être et nos coachings sur-mesure pour une expérience digitale apaisante.",
+  keywords: ["bien-être", "coaching", "sérénité", "kits sensoriels", "développement personnel", "santé mentale", "SOREA"],
+  authors: [
+    { name: "Benladamm" },
+    { name: "Enzo_dscp" },
+    { name: "sxnki" },
+  ],
+  creator: "Benladamm, Enzo_dscp & sxnki",
+  openGraph: {
+    type: "website",
+    locale: "fr_FR",
+    siteName: "SOREA",
+    title: "SOREA - Votre bulle de sérénité",
+    description: "Des rituels, des produits et des accompagnements pour apaiser le corps et l'esprit.",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "SOREA - Votre bulle de sérénité",
+    description: "Des rituels, des produits et des accompagnements pour apaiser le corps et l'esprit.",
+  },
+  icons: {
+    icon: "/images/logo_sorea.webp",
+  },
+};
+
+export default function RootLayout({
+  children,
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
+ return (
+        <html
+            lang="fr"
+            className={`${geistSans.variable} ${geistMono.variable} ${inriaSans.variable} ${roboto.variable} h-full antialiased`}
+        >
+            <head>
+                <link rel="stylesheet" href="https://www.dimdams.com/font-awesome/css/all.min.css" />
+            </head>
+            <body className="min-h-full flex flex-col">
+              {children}
+              <Chatbot />
+            </body>
+        </html>
+    );
+}

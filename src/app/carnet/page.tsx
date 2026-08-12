@@ -1,0 +1,109 @@
+"use client"
+import { useState } from "react";
+import Link from "next/link";
+import Image from "next/image";
+import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
+import CarnetC from "@/components/CarnetC";
+import CarnetG from "@/components/CarnetG";
+
+export default function AboutPage() {
+    const [openCarnet, setOpenCarnet] = useState<string | null>(null);
+
+    return (
+        <div className="bg-[#e8e0f0] min-h-screen font-nunito text-[#2A2340]">
+            <main className="max-w-6xl mx-auto px-6 py-16 space-y-20">
+                <section>
+                    <h2 className="text-center md:text-5xl font-Inria_Sans text-[#000000] mb-4 mid underline tracking-wide">Mon carnet</h2>
+                    <h3 className="text-center text-[#000000] mb-6 tracking-wide">Ouvre ton coeur,trace ton chemin et aligne toi à ta valeur</h3>
+                </section>
+                <div className="flex flex-col md:flex-row justify-center items-center gap-10">
+                    <section>
+                        {/* On affiche le carnet 1 si il est sélectionné, sinon on affiche le bouton */}
+                        {openCarnet === 'carnet1' ? (
+                            <div className="flex justify-center">
+                                <CarnetC onClose={() => setOpenCarnet(null)} />
+                            </div>
+                        ) : (
+                            // On n'affiche le bouton QUE si aucun carnet n'est ouvert (null)
+                            openCarnet === null && (
+                                <div className="flex justify-center">
+                                    <button onClick={() => setOpenCarnet('carnet1')}>
+                                        <Image src="/image_carnet/carnet_1.svg" alt="Carnet" width={200} height={150} />
+                                    </button>
+                                </div>
+                            )
+                        )}
+                    </section>
+                    {/* Textes et flèches entre les carnets */}
+                    {openCarnet === null && (
+                        <section className="flex flex-col items-center justify-center gap-6">
+                            <div className="flex flex-col items-center gap-2">
+                                <span className="homemade-apple text-center text-[#6a18a4] font-semibold text-lg">Choisis moi</span>
+                                <Image src="/image_carnet/up-arrow 1.svg" alt="Flèche vers le carnet" width={56} height={56} />
+                            </div>
+                            <div className="flex flex-col items-center gap-2">
+                                <span className="homemade-apple text-center text-[#6a18a4] font-semibold text-lg">Plutôt moi !</span>
+                                <Image src="/image_carnet/scribble 1.svg" alt="Scribble décoratif" width={96} height={72} />
+                            </div>
+                        </section>
+                    )}
+
+                    <section>
+                        {openCarnet === 'carnet2' ? (
+                            <div className="flex justify-center">
+                                <CarnetG onClose={() => setOpenCarnet(null)} />
+                            </div>
+                        ) : (
+                            // On n'affiche le bouton QUE si aucun carnet n'est ouvert (null)
+                            openCarnet === null && (
+                                <div className="flex justify-center">
+                                    <button onClick={() => setOpenCarnet('carnet2')}>
+                                        <Image src="/image_carnet/carnet_2.svg" alt="Carnet" width={200} height={150} />
+                                    </button>
+                                </div>
+                            )
+                        )}
+                    </section>
+                </div>
+
+                <section>
+                    <h2 className="text-center md:text-5xl font-Inria_Sans text-[#000000] mb-4 mid underline tracking-wide">Suivre, écrire, progresser</h2>
+                    <h3 className="text-center text-[#000000] mb-6 tracking-wide">Gratitude, Humeurs, Habitudes, Challenges et Coin divertissement</h3>
+                    <section className="flex justify-center my-10">
+                        {/* On définit la taille désirée ici (par exemple 200px ou plus) */}
+                        <div className="relative group w-[400px] h-[120px] mx-auto flex items-center justify-center">
+
+                            {/* Image par défaut */}
+                            <Image
+                                src="/image_carnet/Stylo_gold_SOREA_sansprix.png"
+                                alt="Pen (No Text)"
+                                className="absolute bottom-0 z-20 w-full h-auto object-contain object-bottom opacity-100 transition-opacity duration-200 group-hover:opacity-0 group-hover:scale-100"
+                                fill
+                            />
+
+                            {/* Image de survol */}
+                            <Image
+                                src="/image_carnet/Stylo_gold_SOREA_avecprix.png"
+                                alt="Pen with Text and Price"
+                                className="absolute bottom-0 z-20 w-full h-auto object-contain object-bottom opacity-0 transition-opacity duration-200 group-hover:opacity-100 group-hover:scale-100"
+                                fill
+                            />
+                        </div>
+                    </section>
+
+                    <Image src="/image_carnet/carnet_3.svg" alt="Stylo" className="object-contain mx-auto" width={400} height={100} />
+                    <div className="flex justify-center gap-8 mt-8">
+                        <button className="w-50 h-12 bg-white cursor-pointer rounded-md border-0 border-[#9748FF] shadow-[inset_0px_0px_0px_1px_#9748FF] group hover:bg-[#9748FF] transition duration-450 ease-in-out"><span className="font-medium text-[#6a18a4] group-hover:text-white">Découvrir mon carnet</span></button>
+                        <button className="w-75 h-12 bg-white cursor-pointer rounded-md border-0 border-[#9748FF] shadow-[inset_0px_0px_0px_1px_#9748FF] group hover:bg-[#9748FF] transition duration-450 ease-in-out"><span className="font-medium text-[#6a18a4] group-hover:text-white">Commander mon Carnet Challenge</span></button>
+                    </div>
+                </section>
+                <Link href="/carnet_contenu" className="inline-block">
+                    <button className="w-50 h-12 bg-[#9748FF] text-white cursor-pointer rounded-md border-0 shadow-sm">Accéder au carnet</button>
+                </Link>
+            </main>
+            <Navbar />
+            <Footer />
+        </div>
+    );
+}

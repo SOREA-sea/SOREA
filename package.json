@@ -1,0 +1,52 @@
+{
+  "name": "text",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint",
+    "seed:reset": "prisma db push --force-reset && prisma db seed"
+  },
+  "prisma": {
+    "seed": "node prisma/seed.js"
+  },
+  "dependencies": {
+    "@google/genai": "^2.10.0",
+    "@google/generative-ai": "^0.24.1",
+    "@prisma/client": "^5.13.0",
+    "@types/canvas-confetti": "^1.9.0",
+    "bcrypt": "^6.0.0",
+    "canvas-confetti": "^1.9.4",
+    "dotenv": "^17.4.2",
+    "iron-session": "^8.0.4",
+    "lucide-react": "^1.16.0",
+    "next": "^16.2.6",
+    "nodemailer": "^8.0.7",
+    "prisma": "^5.13.0",
+    "prisma-erd-generator": "^2.4.2",
+    "qrcode": "^1.5.4",
+    "react": "19.2.4",
+    "react-dom": "19.2.4",
+    "react-markdown": "^10.1.0",
+    "speakeasy": "^2.0.0",
+    "sqlite3": "^6.0.1",
+    "stripe": "^12.18.0",
+    "styled-components": "^6.4.1"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4",
+    "@types/bcrypt": "^6.0.0",
+    "@types/node": "^20",
+    "@types/nodemailer": "^8.0.0",
+    "@types/qrcode": "^1.5.6",
+    "@types/react": "^19.2.17",
+    "@types/react-dom": "^19.2.3",
+    "@types/speakeasy": "^2.0.10",
+    "eslint": "^9",
+    "eslint-config-next": "16.2.4",
+    "tailwindcss": "^4",
+    "typescript": "^6.0.3"
+  }
+}
