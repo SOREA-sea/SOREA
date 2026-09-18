@@ -13,7 +13,7 @@ import { notFound } from 'next/navigation';
 export default function MyPage() {
   return (
     <div
-      className="relative min-h-screen flex flex-col text-gray-800"
+      className="relative min-h-screen flex flex-col text-gray-800 overflow-x-hidden"
     >
       <div className="w-full max-w-[1440px] px-6 lg:px-[96px] mx-auto pb-[24px] gap-[50px] pt-8">
         <Navbar />

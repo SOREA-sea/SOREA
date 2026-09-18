@@ -9,16 +9,17 @@ export default function Footer() {
 
     const navLinks = [
         { href: '/', label: 'Accueil' },
-        { href: '/shop', label: 'Shopping' },
-        { href: '/coaching', label: 'Coaching' },
+        //{ href: '/shop', label: 'Shopping' },
+       // { href: '/coaching', label: 'Coaching' },
         { href: '/#community', label: 'Challenge' },
-        { href: '/carnet', label: 'Mon carnet' },
+        { href: '/suivi', label: 'Mon suivi' },
+        //{ href: '/carnet', label: 'Mon carnet' },
     ];
 
     const infoLinks = [
         { href: '/about', label: 'A propos' },
-        { href: '/termandprivacy', label: 'Politique de confidentialité' },
-        { href: '/termandprivacy', label: 'CGU' },
+        { href: '/ambassador', label: 'Devenir ambassadeur' },
+        { href: '/termandprivacy', label: 'Mentions légales' },
     ];
 
     const socialLinks = [
@@ -46,13 +47,13 @@ export default function Footer() {
             <div className="mx-auto flex max-w-7xl flex-col gap-6 px-5 py-8 sm:px-8 lg:px-12">
                 <div className="grid gap-8 rounded-lg bg-white/55 p-5 backdrop-blur-md sm:p-7 lg:grid-cols-[1.05fr_1fr_1fr_1.4fr_72px] lg:items-start">
                     <div className="flex flex-col items-start gap-5">
-                        <div className="flex h-16 w-16 items-center justify-center rounded-full bg-white/70 shadow-sm">
+                        <div className="flex h-25 w-25 ">
                             <Image
                                 src="/images/logo_sorea.webp"
                                 alt="SOREA"
-                                width={48}
-                                height={48}
-                                className="h-12 w-12 rounded-full object-cover"
+                                width={100}
+                                height={100}
+                                className="rounded-full object-cover"
                             />
                         </div>
                     </div>
@@ -107,17 +108,15 @@ export default function Footer() {
                         </div>
                     </div>
 
-                    <Link
-                        href="/login?tab=inscription"
-                        className="inline-flex h-9 w-14 items-center justify-center rounded-md bg-[#201a2b] text-[10px] font-bold uppercase text-white transition-transform hover:-translate-y-0.5 lg:justify-self-end"
+                    <button
+                        type="button"
+                        onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+                        className="inline-flex h-9 w-14 items-center justify-center rounded-md bg-[#201a2b] text-[10px] font-bold uppercase text-white transition-transform hover:-translate-y-0.5 lg:justify-self-end cursor-pointer"
                     >
                         CTA
-                    </Link>
-                </div>
-
-                <div className="grid gap-6 lg:grid-cols-[1fr_1.25fr] lg:items-end">
-                    <div className="flex flex-col gap-5">
-                        <div className="flex items-center gap-2">
+                    </button>
+                    
+                    <div className="flex items-center gap-2">
                             {socialLinks.map(({ icon, label, url }) => (
                                 <button
                                     key={icon}
@@ -130,6 +129,11 @@ export default function Footer() {
                                 </button>
                             ))}
                         </div>
+                </div>
+
+                <div className="grid gap-6 lg:grid-cols-[1fr_1.25fr] lg:items-end">
+                    <div className="flex flex-col gap-5">
+                        
 
                         <div>
                             <p className="text-2xl font-bold text-[#201a2b]">SOREA, votre bulle de sérénité où que vous soyez.</p>
@@ -139,26 +143,6 @@ export default function Footer() {
                         </div>
                     </div>
 
-                    <form className="flex flex-col gap-2" onSubmit={(event) => event.preventDefault()}>
-                        <label htmlFor="footer-email" className="text-xs font-semibold text-white">
-                            Just send us your email and we will contact you.
-                        </label>
-                        <div className="flex h-10 overflow-hidden rounded-md border border-white/80 bg-white/15 text-white backdrop-blur">
-                            <input
-                                id="footer-email"
-                                type="email"
-                                placeholder="mail"
-                                className="min-w-0 flex-1 bg-transparent px-4 text-sm text-white outline-none placeholder:text-white/75"
-                            />
-                            <button
-                                type="submit"
-                                aria-label="Envoyer l'email"
-                                className="flex w-12 items-center justify-center text-white transition-colors hover:bg-white/15"
-                            >
-                                <i className="fa-solid fa-arrow-right text-sm" />
-                            </button>
-                        </div>
-                    </form>
                 </div>
 
                 <p className="text-center text-xs font-medium text-[#201a2b]/60">

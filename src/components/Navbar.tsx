@@ -8,11 +8,11 @@ import { useEffect, useState } from "react";
 const NAV_LINKS = [
   //{ label: "Shopping", href: "/shop" },
   //{ label: "Coaching", href: "/coaching" },
-  //{ label: "Ambassadeur", href: "/ambassador" },
   { label: "Challenges", href: "/challenge" },
-  { label: "Mon Carnet", href: "/carnet" },
-  { label: "Vibe", href: "/vibe" },
+  //{ label: "Mon Carnet", href: "/carnet" },
+  //{ label: "Vibe", href: "/vibe" },
   { label: "Mon suivi", href: "/suivi" },
+  { label: "Ambassadeur", href: "/ambassador" },
   
 ];
 

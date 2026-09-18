@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono, Inria_Sans, Roboto } from "next/font/google";
-import Chatbot from "@/components/Chatbot";
+/*import Chatbot from "@/components/Chatbot";*/
 import "@/lib/globals.css";
 
 const inriaSans = Inria_Sans({
@@ -67,7 +67,7 @@ export default function RootLayout({
             </head>
             <body className="min-h-full flex flex-col">
               {children}
-              <Chatbot />
+              {/*<Chatbot />*/}
             </body>
         </html>
     );
