@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import Image from "next/image";
+import RayonneSection from "@/components/RayonneSection";
 
 const gradientButtonClass = "btn--color-degrade";
 
@@ -452,6 +453,17 @@ export default function ClientLandingPage() {
           </button>
         </div>
       </section>
+
+
+    <div className="overflow-x-hidden">
+      {/* Vos autres composants si besoin */}
+      
+      {/* Intégration propre de la section Rayonne */}
+      <RayonneSection />
+      
+      {/* Votre footer déjà importé plus bas */}
+    </div>
+
 
       {/* Footer Text */}
       <div className="w-full max-w-[1180px] mx-auto px-4">
