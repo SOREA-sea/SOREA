@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import RayonneSection from "@/components/RayonneSection";
+import DailyEncouragement from "@/components/DailyEncouragement";
 
 const gradientButtonClass = "btn--color-degrade";
 
@@ -470,9 +471,12 @@ export default function ClientLandingPage() {
         <h2 className="text-2xl md:text-3xl font-medium tracking-wide text-center mb-6"><strong>S</strong>érénité, <strong>É</strong>quilibre et <strong>A</strong>lignement. SOREA ton bien-être au quotidien.</h2>
       </div>
 
-<section className="rounded-2xl bg-[linear-gradient(90deg,#F4EBFF_0_12.5%,#FFFFFF_12.5%_25%,#F4EBFF_25%_37.5%,#FFFFFF_37.5%_50%,#F4EBFF_50%_62.5%,#FFFFFF_62.5%_75%,#F4EBFF_75%_87.5%,#FFFFFF_87.5%_100%)] p-8 text-center">
-          <p className="w-full text-xl font-bold text-black">Chaque petit défi compte. Tu avances déjà.</p>
-        </section>
+<div className="w-full max-w-[1228px] px-4 md:px-0 my-4">
+      
+      {/* Le composant du jour */}
+      <DailyEncouragement />
+
+    </div>
 
         </main>
       </div>

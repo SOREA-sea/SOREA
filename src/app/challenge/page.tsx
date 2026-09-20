@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Clock, Sparkles } from "lucide-react";
 import Navbar from "../../components/Navbar";
 import Footer from "../../components/Footer";
+import DailyEncouragement from "@/components/DailyEncouragement";
 import { useRouter } from "next/navigation";
 import { getFavoriFilRouge, FilRougeItem, getFavoriWheel, WheelCategory } from "../../lib/favorites-store";
 import FilRougeCard from "../../components/FilRougeCard";
@@ -264,7 +265,7 @@ const wheelDataConfig = {
                 aria-label={`Ouvrir ${section.title}`}
               >
                 {section.locked && (
-                  <div className="absolute inset-0 bg-gray-400/40 backdrop-blur-[1px] rounded-xl z-20 flex flex-col items-center justify-center">
+                  <div className="absolute inset-0 bg-black/40 backdrop-grayscale backdrop-blur-[1px] z-20 flex flex-col items-center justify-center">
                     <img src="/image_icone/Cadenas_Close.svg" alt="Cadenas" className="w-10 h-10 drop-shadow-md" />
                     <div className="absolute bottom-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-black/80 text-white text-xs px-3 py-1.5 rounded-md shadow-lg pointer-events-none whitespace-nowrap">
                       Ce challenge sera bientôt disponible
@@ -289,11 +290,15 @@ const wheelDataConfig = {
           </div>
         </section>
 
-        <section className="rounded-2xl bg-[linear-gradient(90deg,#F4EBFF_0_12.5%,#FFFFFF_12.5%_25%,#F4EBFF_25%_37.5%,#FFFFFF_37.5%_50%,#F4EBFF_50%_62.5%,#FFFFFF_62.5%_75%,#F4EBFF_75%_87.5%,#FFFFFF_87.5%_100%)] p-8 text-center">
-          <p className="text-xl font-bold text-black">Chaque petit défi compte. Tu avances déjà.</p>
-        </section>
-      </main>
+        
 
+      </main>
+<div className="w-full max-w-[1228px] px-4 md:px-0 my-4 mx-auto">
+      
+      {/* Le composant du jour */}
+      <DailyEncouragement />
+
+    </div>
       <div className="w-full max-w-[1440px] px-6 lg:px-[96px] mx-auto pb-[24px]">
         <Footer />
       </div>

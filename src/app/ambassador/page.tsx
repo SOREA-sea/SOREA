@@ -51,7 +51,13 @@ export default function Ambassador() {
       </section>
 
       {/* 2. Section "Je deviens ambassadrice pour..." */}
-      <section className="w-full bg-[#dccaf2] max-w-5xl py-16 px-6 text-center">
+      {/* 2. Section "Je deviens ambassadrice pour..." */}
+      <section 
+        className="w-full max-w-6xl py-20 px-8 md:px-16 text-center rounded-3xl"
+        style={{
+          background: "linear-gradient(90deg, rgba(220, 202, 242, 0) 0%, rgba(220, 202, 242, 1) 20%, rgba(220, 202, 242, 1) 80%, rgba(220, 202, 242, 0) 100%)"
+        }}
+      >
         <h2 className="text-2xl md:text-3xl font-semibold text-purple-900 mb-12 font-serif">
           JE DEVIENS AMBASSADRICE POUR...
         </h2>
