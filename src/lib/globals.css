@@ -1,7 +1,22 @@
-/* ─── Polices Fontshare (Satoshi & Boska) ─── */
-@import url('https://api.fontshare.com/v2/css?f[]=satoshi@400&f[]=boska@700&display=swap');
-
 @import "tailwindcss";
+
+/* ─── Déclaration locale des polices (Self-hosting) ─── */
+@font-face {
+  font-family: 'Boska';
+  src: url('/fonts/Boska/Boska_Complete/Fonts/WEB/fonts/Boska-Bold.woff2') format('woff2');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Satoshi';
+  src: url('/fonts/Satoshi/Satoshi_Complete/Fonts/WEB/fonts/Satoshi-Regular.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
 /* ─── Tailwind theme tokens ──────────────────────────────────────────────── */
 @theme {
   --color-SOREA-V1: #7F4DC5;
