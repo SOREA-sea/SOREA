@@ -40,32 +40,34 @@ export default function RouteDesDefis() {
             </Link>
           </div>
 
-          <h1 className="text-4xl font-bold text-black mb-10 underline text-center">
+          <h1 className="text-4xl font-bold text-black mb-10 text-center">
             Relève tes défis bien-être avec SOREA
           </h1>
 
           {showInstructions && selectedCategory === null && (
-            <div className="w-full max-w-3xl flex flex-col items-center mb-12 relative z-10 animate-in fade-in slide-in-from-top-4 duration-500">
-              <p className="text-center text-[#4b3b5c] text-xl mb-1">
-                Bienvenue dans ton parcours d'équilibre ! Challenge toi et débloque d'incroyables défis.
-              </p>
-              <p className="text-center text-[#4b3b5c] text-xl mb-6">
-                Choisis une catégorie pour commencer.
-              </p>
-              
-              <div className="flex gap-4">
-                <button 
-                  onClick={hideInstructions}
-                  className="px-8 py-2 bg-white text-[#8B47FF] font-bold rounded-full border border-[#8B47FF] hover:bg-purple-50 transition-colors shadow-sm text-sm"
-                >
-                  OK
-                </button>
-                <button 
-                  onClick={hideInstructions}
-                  className="px-4 py-2 bg-transparent text-gray-400 font-medium hover:text-[#8B47FF] transition-colors text-sm underline underline-offset-2"
-                >
-                  Ne plus afficher
-                </button>
+            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-xs animate-in fade-in duration-300">
+              <div className="w-full max-w-lg mx-4 p-8 bg-white/95 backdrop-blur-md rounded-3xl shadow-2xl border border-purple-100 flex flex-col items-center relative animate-in zoom-in-95 duration-300">
+                <p className="text-center text-[#4b3b5c] text-xl font-bold mb-2">
+                  Bienvenue dans ton parcours d'équilibre !
+                </p>
+                <p className="text-center text-gray-600 text-base mb-8">
+                  Choisis une catégorie pour commencer et Challenge toi.
+                </p>
+                
+                <div className="flex gap-4 w-full justify-center">
+                  <button 
+                    onClick={hideInstructions}
+                    className="px-8 py-2.5 bg-[#8B47FF] text-white font-bold rounded-full hover:bg-[#7a3be6] transition-colors shadow-md text-sm cursor-pointer"
+                  >
+                    OK
+                  </button>
+                  <button 
+                    onClick={hideInstructions}
+                    className="px-4 py-2.5 bg-transparent text-gray-400 font-medium hover:text-[#8B47FF] transition-colors text-sm underline underline-offset-2 cursor-pointer"
+                  >
+                    Ne plus afficher
+                  </button>
+                </div>
               </div>
             </div>
           )}
