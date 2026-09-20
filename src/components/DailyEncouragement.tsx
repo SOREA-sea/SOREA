@@ -16,6 +16,7 @@ const encouragementData = [
   { image: "/image_photo/Encouragement10.png", message: "Laisse s'exprimer la magnifique énergie qui est en toi." },
   { image: "/image_photo/Encouragement11.png", message: "Chaque jour est une nouvelle chance d'évoluer." },
   { image: "/image_photo/Encouragement12.png", message: "Fis-toi à ton intuition, tu es exactement là où tu dois être." },
+  { image: "/image_photo/Encouragement13.png", message: "Entoure toi de bonnes personnes." },
 ];
 
 export default function DailyEncouragement() {

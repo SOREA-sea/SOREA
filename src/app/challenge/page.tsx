@@ -193,7 +193,7 @@ const wheelDataConfig = {
         </section>
 
 {/* MIROIR */}
-<section className="grid grid-cols-1 xl:grid-cols-[1fr_360px_1fr] items-center gap-12">
+<section className="grid grid-cols-1 md:grid-cols-[auto_1fr] items-center gap-12">
           <div className="flex items-center justify-center">
             <img src="/image_icone/miroir_affirmation_manche.svg" alt="Miroir affirmation" style={{ width: "280px", display: "block" }} />
           </div>

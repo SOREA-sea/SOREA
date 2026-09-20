@@ -1,9 +1,5 @@
-/* ─── Google Fonts (migré depuis GlobalStyle.ts) ─────────────────────────── */
-@import url('https://fonts.googleapis.com/css2?family=Inria+Sans:ital,wght@0,400;0,700&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,400;0,800;0,900&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Homemade+Apple&display=swap');
-
-@import url('https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700&f[]=boska@700,900&display=swap');
+/* ─── Polices Fontshare (Satoshi & Boska) ─── */
+@import url('https://api.fontshare.com/v2/css?f[]=satoshi@400&f[]=boska@700&display=swap');
 
 @import "tailwindcss";
 /* ─── Tailwind theme tokens ──────────────────────────────────────────────── */
@@ -176,7 +172,7 @@
   --color-orange: var(--figma-orange);
   --color-slategray-100: var(--figma-slategray-100);
   --color-slategray-200: var(--figma-slategray-200);
- 
+
   /* Gradients */
   --gradient-1: var(--figma-gradient-1);
   --gradient-2: var(--figma-gradient-2);
@@ -326,12 +322,14 @@ body {
   background-color: var(--color-FondViolet) !important;
   background-image: none !important;
   color: var(--foreground);
-  font-family: var(--font-satoshi), sans-serif;
+  font-family: 'Satoshi', sans-serif; /*S'applique à tout le texte courant*/
+  font-weight: 400; /* Satoshi Regular par défaut */
   min-height: 100vh;
 }
 
 h1, h2, h3, h4, h5, h6 {
-  font-family: var(--font-boska), serif;
+  font-family: 'Boska', serif; /*S'applique automatiquement à tous les titres*/
+  font-weight: 700; /* Boska Bold par défaut pour tous les titres */
 }
 
 /* ─── Animations ─────────────────────────────────────────────────────────── */
