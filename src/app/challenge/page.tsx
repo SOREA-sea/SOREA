@@ -293,15 +293,20 @@ const wheelDataConfig = {
         
 
       </main>
-<div className="w-full max-w-[1228px] px-4 md:px-0 my-4 mx-auto">
-      
-      {/* Le composant du jour */}
-      <DailyEncouragement />
 
+    <div 
+  className="w-full py-25 relative z-10 flex justify-center"
+  style={{background: "linear-gradient(to bottom, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 1) 20%, rgba(255, 255, 255, 1) 80%, rgba(255, 255, 255, 0) 100%)"
+  }}>
+    <div className="w-full max-w-[1228px] px-4 md:px-0 my-4 mx-auto">
+      <DailyEncouragement />
     </div>
+    </div>
+
       <div className="w-full max-w-[1440px] px-6 lg:px-[96px] mx-auto pb-[24px]">
         <Footer />
       </div>
+      
     </div>
   );
 }

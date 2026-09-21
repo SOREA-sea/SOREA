@@ -4,16 +4,10 @@ import React, { useState } from "react";
 import Link from "next/link";
 import Navbar from '@/components/Navbar';
 import Footer from "@/components/Footer";
-import StreakTracker from "@/components/StreakTracker";
-
-import WheelSpinnerBienEtre from "@/components/WheelSpinnerBienEtre";
-import WheelSpinnerNutrition from "@/components/WheelSpinnerNutrition";
-import WheelSpinnerSport from "@/components/WheelSpinnerSport";
+import DailyEncouragement from "@/components/DailyEncouragement";
 
 export default function RouteDesDefis() {
   const [showInstructions, setShowInstructions] = useState(true);
-  
-  const [selectedCategory, setSelectedCategory] = useState<"bien-etre" | "nutrition" | "sport" | null>(null);
 
   const hideInstructions = () => {
     setShowInstructions(false);
@@ -30,21 +24,14 @@ export default function RouteDesDefis() {
       </div>
 
       {/* CONTENU */}
-      <main className="flex-1 w-full flex flex-col items-center">
-        <div className="w-full max-w-[1440px] mx-auto px-[96px] flex flex-col items-center pt-[100px] pb-[24px]">
-          <div className="w-full mb-6">
-            <Link href="/challenge">
-              <button className="flex items-center gap-2 bg-white text-[#8B47FF] font-bold px-6 py-3 rounded-2xl shadow-md transition-all duration-300 hover:scale-105 hover:shadow-xl cursor-pointer border-2 border-[#8B47FF] relative z-10">
-                ← Retour
-              </button>
-            </Link>
-          </div>
+      <main className="flex-1 w-full flex flex-col items-center py-30">
+        <div className="w-full max-w-[1440px] mx-auto flex flex-col items-center">
 
-          <h1 className="text-4xl font-bold text-black mb-10 text-center">
+          <h1 className="text-4xl font-bold text-center mb-30">
             Relève tes défis bien-être avec SOREA
           </h1>
 
-          {showInstructions && selectedCategory === null && (
+          {showInstructions ? (
             <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-xs animate-in fade-in duration-300">
               <div className="w-full max-w-lg mx-4 p-8 bg-white/95 backdrop-blur-md rounded-3xl shadow-2xl border border-purple-100 flex flex-col items-center relative animate-in zoom-in-95 duration-300">
                 <p className="text-center text-[#4b3b5c] text-xl font-bold mb-2">
@@ -70,67 +57,55 @@ export default function RouteDesDefis() {
                 </div>
               </div>
             </div>
-          )}
-
-          <div className="w-full flex justify-center mb-16 relative z-10">
-            <StreakTracker />
-          </div>
+          ): null}
 
           {/* MENU DE SÉLECTION OU AFFICHAGE DE LA ROUE */}
           <div className="relative z-10 w-full flex flex-col items-center">
-            {selectedCategory === null ? (
-              // VUE 1 : Les 3 choix
-              <div className="flex gap-6 mt-4">
+              <div className="flex gap-15 mt-5 w-full max-w-[1228px] justify-center">
           
-                <button 
-                  onClick={() => setSelectedCategory("sport")}
-                  className="flex flex-col items-center justify-center p-8 rounded-3xl hover:xl hover:-translate-y-1 transition-all duration-300 w-[240px] h-[240px]"
+               <Link 
+                  href="/route/Sport"
+                  className="flex flex-col items-center justify-center p-8 rounded-3xl w-[300px] h-[250px] cursor-pointer hover:-translate-y-1 transition-all duration-300"
                 >
+                  <h2 className="text-3xl font-bold text-center text-[#5A37AC] pb-5">Sport</h2>
                   <img src="/image_icone/image_Wheel-Spinner/WS_Sport1.png" alt="Wheel-Spinner Sport" className="mb-4" />
-                  <span className="text-xl font-bold text-[#5A37AC]">Sport</span>
                   <span className="text-sm text-gray-500 mt-2 text-center">Bouge et dépense-toi</span>
-                </button>
+                </Link>
 
-                <button 
-                  onClick={() => setSelectedCategory("bien-etre")}
-                  className="flex flex-col items-center justify-center p-8 rounded-3xl hover:xl hover:-translate-y-1 transition-all duration-300 w-[240px] h-[240px]"
+                <Link 
+                  href="/route/BienEtre"
+                  className="flex flex-col items-center justify-center p-8 w-[300px] h-[250px] cursor-pointer hover:-translate-y-1 transition-all duration-300"
                 >
+                  <h2 className="text-3xl font-bold text-center text-[#5A37AC] pb-5">Bien-être</h2>
                   <img src="/image_icone/image_Wheel-Spinner/WS_Bien-être1.png" alt="Wheel-Spinner Bien-être" className="mb-4" />
-                  <span className="text-xl font-bold text-[#5A37AC]">Bien-être</span>
                   <span className="text-sm text-gray-500 mt-2 text-center">Recentrage et positivité</span>
-                </button>
+                </Link>
 
-                <button 
-                  onClick={() => setSelectedCategory("nutrition")}
-                  className="flex flex-col items-center justify-center p-8 rounded-3xl hover:xl hover:-translate-y-1 transition-all duration-300 w-[240px] h-[240px]"
+                <Link 
+                  href="/route/Nutrition"
+                  className="flex flex-col items-center justify-center p-8 rounded-3xl w-[300px] h-[250px] cursor-pointer hover:-translate-y-1 transition-all duration-300"
                 >
+                  <h2 className="text-3xl font-bold text-center text-[#5A37AC] pb-5">Nutrition</h2>
                   <img src="/image_icone/image_Wheel-Spinner/WS_Nutrition1.png" alt="Wheel-Spinner Nutrition" className="mb-4" />
-                  <span className="text-xl font-bold text-[#5A37AC]">Nutrition</span>
                   <span className="text-sm text-gray-500 mt-2 text-center">Défis sains et gourmands</span>
-                </button>
+                </Link>
 
               </div>
-            ) : (
-              // VUE 2 : La roue choisie
-              <div className="w-full flex flex-col items-center animate-in fade-in zoom-in duration-500">
-                <button 
-                  onClick={() => setSelectedCategory(null)}
-                  className="mb-8 text-[#8B47FF] font-bold px-6 py-2 rounded-2xl border-2 border-[#8B47FF] hover:bg-[#8B47FF] hover:text-white transition-all shadow-sm"
-                >
-                  Changer de catégorie
-                </button>
-                
-                {/* Affichage conditionnel des 3 nouveaux composants */}
-                {selectedCategory === "bien-etre" && <WheelSpinnerBienEtre />}
-                {selectedCategory === "nutrition" && <WheelSpinnerNutrition />}
-                {selectedCategory === "sport" && <WheelSpinnerSport />}
-                
-              </div>
-            )}
+            
           </div>
 
         </div>
+  
       </main>
+
+<div 
+  className="w-full py-20 relative z-10 flex justify-center"
+  style={{background: "linear-gradient(to bottom, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 1) 20%, rgba(255, 255, 255, 1) 80%, rgba(255, 255, 255, 0) 100%)"
+  }}>
+    <div className="w-full max-w-[1228px] px-4 justify-center">
+      <DailyEncouragement />
+    </div>
+</div>
 
       {/* FOOTER */}
       <Footer />

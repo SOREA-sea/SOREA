@@ -476,9 +476,13 @@ export default function ClientLandingPage() {
             </h2>
           </div>
 
+          <div 
+  className="w-full py-10 relative z-10 flex justify-center"
+  style={{background: "linear-gradient(to bottom, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 1) 20%, rgba(255, 255, 255, 1) 80%, rgba(255, 255, 255, 0) 100%)"
+  }}>
           <div className="w-full max-w-[1228px] px-4 md:px-0 my-4">
-            {/* Le composant du jour */}
             <DailyEncouragement />
+          </div>
           </div>
         </main>
       </div>
