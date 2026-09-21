@@ -92,7 +92,7 @@ const wheelDataConfig = {
 
     {
       img: "/image_icone/Courrier.svg",
-      alt: "Au fil de mes mots",
+      alt: "Courrier du futur",
       imgWidth: "280px",
       title: "Au fil de mes mots",
       description: (
@@ -107,8 +107,8 @@ const wheelDataConfig = {
     },
 
     {
-      img: "image_icone/image_Wheel-Spinner/WS_Bien-être1.png",
-      alt: "miroir",
+      img: "image_icone/image_Wheel-Spinner/WS_BienEtreHead1.png",
+      alt: "Wheel-Spinner",
       imgWidth: "280px",
       title: "Ton potentiel intérieur",
       description: (

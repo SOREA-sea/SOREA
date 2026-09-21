@@ -5,208 +5,297 @@ import confetti from "canvas-confetti";
 import { Star } from "lucide-react";
 import { getFavoriWheel, setFavoriWheel, WheelCategory } from "../lib/favorites-store";
 
-// --- DONNÉES DU THÈME SPORT ---
+// ============================================================================
+// DONNÉES
+// ============================================================================
 const themesData = [
   {
-      name: "Force intérieure",
-      iconPath: "/image_icone/image_Wheel-Spinner/Force_intérieure.png",
-      desc: "Connecte-toi à ta force physique et repousse tes limites.",
-      objectifs: [
-          "Ressens la contraction de tes muscles.",
-          "Garde une posture solide et ancrée.",
-          "Respire profondément pendant l'effort."
-      ],
-      defis: [
-          "Monte un escalier au lieu de prendre l'ascenseur.",
-          "Fais 15 squats dès que tu te lèves de ta chaise.",
-          "Porte tes courses à bout de bras pour te muscler.",
-          "Tiens la position de la chaise contre un mur pendant 30 secondes.",
-          "Fais une série de pompes (même sur les genoux) jusqu'à l'échec."
-      ]
+    name: "Ma force intérieure",
+    iconPath: "/image_icone/image_Wheel-Spinner/Force_intérieure.png",
+    desc: "Plongez au plus profond de vos pensées pour mieux vous comprendre.",
+    objectifs: [
+      "Évite de t'éparpiller, concentre-toi sur tes réponses.",
+      "Prends le temps d'écrire sans aucun filtre.",
+      "Accueille chaque pensée avec bienveillance."
+    ],
+    defis: [
+      "Écris 3 qualités que tu apprécies le plus chez toi aujourd'hui.",
+      "Identifie une peur récurrente et décris comment la surmonter.",
+      "Note une leçon essentielle qu'une erreur passée t'a apprise.",
+      "Décris en détails ta journée idéale en partant de zéro.",
+      "Quel trait de ta personnalité aimerais-tu le plus cultiver ?",
+      "Fais la liste de 3 choses qui te ressourcent instantanément.",
+      "Écris une lettre bienveillante à ton toi d'il y a cinq ans.",
+      "Quel est le plus grand changement que tu as vécu cette année ?",
+      "Qu'est-ce qui te fait te sentir pleinement aligné avec tes valeurs ?",
+      "Prends 5 minutes pour lister ce qui draine ton énergie."
+    ]
   },
   {
-      name: "Équilibre corporel",
-      iconPath: "/image_icone/image_Wheel-Spinner/Équilibre_corporel.png",
-      desc: "Améliore ta stabilité et ta conscience corporelle.",
-      objectifs: [
-          "Fixe un point au loin pour te stabiliser.",
-          "Engage ta ceinture abdominale.",
-          "Reste concentré sur tes appuis."
-      ],
-      defis: [
-          "Tiens sur un pied pendant 30 secondes les yeux ouverts.",
-          "Essaie de te brosser les dents en équilibre sur une jambe.",
-          "Fais la posture de l'arbre (yoga) pendant 1 minute.",
-          "Marche sur une ligne imaginaire au sol en mettant un pied devant l'autre.",
-          "Tiens sur un pied les yeux fermés pendant 10 secondes."
-      ]
+    name: "Équilibre corporel",
+    iconPath: "/image_icone/image_Wheel-Spinner/Équilibre_corporel.png",
+    desc: "Célébrez les petites victoires et les bonheurs quotidiens.",
+    objectifs: [
+      "Ouvre ton cœur aux cadeaux simples de la vie.",
+      "Exprime sincèrement ce que tu ressens.",
+      "Prends conscience de l'abondance qui t'entoure."
+    ],
+    defis: [
+      "Envoie un message de remerciement inattendu à un proche.",
+      "Note trois détails agréables croisés sur ton chemin aujourd'hui.",
+      "Remercie-toi pour un effort difficile que tu as fourni récemment.",
+      "Pense à une épreuve passée et trouve un élément positif qui en découle.",
+      "Écris sur une personne qui a changé ta vie positivement.",
+      "Prends le temps d'apprécier ton repas aujourd'hui sans écran.",
+      "Identifie une chose matérielle que tu es heureux de posséder.",
+      "Souri à trois inconnus ou collègues aujourd'hui.",
+      "Fais la liste de 5 plaisirs simples qui illuminent tes journées.",
+      "Prends une minute pour contempler un paysage et dire merci."
+    ]
   },
   {
-      name: "Fluidité du corps",
-      iconPath: "/image_icone/image_Wheel-Spinner/Fluidité_du_corps.png",
-      desc: "Libère tes mouvements et gagne en souplesse.",
-      objectifs: [
-          "Ne force pas, accompagne le mouvement.",
-          "Cherche l'amplitude plutôt que la vitesse.",
-          "Relâche les tensions accumulées."
-      ],
-      defis: [
-          "Essaie une séance de danse qui ne t'est pas familière.",
-          "Fais 5 minutes d'étirements dynamiques au réveil.",
-          "Fais des cercles lents avec tes bras, tes poignets et tes chevilles.",
-          "Mets ta chanson préférée et danse librement pendant 3 minutes.",
-          "Enchaîne 3 postures de yoga (ex: chien tête en bas, cobra, enfant)."
-      ]
+    name: "Fluidité du corps",
+    iconPath: "/image_icone/image_Wheel-Spinner/Fluidité_du_corps.png",
+    desc: "Vivez l'instant présent sans jugement.",
+    objectifs: [
+      "Reste ancré ici et maintenant.",
+      "Observe tes sensations corporelles.",
+      "Ralentis ton rythme cardiaque par le souffle."
+    ],
+    defis: [
+      "Prends 5 grandes respirations en fermant les yeux.",
+      "Écoute une chanson attentivement sans rien faire d'autre.",
+      "Observe un objet ordinaire pendant 2 minutes sous tous ses angles.",
+      "Marche lentement en ressentant le contact de tes pieds sur le sol.",
+      "Fais un scan corporel rapide de la tête aux pieds.",
+      "Décris 5 choses bleues ou vertes visibles autour de toi.",
+      "Pratique la respiration carrée (4s inspire, 4s blocage, 4s expire, 4s blocage) durant 1 minute.",
+      "Ferme les yeux et identifie 3 bruits distincts dans ton environnement.",
+      "Prends conscience de ta posture et ajuste-la pour ton confort.",
+      "Sens le souffle d'air frais entrer et sortir par tes narines."
+    ]
   },
   {
-      name: "Énergie & Motivation",
-      iconPath: "/image_icone/image_Wheel-Spinner/Énergie_&_Motivation.png",
-      desc: "Fais le plein de vitalité pour attaquer ta journée.",
-      objectifs: [
-          "Sens ton rythme cardiaque s'accélérer.",
-          "Visualise l'énergie qui circule en toi.",
-          "Garde un état d'esprit positif."
-      ],
-      defis: [
-          "Observe ton énergie avant et après un exercice physique.",
-          "Fais 20 jumping jacks le plus vite possible.",
-          "Va marcher d'un pas très rapide pendant 5 minutes.",
-          "Mets une musique motivante et sautille sur place.",
-          "Fixe-toi un objectif sportif ambitieux pour la semaine prochaine."
-      ]
+    name: "Énergie & Motivation",
+    iconPath: "/image_icone/image_Wheel-Spinner/Énergie_&_Motivation.png",
+    desc: "Accueillez et comprenez le message derrière chaque émotion.",
+    objectifs: [
+      "Nomme précisément ce que tu ressens.",
+      "Ne refoule aucune émotion, laisse-la traverser.",
+      "Fais preuve d'empathie envers toi et les autres."
+    ],
+    defis: [
+      "Prends un instant pour nommer ton émotion dominante en ce moment.",
+      "Décris où se situe ton stress physiquement dans ton corps.",
+      "Rappelle-toi une colère récente et trouve le besoin caché derrière.",
+      "Pense à quelqu'un qui t'a agacé et essaie d'imaginer sa perspective.",
+      "Écris sur une émotion complexe que tu as du mal à exprimer.",
+      "Pratique l'écoute active sans couper la parole lors de ta prochaine discussion.",
+      "Note 3 phrases douces à te dire quand la tristesse arrive.",
+      "Identifie un déclencheur émotionnel fréquent chez toi.",
+      "Fais un dessin ou gribouille l'allure qu'aurait ton humeur actuelle.",
+      "Prends le temps de valider tes ressentis sans te juger."
+    ]
   },
   {
-      name: "Écoute corporelle",
-      iconPath: "/image_icone/image_Wheel-Spinner/Écoute_corporelle.png",
-      desc: "Sois attentif aux signaux que t'envoie ton corps.",
-      objectifs: [
-          "Identifie les zones de tension.",
-          "Adapte l'effort à ton état de fatigue.",
-          "Sois bienveillant avec toi-même."
-      ],
-      defis: [
-          "Marche à ton rythme pendant 10 minutes en pleine conscience.",
-          "Ferme les yeux et scanne ton corps pour trouver où tu es crispé.",
-          "Ajuste ta posture sur ta chaise de bureau immédiatement.",
-          "Si tu te sens fatigué, remplace un effort intense par des étirements.",
-          "Masse-toi la nuque et les épaules pendant 2 minutes."
-      ]
+    name: "Écoute corporelle",
+    iconPath: "/image_icone/image_Wheel-Spinner/Écoute_corporelle.png",
+    desc: "Osez sortir de votre zone de confort pas à pas.",
+    objectifs: [
+      "Passe à l'action sans chercher la perfection.",
+      "Fais confiance à tes capacités naturelles.",
+      "Chaque petit pas est une grande victoire."
+    ],
+    defis: [
+      "Prends une décision que tu repousses depuis plusieurs jours.",
+      "Fais une tâche de 5 minutes immédiatement sans procrastiner.",
+      "Répète un mantra de confiance à voix haute devant le miroir.",
+      "Prends contact avec quelqu'un que tu as perdu de vue.",
+      "Dis non poliment à une demande qui ne te convient pas.",
+      "Partage une idée en public ou lors d'une réunion.",
+      "Fixe-toi un micro-défi pour cet après-midi.",
+      "Écris ta plus grande réussite et relis-la fièrement.",
+      "Fais une liste de tes forces (au moins 5 compétences).",
+      "Engage une conversation avec quelqu'un que tu connais peu."
+    ]
   },
   {
-      name: "Récupération active",
-      iconPath: "/image_icone/image_Wheel-Spinner/Récupération_active.png",
-      desc: "Prends soin de ton corps après l'effort.",
-      objectifs: [
-          "Ralentis progressivement ton rythme.",
-          "Hydrate-toi abondamment.",
-          "Favorise la régénération musculaire."
-      ],
-      defis: [
-          "Étire-toi longuement avant de dormir.",
-          "Marche lentement pendant 5 minutes après ta séance de sport.",
-          "Bois un grand verre d'eau en visualisant qu'il nettoie tes muscles.",
-          "Fais 5 minutes de respiration profonde pour calmer ton système nerveux.",
-          "Prends une douche en alternant eau chaude et eau fraîche sur tes jambes."
-      ]
+    name: "Récupération active",
+    iconPath: "/image_icone/image_Wheel-Spinner/Récupération_active.png",
+    desc: "Canalisez votre énergie et gérez vos impulsions.",
+    objectifs: [
+      "Garde ton calme face aux imprévus.",
+      "Reste focus sur l'essentiel.",
+      "Apprends à faire des pauses salvatrices."
+    ],
+    defis: [
+      "Passe la prochaine heure sans regarder ton téléphone.",
+      "Attends 10 secondes avant de répondre à une question stressante.",
+      "Évite de te plaindre de quoi que ce soit pendant une demi-journée.",
+      "Organise et nettoie ton bureau de travail immédiatement.",
+      "Établis une priorité claire pour le reste de ta journée.",
+      "Résiste à une distraction immédiate (comme un réseau social).",
+      "Termine une tâche commencée avant d'en ouvrir une autre.",
+      "Prends une pause de 2 minutes loin de tout écran.",
+      "Prépare ta liste de tâches pour demain pour te libérer l'esprit.",
+      "Refuse une tentation impulsive aujourd'hui."
+    ]
   },
   {
-      name: "Le plaisir de bouger",
-      iconPath: "/image_icone/image_Wheel-Spinner/Le_plaisir_de_bouger.png",
-      desc: "Retrouve la joie simple de l'activité physique.",
-      objectifs: [
-          "Oublie la performance, cherche le fun.",
-          "Souris pendant que tu t'actives.",
-          "Partage ce moment si possible."
-      ],
-      defis: [
-          "Redécouvre un ancien sport que tu aimais enfant.",
-          "Fais une activité physique en plein air aujourd'hui.",
-          "Propose à un ami d'aller marcher ou courir avec toi.",
-          "Essaie un nouveau sport que tu n'as jamais pratiqué.",
-          "Joue avec un ballon, un frisbee ou saute à la corde pendant 10 minutes."
-      ]
+    name: "Le plaisir de bouger",
+    iconPath: "/image_icone/image_Wheel-Spinner/Le_plaisir_de_bouger.png",
+    desc: "Nourrissez votre esprit de positif et de créativité.",
+    objectifs: [
+      "Laisse libre cours à ton imagination.",
+      "Explore de nouvelles perspectives.",
+      "Entoure-toi d'idées stimulantes."
+    ],
+    defis: [
+      "Cherche et note une citation inspirante aujourd'hui.",
+      "Regarde une courte vidéo ou écoute un podcast enrichissant.",
+      "Écris une idée farfelue sans chercher à savoir si elle est réaliste.",
+      "Change d'itinéraire ou de chemin pour rentrer chez toi aujourd'hui.",
+      "Prends en photo un détail visuel que tu trouves magnifique.",
+      "Pense à une personne inspirante et note une de ses qualités à imiter.",
+      "Écoute un genre musical que tu n'as pas l'habitude d'écouter.",
+      "Dessine ou schématise un projet qui te tient à cœur.",
+      "Lis un article sur un sujet totalement nouveau pour toi.",
+      "Fais une liste d'activités créatives que tu aimerais tester."
+    ]
   },
   {
-      name: "Oser se dépasser",
-      iconPath: "/image_icone/image_Wheel-Spinner/Oser_se_dépasser.png",
-      desc: "Sors de ta zone de confort sportive.",
-      objectifs: [
-          "Accepte l'inconfort temporaire.",
-          "Sois fier de ton audace.",
-          "Célèbre ton courage."
-      ],
-      defis: [
-          "Tiens une planche 10 secondes de plus que ton record.",
-          "Cours ou marche un kilomètre de plus que d'habitude.",
-          "Fais une série d'exercices que tu as tendance à éviter.",
-          "Inscris-toi à un cours de sport collectif pour la semaine prochaine.",
-          "Augmente légèrement la difficulté de ton entraînement du jour."
-      ]
+    name: "Oser se dépasser",
+    iconPath: "/image_icone/image_Wheel-Spinner/Oser_se_dépasser.png",
+    desc: "Prenez du temps pour écouter vos besoins fondamentaux.",
+    objectifs: [
+      "Accorde-toi un moment de douceur mérité.",
+      "Écoute les signaux de ton corps.",
+      "Reviens à ton essence."
+    ],
+    defis: [
+      "Prends un bain chaud ou une douche relaxante en conscience.",
+      "Prépare ton infusion ou boisson favorite et déguste-la lentement.",
+      "Étire ton corps doucement pendant 3 minutes.",
+      "Passe 15 minutes en pleine nature ou dans un parc.",
+      "Écris ce dont tu as le plus besoin physiquement en ce moment.",
+      "Débranche tous tes appareils électroniques après 21h.",
+      "Fais-toi un auto-massage des mains ou du visage.",
+      "Installe-toi confortablement et ferme les yeux sans objectif.",
+      "Lis quelques pages d'un livre passionnant.",
+      "Note ce qui te fait te sentir le plus en sécurité émotionnellement."
+    ]
   },
   {
-      name: "Mouvement & Régularité",
-      iconPath: "/image_icone/image_Wheel-Spinner/Mouvement_&_Régularité.png",
-      desc: "Ancre le sport dans ton quotidien de façon durable.",
-      objectifs: [
-          "Mise sur la constance plutôt que l'intensité.",
-          "Planifie tes séances à l'avance.",
-          "Crée-toi une routine agréable."
-      ],
-      defis: [
-          "Essaie un exercice dans un nouvel horaire (ex: matin au lieu du soir).",
-          "Prépare tes affaires de sport la veille pour te motiver.",
-          "Fais 10 minutes de sport tous les jours cette semaine.",
-          "Note tes 3 prochaines séances de sport dans ton agenda.",
-          "Trouve un 'déclencheur' (ex: après le café = étirements)."
-      ]
+    name: "Mouvement & Régularité",
+    iconPath: "/image_icone/image_Wheel-Spinner/Mouvement_&_Régularité.png",
+    desc: "Clarifiez vos rêves et planifiez l'avenir en toute sérénité.",
+    objectifs: [
+      "Évite de t'éparpiller et choisis la priorité absolue du moment.",
+      "Connecte-toi à un projet ou un rêve qui a un réel sens à tes yeux.",
+      "Mets des mots sur ce que tu souhaites accomplir pour commencer à le rendre concret."
+    ],
+    defis: [
+      "Décris un objectif qui te tient à cœur. Juste un seul.",
+      "Crée une liste de 3 étapes concrètes pour atteindre ton rêve.",
+      "Visualise ta vie réussie dans 2 ans les yeux fermés pendant 1 minute.",
+      "Écris ta définition personnelle de la réussite.",
+      "Identifie le premier petit pas que tu peux faire dès demain.",
+      "Quelle est la plus grande opportunité qui s'offre à toi actuellement ?",
+      "Si tu n'avais aucune peur d'échouer, que ferais-tu aujourd'hui ?",
+      "Fais la liste de tes objectifs pour le mois à venir.",
+      "Choisis un mot ou un symbole pour représenter ton année.",
+      "Identifie une croyance limitante qui t'empêche d'avancer."
+    ]
   },
   {
-      name: "Bien dans son corps",
-      iconPath: "/image_icone/image_Wheel-Spinner/Bien_dans_son_corps.png",
-      desc: "Cultive l'amour et le respect de ton enveloppe physique.",
-      objectifs: [
-          "Remercie ton corps pour ce qu'il te permet de faire.",
-          "Ne te compare pas aux autres.",
-          "Concentre-toi sur tes sensations, pas sur ton apparence."
-      ],
-      defis: [
-          "Écris une affirmation positive sur ton corps et lis-la à haute voix.",
-          "Regarde-toi dans le miroir et fais-toi un compliment sincère.",
-          "Porte une tenue de sport dans laquelle tu te sens vraiment bien.",
-          "Après l'effort, remercie ton cœur et tes poumons pour leur travail.",
-          "Fais une liste de 3 exploits physiques que ton corps a accomplis."
-      ]
+    name: "Bien dans son corps",
+    iconPath: "/image_icone/image_Wheel-Spinner/Bien_dans_son_corps.png",
+    desc: "Libérez-vous du contrôle et acceptez le flux de la vie.",
+    objectifs: [
+      "Accepte ce que tu ne peux pas changer.",
+      "Détends tes muscles et ton esprit.",
+      "Fais confiance au processus naturel."
+    ],
+    defis: [
+      "Écris une frustration sur un papier et déchire-le physiquement.",
+      "Prends conscience d'une situation hors de ton contrôle et lâche l'affaire.",
+      "Souffle un bon coup en relâchant tes épaules.",
+      "Autorise-toi à ne pas être parfait aujourd'hui.",
+      "Pardonne mentalement à quelqu'un ou à toi-même pour une bévue.",
+      "Passe 10 minutes sans planifier ni regarder l'heure.",
+      "Accepte un imprévu aujourd'hui avec le sourire.",
+      "Dis 'ce n'est pas grave' à haute voix face à une petite contrariété.",
+      "Fais de l'espace sur ton bureau en jetant le superflu.",
+      "Confie une inquiétude à l'écrit puis ferme ton carnet."
+    ]
   }
 ];
 
 const raisonsIndisponibilite = [
-  "J'ai des douleurs musculaires aujourd'hui",
-  "Je n'ai pas le temps ou l'espace nécessaire",
+  "J'ai du mal à me lancer aujourd'hui",
+  "Ce défi ne correspond pas à mon énergie du moment",
 ];
 
-function lancerConfettis() {
-  // Couleurs du thème Sport (Cyan/Teal et Blanc)
-  const couleurs = ["#00CEC9", "#C0E3E1", "#ffffff"];
+// ============================================================================
+// THÈMES DE COULEURS — couleurs Figma exactes
+// ============================================================================
+const THEMES = {
+  clair: {
+    bgCarte: "var(--color-Blanc-Violet)",
+    borderCarte: "var(--color-SOREA-B1)", //LED 
+    bgBulle: "var(--color-Blanc-Violet)", // Cercle indicatif
+    borderBulle: "var(--color-SOREA-B2)", //Bordure du cercle indicatif
+    textAccent: "var(--color-SOREA-B1)",
+    socle: "var(--color-SOREA-B2)",
+    socleText: "var(--color-SOREA-B2)",
+    conic1: "var(--color-Blanc-Violet)",
+    conic2: "var(--color-SOREA-B2)",
+    pointerCenter: "var(--color-SOREA-B2)",
+    pointerDot: "var(--color-SOREA-B1)",
+    centerDot: "var(--color-SOREA-B2)",
+    btnPrimary: "var(--color-Gris1-SOREA)",
+    btnPrimaryHover: "#5d4b5a",
+    confettis: ["var(--color-SOREA-B1)", "var(--color-SOREA-B2)", "var(--color-Blanc-Violet)"]
+  },
+  vibrant: {
+    bgCarte: "var(--color-Blanc-Violet)",
+    borderCarte: "var(--color-SOREA-B1)", //LED
+    bgBulle: "var(--color-Blanc-Violet)", // Cercle indicatif
+    borderBulle: "var(--color-SOREA-B2)", //Bordure du cercle indicatif
+    textAccent: "var(--color-SOREA-B1)",
+    socle: "var(--color-Bleu-UX)",
+    socleText: "var(--color-Bleu-UX)",
+    conic1: "var(--color-Blanc-Violet)",
+    conic2: "var(--color-SOREA-B1)",
+    pointerCenter: "var(--color-SOREA-B1)",
+    pointerDot: "var(--color-SOREA-B1)",
+    centerDot: "var(--color-SOREA-B2)",
+    btnPrimary: "var(--color-Gris1-SOREA)",
+    btnPrimaryHover: "var(--color-Gris2-SOREA)",
+    confettis: ["var(--color-SOREA-B1)", "var(--color-SOREA-B2)", "var(--color-Rose-feature)"]
+  }
+};
+
+function lancerConfettis(couleurs: string[]) {
   confetti({ particleCount: 80, angle: 60, spread: 70, origin: { x: 0, y: 0.6 }, colors: couleurs, scalar: 1.1, zIndex: 9999 });
   confetti({ particleCount: 80, angle: 120, spread: 70, origin: { x: 1, y: 0.6 }, colors: couleurs, scalar: 1.1, zIndex: 9999 });
   confetti({ particleCount: 60, spread: 90, origin: { x: 0.5, y: 0.5 }, colors: couleurs, scalar: 0.9, zIndex: 9999 });
 }
 
+// ============================================================================
+// COMPOSANT
+// ============================================================================
 export default function WheelSpinnerSport() {
   const [isFavori, setIsFavori] = useState(false);
-  
-  // États de la roue et des interactions
+  const [themeActif, setThemeActif] = useState<'clair' | 'vibrant'>('clair');
   const [estEnTrainDeTourner, setEstEnTrainDeTourner] = useState(false);
   const [afficherFenetreResultat, setAfficherFenetreResultat] = useState(false);
-  
-  // On stocke le résultat complet tiré au sort
   const [resultatGagnant, setResultatGagnant] = useState<{
-      name: string;
-      iconPath: string;
-      objectifs: string[];
-      defiDuJour: string;
+    name: string;
+    iconPath: string;
+    objectifs: string[];
+    defiDuJour: string;
   } | null>(null);
-  
   const [choixUtilisateur, setChoixUtilisateur] = useState<'attente' | 'oui' | 'non'>('attente');
   const [raisonSelectionnee, setRaisonSelectionnee] = useState("");
   const [raisonPersonnalisee, setRaisonPersonnalisee] = useState("");
@@ -215,7 +304,8 @@ export default function WheelSpinnerSport() {
   const angleActuel = useRef(0);
   const idleRafRef = useRef<number | null>(null);
 
-  // Charger les favoris au démarrage
+  const theme = THEMES[themeActif];
+
   useEffect(() => {
     setIsFavori(getFavoriWheel() === "sport");
   }, []);
@@ -225,54 +315,46 @@ export default function WheelSpinnerSport() {
     setIsFavori(true);
   };
 
-  // --- ROTATION AUTO (IDLE) ---
+  const basculerTheme = () => {
+    setThemeActif((prev) => (prev === 'clair' ? 'vibrant' : 'clair'));
+  };
+
   useEffect(() => {
     if (estEnTrainDeTourner || afficherFenetreResultat) return;
-    
     let derniereExecution: number | null = null;
-
     const rotationDeFond = (tempsActuel: number) => {
       if (!derniereExecution) derniereExecution = tempsActuel;
       const delta = tempsActuel - derniereExecution;
       derniereExecution = tempsActuel;
-      
-      angleActuel.current += 0.02 * delta; 
-      
+      angleActuel.current += 0.02 * delta;
       if (wheelGroupRef.current) {
-        wheelGroupRef.current.style.transition = 'none'; 
+        wheelGroupRef.current.style.transition = 'none';
         wheelGroupRef.current.style.transform = `rotate(${angleActuel.current}deg)`;
       }
       idleRafRef.current = requestAnimationFrame(rotationDeFond);
     };
-
     idleRafRef.current = requestAnimationFrame(rotationDeFond);
-    
     return () => {
       if (idleRafRef.current) cancelAnimationFrame(idleRafRef.current);
     };
   }, [estEnTrainDeTourner, afficherFenetreResultat]);
 
-  // --- FONCTION POUR TOURNER LA ROUE ---
   const tournerLaRoue = () => {
     if (estEnTrainDeTourner) return;
-    
     setEstEnTrainDeTourner(true);
     setAfficherFenetreResultat(false);
     setChoixUtilisateur('attente');
     setRaisonSelectionnee("");
     setRaisonPersonnalisee("");
-
     if (idleRafRef.current) cancelAnimationFrame(idleRafRef.current);
 
     const sectorIndex = Math.floor(Math.random() * 10);
-    const angleSecteur = 360 - (sectorIndex * 36) - 18; 
-    
+    const angleSecteur = 360 - (sectorIndex * 36) - 18;
     const degresDeDepart = angleActuel.current;
-    const moduloDepart = ((degresDeDepart % 360) + 360) % 360; 
+    const moduloDepart = ((degresDeDepart % 360) + 360) % 360;
     let difference = angleSecteur - moduloDepart;
-    if (difference <= 0) difference += 360; 
-    
-    const toursSupplementaires = (5 + Math.floor(Math.random() * 3)) * 360; 
+    if (difference <= 0) difference += 360;
+    const toursSupplementaires = (5 + Math.floor(Math.random() * 3)) * 360;
     const angleFinal = degresDeDepart + difference + toursSupplementaires;
 
     if (wheelGroupRef.current) {
@@ -282,25 +364,21 @@ export default function WheelSpinnerSport() {
 
     setTimeout(() => {
       setEstEnTrainDeTourner(false);
-      angleActuel.current = angleFinal % 360; 
-      
+      angleActuel.current = angleFinal % 360;
       if (wheelGroupRef.current) {
-        wheelGroupRef.current.style.transition = 'none'; 
+        wheelGroupRef.current.style.transition = 'none';
         wheelGroupRef.current.style.transform = `rotate(${angleActuel.current}deg)`;
       }
-
       const themeGagnant = themesData[sectorIndex];
       const randomDefi = themeGagnant.defis[Math.floor(Math.random() * themeGagnant.defis.length)];
-
       setResultatGagnant({
         name: themeGagnant.name,
         iconPath: themeGagnant.iconPath,
         objectifs: themeGagnant.objectifs,
         defiDuJour: randomDefi
       });
-      
       setAfficherFenetreResultat(true);
-    }, 4000); 
+    }, 4000);
   };
 
   const reinitialiserJeu = () => {
@@ -311,44 +389,47 @@ export default function WheelSpinnerSport() {
 
   return (
     <div className="w-full flex justify-evenly items-center relative pt-32 pb-64 overflow-hidden" style={{ fontFamily: "'Inter', sans-serif" }}>
-      
-      {/* --- COLONNE GAUCHE : LA CARTE DÉFI + BOUTON FAVORIS --- */}
+
+      {/* COLONNE GAUCHE : CARTE DÉFI */}
       <div className="relative w-[320px] flex flex-col">
-        
-        {/* BOUTON FAVORIS */}
         <div className="absolute -top-[100px] left-0 z-50">
           <button
             onClick={handleToggleFavori}
-            className="flex items-center gap-2 px-4 py-2 bg-white/80 backdrop-blur border border-teal-100 rounded-full shadow-sm hover:bg-white transition-colors cursor-pointer"
+            className="flex items-center gap-2 px-4 py-2 bg-white/80 backdrop-blur border border-purple-100 rounded-full shadow-sm hover:bg-white transition-colors cursor-pointer"
           >
-            <Star size={20} className={isFavori ? "fill-[#00CEC9] text-[#00CEC9]" : "text-teal-200"} />
-            <span className="text-sm font-bold text-[#008F8C]">{isFavori ? "Roue Favorite" : "Mettre en favori"}</span>
+            <Star size={20} className={isFavori ? "fill-[#ff7b47] text-[#8B47FF]" : "text-purple-200"} />
+            <span className="text-sm font-bold text-[#592592]">{isFavori ? "Roue Favorite" : "Mettre en favori"}</span>
           </button>
         </div>
 
-        {/* LA CARTE - Couleurs du thème Sport */}
-        <div className={`w-full min-h-[480px] bg-[#E0F7F6] border-[2px] border-dashed border-[#00CEC9] rounded-[24px] p-[30px_24px] shadow-[0px_10px_30px_rgba(0,0,0,0.05)] flex flex-col transition-all duration-[600ms] ease-[cubic-bezier(0.16,1,0.3,1)] ${afficherFenetreResultat ? 'opacity-100 translate-x-0 pointer-events-auto' : 'opacity-0 -translate-x-[40px] pointer-events-none'}`}>
-          
-          {/* Bulle d'icône */}
-          <div className="w-[72px] h-[72px] rounded-full bg-[#F0FDFD] border-[1.5px] border-[#8DE2E0] flex items-center justify-center mx-auto mb-[15px] shadow-[0px_4px_12px_rgba(0,206,201,0.15)]">
+        <div
+          className={`w-full min-h-[480px] border-[2px] border-dashed rounded-[24px] p-[30px_24px] shadow-[0px_10px_30px_rgba(0,0,0,0.05)] flex flex-col transition-all duration-[600ms] ease-[cubic-bezier(0.16,1,0.3,1)] ${afficherFenetreResultat ? 'opacity-100 translate-x-0 pointer-events-auto' : 'opacity-0 -translate-x-[40px] pointer-events-none'}`}
+          style={{ backgroundColor: theme.bgCarte, borderColor: theme.borderCarte }}
+        >
+          <div
+            className="w-[72px] h-[72px] rounded-full border-[1.5px] flex items-center justify-center mx-auto mb-[15px] shadow-[0px_4px_12px_rgba(127,77,197,0.08)] transition-colors duration-500"
+            style={{ backgroundColor: theme.bgBulle, borderColor: theme.borderBulle }}
+          >
             {resultatGagnant && <img src={resultatGagnant.iconPath} alt={resultatGagnant.name} className="w-[40px] h-[40px] object-contain" />}
           </div>
 
-          {/* Header (Titre du thème) */}
           <div className="flex items-center justify-center gap-[6px] mb-[20px] relative">
 
-  <span className="text-[#00CEC9] text-[22px] font-[800] text-center">
+  <span
+    className="text-[22px] font-[800] text-center transition-colors duration-500"
+    style={{ color: theme.textAccent }}
+  >
     {resultatGagnant?.name}
   </span>
 
-  {/* 🔽 AJOUT À PARTIR D'ICI */}
+  {/* 🔽 AJOUTER À PARTIR D'ICI */}
   <div className="relative flex items-center cursor-pointer group">
 
     <img
-      src="/image_icone/Help.svg"
-      alt="Aide"
-      className="w-[18px] h-[18px] transition-transform duration-200 group-hover:scale-110"
-    />
+  src="/image_icone/Help.svg"
+  alt="Aide"
+  className="w-[18px] h-[18px] transition-transform duration-200 group-hover:scale-110"
+/>
 
     <div
       className="
@@ -378,7 +459,7 @@ export default function WheelSpinnerSport() {
         shadow-lg
         z-20
       "
-      style={{ backgroundColor: "#00CEC9" }}
+      style={{ backgroundColor: theme.borderCarte }}
     >
 
       {themesData.find(t => t.name === resultatGagnant?.name)?.desc}
@@ -397,7 +478,7 @@ export default function WheelSpinnerSport() {
           border-l-transparent
           border-r-transparent
         "
-        style={{ borderTopColor: "#00CEC9" }}
+        style={{ borderTopColor: theme.borderCarte }}
       />
 
     </div>
@@ -407,17 +488,14 @@ export default function WheelSpinnerSport() {
 
 </div>
 
-          {/* Boîte principale du Défi */}
-          <div className="text-[15px] font-[700] text-[#1A1A1A] text-center mb-[20px] leading-[1.4] px-[10px]">
+          <div className="text-[15px] font-[700] text-[#212121] text-center mb-[20px] leading-[1.4] px-[10px]">
             <strong>Défi du jour :</strong> <br />
             <span className="font-medium mt-1 inline-block">{resultatGagnant?.defiDuJour}</span>
           </div>
 
-          {/* Diviseur Radial */}
-          <div className="h-[1px] w-full my-[15px]" style={{ background: "radial-gradient(circle, #00CEC9 0%, transparent 100%)" }}></div>
-          
-          {/* Section Objectifs */}
-          <div className="text-[20px] font-[800] text-[#1A1A1A] text-center mb-[15px]">Objectif</div>
+          <div className="h-[1px] w-full my-[15px]" style={{ background: `radial-gradient(circle, ${theme.borderCarte} 0%, transparent 100%)` }}></div>
+
+          <div className="text-[20px] font-[800] text-[#212121] text-center mb-[15px]">Objectif</div>
           <ul className="text-[14px] leading-[1.6] text-[#333333] pl-[20px] m-0 list-disc">
             {resultatGagnant?.objectifs.map((obj, i) => (
               <li key={i} className="mb-[12px]">{obj}</li>
@@ -426,92 +504,135 @@ export default function WheelSpinnerSport() {
         </div>
       </div>
 
-      {/* --- COLONNE CENTRALE : LA ROUE --- */}
+      {/* COLONNE CENTRALE : ROUE */}
       <div className="flex items-center justify-center relative mt-[-55px] transform scale-[1.35] origin-top">
-        
-        {/* Le socle SOREA - Thème clair Sport (#C0E3E1) */}
-        <div className="absolute top-[34%] left-1/2 -translate-x-1/2 flex flex-col items-center justify-center z-0">
-          <div className="relative w-[161.93px] h-[311px] bg-[#C0E3E1] flex justify-center items-end pb-[10px] drop-shadow-[0px_38px_26px_rgba(0,0,0,0.25)]" style={{ clipPath: 'polygon(50% 0%, 0% 100%, 100% 100%)' }}>
-            <div className="absolute inset-0 bg-gradient-to-b from-black/25 to-transparent pointer-events-none"></div>
-            <span className="text-[#6EA8A6] text-[24px] font-[600] tracking-[10px] indent-[6px] drop-shadow-[0px_4px_4px_rgba(0,0,0,0.25)]" style={{ WebkitTextStroke: '2px #FFFFFF', paintOrder: 'stroke fill' }}>SOREA</span>
-          </div>
-          <div className="w-[210px] h-[35px] bg-[#C0E3E1] shadow-[inset_0px_5px_15px_rgba(0,0,0,0.25)] relative" style={{ clipPath: 'polygon(7% 0%, 93% 0%, 100% 100%, 0% 100%)' }}></div>
+        <div className="absolute -top-[100px] right-0 translate-x-[110px] z-50 transform scale-[0.74]">
+          <button
+            onClick={basculerTheme}
+            className="flex items-center gap-2 px-4 py-2 bg-white/80 backdrop-blur border border-purple-100 rounded-full shadow-sm hover:bg-white transition-colors cursor-pointer"
+          >
+            <img 
+    src="/image_icone/Palette-peinture.svg" 
+    alt="Palette de style" 
+    className="w-7 h-7 object-contain" 
+  />
+  <span className="text-sm font-bold text-[#922580]">Style</span>
+          </button>
         </div>
 
-        {/* Conteneur principal de la roue */}
+        <div className="absolute top-[34%] left-1/2 -translate-x-1/2 flex flex-col items-center justify-center z-0">
+          <div
+            className="relative w-[161.93px] h-[311px] flex justify-center items-end pb-[10px] drop-shadow-[0px_38px_26px_rgba(0,0,0,0.25)] transition-colors duration-500"
+            style={{ backgroundColor: theme.socle, clipPath: 'polygon(50% 0%, 0% 100%, 100% 100%)' }}
+          >
+            <div className="absolute inset-0 bg-gradient-to-b from-black/25 to-transparent pointer-events-none"></div>
+            <span
+              className="text-[24px] font-[600] tracking-[10px] indent-[6px] drop-shadow-[0px_4px_4px_rgba(0,0,0,0.25)] transition-colors duration-500"
+              style={{ color: theme.socleText, WebkitTextStroke: '2px var(--color-SOREA-B1)', paintOrder: 'stroke fill' }}
+            >
+              SOREA
+            </span>
+          </div>
+          <div
+            className="w-[210px] h-[35px] shadow-[inset_0px_5px_15px_rgba(0,0,0,0.25)] relative transition-colors duration-500"
+            style={{ backgroundColor: theme.socle, clipPath: 'polygon(7% 0%, 93% 0%, 100% 100%, 0% 100%)' }}
+          ></div>
+        </div>
+
         <div className="relative w-[340px] h-[340px] flex justify-center items-center cursor-pointer" onClick={tournerLaRoue}>
-          
           <div className="w-[330px] h-[330px] relative flex justify-center items-center" style={{ transformStyle: 'preserve-3d' }}>
-            {/* Ombre du tore (#C0E3E1) */}
-            <div className="absolute inset-0 rounded-full drop-shadow-[0px_8px_15px_#000000] pointer-events-none z-[2]" style={{ background: 'radial-gradient(circle, transparent 65%, #C0E3E1 65%)', transform: 'translateZ(2px)' }}></div>
-            
-            {/* GROUPE EN ROTATION - Conic Gradient Sport (#00CEC9 & #FBFAFF) */}
-            <div ref={wheelGroupRef} className="absolute inset-0 flex justify-center items-center z-[3]" style={{ transformStyle: 'preserve-3d', willChange: 'transform' }}>
-              
-              <div className="absolute w-[330px] h-[330px] rounded-full flex justify-center items-center z-[1]" style={{ transform: 'translateZ(1px)', background: 'conic-gradient(#00CEC9 0deg 36deg, #FBFAFF 36deg 72deg, #00CEC9 72deg 108deg, #FBFAFF 108deg 144deg, #00CEC9 144deg 180deg, #FBFAFF 180deg 216deg, #00CEC9 216deg 252deg, #FBFAFF 252deg 288deg, #00CEC9 288deg 324deg, #FBFAFF 324deg 360deg)' }}>
-                
-                {/* Les 10 Icônes */}
-                {themesData.map((theme, i) => (
-                  <div key={`icon-${i}`} className="absolute w-[25px] h-[25px] flex justify-center items-center" style={{ transform: `rotate(${i * 36 + 18}deg) translateY(-115px)` }}>
-                    <img src={theme.iconPath} alt={theme.name} className="w-full h-full object-contain" />
+            <div
+              className="absolute inset-0 rounded-full drop-shadow-[0px_8px_15px_#000000] pointer-events-none z-[2] transition-colors duration-500"
+              style={{ background: `radial-gradient(circle, transparent 65%, ${theme.socle} 65%)`, transform: 'translateZ(2px)' }}
+            ></div>
+
+            <div
+              ref={wheelGroupRef}
+              className="absolute inset-0 flex justify-center items-center z-[3]"
+              style={{ transformStyle: 'preserve-3d', willChange: 'transform' }}
+            >
+              <div
+                className="absolute w-[330px] h-[330px] rounded-full flex justify-center items-center z-[1] transition-colors duration-500"
+                style={{
+                  transform: 'translateZ(1px)',
+                  background: `conic-gradient(${theme.conic1} 0deg 36deg, ${theme.conic2} 36deg 72deg, ${theme.conic1} 72deg 108deg, ${theme.conic2} 108deg 144deg, ${theme.conic1} 144deg 180deg, ${theme.conic2} 180deg 216deg, ${theme.conic1} 216deg 252deg, ${theme.conic2} 252deg 288deg, ${theme.conic1} 288deg 324deg, ${theme.conic2} 324deg 360deg)`
+                }}
+              >
+                {themesData.map((themeObj, i) => (
+                  <div
+                    key={`icon-${i}`}
+                    className="absolute w-[25px] h-[25px] flex justify-center items-center"
+                    style={{ transform: `rotate(${i * 36 + 18}deg) translateY(-115px)` }}
+                  >
+                    <img src={themeObj.iconPath} alt={themeObj.name} className="w-full h-full object-contain" />
                   </div>
                 ))}
-
               </div>
 
-              {/* Les 10 Pastilles de bordure (Jaune et Cyan) */}
               {Array.from({ length: 10 }).map((_, i) => {
                 const isYellow = i % 2 === 0;
                 return (
-                  <div key={`dot-${i}`} className="absolute w-[8px] h-[8px] rounded-full z-[3]" style={{ 
-                    background: isYellow ? 'radial-gradient(circle, #FFFFFF 0%, #FDCF5A 100%)' : 'radial-gradient(circle, #FFFFFF 0%, #00CEC9 100%)',
-                    transform: `rotate(${i * 36}deg) translateY(-159px) translateZ(3px)`,
-                    transformOrigin: 'center center'
-                  }}></div>
+                  <div
+                    key={`dot-${i}`}
+                    className="absolute w-[8px] h-[8px] rounded-full z-[3] transition-colors duration-500"
+                    style={{
+                      background: isYellow ? 'radial-gradient(circle, #FFFFFF 0%, #FDCF5A 100%)' : `radial-gradient(circle, #FFFFFF 0%, ${theme.borderCarte} 100%)`,
+                      transform: `rotate(${i * 36}deg) translateY(-159px) translateZ(3px)`,
+                      transformOrigin: 'center center'
+                    }}
+                  ></div>
                 );
               })}
             </div>
           </div>
 
-          {/* Le duo : Pointeur + Point Central */}
           <div className="absolute inset-0 z-[5] pointer-events-none">
-            {/* Pointeur SVG (Gradient Blanc vers Cyan) */}
             <div className="absolute top-[-10px] left-1/2 -translate-x-1/2 w-[37px] h-[50px] drop-shadow-[0px_4px_4px_rgba(0,0,0,0.25)] z-[5]">
               <svg className="w-full h-full block" viewBox="0 0 37 50" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <defs>
-                  <linearGradient id="sorea-grad-sport" x1="0%" y1="0%" x2="0%" y2="100%">
-                    <stop offset="0%" stopColor="#FBFAFF" />
-                    <stop offset="100%" stopColor="#00CEC9" />
+                  <linearGradient id="sorea-grad-dyn" x1="0%" y1="0%" x2="0%" y2="100%">
+                    <stop offset="0%" stopColor={theme.conic2} />
+                    <stop offset="100%" stopColor={theme.conic1} />
                   </linearGradient>
                 </defs>
-                <path d="M18.5 0C8.28 0 0 8.28 0 18.5C0 29.5 18.5 50 18.5 50C18.5 50 37 29.5 37 18.5C37 8.28 28.72 0 18.5 0Z" fill="url(#sorea-grad-sport)"/>
+                <path d="M18.5 0C8.28 0 0 8.28 0 18.5C0 29.5 18.5 50 18.5 50C18.5 50 37 29.5 37 18.5C37 8.28 28.72 0 18.5 0Z" fill="url(#sorea-grad-dyn)" />
               </svg>
               <div className="absolute top-[14px] left-1/2 -translate-x-1/2 -translate-y-1/2 flex justify-center items-center w-[16px] h-[16px]">
-                <div className="w-[16px] h-[16px] rounded-full bg-[#6CE1E0] flex justify-center items-center shadow-[inset_0px_4px_4px_rgba(0,0,0,0.25)]">
-                  <div className="w-[8px] h-[8px] rounded-full" style={{ background: 'radial-gradient(circle, #FFFFFF 0%, #00CEC9 100%)' }}></div>
+                <div
+                  className="w-[16px] h-[16px] rounded-full flex justify-center items-center shadow-[inset_0px_4px_4px_rgba(0,0,0,0.25)] transition-colors duration-500"
+                  style={{ backgroundColor: theme.pointerCenter }}
+                >
+                  <div
+                    className="w-[8px] h-[8px] rounded-full transition-colors duration-500"
+                    style={{ background: `radial-gradient(circle, #FFFFFF 0%, ${theme.pointerDot} 100%)` }}
+                  ></div>
                 </div>
               </div>
             </div>
-            {/* Centre de la roue (#00CEC9) */}
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[21.99px] h-[21.99px] bg-[#00CEC9] rounded-full z-[10] shadow-[inset_0px_5px_4px_rgba(75,85,99,0.70),_0px_0px_20px_rgba(0,0,0,1)]"></div>
+            <div
+              className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[21.99px] h-[21.99px] rounded-full z-[10] shadow-[inset_0px_5px_4px_rgba(75,85,99,0.70),_0px_0px_20px_rgba(0,0,0,1)] transition-colors duration-500"
+              style={{ backgroundColor: theme.centerDot }}
+            ></div>
           </div>
-
         </div>
       </div>
 
-      {/* --- COLONNE DROITE : BOUTONS D'ACTION --- */}
+      {/* COLONNE DROITE : BOUTONS D'ACTION */}
       <div className={`flex flex-col gap-[16px] w-[240px] transition-all duration-[600ms] ease-[cubic-bezier(0.16,1,0.3,1)] ${afficherFenetreResultat ? 'opacity-100 translate-x-0 pointer-events-auto' : 'opacity-0 translate-x-[40px] pointer-events-none'}`}>
-        
+
         {choixUtilisateur === 'attente' && (
           <>
-            <button 
-              onClick={() => { setChoixUtilisateur('oui'); lancerConfettis(); }} 
-              className="p-[16px] bg-[#00CEC9] text-white rounded-[8px] text-[15px] font-[600] shadow-[0px_4px_10px_rgba(0,0,0,0.05)] hover:bg-[#00B3B0] hover:-translate-y-[2px] transition-all border-none cursor-pointer"
+            <button
+              onClick={() => { setChoixUtilisateur('oui'); lancerConfettis(theme.confettis); }}
+              className="p-[16px] text-white rounded-[8px] text-[15px] font-[600] shadow-[0px_4px_10px_rgba(0,0,0,0.05)] transition-all border-none cursor-pointer"
+              style={{ backgroundColor: theme.btnPrimary }}
+              onMouseOver={(e) => e.currentTarget.style.backgroundColor = theme.btnPrimaryHover}
+              onMouseOut={(e) => e.currentTarget.style.backgroundColor = theme.btnPrimary}
             >
               C'est parti !
             </button>
-            <button 
-              onClick={() => setChoixUtilisateur('non')} 
+            <button
+              onClick={() => setChoixUtilisateur('non')}
               className="p-[16px] bg-[#B9B2B9] text-[#333] rounded-[8px] text-[15px] font-[600] shadow-[0px_4px_10px_rgba(0,0,0,0.05)] hover:bg-[#a59fa5] hover:-translate-y-[2px] transition-all border-none cursor-pointer"
             >
               Je ne peux pas le faire
@@ -520,43 +641,48 @@ export default function WheelSpinnerSport() {
         )}
 
         {choixUtilisateur === 'oui' && (
-          <div className="flex flex-col gap-4 text-center bg-white p-6 rounded-2xl shadow-sm border border-teal-100">
-            <p className="text-[#00CEC9] font-bold text-lg">Super ! Bon défi 🎉</p>
-            <button onClick={reinitialiserJeu} className="text-[#4b3b5c] underline font-semibold mt-2 hover:text-[#00CEC9] cursor-pointer bg-transparent border-none">Fermer et recommencer</button>
+          <div className="flex flex-col gap-4 text-center bg-white p-6 rounded-2xl shadow-sm border" style={{ borderColor: theme.borderBulle }}>
+            <p className="font-bold text-lg" style={{ color: theme.textAccent }}>Super ! Bon défi 🎉</p>
+            <button onClick={reinitialiserJeu} className="text-[#4b3b5c] underline font-semibold mt-2 cursor-pointer bg-transparent border-none">Fermer et recommencer</button>
           </div>
         )}
 
         {choixUtilisateur === 'non' && (
-          <div className="flex flex-col gap-3 text-left bg-white p-5 rounded-2xl shadow-sm border border-teal-100">
+          <div className="flex flex-col gap-3 text-left bg-white p-5 rounded-2xl shadow-sm border" style={{ borderColor: theme.borderBulle }}>
             <label className="text-[#4b3b5c] text-[13px] font-semibold mb-1">Tu peux choisir une raison ou écrire la tienne :</label>
             <div className="flex flex-col gap-2">
               {raisonsIndisponibilite.map((raison) => (
-                <button 
-                  key={raison} 
-                  type="button" 
-                  onClick={() => setRaisonSelectionnee(raison)} 
-                  className={`rounded-xl px-3 py-2 text-left text-[12px] font-semibold transition-colors cursor-pointer ${raisonSelectionnee === raison ? 'bg-[#E0F7F6] border-2 border-[#00CEC9] text-[#1A1A1A]' : 'bg-white border border-[#C0E3E1] text-[#4b3b5c] hover:bg-gray-50'}`}
+                <button
+                  key={raison}
+                  type="button"
+                  onClick={() => setRaisonSelectionnee(raison)}
+                  className="rounded-xl px-3 py-2 text-left text-[12px] font-semibold transition-colors cursor-pointer"
+                  style={{
+                    backgroundColor: raisonSelectionnee === raison ? theme.bgBulle : 'white',
+                    border: `1px solid ${raisonSelectionnee === raison ? theme.borderCarte : theme.borderBulle}`,
+                    color: '#4b3b5c'
+                  }}
                 >
                   {raison}
                 </button>
               ))}
             </div>
-            <textarea 
-              value={raisonPersonnalisee} 
-              onChange={(e) => setRaisonPersonnalisee(e.target.value)} 
-              className="w-full border border-[#C0E3E1] rounded-xl p-3 text-[13px] focus:outline-none focus:border-[#00CEC9] resize-none mt-2" 
-              rows={3} 
-              placeholder="Écris ici pourquoi tu ne peux pas le faire..." 
+            <textarea
+              value={raisonPersonnalisee}
+              onChange={(e) => setRaisonPersonnalisee(e.target.value)}
+              className="w-full border rounded-xl p-3 text-[13px] focus:outline-none resize-none mt-2"
+              style={{ borderColor: theme.borderBulle }}
+              rows={3}
+              placeholder="Écris ici pourquoi tu ne peux pas le faire..."
             />
-            <button 
-              onClick={() => { setRaisonSelectionnee(""); setRaisonPersonnalisee(""); reinitialiserJeu(); }} 
-              className="bg-[#1A1A1A] text-white border-none rounded-full p-2 text-[14px] font-bold cursor-pointer mt-2 hover:bg-[#333333] transition-colors"
+            <button
+              onClick={() => { setRaisonSelectionnee(""); setRaisonPersonnalisee(""); reinitialiserJeu(); }}
+              className="bg-[#4b3b5c] text-white border-none rounded-full p-2 text-[14px] font-bold cursor-pointer mt-2 hover:bg-[#32273e] transition-colors"
             >
               Valider
             </button>
           </div>
         )}
-
       </div>
     </div>
   );

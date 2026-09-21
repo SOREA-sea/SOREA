@@ -241,37 +241,37 @@ const raisonsIndisponibilite = [
 // ============================================================================
 const THEMES = {
   clair: {
-    bgCarte: "#E6DFFF",
-    borderCarte: "#7F4DC5",
-    bgBulle: "#FEF0F9",
-    borderBulle: "#E9D5FF",
-    textAccent: "#7F4DC5",
-    socle: "#DBCEEF",
-    socleText: "#7A7385",
+    bgCarte: "var(--color-Blanc-Rose)",
+    borderCarte: "var(--color-SOREA-V1)", //LED
+    bgBulle: "var(--color-Rose-feature)", // Cercle indicatif
+    borderBulle: "var(--color-SOREA-R2)",  //Bordure du cercle indicatif
+    textAccent: "#var(--color-SOREA-V1)",
+    socle: "#DBCEEF", // Corps
+    socleText: "var(--color-SOREA-V1)", 
     conic1: "#C0ACFF",
-    conic2: "#FEF0F9",
-    pointerCenter: "#B596FF",
-    pointerDot: "#8B47FF",
-    centerDot: "#C0ACFF",
-    btnPrimary: "#725D6E",
+    conic2: "var(--color-Rose-feature)",
+    pointerCenter: "#DBCEEF",
+    pointerDot: "var(--color-SOREA-V2)",
+    centerDot: "#DBCEEF",
+    btnPrimary: "var(--color-Gris1-SOREA)",
     btnPrimaryHover: "#5d4b5a",
     confettis: ["#C0ACFF", "#DBCEEF", "#ffffff"]
   },
   vibrant: {
-    bgCarte: "#EDE9FF",
-    borderCarte: "#7F4DC5",
-    bgBulle: "#FEF0F9",
-    borderBulle: "#C0ACFF",
-    textAccent: "#7F4DC5",
-    socle: "#C0ACFF",
-    socleText: "#7A7385",
-    conic1: "#7F4DC5",
-    conic2: "#FEF0F9",
-    pointerCenter: "#B596FF",
-    pointerDot: "#7F4DC5",
-    centerDot: "#C0ACFF",
-    btnPrimary: "#7F4DC5",
-    btnPrimaryHover: "#5A37AC",
+    bgCarte: "var(--color-Blanc-Rose)",
+    borderCarte: "var(--color-SOREA-V1)",
+    bgBulle: "var(--color-Rose-feature)",
+    borderBulle: "var(--color-SOREA-R2)",
+    textAccent: "var(--color-SOREA-V1)",
+    socle: "var(--color-SOREA-V2)",
+    socleText: "var(--color-SOREA-V2)",
+    conic1: "var(--color-SOREA-V1)",
+    conic2: "var(--color-Rose-feature)",
+    pointerCenter: "var(--color-SOREA-V1)",
+    pointerDot: "var(--color-SOREA-V1)",
+    centerDot: "var(--color-SOREA-V2)",
+    btnPrimary: "var(--color-Gris1-SOREA)",
+    btnPrimaryHover: "#5A37AC", 
     confettis: ["#7F4DC5", "#C0ACFF", "#FEF0F9"]
   }
 };
@@ -528,7 +528,7 @@ export default function WheelSpinnerBienEtre() {
             <div className="absolute inset-0 bg-gradient-to-b from-black/25 to-transparent pointer-events-none"></div>
             <span
               className="text-[24px] font-[600] tracking-[10px] indent-[6px] drop-shadow-[0px_4px_4px_rgba(0,0,0,0.25)] transition-colors duration-500"
-              style={{ color: theme.socleText, WebkitTextStroke: '2px #FFFFFF', paintOrder: 'stroke fill' }}
+              style={{ color: theme.socleText, WebkitTextStroke: '2px #FBFAFF', paintOrder: 'stroke fill' }}
             >
               SOREA
             </span>
