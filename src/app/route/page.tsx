@@ -24,10 +24,10 @@ export default function RouteDesDefis() {
       </div>
 
       {/* CONTENU */}
-      <main className="flex-1 w-full flex flex-col items-center py-30">
+      <main className="flex-1 w-full flex flex-col items-center py-10 ">
         <div className="w-full max-w-[1440px] mx-auto flex flex-col items-center">
 
-          <h1 className="text-4xl font-bold text-center mb-30">
+          <h1 className="text-4xl font-bold text-center mb-30 mt-5">
             Relève tes défis bien-être avec SOREA
           </h1>
 

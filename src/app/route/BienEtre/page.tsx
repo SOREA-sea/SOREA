@@ -14,43 +14,54 @@ export default function PageBienEtre() {
       
       {/* NAVBAR */}
       <div className="w-full">
-        <div className="max-w-[1440px] mx-auto px-[96px] pb-[24px] pt-[24px]">
+        <div className="max-w-[1440px] mx-auto px-4 md:px-12 lg:px-[96px] pb-[24px] pt-[24px]">
           <Navbar />
         </div>
       </div>
 
       {/* CONTENU PRINCIPAL - Juste la roue centrée */}
-      <main className="flex-1 w-full flex flex-col items-center py-20">
-        <div className="w-full max-w-[1440px] mx-auto flex flex-col items-center">
+      <main className="flex-1 w-full flex flex-col items-center py-0">
+        <div className="w-full max-w-[900px] mx-auto flex flex-col items-center gap-8">
           
           {/* Bouton Retour stylé */}
-          <div className="w-full max-w-[1228px] px-4 mb-10 self-center flex">
-            <Link 
-              href="/route" // Lien vers la page de sélection
-              className="text-[#8B47FF] font-bold px-6 py-2 rounded-2xl border-2 border-[#8B47FF] hover:bg-[#8B47FF] hover:text-white transition-all shadow-sm flex items-center gap-2"
+          {/* 1. En-tête de la zone de jeu (Retour, Style, Favoris) */}
+    <div className="w-full flex items-center justify-between gap-4">
+      {/* Côté Gauche : Bouton Retour */}
+      <div className="flex-shrink-0">
+        <Link 
+          href="/route" // Lien vers la page de sélection
+              className="text-[#8B47FF] font-bold px-5 py-2 mt-12 rounded-2xl border-2 border-[#8B47FF] hover:bg-[#8B47FF] hover:text-white transition-all shadow-sm flex items-center gap-2"
             >
               ← Retour aux choix
             </Link>
           </div>
-          {/* La roue spécifique affichée ici directement */}
-          <div className="relative z-10 w-full flex flex-col items-center scale-65 origin-top">
-            <WheelSpinnerBienEtre />
-          </div>
+    </div>
 
+          {/* La roue spécifique affichée ici directement */}
+          {/* 2. Le jeu de la roue (maintenant dans la même div englobante) */}
+    <div className="relative z-0 w-full flex flex-col items-center justify-center flex-1 min-h-[600px] bg-[#FBFAFF] rounded-3xl shadow-lg border border-purple-100 p-6">
+        {/* J'ai ajouté un fond blanc, ombre et padding pour mieux délimiter la zone de jeu dans le bloc */}
+       
+        <div className="scale-65 origin-top w-full">
+            <WheelSpinnerBienEtre />
         </div>
+    </div>
+    
+  </div>
   
       </main>
 
-      {/* FOOTER (Optionnel sur les pages internes, mais conservé ici) */}
-      <div 
-        className="w-full py-25 relative z-10 flex justify-center"
-        style={{background: "linear-gradient(to bottom, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 1) 20%, rgba(255, 255, 255, 1) 80%, rgba(255, 255, 255, 0) 100%)"
-        }}>
-          <div className="w-full max-w-[1228px] px-4 justify-center">
-            <DailyEncouragement />
-          </div>
-      </div>
-      <Footer />
-    </div>
-  );
-}
+     <div 
+       className="w-full py-20 relative z-10 flex justify-center"
+       style={{background: "linear-gradient(to bottom, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 1) 20%, rgba(255, 255, 255, 1) 80%, rgba(255, 255, 255, 0) 100%)"
+       }}>
+         <div className="w-full max-w-[1228px] px-4 justify-center">
+           <DailyEncouragement />
+         </div>
+     </div>
+     
+           {/* FOOTER */}
+           <Footer />
+         </div>
+       );
+     }

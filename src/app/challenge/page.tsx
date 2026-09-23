@@ -2,13 +2,14 @@
 
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
-import { Clock, Sparkles } from "lucide-react";
+import { Sparkles } from "lucide-react";
 import Navbar from "../../components/Navbar";
 import Footer from "../../components/Footer";
 import DailyEncouragement from "@/components/DailyEncouragement";
 import { useRouter } from "next/navigation";
 import { getFavoriFilRouge, FilRougeItem, getFavoriWheel, WheelCategory } from "../../lib/favorites-store";
 import FilRougeCard from "../../components/FilRougeCard";
+
 const wheelDataConfig = {
   "bien-etre": {
     img: "/image_icone/image_Wheel-Spinner/WS_Bien-être1.png",
@@ -40,7 +41,7 @@ const wheelDataConfig = {
     setIsLoaded(true);
   }, []);
 
-  const currentWheelData = wheelDataConfig[favoriWheel];
+  const currentWheelData = wheelDataConfig[favoriWheel] || wheelDataConfig["bien-etre"];
 
   const sections = [
 
@@ -175,27 +176,14 @@ const wheelDataConfig = {
                 </p>
               </>
             )}
-            <div className="flex items-center gap-2 text-black font-bold">
-              <Clock className="h-4 w-4" /> 15 min
-            </div>
-            <Link href={`/route?cat=${favoriWheel}`}>
-              <button className="w-full bg-[#8B47FF] text-white font-bold px-8 py-5 rounded-2xl shadow-md transition-all duration-300 hover:scale-105 hover:shadow-xl tracking-[0.18em] uppercase cursor-pointer">
-                Commencer
-              </button>
-            </Link>
+            
           </article>
-
-          
-
-          
-
-          
         </section>
 
 {/* MIROIR */}
 <section className="grid grid-cols-1 md:grid-cols-[auto_1fr] items-center gap-12">
           <div className="flex items-center justify-center">
-            <img src="/image_icone/miroir_affirmation_manche.svg" alt="Miroir affirmation" style={{ width: "280px", display: "block" }} />
+            <img src="/image_icone/miroire.png" alt="Miroir affirmation" style={{ width: "280px", display: "block" }} />
           </div>
           <article
             className="flex flex-col border-2 border-[#8B47FF] rounded-2xl p-8 gap-5"
@@ -310,4 +298,3 @@ const wheelDataConfig = {
     </div>
   );
 }
-

@@ -255,7 +255,6 @@ const THEMES = {
     centerDot: "var(--color-SOREA-R2)",
     btnPrimary: "#725D6E",
     btnPrimaryHover: "#5d4b5a",
-    confettis: ["var(--color-SOREA-R1)", "var(--color-SOREA-R2)", "var(--color-Rose-feature)"]
   },
   vibrant: {
     bgCarte: "var(--color-Blanc-Rose)",
@@ -272,22 +271,24 @@ const THEMES = {
     centerDot: "var(--color-SOREA-R2)",
     btnPrimary: "var(--color-Gris1-SOREA)",
     btnPrimaryHover: "#5d4b5a",
-    confettis: ["var(--color-SOREA-R1)", "var(--color-SOREA-R2)", "var(--color-Rose-feature)"]
   }
 };
-
-function lancerConfettis(couleurs: string[]) {
-  confetti({ particleCount: 80, angle: 60, spread: 70, origin: { x: 0, y: 0.6 }, colors: couleurs, scalar: 1.1, zIndex: 9999 });
-  confetti({ particleCount: 80, angle: 120, spread: 70, origin: { x: 1, y: 0.6 }, colors: couleurs, scalar: 1.1, zIndex: 9999 });
-  confetti({ particleCount: 60, spread: 90, origin: { x: 0.5, y: 0.5 }, colors: couleurs, scalar: 0.9, zIndex: 9999 });
-}
 
 // ============================================================================
 // COMPOSANT
 // ============================================================================
 export default function WheelSpinnerNutrition() {
   const [isFavori, setIsFavori] = useState(false);
-  const [themeActif, setThemeActif] = useState<'clair' | 'vibrant'>('clair');
+  
+    const [themeActif, setThemeActif] = useState<'clair' | 'vibrant'>(() => {
+      if (typeof window !== 'undefined') {
+        return localStorage.getItem('soreaThemeActif_Nutrition') as 'clair' | 'vibrant' || 'clair';
+      }
+      return 'clair';
+    });
+
+
+
   const [estEnTrainDeTourner, setEstEnTrainDeTourner] = useState(false);
   const [afficherFenetreResultat, setAfficherFenetreResultat] = useState(false);
   const [resultatGagnant, setResultatGagnant] = useState<{
@@ -316,7 +317,18 @@ export default function WheelSpinnerNutrition() {
   };
 
   const basculerTheme = () => {
-    setThemeActif((prev) => (prev === 'clair' ? 'vibrant' : 'clair'));
+    setThemeActif((prev) => {
+      const nouveauTheme = prev === 'clair' ? 'vibrant' : 'clair';
+
+      // 👇 AJOUT ICI 👇
+      // Sauvegarde le nouveau thème dans le localStorage
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('soreaThemeActif_Nutrition', nouveauTheme);
+      }
+      // 👆 AJOUT ICI 👆
+
+      return nouveauTheme;
+    });
   };
 
   useEffect(() => {
@@ -623,7 +635,7 @@ export default function WheelSpinnerNutrition() {
         {choixUtilisateur === 'attente' && (
           <>
             <button
-              onClick={() => { setChoixUtilisateur('oui'); lancerConfettis(theme.confettis); }}
+              onClick={() => { setChoixUtilisateur('oui');}}
               className="p-[16px] text-white rounded-[8px] text-[15px] font-[600] shadow-[0px_4px_10px_rgba(0,0,0,0.05)] transition-all border-none cursor-pointer"
               style={{ backgroundColor: theme.btnPrimary }}
               onMouseOver={(e) => e.currentTarget.style.backgroundColor = theme.btnPrimaryHover}

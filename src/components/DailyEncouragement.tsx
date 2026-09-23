@@ -8,7 +8,7 @@ const encouragementData = [
   { image: "/image_photo/Encouragement2.png", message: "Prends un instant pour respirer et célébrer tes progrès." },
   { image: "/image_photo/Encouragement3.png", message: "Ta force intérieure est plus grande que tes obstacles." },
   { image: "/image_photo/Encouragement4.png", message: "Ose briller et faire résonner ta propre voix." },
-  { image: "/image_photo/Encouragement5.png", message: "Un pas après l'autre, tu construis ton équilibre." },
+  { image: "/image_photo/Encouragement5.png", message: "Un pas après l'autre, construis ton équilibre." },
   { image: "/image_photo/Encouragement6.png", message: "Accueille ta journée avec douceur et confiance." },
   { image: "/image_photo/Encouragement7.png", message: "Tu es capable de grandes choses, crois en ton potentiel." },
   { image: "/image_photo/Encouragement8.png", message: "Cultive la bienveillance envers toi-même aujourd'hui." },
