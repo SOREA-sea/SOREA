@@ -1,7 +1,7 @@
 // Exemple pour : /app/route-des-defis/nutrition/page.tsx
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import Link from "next/link"; // Import de Link pour le retour
 import Navbar from '@/components/Navbar';
 import Footer from "@/components/Footer";
@@ -9,8 +9,14 @@ import DailyEncouragement from "@/components/DailyEncouragement";
 import WheelSpinnerNutrition from "@/components/WheelSpinnerNutrition";
 
 export default function PageNutrition() {
+ const [showInstruction, setShowInstructions] = useState(true);
+const hideInstructions = () => {
+    setShowInstructions(false);
+  };
+
+
   return (
-    <div className="min-h-screen flex flex-col w-full bg-gradient-to-b from-purple-50 to-[#f9f5fa] font-sans text-gray-800">
+    <div className="min-h-screen flex flex-col w-full bg-gradient-to-b from-purple-50 to-[#f9f5fa] font-sans text-gray-800 relative">
       
       {/* NAVBAR */}
       <div className="w-full">
@@ -18,6 +24,34 @@ export default function PageNutrition() {
           <Navbar />
         </div>
       </div>
+
+{showInstruction && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-xs animate-in fade-in duration-300">
+              <div className="w-full max-w-lg mx-4 p-8 bg-white/95 backdrop-blur-md rounded-3xl shadow-2xl border border-purple-100 flex flex-col items-center relative animate-in zoom-in-95 duration-300">
+                <p className="text-center text-[#4b3b5c] text-xl font-bold mb-2">
+                  Nourri ton équilibre
+                </p>
+                <p className="text-gray-600 text-base mb-8 mt-3">
+                  Tourne ton Wheel-Spinner pour écouter ton corps et adopter une alimentation bienveillante. Découvre ce qui fait du bien et repère tes besoins sans pression ni culpabilité.
+                </p>
+                
+                <div className="flex gap-4 w-full justify-center">
+                  <button 
+                    onClick={hideInstructions}
+                    className="px-8 py-2.5 bg-[#8B47FF] text-white font-bold rounded-full hover:bg-[#7a3be6] transition-colors shadow-md text-sm cursor-pointer"
+                  >
+                    OK
+                  </button>
+                  <button 
+                    onClick={hideInstructions}
+                    className="px-4 py-2.5 bg-transparent text-gray-400 font-medium hover:text-[#8B47FF] transition-colors text-sm underline underline-offset-2 cursor-pointer"
+                  >
+                    Ne plus afficher
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
 
       {/* CONTENU PRINCIPAL - Juste la roue centrée */}
       <main className="flex-1 w-full flex flex-col items-center py-20">

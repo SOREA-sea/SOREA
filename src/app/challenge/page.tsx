@@ -13,18 +13,18 @@ import FilRougeCard from "../../components/FilRougeCard";
 const wheelDataConfig = {
   "bien-etre": {
     img: "/image_icone/image_Wheel-Spinner/WS_Bien-être1.png",
-    title: "Respire et rayonne",
-    desc: "Prends 15 minutes pour respirer, relâcher tes épaules et écrire une intention simple."
+    title: "Cultive ta paix intérieure",
+    desc: "Développer un bien-être durable en apprenant à mieux te connaître, à renforcer ton équilibre émotionnel et à cultiver des habitudes positives qui permettront de révéler ton plein potentiel."
   },
   "sport": {
     img: "/image_icone/image_Wheel-Spinner/WS_Sport1.png",
     title: "Active ton corps",
-    desc: "Prends 15 minutes pour libérer ton énergie et retrouver ta vitalité."
+    desc: "Fait du mouvement ton allié du bien-être. Bouge à ton rythme, renforce ton corps et booste ton énergie pour révéler pleinement ton potentiel."
   },
   "nutrition": {
     img: "/image_icone/image_Wheel-Spinner/WS_Nutrition1.png",
-    title: "Sain et gourmand",
-    desc: "Prends le temps de préparer ou savourer un repas en pleine conscience."
+    title: "Nourri ton équilibre",
+    desc: "Écoute ton corps et adopte une alimentation bienveillante pour découvrir ce qui te fait du bien. Repère tes besoins, sans pression ni culpabilité."
   }
 };
 
@@ -165,8 +165,8 @@ const wheelDataConfig = {
             className="flex flex-col border-2 border-[#8B47FF] rounded-2xl p-8 gap-5"
             style={{ background: "radial-gradient(ellipse at center, #FEF0F9 0%, #FFFFFF 100%)" }}
           >
-            <div className="flex items-center gap-2 text-[#8B47FF] font-bold text-sm tracking-[0.16em] uppercase">
-              <Sparkles className="h-4 w-4" /> Défi du jour
+            <div className="flex items-center gap-2 text-[#8B47FF] font-bold text-sm tracking-[0.16em] uppercase whitespace-nowrap">
+            Ton potentiel intérieur
             </div>
             {isLoaded && (
               <>
