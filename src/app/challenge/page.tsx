@@ -254,7 +254,7 @@ const wheelDataConfig = {
               >
                 {section.locked && (
                   <div className="absolute inset-0 bg-black/40 backdrop-grayscale backdrop-blur-[1px] z-20 flex flex-col items-center justify-center">
-                    <img src="/image_icone/Cadenas_Close.svg" alt="Cadenas" className="w-10 h-10 drop-shadow-md" />
+                    <img src="/image_icone/Cadenas_Close_Stroke.png" alt="Cadenas" className="w-10 h-10 drop-shadow-md" />
                     <div className="absolute bottom-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-black/80 text-white text-xs px-3 py-1.5 rounded-md shadow-lg pointer-events-none whitespace-nowrap">
                       Ce challenge sera bientôt disponible
                     </div>

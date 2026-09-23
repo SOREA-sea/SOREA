@@ -20,8 +20,8 @@ export default function PageBienEtre() {
       </div>
 
       {/* CONTENU PRINCIPAL - Juste la roue centrée */}
-      <main className="flex-1 w-full flex flex-col items-center py-0">
-        <div className="w-full max-w-[900px] mx-auto flex flex-col items-center gap-8">
+      <main className="flex-1 w-full flex flex-col items-center py-20">
+        <div className="w-full max-w-[1440px] mx-auto flex flex-col items-center">
           
           {/* Bouton Retour stylé */}
           {/* 1. En-tête de la zone de jeu (Retour, Style, Favoris) */}
@@ -39,13 +39,10 @@ export default function PageBienEtre() {
 
           {/* La roue spécifique affichée ici directement */}
           {/* 2. Le jeu de la roue (maintenant dans la même div englobante) */}
-    <div className="relative z-0 w-full flex flex-col items-center justify-center flex-1 min-h-[600px] bg-[#FBFAFF] rounded-3xl shadow-lg border border-purple-100 p-6">
-        {/* J'ai ajouté un fond blanc, ombre et padding pour mieux délimiter la zone de jeu dans le bloc */}
        
-        <div className="scale-65 origin-top w-full">
+        <div className="relative z-10 w-full flex flex-col items-center scale-65 origin-top">
             <WheelSpinnerBienEtre />
         </div>
-    </div>
     
   </div>
   
