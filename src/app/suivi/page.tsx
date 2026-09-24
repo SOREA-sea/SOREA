@@ -5,7 +5,7 @@ import Link from "next/link";
 import { Clock, Sparkles } from "lucide-react";
 import Navbar from "../../components/Navbar";
 import Footer from "../../components/Footer";
-import StreakTracker from "../../components/StreakTracker";
+/*import StreakTracker from "../../components/StreakTracker";*/
 import MenstrualCalendar from "../../components/MenstrualCalendar";
 import { notFound } from 'next/navigation';
 
@@ -19,9 +19,9 @@ export default function MyPage() {
         <Navbar />
       </div>
 
-    <section className="w-full flex justify-center">
+   {/* <section className="w-full flex justify-center">
         <StreakTracker />
-      </section>
+      </section>*/}
 
       <section className="w-full flex justify-center">
         <MenstrualCalendar />

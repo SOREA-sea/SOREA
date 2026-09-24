@@ -14,7 +14,7 @@ const wheelDataConfig = {
   "bien-etre": {
     img: "/image_icone/image_Wheel-Spinner/WS_Bien-être1.png",
     title: "Cultive ta paix intérieure",
-    desc: "Développer un bien-être durable en apprenant à mieux te connaître, à renforcer ton équilibre émotionnel et à cultiver des habitudes positives qui permettront de révéler ton plein potentiel."
+    desc: "Développe un bien-être durable en apprenant à mieux te connaître, à renforcer ton équilibre émotionnel et à cultiver des habitudes positives qui permettront de révéler ton plein potentiel."
   },
   "sport": {
     img: "/image_icone/image_Wheel-Spinner/WS_Sport1.png",
@@ -135,10 +135,6 @@ const wheelDataConfig = {
       </div>
 
       <main className="flex flex-col mx-auto w-full max-w-[1440px] px-6 lg:px-[96px] gap-[72px] py-12">
-        <div className="text-center">
-            <h2 className="text-4xl font-bold tracking-[0.16em] text-black">Challenge</h2>
-            <p className="text-[#4b3b5c] text-xl mt-3">Choisis ton défi bien-être du moment, avance avec douceur, une action après l&apos;autre.</p>
-          </div>
           
           {/*WS */}
         

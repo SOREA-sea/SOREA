@@ -349,7 +349,7 @@ export default function WheelSpinnerSport() {
   }, [estEnTrainDeTourner, afficherFenetreResultat]);
 
   const tournerLaRoue = () => {
-    if (estEnTrainDeTourner) return;
+    if (estEnTrainDeTourner || afficherFenetreResultat) return;
     setEstEnTrainDeTourner(true);
     setAfficherFenetreResultat(false);
     setChoixUtilisateur('attente');
@@ -579,7 +579,10 @@ export default function WheelSpinnerSport() {
           ></div>
         </div>
 
-        <div className="relative w-[340px] h-[340px] flex justify-center items-center cursor-pointer" onClick={tournerLaRoue}>
+        <div 
+          className={`relative w-[340px] h-[340px] flex justify-center items-center ${afficherFenetreResultat ? 'cursor-default' : 'cursor-pointer'}`} 
+          onClick={tournerLaRoue}
+        >
           <div className="w-[330px] h-[330px] relative flex justify-center items-center" style={{ transformStyle: 'preserve-3d' }}>
             <div
               className="absolute inset-0 rounded-full drop-shadow-[0px_8px_15px_#000000] pointer-events-none z-[2] transition-colors duration-500"
