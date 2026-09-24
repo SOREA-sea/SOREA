@@ -252,7 +252,7 @@ const THEMES = {
     conic2: "var(--color-SOREA-R2)",
     pointerCenter: "var(--color-SOREA-R2)",
     pointerDot: "var(--color-SOREA-R1)",
-    centerDot: "var(--color-SOREA-R2)",
+    centerDot: "var(--color-Rose-feature)",
     btnPrimary: "#725D6E",
     btnPrimaryHover: "#5d4b5a",
   },

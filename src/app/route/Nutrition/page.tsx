@@ -9,9 +9,9 @@ import DailyEncouragement from "@/components/DailyEncouragement";
 import WheelSpinnerNutrition from "@/components/WheelSpinnerNutrition";
 
 export default function PageNutrition() {
- const [showInstruction, setShowInstructions] = useState(true);
-const hideInstructions = () => {
-    setShowInstructions(false);
+ const [showInstruction, setShowInstructionsNutrition] = useState(true);
+const hideInstructionsNutrition = () => {
+    setShowInstructionsNutrition(false);
   };
 
 
@@ -37,13 +37,13 @@ const hideInstructions = () => {
                 
                 <div className="flex gap-4 w-full justify-center">
                   <button 
-                    onClick={hideInstructions}
+                    onClick={hideInstructionsNutrition}
                     className="px-8 py-2.5 bg-[#8B47FF] text-white font-bold rounded-full hover:bg-[#7a3be6] transition-colors shadow-md text-sm cursor-pointer"
                   >
                     OK
                   </button>
                   <button 
-                    onClick={hideInstructions}
+                    onClick={hideInstructionsNutrition}
                     className="px-4 py-2.5 bg-transparent text-gray-400 font-medium hover:text-[#8B47FF] transition-colors text-sm underline underline-offset-2 cursor-pointer"
                   >
                     Ne plus afficher
