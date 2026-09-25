@@ -21,6 +21,7 @@ interface TodoItem {
   id: string;
   text: string;
   completed: boolean;
+  category?: 'bien-etre' | 'sport' | 'nutrition';
 }
 
 interface SymptomLog {
@@ -112,7 +113,20 @@ const [isSnowflakeMode, setIsSnowflakeMode] = useState(false);
       void fetchProfile();
       void fetchLoggedUser();
     });
-  }, []);
+    const handleStorageChange = () => {
+      if (loggedUser) {
+        const stored = localStorage.getItem(`sorea_todos_${loggedUser.id}`);
+        if (stored) {
+          setTodosByDate(JSON.parse(stored));
+        }
+      }
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+    };
+  }, [loggedUser]);
 
   const saveSettings = async () => {
     try {
@@ -161,7 +175,8 @@ const [isSnowflakeMode, setIsSnowflakeMode] = useState(false);
     const date = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), day);
     setSelectedDate(date);
     fetchSymptom(date);
-    const dateKey = date.toISOString().split("T")[0];
+    const localDate = new Date(date.getTime() - date.getTimezoneOffset() * 60000);
+    const dateKey = localDate.toISOString().split("T")[0];
     setSelectedTodoDate(dateKey);
     if (loggedUser) setShowTodoModal(true);
   };
@@ -302,7 +317,8 @@ const [isSnowflakeMode, setIsSnowflakeMode] = useState(false);
         phaseColor = "text-[#8B47FF] hover:bg-[#E8D9FF]";
         icon = <img src={phaseIcons[phase]} alt="Icône Automne" className="w-6 h-6 absolute bottom-1 right-1" />;
       }
-      const dateKey = date.toISOString().split("T")[0];
+      const localDate = new Date(date.getTime() - date.getTimezoneOffset() * 60000);
+      const dateKey = localDate.toISOString().split("T")[0];
       const isToday = new Date().toDateString() === date.toDateString();
       const isSelected = selectedDate?.toDateString() === date.toDateString();
       const phaseVisible = !phaseFilters.length || (phase && phaseFilters.includes(phase));
@@ -551,7 +567,15 @@ const [isSnowflakeMode, setIsSnowflakeMode] = useState(false);
             <div className="space-y-3">
               {(todosByDate[selectedTodoDate] ?? []).length > 0 ? (
                 (todosByDate[selectedTodoDate] ?? []).map((todo) => (
-                  <div key={todo.id} className="group flex items-center justify-between gap-4 rounded-3xl border border-gray-200 bg-white px-4 py-3 transition">
+                  <div key={todo.id} className="group flex items-center justify-between gap-4 rounded-3xl border border-gray-200 bg-white px-4 py-3 transition"
+                  style={{
+    backgroundColor: 
+      todo.category === 'bien-etre' ? 'rgba(139, 71, 255, 0.15)' : // Violet léger
+      todo.category === 'sport' ? 'rgba(59, 130, 246, 0.15)' :       // Bleu léger
+      todo.category === 'nutrition' ? 'rgba(236, 72, 153, 0.15)' :   // Rose léger
+      'transparent'
+  }}
+  >
                     <label className="flex items-center gap-3 flex-1 cursor-pointer">
                       <span
                         className={`relative flex h-5 w-5 shrink-0 items-center justify-center rounded-[6px] border transition ${

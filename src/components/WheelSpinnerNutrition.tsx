@@ -946,14 +946,43 @@ export default function WheelSpinnerNutrition() {
         {choixUtilisateur === 'attente' && (
           <>
             <button
-              onClick={() => { setChoixUtilisateur('oui');}}
-              className="p-[16px] text-white rounded-[8px] text-[15px] font-[600] shadow-[0px_4px_10px_rgba(0,0,0,0.05)] transition-all border-none cursor-pointer"
-              style={{ backgroundColor: theme.btnPrimary }}
-              onMouseOver={(e) => e.currentTarget.style.backgroundColor = theme.btnPrimaryHover}
-              onMouseOut={(e) => e.currentTarget.style.backgroundColor = theme.btnPrimary}
-            >
-              C'est parti !
-            </button>
+  onClick={() => { 
+    setChoixUtilisateur('oui');
+    
+    // Logique d'ajout du défi dans le localStorage
+    if (resultatGagnant?.defiDuJour) {
+      const today = new Date();
+      const localToday = new Date(today.getTime() - today.getTimezoneOffset() * 60000);
+      const todayKey = localToday.toISOString().split('T')[0];
+      
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key && key.startsWith('sorea_todos_')) {
+          const stored = localStorage.getItem(key);
+          let todosObj = stored ? JSON.parse(stored) : {};
+          const currentTodos = todosObj[todayKey] || [];
+          
+          const exists = currentTodos.some((t: any) => t.text === resultatGagnant.defiDuJour);
+          if (!exists) {
+            todosObj[todayKey] = [
+              ...currentTodos,
+              { id: `${todayKey}-${Date.now()}`, text: resultatGagnant.defiDuJour, completed: false, category: 'nutrition' }
+            ];
+            localStorage.setItem(key, JSON.stringify(todosObj));
+            window.dispatchEvent(new Event('storage'));
+          }
+          break;
+        }
+      }
+    }
+  }}
+  className="p-[16px] text-white rounded-[8px] text-[15px] font-[600] shadow-[0px_4px_10px_rgba(0,0,0,0.05)] transition-all border-none cursor-pointer"
+  style={{ backgroundColor: theme.btnPrimary }}
+  onMouseOver={(e) => e.currentTarget.style.backgroundColor = theme.btnPrimaryHover}
+  onMouseOut={(e) => e.currentTarget.style.backgroundColor = theme.btnPrimary}
+>
+  C'est parti !
+</button>
             <button
               onClick={() => setChoixUtilisateur('non')}
               className="p-[16px] bg-[#B9B2B9] text-[#333] rounded-[8px] text-[15px] font-[600] shadow-[0px_4px_10px_rgba(0,0,0,0.05)] hover:bg-[#a59fa5] hover:-translate-y-[2px] transition-all border-none cursor-pointer"
