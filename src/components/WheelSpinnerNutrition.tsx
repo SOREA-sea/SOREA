@@ -5,9 +5,6 @@ import confetti from "canvas-confetti";
 import { Star } from "lucide-react";
 import { getFavoriWheel, setFavoriWheel, WheelCategory } from "../lib/favorites-store";
 
-// ============================================================================
-// DONNÉES
-// ============================================================================
 const themesData = [
   {
     name: "Nourrir mon corps",
@@ -334,12 +331,10 @@ export default function WheelSpinnerNutrition() {
     setThemeActif((prev) => {
       const nouveauTheme = prev === 'clair' ? 'vibrant' : 'clair';
 
-      // 👇 AJOUT ICI 👇
-      // Sauvegarde le nouveau thème dans le localStorage
       if (typeof window !== 'undefined') {
         localStorage.setItem('soreaThemeActif_Nutrition', nouveauTheme);
+        window.dispatchEvent(new Event("themeChange_Nutrition"));
       }
-      // 👆 AJOUT ICI 👆
 
       return nouveauTheme;
     });

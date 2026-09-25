@@ -76,14 +76,7 @@ const hideInstructionsNutrition = () => {
       </main>
 
       {/* FOOTER (Optionnel sur les pages internes, mais conservé ici) */}
-      <div 
-        className="w-full py-25 relative z-10 flex justify-center"
-        style={{background: "linear-gradient(to bottom, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 1) 20%, rgba(255, 255, 255, 1) 80%, rgba(255, 255, 255, 0) 100%)"
-        }}>
-          <div className="w-full max-w-[1228px] px-4 justify-center">
-            <DailyEncouragement />
-          </div>
-      </div>
+     
       <Footer />
     </div>
   );

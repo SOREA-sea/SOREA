@@ -5,30 +5,25 @@ import confetti from "canvas-confetti";
 import { Star } from "lucide-react";
 import { getFavoriWheel, setFavoriWheel, WheelCategory } from "../lib/favorites-store";
 
-// ============================================================================
-// DONNÉES
-// ============================================================================
 const themesData = [
   {
     name: "Introspection",
     iconPath: "/image_icone/image_Wheel-Spinner/Introspection.png",
     desc: "Plongez au plus profond de vos pensées pour mieux vous comprendre.",
     objectifs: [
-      "Évite de t'éparpiller, concentre-toi sur tes réponses.",
-      "Prends le temps d'écrire sans aucun filtre.",
-      "Accueille chaque pensée avec bienveillance."
+      "Découvre tes principes et tes valeurs en te libérant des injonctions sociales et des jugements."
     ],
     defis: [
-      "Écris 3 qualités que tu apprécies le plus chez toi aujourd'hui.",
-      "Identifie une peur récurrente et décris comment la surmonter.",
-      "Note une leçon essentielle qu'une erreur passée t'a apprise.",
-      "Décris en détails ta journée idéale en partant de zéro.",
-      "Quel trait de ta personnalité aimerais-tu le plus cultiver ?",
-      "Fais la liste de 3 choses qui te ressourcent instantanément.",
-      "Écris une lettre bienveillante à ton toi d'il y a cinq ans.",
-      "Quel est le plus grand changement que tu as vécu cette année ?",
-      "Qu'est-ce qui te fait te sentir pleinement aligné avec tes valeurs ?",
-      "Prends 5 minutes pour lister ce qui draine ton énergie."
+      "Identifie une croyance limitante et écrit son opposée.",
+      "Note trois moments où tu as agi pour plaire aux autres plutôt qu'à toi-même. Surmonte cette limite et valorise ta propre valeur.",
+      "Liste tes 5 valeurs fondamentales et vérifie si ton quotidien les respecte.",
+      "Écris une lettre à ton enfant intérieur pour valider ses besoins ignorés et pardonner ton passé. Au moins quelques mots. ",
+      "Identifie une habitude qui ne te ressemble plus.",
+      "Décris ton plus grand rêve sans te censurer. Analyse le bien qu’il peut te procurer.",
+      "Note une décision que tu repousses et demande toi pourquoi.",
+      "Observer comment tu réagis face au conflit : fuite, soumission ou lutte ? L'objectif est de comprendre ton mécanisme, de l'accepter et de faire face désormais à toute forme d'obstacles.",
+      "Écris ce qui te donne réellement de la bonne énergie et argumente autant que tu le souhaite. (ça peut être n’importe quoi ou n’importe qui comme une personne, une couleur, une activité etc.).",
+      "Note ce que tu apprécies chez ta personnalité."
     ]
   },
   {
@@ -335,6 +330,7 @@ export default function WheelSpinnerBienEtre() {
 
       if (typeof window !== 'undefined') {
         localStorage.setItem('soreaThemeActif_BienEtre', nouveauTheme);
+        window.dispatchEvent(new Event("themeChange_BienEtre"));
       }
       return nouveauTheme;
     });

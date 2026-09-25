@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import Navbar from '@/components/Navbar';
 import Footer from "@/components/Footer";
@@ -8,6 +8,50 @@ import DailyEncouragement from "@/components/DailyEncouragement";
 
 export default function RouteDesDefis() {
   const [showInstructions, setShowInstructions] = useState(true);
+
+  const [themeBienEtre, setThemeBienEtre] = useState<'clair' | 'vibrant'>('clair');
+  const [themeSport, setThemeSport] = useState<'clair' | 'vibrant'>('clair');
+  const [themeNutrition, setThemeNutrition] = useState<'clair' | 'vibrant'>('clair');
+
+  useEffect(() => {
+    // Charger le thème initial au montage de la page
+    if (typeof window !== 'undefined') {
+      const savedBienEtre = localStorage.getItem('soreaThemeActif_BienEtre') as 'clair' | 'vibrant';
+      if (savedBienEtre) setThemeBienEtre(savedBienEtre);
+
+      const savedSport = localStorage.getItem('soreaThemeActif_Sport') as 'clair' | 'vibrant';
+      if (savedSport) setThemeSport(savedSport);
+
+      const savedNutrition = localStorage.getItem('soreaThemeActif_Nutrition') as 'clair' | 'vibrant';
+      if (savedNutrition) setThemeNutrition(savedNutrition);
+
+      // Fonctions de mise à jour par événement
+      const handleThemeChangeBienEtre = () => {
+        const updated = localStorage.getItem('soreaThemeActif_BienEtre') as 'clair' | 'vibrant';
+        if (updated) setThemeBienEtre(updated);
+      };
+
+      const handleThemeChangeSport = () => {
+        const updated = localStorage.getItem('soreaThemeActif_Sport') as 'clair' | 'vibrant';
+        if (updated) setThemeSport(updated);
+      };
+
+      const handleThemeChangeNutrition = () => {
+        const updated = localStorage.getItem('soreaThemeActif_Nutrition') as 'clair' | 'vibrant';
+        if (updated) setThemeNutrition(updated);
+      };
+
+      window.addEventListener('themeChange_BienEtre', handleThemeChangeBienEtre);
+      window.addEventListener('themeChange_Sport', handleThemeChangeSport);
+      window.addEventListener('themeChange_Nutrition', handleThemeChangeNutrition);
+      
+      return () => {
+        window.removeEventListener('themeChange_BienEtre', handleThemeChangeBienEtre);
+        window.removeEventListener('themeChange_Sport', handleThemeChangeSport);
+        window.removeEventListener('themeChange_Nutrition', handleThemeChangeNutrition);
+      };
+    }
+  }, []);
 
   const hideInstructions = () => {
     setShowInstructions(false);
@@ -63,30 +107,36 @@ export default function RouteDesDefis() {
           <div className="relative z-10 w-full flex flex-col items-center">
               <div className="flex gap-15 mt-5 w-full max-w-[1228px] justify-center">
           
+          {/* SPORT */}
                <Link 
                   href="/route/Sport"
                   className="flex flex-col items-center justify-center p-8 rounded-3xl w-[300px] h-[250px] cursor-pointer hover:-translate-y-1 transition-all duration-300"
                 >
                   <h2 className="text-3xl font-bold text-center text-[#5A37AC] pb-5">Sport</h2>
-                  <img src="/image_icone/image_Wheel-Spinner/WS_Sport1.png" alt="Wheel-Spinner Sport" className="mb-4" />
+                  <img src={themeSport === 'vibrant' ? "/image_icone/image_Wheel-Spinner/WS_Sport2.png" : "/image_icone/image_Wheel-Spinner/WS_Sport1.png"} alt="Wheel-Spinner Sport" className="mb-4 transition-all duration-300" />
                   <span className="text-sm text-gray-500 mt-2 text-center">Bouge et dépense-toi</span>
                 </Link>
 
+         {/* BIEN-ÊTRE */}
                 <Link 
                   href="/route/BienEtre"
                   className="flex flex-col items-center justify-center p-8 w-[300px] h-[250px] cursor-pointer hover:-translate-y-1 transition-all duration-300"
                 >
                   <h2 className="text-3xl font-bold text-center text-[#5A37AC] pb-5">Bien-être</h2>
-                  <img src="/image_icone/image_Wheel-Spinner/WS_Bien-être1.png" alt="Wheel-Spinner Bien-être" className="mb-4" />
+                  <img src={themeBienEtre === 'vibrant' ? "/image_icone/image_Wheel-Spinner/WS_Bien-être2.png" : "/image_icone/image_Wheel-Spinner/WS_Bien-être1.png"} 
+                    alt="Wheel-Spinner Bien-être" 
+                    className="mb-4 transition-all duration-300" 
+                  />
                   <span className="text-sm text-gray-500 mt-2 text-center">Recentrage et positivité</span>
                 </Link>
 
+          {/* NUTRITION */}
                 <Link 
                   href="/route/Nutrition"
                   className="flex flex-col items-center justify-center p-8 rounded-3xl w-[300px] h-[250px] cursor-pointer hover:-translate-y-1 transition-all duration-300"
                 >
                   <h2 className="text-3xl font-bold text-center text-[#5A37AC] pb-5">Nutrition</h2>
-                  <img src="/image_icone/image_Wheel-Spinner/WS_Nutrition1.png" alt="Wheel-Spinner Nutrition" className="mb-4" />
+                  <img src={themeNutrition === 'vibrant' ? "/image_icone/image_Wheel-Spinner/WS_Nutrition2.png" : "/image_icone/image_Wheel-Spinner/WS_Nutrition1.png"} alt="Wheel-Spinner Nutrition" className="mb-4 transition-all duration-300" />
                   <span className="text-sm text-gray-500 mt-2 text-center">Défis sains et gourmands</span>
                 </Link>
 

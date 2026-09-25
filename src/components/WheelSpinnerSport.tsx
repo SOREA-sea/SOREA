@@ -5,9 +5,6 @@ import confetti from "canvas-confetti";
 import { Star } from "lucide-react";
 import { getFavoriWheel, setFavoriWheel, WheelCategory } from "../lib/favorites-store";
 
-// ============================================================================
-// DONNÉES
-// ============================================================================
 const themesData = [
   {
     name: "Ma force intérieure",
@@ -335,6 +332,7 @@ export default function WheelSpinnerSport() {
 
       if (typeof window !== 'undefined') {
         localStorage.setItem('soreaThemeActif_Sport', nouveauTheme);
+        window.dispatchEvent(new Event("themeChange_Sport"));
       }
 
       return nouveauTheme;

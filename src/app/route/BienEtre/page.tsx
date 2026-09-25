@@ -79,15 +79,6 @@ const hideInstructionsWellness = () => {
   </div>
   
       </main>
-
-     <div 
-       className="w-full py-20 relative z-10 flex justify-center"
-       style={{background: "linear-gradient(to bottom, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 1) 20%, rgba(255, 255, 255, 1) 80%, rgba(255, 255, 255, 0) 100%)"
-       }}>
-         <div className="w-full max-w-[1228px] px-4 justify-center">
-           <DailyEncouragement />
-         </div>
-     </div>
      
            {/* FOOTER */}
            <Footer />
