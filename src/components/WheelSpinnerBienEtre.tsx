@@ -9,7 +9,7 @@ import { getFavoriWheel, setFavoriWheel, WheelCategory } from "../lib/favorites-
 const themesData = [
   {
     name: "Introspection",
-    iconPath: "/image_icone/image_Wheel-Spinner/Introspection.png",
+    iconPath: "/image_icone/image_Wheel-Spinner/Introspection.svg",
     desc: "Plongez au plus profond de vos pensées pour mieux vous comprendre.",
     objectifs: [
       "Découvre tes principes et tes valeurs en te libérant des injonctions sociales et des jugements."
@@ -56,7 +56,7 @@ const themesData = [
   },
   {
     name: "Gratitude",
-    iconPath: "/image_icone/image_Wheel-Spinner/Gratitude.png",
+    iconPath: "/image_icone/image_Wheel-Spinner/Gratitude.svg",
     desc: "Célébrez les petites victoires et les bonheurs quotidiens.",
     objectifs: [
       "Ouvre ton cœur aux cadeaux simples de la vie.",
@@ -105,7 +105,7 @@ const themesData = [
   },
   {
     name: "Pleine conscience",
-    iconPath: "/image_icone/image_Wheel-Spinner/Pleine_conscience.png",
+    iconPath: "/image_icone/image_Wheel-Spinner/Pleine_conscience.svg",
     desc: "Vivez l'instant présent sans jugement.",
     objectifs: [
       "Reste ancré ici et maintenant.",
@@ -154,7 +154,7 @@ const themesData = [
   },
   {
     name: "Intelligence émotionnelle",
-    iconPath: "/image_icone/image_Wheel-Spinner/Intelligence_émotionnelle.png",
+    iconPath: "/image_icone/image_Wheel-Spinner/Intelligence_émotionnelle.svg",
     desc: "Accueillez et comprenez le message derrière chaque émotion.",
     objectifs: [
       "Nomme précisément ce que tu ressens.",
@@ -202,8 +202,8 @@ const themesData = [
     ]
   },
   {
-    name: "Action & Confiance",
-    iconPath: "/image_icone/image_Wheel-Spinner/Action_&_Défis_de_confiance.png",
+    name: "Action & Défis de Confiance",
+    iconPath: "/image_icone/image_Wheel-Spinner/Action_&_Défis_de_confiance.svg",
     desc: "Osez sortir de votre zone de confort pas à pas.",
     objectifs: [
       "Passe à l'action sans chercher la perfection.",
@@ -252,7 +252,7 @@ const themesData = [
   },
   {
     name: "Maîtrise de soi",
-    iconPath: "/image_icone/image_Wheel-Spinner/Maîtrise_de_soi.png",
+    iconPath: "/image_icone/image_Wheel-Spinner/Maîtrise_de_soi.svg",
     desc: "Canalisez votre énergie et gérez vos impulsions.",
     objectifs: [
       "Garde ton calme face aux imprévus.",
@@ -301,7 +301,7 @@ const themesData = [
   },
   {
     name: "Inspiration",
-    iconPath: "/image_icone/image_Wheel-Spinner/Inspiration.png",
+    iconPath: "/image_icone/image_Wheel-Spinner/Inspiration.svg",
     desc: "Nourrissez votre esprit de positif et de créativité.",
     objectifs: [
       "Laisse libre cours à ton imagination.",
@@ -350,7 +350,7 @@ const themesData = [
   },
   {
     name: "Reconnexion à soi",
-    iconPath: "/image_icone/image_Wheel-Spinner/Reconnexion_à_soi.png",
+    iconPath: "/image_icone/image_Wheel-Spinner/Reconnexion_à_soi.svg",
     desc: "Prenez du temps pour écouter vos besoins fondamentaux.",
     objectifs: [
       "Accorde-toi un moment de douceur mérité.",
@@ -399,7 +399,7 @@ const themesData = [
   },
   {
     name: "Vision & Projection",
-    iconPath: "/image_icone/image_Wheel-Spinner/Vision_&_Projection.png",
+    iconPath: "/image_icone/image_Wheel-Spinner/Vision_&_Projection.svg",
     desc: "Clarifiez vos rêves et planifiez l'avenir en toute sérénité.",
     objectifs: [
       "Évite de t'éparpiller et choisis la priorité absolue du moment.",
@@ -448,7 +448,7 @@ const themesData = [
   },
   {
     name: "Lâcher-prise",
-    iconPath: "/image_icone/image_Wheel-Spinner/Lâcher-prise & Libération.png",
+    iconPath: "/image_icone/image_Wheel-Spinner/Lâcher-prise_&_Libération.svg",
     desc: "Libérez-vous du contrôle et acceptez le flux de la vie.",
     objectifs: [
       "Accepte ce que tu ne peux pas changer.",

@@ -8,7 +8,7 @@ import { getFavoriWheel, setFavoriWheel, WheelCategory } from "../lib/favorites-
 const themesData = [
   {
     name: "Ma force intérieure",
-    iconPath: "/image_icone/image_Wheel-Spinner/Force_intérieure.png",
+    iconPath: "/image_icone/image_Wheel-Spinner/Force_intérieure.svg",
     desc: "Plongez au plus profond de vos pensées pour mieux vous comprendre.",
     objectifs: [
       "Évite de t'éparpiller, concentre-toi sur tes réponses.",
@@ -57,7 +57,7 @@ const themesData = [
   },
   {
     name: "Équilibre corporel",
-    iconPath: "/image_icone/image_Wheel-Spinner/Équilibre_corporel.png",
+    iconPath: "/image_icone/image_Wheel-Spinner/Équilibre_corporel.svg",
     desc: "Célébrez les petites victoires et les bonheurs quotidiens.",
     objectifs: [
       "Ouvre ton cœur aux cadeaux simples de la vie.",
@@ -106,7 +106,7 @@ const themesData = [
   },
   {
     name: "Fluidité du corps",
-    iconPath: "/image_icone/image_Wheel-Spinner/Fluidité_du_corps.png",
+    iconPath: "/image_icone/image_Wheel-Spinner/Fluidité_du_corps.svg",
     desc: "Vivez l'instant présent sans jugement.",
     objectifs: [
       "Reste ancré ici et maintenant.",
@@ -155,7 +155,7 @@ const themesData = [
   },
   {
     name: "Énergie & Motivation",
-    iconPath: "/image_icone/image_Wheel-Spinner/Énergie_&_Motivation.png",
+    iconPath: "/image_icone/image_Wheel-Spinner/Énergie_&_Motivation.svg",
     desc: "Accueillez et comprenez le message derrière chaque émotion.",
     objectifs: [
       "Nomme précisément ce que tu ressens.",
@@ -204,7 +204,7 @@ const themesData = [
   },
   {
     name: "Écoute corporelle",
-    iconPath: "/image_icone/image_Wheel-Spinner/Écoute_corporelle.png",
+    iconPath: "/image_icone/image_Wheel-Spinner/Écoute_corporelle.svg",
     desc: "Osez sortir de votre zone de confort pas à pas.",
     objectifs: [
       "Passe à l'action sans chercher la perfection.",
@@ -253,7 +253,7 @@ const themesData = [
   },
   {
     name: "Récupération active",
-    iconPath: "/image_icone/image_Wheel-Spinner/Récupération_active.png",
+    iconPath: "/image_icone/image_Wheel-Spinner/Récupération_active.svg",
     desc: "Canalisez votre énergie et gérez vos impulsions.",
     objectifs: [
       "Garde ton calme face aux imprévus.",
@@ -302,7 +302,7 @@ const themesData = [
   },
   {
     name: "Le plaisir de bouger",
-    iconPath: "/image_icone/image_Wheel-Spinner/Le_plaisir_de_bouger.png",
+    iconPath: "/image_icone/image_Wheel-Spinner/Le_plaisir_de_bouger.svg",
     desc: "Nourrissez votre esprit de positif et de créativité.",
     objectifs: [
       "Laisse libre cours à ton imagination.",
@@ -351,7 +351,7 @@ const themesData = [
   },
   {
     name: "Oser se dépasser",
-    iconPath: "/image_icone/image_Wheel-Spinner/Oser_se_dépasser.png",
+    iconPath: "/image_icone/image_Wheel-Spinner/Oser_se_dépasser.svg",
     desc: "Prenez du temps pour écouter vos besoins fondamentaux.",
     objectifs: [
       "Accorde-toi un moment de douceur mérité.",
@@ -400,7 +400,7 @@ const themesData = [
   },
   {
     name: "Mouvement & Régularité",
-    iconPath: "/image_icone/image_Wheel-Spinner/Mouvement_&_Régularité.png",
+    iconPath: "/image_icone/image_Wheel-Spinner/Mouvement_&_Régularité.svg",
     desc: "Clarifiez vos rêves et planifiez l'avenir en toute sérénité.",
     objectifs: [
       "Évite de t'éparpiller et choisis la priorité absolue du moment.",
@@ -449,7 +449,7 @@ const themesData = [
   },
   {
     name: "Bien dans son corps",
-    iconPath: "/image_icone/image_Wheel-Spinner/Bien_dans_son_corps.png",
+    iconPath: "/image_icone/image_Wheel-Spinner/Bien_dans_son_corps.svg",
     desc: "Libérez-vous du contrôle et acceptez le flux de la vie.",
     objectifs: [
       "Accepte ce que tu ne peux pas changer.",

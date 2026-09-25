@@ -12,7 +12,7 @@ import FilRougeCard from "../../components/FilRougeCard";
 
 const wheelDataConfig = {
   "bien-etre": {
-    img: "/image_icone/image_Wheel-Spinner/WS_Bien-être1.png",
+    img: "/image_icone/image_Wheel-Spinner/WS_Bien-être1(1).svg",
     title: "Cultive ta paix intérieure",
     desc: "Développe un bien-être durable en apprenant à mieux te connaître, à renforcer ton équilibre émotionnel et à cultiver des habitudes positives qui permettront de révéler ton plein potentiel.",
     href: "/route/BienEtre"
@@ -111,7 +111,7 @@ const wheelDataConfig = {
     },
 
     {
-      img: "image_icone/image_Wheel-Spinner/WS_BienEtreHead1.png",
+      img: "image_icone/image_Wheel-Spinner/WS_BienEtreHead1.svg",
       alt: "Wheel-Spinner",
       imgWidth: "280px",
       title: "Ton potentiel intérieur",
