@@ -14,17 +14,20 @@ const wheelDataConfig = {
   "bien-etre": {
     img: "/image_icone/image_Wheel-Spinner/WS_Bien-être1.png",
     title: "Cultive ta paix intérieure",
-    desc: "Développe un bien-être durable en apprenant à mieux te connaître, à renforcer ton équilibre émotionnel et à cultiver des habitudes positives qui permettront de révéler ton plein potentiel."
+    desc: "Développe un bien-être durable en apprenant à mieux te connaître, à renforcer ton équilibre émotionnel et à cultiver des habitudes positives qui permettront de révéler ton plein potentiel.",
+    href: "/route/BienEtre"
   },
   "sport": {
     img: "/image_icone/image_Wheel-Spinner/WS_Sport1.png",
     title: "Active ton corps",
-    desc: "Fait du mouvement ton allié du bien-être. Bouge à ton rythme, renforce ton corps et booste ton énergie pour révéler pleinement ton potentiel."
+    desc: "Fait du mouvement ton allié du bien-être. Bouge à ton rythme, renforce ton corps et booste ton énergie pour révéler pleinement ton potentiel.",
+    href: "/route/Sport",
   },
   "nutrition": {
     img: "/image_icone/image_Wheel-Spinner/WS_Nutrition1.png",
     title: "Nourri ton équilibre",
-    desc: "Écoute ton corps et adopte une alimentation bienveillante pour découvrir ce qui te fait du bien. Repère tes besoins, sans pression ni culpabilité."
+    desc: "Écoute ton corps et adopte une alimentation bienveillante pour découvrir ce qui te fait du bien. Repère tes besoins, sans pression ni culpabilité.",
+    href: "/route/Nutrition"
   }
 };
 
@@ -146,7 +149,7 @@ const wheelDataConfig = {
             <p className="text-[#4b3b5c] text-xl leading-relaxed max-w-[390px]">
               Choisis ton défi bien-être du jour et avance avec douceur, une action après l&apos;autre.
             </p>
-            <Link href={`/route?cat=${favoriWheel}`}>
+            <Link href="/route">
               <button className="bg-SOREA-V1 text-white font-bold px-10 py-5 rounded-2xl shadow-md transition-all duration-300 hover:scale-105 hover:shadow-xl tracking-[0.18em] uppercase cursor-pointer">
                 Tourner
               </button>
@@ -157,6 +160,7 @@ const wheelDataConfig = {
             {isLoaded && <img src={currentWheelData.img} alt="roue" style={{ width: "280px", display: "block" }} />}
           </div>
 
+        <Link href={currentWheelData.href}>
           <article
             className="flex flex-col border-2 border-[#8B47FF] rounded-2xl p-8 gap-5"
             style={{ background: "radial-gradient(ellipse at center, #FEF0F9 0%, #FFFFFF 100%)" }}
@@ -174,6 +178,7 @@ const wheelDataConfig = {
             )}
             
           </article>
+          </Link>
         </section>
 
 {/* MIROIR */}

@@ -35,7 +35,7 @@ export default function DailyEncouragement() {
       className="relative w-full max-w-[1228px] h-[110px] mx-auto rounded-2xl overflow-hidden px-6 text-center bg-cover bg-center shadow-md transition-all duration-500 flex items-center justify-center"
       style={{ backgroundImage: `url('${currentItem.image}')` }}
     >
-      <p className="relative z-10 text-xl font-bold text-white drop-shadow-sm">
+      <p className={`relative z-10 text-xl font-bold text-white drop-shadow-sm ${currentItem.image.includes("Encouragement8.png") ? "bg-black/35 px-4 py-0 backdrop-blur-sm" : ""}`}>
         {currentItem.message}
       </p>
     </section>

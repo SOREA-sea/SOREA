@@ -32,7 +32,7 @@ const hideInstructionsNutrition = () => {
                   Nourri ton équilibre
                 </p>
                 <p className="text-gray-600 text-base mb-8 mt-3">
-                  Tourne ton Wheel-Spinner pour écouter ton corps et adopter une alimentation bienveillante. Découvre ce qui fait du bien et repère tes besoins sans pression ni culpabilité.
+                  Tourne ton Wheel-Spinner pour écouter ton corps et adopter une alimentation bienveillante. Découvre ce qui te fait du bien et repère tes besoins sans pression ni culpabilité.
                 </p>
                 
                 <div className="flex gap-4 w-full justify-center">

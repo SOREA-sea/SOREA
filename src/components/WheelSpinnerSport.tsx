@@ -280,6 +280,7 @@ const THEMES = {
 export default function WheelSpinnerSport() {
   const [isFavori, setIsFavori] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
   
     const [themeActif, setThemeActif] = useState<'clair' | 'vibrant'>(() => {
       if (typeof window !== 'undefined') {
@@ -306,6 +307,18 @@ export default function WheelSpinnerSport() {
   const idleRafRef = useRef<number | null>(null);
 
   const theme = THEMES[themeActif];
+
+ useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setIsMenuOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   useEffect(() => {
     setIsFavori(getFavoriWheel() === "sport");
@@ -507,58 +520,56 @@ export default function WheelSpinnerSport() {
       {/* COLONNE CENTRALE : ROUE */}
       <div className="flex items-center justify-center relative mt-[-55px] transform scale-[1.35] origin-top">
         
-        {/* 🔽 MENU DÉROULANT EN HAUT À DROITE DE LA ROUE */}
-        <div className="absolute -top-[100px] right-[-100px] translate-x-[110px] z-50 transform scale-[0.74]">
-          <div className="relative">
-            <button
-              onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="flex items-center justify-center p-3 bg-white/90 backdrop-blur border border-purple-100 rounded-full shadow-md hover:bg-white transition-all cursor-pointer"
-            >
-              <img 
-                src="/image_icone/OutilDéroulant.svg" 
-                alt="Outils" 
-                className="w-6 h-6 object-contain" 
-              />
-            </button>
-
-            {isMenuOpen && (
-              <div className="absolute right-0 mt-3 w-52 bg-white border border-purple-100 rounded-2xl shadow-xl p-2 flex flex-col gap-2 z-50">
-                
-                {/* Bouton Favoris */}
-                <button
-                  onClick={() => {
-                    handleToggleFavori();
-                    setIsMenuOpen(false);
-                  }}
-                  className="flex items-center gap-3 w-full px-3.5 py-2.5 rounded-xl hover:bg-purple-50 transition-colors text-left cursor-pointer"
-                >
-                  <Star size={30} className={isFavori ? "fill-[#8B47FF] text-[#8B47FF]" : "text-purple-300"} />
-                  <span className="text-sm font-bold text-[#592592]">
-                    {isFavori ? "Roue Favorite" : "Mettre en favori"}
-                  </span>
-                </button>
-
-                {/* Bouton Style / Couleur */}
-                <button
-                  onClick={() => {
-                    basculerTheme();
-                    setIsMenuOpen(false);
-                  }}
-                  className="flex items-center gap-3 w-full px-3.5 py-2.5 rounded-xl hover:bg-purple-50 transition-colors text-left cursor-pointer"
-                >
-                  <img 
-                    src="/image_icone/Palette-peinture_Stroke.svg" 
-                    alt="Palette de style" 
-                    className="w-7 h-7 object-contain" 
-                  />
-                  <span className="text-sm font-bold text-[#592592]">Style</span>
-                </button>
-
-              </div>
-            )}
-          </div>
-        </div>
-        {/* 🔼 FIN DU MENU DÉROULANT */}
+        {/*MENU DÉROULANT EN HAUT À DROITE DE LA ROUE */}
+                <div ref={menuRef} className="absolute -top-[100px] right-[-100px] translate-x-[110px] z-50 transform scale-[0.74]">
+                  <div className="relative">
+                    <button
+                      onClick={() => setIsMenuOpen(!isMenuOpen)}
+                      className="flex items-center justify-center p-3 bg-white/90 backdrop-blur border border-purple-100 rounded-full shadow-md hover:bg-white transition-all cursor-pointer"
+                    >
+                      <img 
+                        src="/image_icone/OutilDéroulant.svg" 
+                        alt="Outils" 
+                        className="w-6 h-6 object-contain" 
+                      />
+                    </button>
+        
+                    {isMenuOpen && (
+                      <div className="absolute right-0 mt-3 w-52 bg-white border border-purple-100 rounded-2xl shadow-xl p-2 flex flex-col gap-2 z-50">
+                        
+                        {/*Bouton Favoris */}
+                        <button
+                          onClick={() => {
+                            handleToggleFavori();
+                          }}
+                          className="flex items-center gap-3 w-full px-3.5 py-2.5 rounded-xl hover:bg-purple-50 transition-colors text-left cursor-pointer"
+                        >
+                          <Star size={30} className={isFavori ? "fill-[#8B47FF] text-[#8B47FF]" : "text-purple-300"} />
+                          <span className="text-sm font-bold text-[#592592]">
+                            {isFavori ? "Roue Favorite" : "Mettre en favori"}
+                          </span>
+                        </button>
+        
+                        {/* Bouton Style / Couleur */}
+                        <button
+                          onClick={() => {
+                            basculerTheme();
+                          }}
+                          className="flex items-center gap-3 w-full px-3.5 py-2.5 rounded-xl hover:bg-purple-50 transition-colors text-left cursor-pointer"
+                        >
+                          <img 
+                            src="/image_icone/Palette-peinture_Stroke.svg" 
+                            alt="Palette de style" 
+                            className="w-7 h-7 object-contain" 
+                          />
+                          <span className="text-sm font-bold text-[#592592]">Style</span>
+                        </button>
+        
+                      </div>
+                    )}
+                  </div>
+                </div>
+                {/*FIN DU MENU DÉROULANT */}
 
         <div className="absolute top-[34%] left-1/2 -translate-x-1/2 flex flex-col items-center justify-center z-0">
           <div

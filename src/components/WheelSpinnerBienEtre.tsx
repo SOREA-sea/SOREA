@@ -280,6 +280,7 @@ const THEMES = {
 export default function WheelSpinnerBienEtre() {
   const [isFavori, setIsFavori] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
 
   const [themeActif, setThemeActif] = useState<'clair' | 'vibrant'>(() => {
     if (typeof window !== 'undefined') {
@@ -306,6 +307,18 @@ export default function WheelSpinnerBienEtre() {
   const idleRafRef = useRef<number | null>(null);
 
   const theme = THEMES[themeActif];
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setIsMenuOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   useEffect(() => {
     setIsFavori(getFavoriWheel() === "bien-etre");
@@ -506,8 +519,8 @@ export default function WheelSpinnerBienEtre() {
       {/* COLONNE CENTRALE : ROUE */}
       <div className="flex items-center justify-center relative mt-[-55px] transform scale-[1.35] origin-top">
         
-        {/* 🔽 MENU DÉROULANT EN HAUT À DROITE DE LA ROUE */}
-        <div className="absolute -top-[100px] right-[-100px] translate-x-[110px] z-50 transform scale-[0.74]">
+        {/*MENU DÉROULANT EN HAUT À DROITE DE LA ROUE */}
+        <div ref={menuRef} className="absolute -top-[100px] right-[-100px] translate-x-[110px] z-50 transform scale-[0.74]">
           <div className="relative">
             <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
@@ -523,11 +536,10 @@ export default function WheelSpinnerBienEtre() {
             {isMenuOpen && (
               <div className="absolute right-0 mt-3 w-52 bg-white border border-purple-100 rounded-2xl shadow-xl p-2 flex flex-col gap-2 z-50">
                 
-                {/* Bouton Favoris */}
+                {/*Bouton Favoris */}
                 <button
                   onClick={() => {
                     handleToggleFavori();
-                    setIsMenuOpen(false);
                   }}
                   className="flex items-center gap-3 w-full px-3.5 py-2.5 rounded-xl hover:bg-purple-50 transition-colors text-left cursor-pointer"
                 >
@@ -541,7 +553,6 @@ export default function WheelSpinnerBienEtre() {
                 <button
                   onClick={() => {
                     basculerTheme();
-                    setIsMenuOpen(false);
                   }}
                   className="flex items-center gap-3 w-full px-3.5 py-2.5 rounded-xl hover:bg-purple-50 transition-colors text-left cursor-pointer"
                 >
@@ -557,7 +568,7 @@ export default function WheelSpinnerBienEtre() {
             )}
           </div>
         </div>
-        {/* 🔼 FIN DU MENU DÉROULANT */}
+        {/*FIN DU MENU DÉROULANT */}
 
         <div className="absolute top-[34%] left-1/2 -translate-x-1/2 flex flex-col items-center justify-center z-0">
           <div
