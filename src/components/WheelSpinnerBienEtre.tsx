@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useRef, useState, useEffect } from "react";
+import ReactMarkdown from 'react-markdown';
 import confetti from "canvas-confetti";
 import { Star } from "lucide-react";
 import { getFavoriWheel, setFavoriWheel, WheelCategory } from "../lib/favorites-store";
@@ -768,8 +769,10 @@ export default function WheelSpinnerBienEtre() {
 
           <div className="text-[15px] font-[700] text-[#1A1A1A] text-center mb-[20px] leading-[1.4] px-[10px]">
             <strong>Défi du jour :</strong> <br />
-            <span className="font-medium mt-1 inline-block">{resultatGagnant?.defiDuJour}</span>
-          </div>
+  <span className="font-medium mt-1 inline-block">
+    <ReactMarkdown>{resultatGagnant?.defiDuJour}</ReactMarkdown>
+  </span>
+</div>
 
           <div className="h-[1px] w-full my-[15px]" style={{ background: `radial-gradient(circle, ${theme.borderCarte} 0%, transparent 100%)` }}></div>
 
@@ -945,7 +948,7 @@ export default function WheelSpinnerBienEtre() {
 
   onClick={() => { 
     setChoixUtilisateur('oui');
-    
+
     // Logique d'ajout du défi dans le localStorage
     if (resultatGagnant?.defiDuJour) {
       const today = new Date();
@@ -959,11 +962,13 @@ export default function WheelSpinnerBienEtre() {
           let todosObj = stored ? JSON.parse(stored) : {};
           const currentTodos = todosObj[todayKey] || [];
           
-          const exists = currentTodos.some((t: any) => t.text === resultatGagnant.defiDuJour);
+          const texteFormaté = `**${resultatGagnant.name}** : ${resultatGagnant.defiDuJour}`;
+
+          const exists = currentTodos.some((t: any) => t.text === texteFormaté);
           if (!exists) {
             todosObj[todayKey] = [
               ...currentTodos,
-              { id: `${todayKey}-${Date.now()}`, text: resultatGagnant.defiDuJour, completed: false, category: 'bien-etre' }
+              { id: `${todayKey}-${Date.now()}`,themeName: resultatGagnant.name, text: texteFormaté, completed: false, category: 'bien-etre' }
             ];
             localStorage.setItem(key, JSON.stringify(todosObj));
             window.dispatchEvent(new Event('storage'));

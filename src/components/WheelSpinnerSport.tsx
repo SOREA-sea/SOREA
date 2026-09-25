@@ -960,12 +960,14 @@ export default function WheelSpinnerSport() {
           const stored = localStorage.getItem(key);
           let todosObj = stored ? JSON.parse(stored) : {};
           const currentTodos = todosObj[todayKey] || [];
-          
-          const exists = currentTodos.some((t: any) => t.text === resultatGagnant.defiDuJour);
+
+          const texteFormaté = `**${resultatGagnant.name}** : ${resultatGagnant.defiDuJour}`;
+
+          const exists = currentTodos.some((t: any) => t.text === texteFormaté);
           if (!exists) {
             todosObj[todayKey] = [
               ...currentTodos,
-              { id: `${todayKey}-${Date.now()}`, text: resultatGagnant.defiDuJour, completed: false, category: 'sport' }
+              { id: `${todayKey}-${Date.now()}`,themeName: resultatGagnant.name, text: texteFormaté, completed: false, category: 'sport' }
             ];
             localStorage.setItem(key, JSON.stringify(todosObj));
             window.dispatchEvent(new Event('storage'));

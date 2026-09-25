@@ -564,7 +564,7 @@ const [isSnowflakeMode, setIsSnowflakeMode] = useState(false);
               </button>
             </div>
 
-            <div className="space-y-3">
+            <div className="space-y-3 max-h-[360px] overflow-y-auto pr-2 custom-scrollbar">
               {(todosByDate[selectedTodoDate] ?? []).length > 0 ? (
                 (todosByDate[selectedTodoDate] ?? []).map((todo) => (
                   <div key={todo.id} className="group flex items-center justify-between gap-4 rounded-3xl border border-gray-200 bg-white px-4 py-3 transition"
