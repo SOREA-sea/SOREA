@@ -21,6 +21,26 @@ export default function Navbar({ isLoggedIn = false }: { isLoggedIn?: boolean })
   const [sessionUser, setSessionUser] = useState<{ id: string } | null>(null);
   const [sessionChecked, setSessionChecked] = useState(isLoggedIn);
 
+  const [hasNotification, setHasNotification] = useState(false);
+  useEffect(() => {
+    // Vérifier l'état initial au chargement
+    if (typeof window !== 'undefined') {
+      setHasNotification(localStorage.getItem('sorea_has_notification') === 'true');
+
+      const handleStorageUpdate = () => {
+        setHasNotification(localStorage.getItem('sorea_has_notification') === 'true');
+      };
+
+      window.addEventListener('sorea_notification_update', handleStorageUpdate);
+      window.addEventListener('storage', handleStorageUpdate);
+
+      return () => {
+        window.removeEventListener('sorea_notification_update', handleStorageUpdate);
+        window.removeEventListener('storage', handleStorageUpdate);
+      };
+    }
+  }, []);
+
   useEffect(() => {
     if (isLoggedIn) {
       return;
@@ -71,15 +91,32 @@ export default function Navbar({ isLoggedIn = false }: { isLoggedIn?: boolean })
 
         <div className="sorea-navbar-panel">
           <nav className="sorea-navbar-nav" aria-label="Navigation principale">
-            {NAV_LINKS.map((link) => (
-              <Link
-                key={link.label}
-                href={link.href}
-                className={`sorea-navbar-link ${pathname === link.href ? "sorea-navbar-link--active" : ""}`}
-              >
-                {link.label}
-              </Link>
-            ))}
+
+            {NAV_LINKS.map((link) => {
+  const isMonSuivi = link.href === "/suivi";
+
+  return (
+    <Link
+      key={link.label}
+      href={link.href}
+      onClick={() => {
+        if (isMonSuivi && typeof window !== 'undefined') {
+          setHasNotification(false);
+          localStorage.removeItem('sorea_has_notification'); // Nettoyage au clic
+        }
+      }}
+      className={`sorea-navbar-link relative h-full flex items-center px-2 ${pathname === link.href ? "sorea-navbar-link--active" : ""}`}
+    >
+      <span>{link.label}</span>
+
+      {/* 🌟 NOUVEAU : Affichage du badge de notification sur "Mon suivi" */}
+      {isMonSuivi && hasNotification && (
+        <span className="absolute top-0 -right-2 w-2 h-2 bg-[#00CEC9] rounded-full animate-pulse shrink-0 pointer-events-none" />
+      )}
+    </Link>
+  );
+})}
+
           </nav>
 
           <Link href={ctaHref} className="sorea-cta-btn">

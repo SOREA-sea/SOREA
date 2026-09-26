@@ -1,8 +1,6 @@
 "use client";
 
 import React, { useRef, useState, useEffect } from "react";
-import ReactMarkdown from 'react-markdown';
-import confetti from "canvas-confetti";
 import { Star } from "lucide-react";
 import { getFavoriWheel, setFavoriWheel, WheelCategory } from "../lib/favorites-store";
 
@@ -695,7 +693,7 @@ export default function WheelSpinnerBienEtre() {
           <div className="flex items-center justify-center gap-[6px] mb-[20px] relative">
 
   <span
-    className="text-[22px] font-[800] text-center transition-colors duration-500"
+    className="text-[22px] font-normal text-center transition-colors duration-500"
     style={{ color: theme.textAccent }}
   >
     {resultatGagnant?.name}
@@ -767,12 +765,10 @@ export default function WheelSpinnerBienEtre() {
 
 </div>
 
-          <div className="text-[15px] font-[700] text-[#1A1A1A] text-center mb-[20px] leading-[1.4] px-[10px]">
+          <div className="text-[15px] font-[700] text-[#212121] text-center mb-[20px] leading-[1.4] px-[10px]">
             <strong>Défi du jour :</strong> <br />
-  <span className="font-medium mt-1 inline-block">
-    <ReactMarkdown>{resultatGagnant?.defiDuJour}</ReactMarkdown>
-  </span>
-</div>
+            <span className="font-medium mt-1 inline-block">{resultatGagnant?.defiDuJour}</span>
+          </div>
 
           <div className="h-[1px] w-full my-[15px]" style={{ background: `radial-gradient(circle, ${theme.borderCarte} 0%, transparent 100%)` }}></div>
 
@@ -962,13 +958,19 @@ export default function WheelSpinnerBienEtre() {
           let todosObj = stored ? JSON.parse(stored) : {};
           const currentTodos = todosObj[todayKey] || [];
           
-          const texteFormaté = `**${resultatGagnant.name}** : ${resultatGagnant.defiDuJour}`;
+          const texteFormaté = `${resultatGagnant.name} : ${resultatGagnant.defiDuJour}`;
 
           const exists = currentTodos.some((t: any) => t.text === texteFormaté);
           if (!exists) {
             todosObj[todayKey] = [
               ...currentTodos,
-              { id: `${todayKey}-${Date.now()}`,themeName: resultatGagnant.name, text: texteFormaté, completed: false, category: 'bien-etre' }
+              { 
+                id: `${todayKey}-${Date.now()}`,
+                themeName: resultatGagnant.name, 
+                text: texteFormaté, 
+                completed: false, 
+                category: 'bien-etre' 
+              }
             ];
             localStorage.setItem(key, JSON.stringify(todosObj));
             window.dispatchEvent(new Event('storage'));
@@ -977,6 +979,10 @@ export default function WheelSpinnerBienEtre() {
         }
       }
     }
+    if (typeof window !== 'undefined') {
+    localStorage.setItem('sorea_has_notification', 'true');
+    window.dispatchEvent(new Event('sorea_notification_update'));
+  }
   }}
   className="p-[16px] text-white rounded-[8px] text-[15px] font-[600] shadow-[0px_4px_10px_rgba(0,0,0,0.05)] transition-all border-none cursor-pointer"
   style={{ backgroundColor: theme.btnPrimary }}

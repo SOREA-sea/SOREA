@@ -299,35 +299,33 @@ export default function ClientLandingPage() {
               {/* Contenu Texte + Tag + Bouton (Droite) */}
               <div className="w-full md:w-1/2 flex flex-col items-center md:items-start text-center md:text-left gap-5">
                 <h2 className="text-2xl md:text-4xl font-semibold tracking-wide text-[#2A2340]">
-                  LES CHALLENGES ET SURPRISES{" "}
-                  <span className="text-[#8B47FF]">SOREA</span>
+                  LES CHALLENGES ET SURPRISES <span className="text-[#7F4DC5]">SOREA</span>
                 </h2>
 
                 <p className="text-sm md:text-base text-[#2A2340]/80 font-normal max-w-md">
-                  Des défis de développement personnel pensés pour vous inspirer
-                  et vous faire grandir, un jour à la fois.
+                  Des défis de développement personnel pensés <br/> pour vous aider à atteindre vos plus grands objectifs.
                 </p>
 
                 {/* Carte/Encadré translucide "Exemple de défis" */}
-                <div className="w-full max-w-[340px] bg-[#D6BBFF]/60 rounded-[14px] p-3 px-4 flex items-center gap-3">
+                <div className="w-full max-w-[340px] bg-[#D6BBFF]/60 rounded-[8px] p-3 px-4 flex items-center gap-3">
                   <Image
-                    src="/image_icone/image_Wheel-Spinner/Introspection.png"
-                    alt="Loupe Introspection"
-                    width={36}
-                    height={36}
+                    src="/image_icone/image_Wheel-Spinner/Introspection.svg"
+                    alt="icône Introspection"
+                    width={50}
+                    height={50}
                     className="w-9 h-9 object-contain shrink-0"
                   />
-                  <span className="text-white text-sm font-medium">
+                  <span className="text-[#7F4DC5] text-sm font-medium">
                     Exemple de défis
                   </span>
                 </div>
 
                 {/* Bouton Commencer */}
                 <button
-                  onClick={() => router.push("/carnet")}
+                  onClick={() => router.push("/challenge")}
                   className="mt-1 px-8 py-3 bg-[#8B47FF] hover:bg-[#7833ee] text-white text-sm font-medium rounded-full transition-colors shadow-sm"
                 >
-                  Commencer mon défi
+                  Découvrir mes routines 
                 </button>
               </div>
             </div>

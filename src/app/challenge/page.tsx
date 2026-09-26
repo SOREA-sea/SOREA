@@ -78,7 +78,7 @@ const wheelDataConfig = {
       href: "/visualisation",
       locked: true,
     },
-    {
+    /*{
       img: "/image_icone/Lotus.svg",
       alt: "Mon souffle, mon équilibre",
       imgWidth: "180px",
@@ -92,9 +92,9 @@ const wheelDataConfig = {
       btnLabel: <>Je me lance<br />dans ma séance</>,
       href: "/wim-hof",
       locked: true,
-    },
+    },*/
 
-    {
+    /*{
       img: "/image_icone/Courrier.svg",
       alt: "Courrier du futur",
       imgWidth: "280px",
@@ -108,7 +108,7 @@ const wheelDataConfig = {
       btnLabel: <>Je laisse parler<br />ma plume</>,
       href: "/mot-a-moi",
       locked: true,
-    },
+    },*/
 
     {
       img: "image_icone/image_Wheel-Spinner/WS_BienEtreHead1.svg",
@@ -256,8 +256,8 @@ const wheelDataConfig = {
                 {section.locked && (
                   <div className="absolute inset-0 bg-black/40 backdrop-grayscale backdrop-blur-[1px] z-20 flex flex-col items-center justify-center">
                     <img src="/image_icone/Cadenas_Close_Stroke.png" alt="Cadenas" className="w-10 h-10 drop-shadow-md" />
-                    <div className="absolute bottom-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-black/80 text-white text-xs px-3 py-1.5 rounded-md shadow-lg pointer-events-none whitespace-nowrap">
-                      Ce challenge sera bientôt disponible
+                    <div className="absolute bottom-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-[#212121]/80 text-white text-xl px-3 py-1.5 shadow-lg pointer-events-none whitespace-nowrap">
+                      Ce challenge sera bientôt disponible !
                     </div>
                   </div>
                 )}

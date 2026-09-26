@@ -63,6 +63,38 @@ const [isSnowflakeMode, setIsSnowflakeMode] = useState(false);
   const [loggedUser, setLoggedUser] = useState<{ id: string; email: string } | null>(null);
   const [phaseFilters, setPhaseFilters] = useState<string[]>([]);
 
+  // 🌟 NOUVEAU : Vérifier si la date correspond à aujourd'hui et s'il y a une notification active
+
+      const [hasNotif, setHasNotif] = useState(false);
+
+
+
+      useEffect(() => {
+
+  const checkNotif = () => {
+
+    if (typeof window !== 'undefined') {
+const active = localStorage.getItem('sorea_has_notification') === 'true';
+      setHasNotif(active);
+    }
+  };
+
+  checkNotif();
+
+  window.addEventListener('sorea_notification_update', checkNotif);
+
+  window.addEventListener('storage', checkNotif);
+
+  return () => {
+
+    window.removeEventListener('sorea_notification_update', checkNotif);
+
+    window.removeEventListener('storage', checkNotif);
+
+  };
+
+}, []);
+
   useEffect(() => {
     if (!loggedUser) return;
     localStorage.setItem(`sorea_todos_${loggedUser.id}`, JSON.stringify(todosByDate));
@@ -328,6 +360,9 @@ const [isSnowflakeMode, setIsSnowflakeMode] = useState(false);
       const dayTodos = todosByDate[dateKey] || [];
       const allTodosCompleted = dayTodos.length > 0 && dayTodos.every(todo => todo.completed); //Le point s'affiche s'il y a des tâches, MAIS disparaît si elle sont toutes complétées.
       const showPurpleDot = dayTodos.length > 0 && !allTodosCompleted;
+      
+
+const isTodayWithNotification = isToday && hasNotif;
 
       if (isToday) {
         phaseColor = "bg-[#E8D9FF] text-[#8B47FF]";
@@ -341,6 +376,11 @@ const [isSnowflakeMode, setIsSnowflakeMode] = useState(false);
           onClick={() => handleDayClick(day)}
           className={`h-12 sm:h-16 border-r border-b border-gray-200 flex flex-col items-center justify-center transition-colors cursor-pointer relative ${phaseColor} ${isToday ? "font-bold" : ""} ${hiddenStyles}`}
         >
+{/* 🌟 NOUVEAU : Badge rouge de notification sur la date du jour adéquate */}
+    {isToday && hasNotif && (
+      <span className="absolute top-1 right-1 w-2.5 h-2.5 bg-[#00CEC9] rounded-full animate-pulse z-10" />
+    )}
+
           {allTodosCompleted && (
       <img 
         src="/image_icone/Okey-Calendar.svg" 
