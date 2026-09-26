@@ -491,7 +491,7 @@ const [isSnowflakeMode, setIsSnowflakeMode] = useState(false);
           onClick={() => setIsSnowflakeMode(!isSnowflakeMode)}
           className="px-4 py-2 bg-white border-2 border-[#8B47FF] text-[#8B47FF] font-bold rounded-2xl hover:bg-[#F4EBFF] transition-all duration-300 shadow-sm text-sm"
         >
-          Mode {isSnowflakeMode ? "❄️Hiver" : "🩸Menstrue"}
+          Mode {isSnowflakeMode ? "❄️Discret" : "🩸Menstrue"}
         </button>
         </div>
         </div>
@@ -571,8 +571,8 @@ const [isSnowflakeMode, setIsSnowflakeMode] = useState(false);
                   style={{
     backgroundColor: 
       todo.category === 'bien-etre' ? 'rgba(139, 71, 255, 0.15)' : // Violet léger
-      todo.category === 'sport' ? 'rgba(59, 130, 246, 0.15)' :       // Bleu léger
-      todo.category === 'nutrition' ? 'rgba(236, 72, 153, 0.15)' :   // Rose léger
+      todo.category === 'sport' ? '#CEFFFD' :       // Bleu léger
+      todo.category === 'nutrition' ? '#FFE8F7' :   // Rose léger
       'transparent'
   }}
   >
