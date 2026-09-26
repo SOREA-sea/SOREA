@@ -12,19 +12,19 @@ import FilRougeCard from "../../components/FilRougeCard";
 
 const wheelDataConfig = {
   "bien-etre": {
-    img: "/image_icone/image_Wheel-Spinner/WS_Bien-être1(1).svg",
+    img: "/image_icone/image_Wheel-Spinner/WS_Bien-être1.svg",
     title: "Cultive ta paix intérieure",
     desc: "Développe un bien-être durable en apprenant à mieux te connaître, à renforcer ton équilibre émotionnel et à cultiver des habitudes positives qui permettront de révéler ton plein potentiel.",
     href: "/route/BienEtre"
   },
   "sport": {
-    img: "/image_icone/image_Wheel-Spinner/WS_Sport1.png",
+    img: "/image_icone/image_Wheel-Spinner/WS_Sport1.svg",
     title: "Active ton corps",
     desc: "Fait du mouvement ton allié du bien-être. Bouge à ton rythme, renforce ton corps et booste ton énergie pour révéler pleinement ton potentiel.",
     href: "/route/Sport",
   },
   "nutrition": {
-    img: "/image_icone/image_Wheel-Spinner/WS_Nutrition1.png",
+    img: "/image_icone/image_Wheel-Spinner/WS_Nutrition1.svg",
     title: "Nourri ton équilibre",
     desc: "Écoute ton corps et adopte une alimentation bienveillante pour découvrir ce qui te fait du bien. Repère tes besoins, sans pression ni culpabilité.",
     href: "/route/Nutrition"

@@ -113,7 +113,7 @@ export default function RouteDesDefis() {
                   className="flex flex-col items-center justify-center p-8 rounded-3xl w-[300px] h-[250px] cursor-pointer hover:-translate-y-1 transition-all duration-300"
                 >
                   <h2 className="text-3xl font-bold text-center text-[#5A37AC] pb-5">Sport</h2>
-                  <img src={themeSport === 'vibrant' ? "/image_icone/image_Wheel-Spinner/WS_Sport2.png" : "/image_icone/image_Wheel-Spinner/WS_Sport1.png"} alt="Wheel-Spinner Sport" className="mb-4 transition-all duration-300" />
+                  <img src={themeSport === 'vibrant' ? "/image_icone/image_Wheel-Spinner/WS_Sport2.svg" : "/image_icone/image_Wheel-Spinner/WS_Sport1.svg"} alt="Wheel-Spinner Sport" className="mb-4 transition-all duration-300" />
                   <span className="text-sm text-gray-500 mt-2 text-center">Bouge et dépense-toi</span>
                 </Link>
 
@@ -123,7 +123,7 @@ export default function RouteDesDefis() {
                   className="flex flex-col items-center justify-center p-8 w-[300px] h-[250px] cursor-pointer hover:-translate-y-1 transition-all duration-300"
                 >
                   <h2 className="text-3xl font-bold text-center text-[#5A37AC] pb-5">Bien-être</h2>
-                  <img src={themeBienEtre === 'vibrant' ? "/image_icone/image_Wheel-Spinner/WS_Bien-être2.png" : "/image_icone/image_Wheel-Spinner/WS_Bien-être1.png"} 
+                  <img src={themeBienEtre === 'vibrant' ? "/image_icone/image_Wheel-Spinner/WS_Bien-être2.svg" : "/image_icone/image_Wheel-Spinner/WS_Bien-être1.svg"} 
                     alt="Wheel-Spinner Bien-être" 
                     className="mb-4 transition-all duration-300" 
                   />
@@ -136,7 +136,7 @@ export default function RouteDesDefis() {
                   className="flex flex-col items-center justify-center p-8 rounded-3xl w-[300px] h-[250px] cursor-pointer hover:-translate-y-1 transition-all duration-300"
                 >
                   <h2 className="text-3xl font-bold text-center text-[#5A37AC] pb-5">Nutrition</h2>
-                  <img src={themeNutrition === 'vibrant' ? "/image_icone/image_Wheel-Spinner/WS_Nutrition2.png" : "/image_icone/image_Wheel-Spinner/WS_Nutrition1.png"} alt="Wheel-Spinner Nutrition" className="mb-4 transition-all duration-300" />
+                  <img src={themeNutrition === 'vibrant' ? "/image_icone/image_Wheel-Spinner/WS_Nutrition2.svg" : "/image_icone/image_Wheel-Spinner/WS_Nutrition1.svg"} alt="Wheel-Spinner Nutrition" className="mb-4 transition-all duration-300" />
                   <span className="text-sm text-gray-500 mt-2 text-center">Défis sains et gourmands</span>
                 </Link>
 
