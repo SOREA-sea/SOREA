@@ -45,7 +45,7 @@ export default function ClientLandingPage() {
             />
 
             {/* Overlay translucide (Glassmorphism) centré */}
-            <div className="relative z-10 w-full max-w-[900px] mx-4 bg-white/25 backdrop-blur-md border border-white/30 rounded-[32px] p-8 md:p-14 text-white shadow-xl flex flex-col items-start gap-6">
+            <div className="relative z-10 w-full max-w-[1228px] mx-4 bg-white/25 backdrop-blur-md border border-white/30 rounded-[30.5px] p-8 md:p-14 text-white shadow-xl flex flex-col items-start gap-8">
               <h1 className="text-4xl md:text-6xl font-light tracking-wide text-white drop-shadow-sm">
                 SOREA
               </h1>
