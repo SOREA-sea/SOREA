@@ -226,7 +226,7 @@ let maxLimit = hasSubscription ? 999 : 5;
       <main className="flex-1 w-full flex flex-col items-center">
         <div className="w-full max-w-[1440px] mx-auto px-[96px] flex flex-col items-center pt-[150px] pb-[24px]">
           <div className="w-full mb-6 flex flex-col items-start gap-2">
-            <Link href="/challenge">
+            <Link href="/mirror">
               <button className="flex items-center gap-2 bg-white text-[#8B47FF] font-bold px-6 py-3 rounded-2xl shadow-md transition-all duration-300 hover:scale-105 hover:shadow-xl cursor-pointer border-2 border-[#8B47FF] relative z-10">
                 ← Retour
               </button>
@@ -260,7 +260,7 @@ let maxLimit = hasSubscription ? 999 : 5;
             >
 
               <img
-                src="/image_icone/miroire.png"
+                src="/image_icone/miroir.png"
                 alt="Cadre du miroir"
                 className="absolute z-0 w-full h-full object-contain pointer-events-none"
               />

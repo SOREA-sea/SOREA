@@ -49,7 +49,7 @@ const wheelDataConfig = {
   const sections = [
 
     {
-      img: "/image_icone/miroire.png",
+      img: "/image_icone/miroir.png",
       alt: "miroir",
       imgWidth: "280px",
       title: "Miroir mon beau miroir",
@@ -184,7 +184,7 @@ const wheelDataConfig = {
 {/* MIROIR */}
 <section className="grid grid-cols-1 md:grid-cols-[auto_1fr] items-center gap-12">
           <div className="flex items-center justify-center">
-            <img src="/image_icone/miroire.png" alt="Miroir affirmation" style={{ width: "280px", display: "block" }} />
+            <img src="/image_icone/miroir.png" alt="Miroir affirmation" style={{ width: "280px", display: "block" }} />
           </div>
           <article
             className="flex flex-col border-2 border-[#8B47FF] rounded-2xl p-8 gap-5"
@@ -196,7 +196,7 @@ const wheelDataConfig = {
             <p className="text-[#4b3b5c] text-xl leading-relaxed max-w-[390px]">
               Choisis ton défi bien-être du jour et avance avec douceur, une action après l&apos;autre.
             </p>
-            <Link href="mirror/miroir">
+            <Link href="/mirror">
               <button className="bg-SOREA-V1 text-white font-bold px-10 py-5 rounded-2xl shadow-md transition-all duration-300 hover:scale-105 hover:shadow-xl tracking-[0.18em] uppercase cursor-pointer">
                 M'affirmer
               </button>
