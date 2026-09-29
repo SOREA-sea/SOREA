@@ -109,7 +109,7 @@ export default function RouteDesDefis() {
           
           {/* SPORT */}
                <Link 
-                  href="/route/Sport"
+                  href="/Wheel-Spinner/Sport"
                   className="flex flex-col items-center justify-center p-8 rounded-3xl w-[300px] h-[250px] cursor-pointer hover:-translate-y-1 transition-all duration-300"
                 >
                   <h2 className="text-3xl font-bold text-center text-[#5A37AC] pb-5">Sport</h2>
@@ -119,7 +119,7 @@ export default function RouteDesDefis() {
 
          {/* BIEN-ÊTRE */}
                 <Link 
-                  href="/route/BienEtre"
+                  href="/Wheel-Spinner/BienEtre"
                   className="flex flex-col items-center justify-center p-8 w-[300px] h-[250px] cursor-pointer hover:-translate-y-1 transition-all duration-300"
                 >
                   <h2 className="text-3xl font-bold text-center text-[#5A37AC] pb-5">Bien-être</h2>
@@ -132,7 +132,7 @@ export default function RouteDesDefis() {
 
           {/* NUTRITION */}
                 <Link 
-                  href="/route/Nutrition"
+                  href="/Wheel-Spinner/Nutrition"
                   className="flex flex-col items-center justify-center p-8 rounded-3xl w-[300px] h-[250px] cursor-pointer hover:-translate-y-1 transition-all duration-300"
                 >
                   <h2 className="text-3xl font-bold text-center text-[#5A37AC] pb-5">Nutrition</h2>

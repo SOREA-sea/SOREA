@@ -1,4 +1,3 @@
-// Exemple pour : /app/route-des-defis/nutrition/page.tsx
 "use client";
 import React, { useState } from "react";
 import Link from "next/link"; // Import de Link pour le retour
@@ -61,7 +60,7 @@ const hideInstructionsWellness = () => {
       {/* Côté Gauche : Bouton Retour */}
       <div className="flex-shrink-0">
         <Link 
-          href="/route" // Lien vers la page de sélection
+          href="/Wheel-Spinner" // Lien vers la page de sélection
               className="text-[#8B47FF] font-bold px-5 py-2 mt-12 rounded-2xl border-2 border-[#8B47FF] hover:bg-[#8B47FF] hover:text-white transition-all shadow-sm flex items-center gap-2"
             >
               ← Retour aux choix

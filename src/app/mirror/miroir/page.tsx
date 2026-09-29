@@ -110,10 +110,11 @@ export default function NouvellePage() {
     const today = new Date().toISOString().split("T")[0];
 
     // Limites quotidiennes
-    let maxLimit = 3; // Non-inscrit / non-connecté
-    if (loggedUser) {
-      maxLimit = hasSubscription ? 999 : 5; // Inscrit sans abonnement = 5 max
-    }
+    if (!loggedUser) {
+  alert("Vous devez être inscrit pour utiliser le miroir !✨");
+  return;
+}
+let maxLimit = hasSubscription ? 999 : 5;
 
     if (affirmationCount >= maxLimit) {
       alert(`Limite quotidienne atteinte ! Tu as utilisé tes ${maxLimit} reflets du jour. Reviens demain ! ✨`);

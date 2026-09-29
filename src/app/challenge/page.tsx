@@ -60,7 +60,7 @@ const wheelDataConfig = {
         </>
       ),
       btnLabel: <>Affirmer ma<br />lumière intérieure</>,
-      href: "/miroir",
+      href: "mirror/miroir",
     },
 
     {
@@ -122,7 +122,7 @@ const wheelDataConfig = {
         </>
       ),
       btnLabel: <>Affirmer ma<br />lumière intérieure</>,
-      href: `/route?cat=${favoriWheel}`,
+      href: '/Wheel-Spinner',
     },
 
   ];
@@ -149,7 +149,7 @@ const wheelDataConfig = {
             <p className="text-[#4b3b5c] text-xl leading-relaxed max-w-[390px]">
               Choisis ton défi bien-être du jour et avance avec douceur, une action après l&apos;autre.
             </p>
-            <Link href="/route">
+            <Link href="/Wheel-Spinner">
               <button className="bg-SOREA-V1 text-white font-bold px-10 py-5 rounded-2xl shadow-md transition-all duration-300 hover:scale-105 hover:shadow-xl tracking-[0.18em] uppercase cursor-pointer">
                 Tourner
               </button>
@@ -196,7 +196,7 @@ const wheelDataConfig = {
             <p className="text-[#4b3b5c] text-xl leading-relaxed max-w-[390px]">
               Choisis ton défi bien-être du jour et avance avec douceur, une action après l&apos;autre.
             </p>
-            <Link href="/miroir">
+            <Link href="mirror/miroir">
               <button className="bg-SOREA-V1 text-white font-bold px-10 py-5 rounded-2xl shadow-md transition-all duration-300 hover:scale-105 hover:shadow-xl tracking-[0.18em] uppercase cursor-pointer">
                 M'affirmer
               </button>
