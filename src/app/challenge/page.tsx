@@ -118,10 +118,9 @@ const wheelDataConfig = {
       description: (
         <>
           Choisis ton défi bien-être parmi <span className="text-[#8B47FF] font-semibold">plusieurs roues à thèmes</span> et retrouve calme et sérénité grâce aux défis qui te seront proposés. Chaque tirage est une nouvelle occasion de prendre soin de toi, à ton rythme.{" "}
-          <span className="text-[#8B47FF] font-semibold">renforcer ta confiance</span>.
         </>
       ),
-      btnLabel: <>Affirmer ma<br />lumière intérieure</>,
+      btnLabel: <>Tourner la roue <br />de mes défis</>,
       href: '/Wheel-Spinner',
     },
 

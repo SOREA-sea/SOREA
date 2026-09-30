@@ -5,6 +5,7 @@ import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import DailyEncouragement from "@/components/DailyEncouragement"; // Import du composant demandé
+import AffirmationTable from "@/components/AffirmationTable";
 
 export default function MiroirLandingPage() {
   return (
@@ -38,7 +39,7 @@ export default function MiroirLandingPage() {
           {/* Miroir de droite */}
           <div className="relative w-full max-w-[450px] h-[450px] flex items-center justify-center p-6">
             {/* Fond ovale lumineux avec dégradé et flou */}
-            <div className="absolute inset-0 m-auto w-[300px] h-[600px] rounded-[50%] bg-[#C0BBFC] blur-3xl opacity-85 pointer-events-none"></div>
+            <div className="absolute inset-0 m-auto w-[500px] h-[600px] rounded-[50%] bg-[#C0BBFC] blur-3xl opacity-85 pointer-events-none"></div>
             <img
               src="/image_icone/miroir.png"
               alt="Miroir affirmation"
@@ -82,17 +83,60 @@ export default function MiroirLandingPage() {
         </section>
 
         {/* SECTION APPEL À L'ACTION FINAL */}
-        <section className="w-full max-w-[1440px] mx-auto px-[96px] py-[80px] flex flex-col sm:flex-row items-center justify-between bg-purple-50/50 rounded-3xl my-12 border border-purple-100/60">
-          <div className="flex flex-col items-start gap-2 mb-6 sm:mb-0">
-            <h2 className="text-2xl lg:text-3xl font-bold text-gray-900">
+        {/* SECTION : Crée ton Affirmation avec bouton et galerie sur la droite */}
+        <section className="w-full max-w-[1440px] mx-auto px-[96px] py-[40px] flex flex-col lg:flex-row items-center justify-between gap-12 bg-purple-50/50 rounded-3xl my-12 border border-purple-100/60">
+          
+          {/* Colonne de gauche : Titre et Tableau d'affirmation */}
+          <div className="flex flex-col items-center justify-center gap-6 flex-1">
+            <h2 className="text-xl lg:text-2xl font-bold text-[#212121] text-center">
               ↓ Crée ton Affirmation de cette manière ↓
             </h2>
-            <img
-            src="/image_icone/Affirmation_Succès.png"
-            alt="Exemple d'affirmation succès"
-            className="w-full max-w-[500px] object-contain shadow-sm"
-          />
+            <AffirmationTable />
+             {/* Tableau des critères d'affirmation codé en dur */}
+        
           </div>
+
+          {/* Colonne de droite : Bouton d'action + Galerie des affirmations enregistrées */}
+          <div className="flex flex-col items-center justify-center gap-6 w-full lg:w-auto">
+            
+            {/* Bouton pour accéder à la personnalisation */}
+            <Link href="/mirror">
+              <button className="bg-[#7F4DC5] text-white font-bold px-8 py-4 rounded-2xl shadow-lg transition-all duration-300 hover:scale-105 hover:shadow-xl cursor-pointer">
+                Personnaliser mon affirmation
+              </button>
+            </Link>
+
+            {/* Galerie interactive reliée aux réalisations (style page_6.tsx) */}
+            <div className="bg-white rounded-[32px] p-6 shadow-sm border border-purple-100 w-full max-w-[400px] flex flex-col gap-6">
+              
+              {/* Onglets de la galerie */}
+              <div className="flex gap-6 border-b border-purple-100 pb-3 text-sm">
+                <span className="font-bold pb-2 -mb-[13px] text-[#8B47FF] border-b-2 border-[#8B47FF] cursor-pointer">
+                  Galerie
+                </span>
+                <span className="font-bold pb-2 -mb-[13px] text-gray-400 hover:text-gray-600 transition-colors cursor-pointer">
+                  Corbeille
+                </span>
+              </div>
+              
+              {/* Grille des vignettes (similaire à la capture) */}
+              <div className="grid grid-cols-2 gap-4">
+                <div className="aspect-square rounded-2xl overflow-hidden shadow-sm border border-gray-100 bg-purple-50 flex items-center justify-center p-3 text-center text-xs font-medium text-purple-700">
+                  "Je suis confiant(e)"
+                </div>
+                <div className="aspect-square rounded-2xl overflow-hidden shadow-sm border border-gray-100 bg-purple-50 flex items-center justify-center p-3 text-center text-xs font-medium text-purple-700">
+                  "Je cultive la paix"
+                </div>
+                <div className="aspect-square bg-gradient-to-br from-gray-100 to-gray-50 rounded-2xl border border-gray-100"></div>
+                <Link href="/mirror/miroir" className="aspect-square bg-[#FAF5FF] border-2 border-dashed border-purple-200 rounded-2xl flex items-center justify-center text-purple-300 hover:bg-purple-50 transition-colors cursor-pointer">
+                  <span className="text-4xl font-light">+</span>
+                </Link>
+              </div>
+
+            </div>
+
+          </div>
+
         </section>
 
         {/* SECTION DAILY ENCOURAGEMENT (Remplace l'encadré violet de l'image) */}
