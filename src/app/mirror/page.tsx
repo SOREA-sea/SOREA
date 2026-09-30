@@ -1,13 +1,15 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import DailyEncouragement from "@/components/DailyEncouragement"; // Import du composant demandé
 import AffirmationTable from "@/components/AffirmationTable";
+import AffirmationGallery from "@/components/AffirmationGallery";
 
 export default function MiroirLandingPage() {
+    const [isGalleryOpen, setIsGalleryOpen] = useState(false);
   return (
     <div className="min-h-screen flex flex-col w-full bg-[#fcfbfe] font-sans text-gray-800">
       
@@ -96,46 +98,43 @@ export default function MiroirLandingPage() {
         
           </div>
 
-          {/* Colonne de droite : Bouton d'action + Galerie des affirmations enregistrées */}
-          <div className="flex flex-col items-center justify-center gap-6 w-full lg:w-auto">
-            
-            {/* Bouton pour accéder à la personnalisation */}
-            <Link href="/mirror">
-              <button className="bg-[#7F4DC5] text-white font-bold px-8 py-4 rounded-2xl shadow-lg transition-all duration-300 hover:scale-105 hover:shadow-xl cursor-pointer">
-                Personnaliser mon affirmation
-              </button>
-            </Link>
+<div className="flex flex-col items-center justify-center gap-6 w-full lg:w-auto">
 
-            {/* Galerie interactive reliée aux réalisations (style page_6.tsx) */}
-            <div className="bg-white rounded-[32px] p-6 shadow-sm border border-purple-100 w-full max-w-[400px] flex flex-col gap-6">
-              
-              {/* Onglets de la galerie */}
-              <div className="flex gap-6 border-b border-purple-100 pb-3 text-sm">
-                <span className="font-bold pb-2 -mb-[13px] text-[#8B47FF] border-b-2 border-[#8B47FF] cursor-pointer">
-                  Galerie
-                </span>
-                <span className="font-bold pb-2 -mb-[13px] text-gray-400 hover:text-gray-600 transition-colors cursor-pointer">
-                  Corbeille
-                </span>
-              </div>
-              
-              {/* Grille des vignettes (similaire à la capture) */}
-              <div className="grid grid-cols-2 gap-4">
-                <div className="aspect-square rounded-2xl overflow-hidden shadow-sm border border-gray-100 bg-purple-50 flex items-center justify-center p-3 text-center text-xs font-medium text-purple-700">
-                  "Je suis confiant(e)"
-                </div>
-                <div className="aspect-square rounded-2xl overflow-hidden shadow-sm border border-gray-100 bg-purple-50 flex items-center justify-center p-3 text-center text-xs font-medium text-purple-700">
-                  "Je cultive la paix"
-                </div>
-                <div className="aspect-square bg-gradient-to-br from-gray-100 to-gray-50 rounded-2xl border border-gray-100"></div>
-                <Link href="/mirror/miroir" className="aspect-square bg-[#FAF5FF] border-2 border-dashed border-purple-200 rounded-2xl flex items-center justify-center text-purple-300 hover:bg-purple-50 transition-colors cursor-pointer">
-                  <span className="text-4xl font-light">+</span>
-                </Link>
-              </div>
+        <button 
+          onClick={() => setIsGalleryOpen(true)}
+          className="bg-[#8B47FF] text-white font-bold px-8 py-4 rounded-2xl shadow-lg transition-all duration-300 hover:scale-105 hover:shadow-xl cursor-pointer"
+        >
+          Personnaliser mon affirmation
+        </button>
 
-            </div>
-
+        <div className="bg-white rounded-[32px] p-6 shadow-sm border border-purple-100 w-full max-w-[400px] flex flex-col gap-6">
+          <div className="flex gap-6 border-b border-purple-100 pb-3 text-sm">
+            <span className="font-bold pb-2 -mb-[13px] text-[#8B47FF] border-b-2 border-[#8B47FF] cursor-pointer">
+              Galerie
+            </span>
+            <span className="font-bold pb-2 -mb-[13px] text-gray-400 hover:text-gray-600 transition-colors cursor-pointer">
+              Corbeille
+            </span>
           </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div className="aspect-square rounded-2xl overflow-hidden shadow-sm border border-gray-100 bg-purple-50 flex items-center justify-center p-3 text-center text-xs font-medium text-purple-700">
+              "Je suis confiant(e)"
+            </div>
+            <div className="aspect-square rounded-2xl overflow-hidden shadow-sm border border-gray-100 bg-purple-50 flex items-center justify-center p-3 text-center text-xs font-medium text-purple-700">
+              "Je cultive la paix"
+            </div>
+            <div className="aspect-square bg-gradient-to-br from-gray-100 to-gray-50 rounded-2xl border border-gray-100"></div>
+            <button 
+              onClick={() => setIsGalleryOpen(true)}
+              className="aspect-square bg-[#FAF5FF] border-2 border-dashed border-purple-200 rounded-2xl flex items-center justify-center text-purple-300 hover:bg-purple-50 transition-colors cursor-pointer"
+            >
+              <span className="text-4xl font-light">+</span>
+            </button>
+          </div>
+        </div>
+
+      </div>
 
         </section>
 
@@ -150,7 +149,7 @@ export default function MiroirLandingPage() {
        </div>
 
       </main>
-
+<AffirmationGallery isOpen={isGalleryOpen} onClose={() => setIsGalleryOpen(false)} />
       {/* FOOTER */}
       <Footer />
     </div>
