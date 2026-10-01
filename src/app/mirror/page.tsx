@@ -1,21 +1,60 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import DailyEncouragement from "@/components/DailyEncouragement"; // Import du composant demandé
+import DailyEncouragement from "@/components/DailyEncouragement";
 import AffirmationTable from "@/components/AffirmationTable";
 import AffirmationGallery from "@/components/AffirmationGallery";
 
 export default function MiroirLandingPage() {
     const [isGalleryOpen, setIsGalleryOpen] = useState(false);
+    const [isLoaded, setIsLoaded] = useState(false);// 1. Témoin de chargement
+
     const [affirmations, setAffirmations] = useState([
       { id: "1", text: "Je suis confiant(e)" },
       { id: "2", text: "Je cultive la paix" }
     ]);
     const [trash, setTrash] = useState([]);
     const [previewTab, setPreviewTab] = useState<"galerie" | "corbeille">("galerie");
+
+    // 2. Charger les données stockées au premier affichage de la page
+    useEffect(() => {
+      const savedAffirmations = localStorage.getItem("sorea_affirmations");
+      const savedTrash = localStorage.getItem("sorea_affirmations_trash");
+
+      if (savedAffirmations) setAffirmations(JSON.parse(savedAffirmations));
+      if (savedTrash) setTrash(JSON.parse(savedTrash));
+      setIsLoaded(true);
+    }, []);
+
+    // 3. Sauvegarder automatiquement dès qu'une affirmation ou la corbeille change
+    useEffect(() => {
+      if (isLoaded) {
+        localStorage.setItem("sorea_affirmations", JSON.stringify(affirmations));
+        localStorage.setItem("sorea_affirmations_trash", JSON.stringify(trash));
+      }
+    }, [affirmations, trash, isLoaded]);
+
+// 2. Charger les données stockées au premier chargement de la page
+    useEffect(() => {
+      const savedAffirmations = localStorage.getItem("sorea_affirmations");
+      const savedTrash = localStorage.getItem("sorea_affirmations_trash");
+
+      if (savedAffirmations) setAffirmations(JSON.parse(savedAffirmations));
+      if (savedTrash) setTrash(JSON.parse(savedTrash));
+      setIsLoaded(true);
+    }, []);
+
+    // 3. Sauvegarder automatiquement dès que affirmations ou trash changent
+    useEffect(() => {
+      if (isLoaded) {
+        localStorage.setItem("sorea_affirmations", JSON.stringify(affirmations));
+        localStorage.setItem("sorea_affirmations_trash", JSON.stringify(trash));
+      }
+    }, [affirmations, trash, isLoaded]);
+
   return (
     <div className="min-h-screen flex flex-col w-full bg-[#fcfbfe] font-sans text-gray-800">
       
