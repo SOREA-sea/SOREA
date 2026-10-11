@@ -9,7 +9,6 @@ import AffirmationTable from "@/components/AffirmationTable";
 import AffirmationGallery from "@/components/AffirmationGallery";
 
 export default function MiroirLandingPage() {
-    const [isGalleryOpen, setIsGalleryOpen] = useState(false);
     const [isLoaded, setIsLoaded] = useState(false);// 1. Témoin de chargement
 
     const [affirmations, setAffirmations] = useState([
@@ -122,67 +121,15 @@ export default function MiroirLandingPage() {
             </h2>
             <AffirmationTable />
              {/* Tableau des critères d'affirmation codé en dur */}
-        
           </div>
 
-<div className="flex flex-col items-center justify-center gap-6 w-full lg:w-auto">
-
-        <button 
-          onClick={() => setIsGalleryOpen(true)}
-          className="bg-[#8B47FF] text-white font-bold px-8 py-4 rounded-2xl shadow-lg transition-all duration-300 hover:scale-105 hover:shadow-xl cursor-pointer"
-        >
-          Personnaliser mon affirmation
-        </button>
-
-        <div className="bg-white rounded-[32px] p-6 shadow-sm border border-purple-100 w-full max-w-[400px] flex flex-col gap-6">
-          <div className="flex gap-6 border-b border-purple-100 pb-3 text-sm">
-            <button 
-              type="button"
-              onClick={() => setPreviewTab("galerie")}
-              className={`font-bold pb-2 -mb-[13px] cursor-pointer transition-colors ${previewTab === "galerie" ? "text-[#8B47FF] border-b-2 border-[#8B47FF]" : "text-gray-400 hover:text-gray-600"}`}
-            >
-              Galerie
-            </button>
-            <button 
-              type="button"
-              onClick={() => setPreviewTab("corbeille")}
-              className={`font-bold pb-2 -mb-[13px] cursor-pointer transition-colors ${previewTab === "corbeille" ? "text-[#8B47FF] border-b-2 border-[#8B47FF]" : "text-gray-400 hover:text-gray-600"}`}
-            >
-              Corbeille
-            </button>
-          </div>
-
-          {/* Grille dynamique selon l'onglet choisi sur la page d'accueil */}
-          <div className="grid grid-cols-2 gap-4">
-            {previewTab === "galerie" ? (
-              <>
-                {affirmations.map((card) => (
-                  <div key={card.id} className="aspect-square rounded-2xl overflow-hidden shadow-sm border border-gray-100 bg-purple-50 flex items-center justify-center p-3 text-center text-xs font-medium text-purple-700">
-                    "{card.text}"
-                  </div>
-                ))}
-                <button 
-                  onClick={() => setIsGalleryOpen(true)}
-                  className="aspect-square bg-[#FAF5FF] border-2 border-dashed border-purple-200 rounded-2xl flex items-center justify-center text-purple-300 hover:bg-purple-50 transition-colors cursor-pointer"
-                >
-                  <span className="text-4xl font-light">+</span>
-                </button>
-              </>
-            ) : (
-              trash.length === 0 ? (
-                <p className="col-span-2 text-gray-400 text-xs py-4 italic text-center">La corbeille est vide.</p>
-              ) : (
-                trash.map((card) => (
-                  <div key={card.id} className="aspect-square rounded-2xl overflow-hidden shadow-sm border border-gray-100 bg-gray-100 flex items-center justify-center p-3 text-center text-xs font-medium text-gray-500 opacity-75">
-                    "{card.text}"
-                  </div>
-                ))
-              )
-            )}
-          </div>
-        </div>
-
-      </div>
+          {/* Colonne de droite : Le composant tout-en-un */}
+          <AffirmationGallery 
+            affirmations={affirmations}
+            setAffirmations={setAffirmations}
+            trash={trash}
+            setTrash={setTrash}
+          />
 
         </section>
 
@@ -197,14 +144,7 @@ export default function MiroirLandingPage() {
        </div>
 
       </main>
-<AffirmationGallery 
-  isOpen={isGalleryOpen} 
-  onClose={() => setIsGalleryOpen(false)} 
-  affirmations={affirmations}
-  setAffirmations={setAffirmations}
-  trash={trash}
-  setTrash={setTrash}
-/>
+      
       {/* FOOTER */}
       <Footer />
     </div>

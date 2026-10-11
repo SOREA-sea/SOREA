@@ -60,7 +60,7 @@ const wheelDataConfig = {
         </>
       ),
       btnLabel: <>Affirmer ma<br />lumière intérieure</>,
-      href: "/mirror",
+      href: "mirror/welcomemirror",
     },
 
     {
@@ -195,7 +195,7 @@ const wheelDataConfig = {
             <p className="text-[#4b3b5c] text-xl leading-relaxed max-w-[390px]">
               Choisis ton défi bien-être du jour et avance avec douceur, une action après l&apos;autre.
             </p>
-            <Link href='/mirror'>
+            <Link href='mirror/welcomemirror'>
               <button className="bg-SOREA-V1 text-white font-bold px-10 py-5 rounded-2xl shadow-md transition-all duration-300 hover:scale-105 hover:shadow-xl tracking-[0.18em] uppercase cursor-pointer">
                 M'affirmer
               </button>
