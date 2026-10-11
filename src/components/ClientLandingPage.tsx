@@ -458,12 +458,9 @@ export default function ClientLandingPage() {
           </section>
 
           <div className="overflow-x-hidden">
-            {/* Vos autres composants si besoin */}
 
-            {/* Intégration propre de la section Rayonne */}
             <AmbassadorRayonne />
 
-            {/* Votre footer déjà importé plus bas */}
           </div>
 
           {/* Footer Text */}

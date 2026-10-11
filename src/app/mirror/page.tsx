@@ -37,24 +37,6 @@ export default function MiroirLandingPage() {
       }
     }, [affirmations, trash, isLoaded]);
 
-// 2. Charger les données stockées au premier chargement de la page
-    useEffect(() => {
-      const savedAffirmations = localStorage.getItem("sorea_affirmations");
-      const savedTrash = localStorage.getItem("sorea_affirmations_trash");
-
-      if (savedAffirmations) setAffirmations(JSON.parse(savedAffirmations));
-      if (savedTrash) setTrash(JSON.parse(savedTrash));
-      setIsLoaded(true);
-    }, []);
-
-    // 3. Sauvegarder automatiquement dès que affirmations ou trash changent
-    useEffect(() => {
-      if (isLoaded) {
-        localStorage.setItem("sorea_affirmations", JSON.stringify(affirmations));
-        localStorage.setItem("sorea_affirmations_trash", JSON.stringify(trash));
-      }
-    }, [affirmations, trash, isLoaded]);
-
   return (
     <div className="min-h-screen flex flex-col w-full bg-[#fcfbfe] font-sans text-gray-800">
       

@@ -15,19 +15,19 @@ const wheelDataConfig = {
     img: "/image_icone/image_Wheel-Spinner/WS_Bien-être1.svg",
     title: "Cultive ta paix intérieure",
     desc: "Développe un bien-être durable en apprenant à mieux te connaître, à renforcer ton équilibre émotionnel et à cultiver des habitudes positives qui permettront de révéler ton plein potentiel.",
-    href: "/route/BienEtre"
+    href: "/Wheel-Spinner/BienEtre"
   },
   "sport": {
     img: "/image_icone/image_Wheel-Spinner/WS_Sport1.svg",
     title: "Active ton corps",
     desc: "Fait du mouvement ton allié du bien-être. Bouge à ton rythme, renforce ton corps et booste ton énergie pour révéler pleinement ton potentiel.",
-    href: "/route/Sport",
+    href: "/Wheel-Spinner/Sport",
   },
   "nutrition": {
     img: "/image_icone/image_Wheel-Spinner/WS_Nutrition1.svg",
     title: "Nourri ton équilibre",
     desc: "Écoute ton corps et adopte une alimentation bienveillante pour découvrir ce qui te fait du bien. Repère tes besoins, sans pression ni culpabilité.",
-    href: "/route/Nutrition"
+    href: "/Wheel-Spinner/Nutrition"
   }
 };
 
@@ -195,7 +195,7 @@ const wheelDataConfig = {
             <p className="text-[#4b3b5c] text-xl leading-relaxed max-w-[390px]">
               Choisis ton défi bien-être du jour et avance avec douceur, une action après l&apos;autre.
             </p>
-            <Link href="/mirror">
+            <Link href='/mirror'>
               <button className="bg-SOREA-V1 text-white font-bold px-10 py-5 rounded-2xl shadow-md transition-all duration-300 hover:scale-105 hover:shadow-xl tracking-[0.18em] uppercase cursor-pointer">
                 M'affirmer
               </button>
