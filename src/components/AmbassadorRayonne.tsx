@@ -26,7 +26,7 @@ export default function RayonneSection() {
 
   return (
     <section className="w-full overflow-x-hidden">
-      <div className="w-full max-w-[1440px] flex flex-col lg:flex-row items-center justify-center gap-60">
+      <div className="w-full max-w-[1440px] flex flex-col lg:flex-row items-center justify-center gap-20">
         
         {/* Bloc Texte & Puces (Gauche) */}
         <div className="w-full lg:w-1/2 flex flex-col items-center lg:items-start text-center lg:text-left gap-6">
