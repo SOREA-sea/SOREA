@@ -114,15 +114,19 @@ export default function RayonneSection() {
         <style>{marqueeStyles}</style>
           <div className="grid grid-cols-3 gap-4 w-[606px] max-w-[606px] items-start max-h-[956px] overflow-hidden relative">
             
+{/* Calque de dégradé haut et bas (blanc vers transparent) */}
+            <div className="absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-[#FBF9FE] to-transparent z-10 pointer-events-none" />
+            <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-[#FBF9FE] to-transparent z-10 pointer-events-none" />
+
             {/* Colonne 1 : Défilement vers le HAUT */}
             <div className="relative h-[956px] overflow-hidden">
               <div className="absolute top-0 left-0 flex flex-col gap-5 animate-scroll-up w-full">
                 {/* Bloc 1 (Photos 1 à 5) */}
-                <div className="w-[186.23px] h-[186.23px] shrink-0 bg-gray-300 rounded-[11.82px] overflow-hidden relative shadow-sm"><Image src="/image_photo/Photo1.svg" alt="Photo 1" fill className="object-cover" /></div>
-                <div className="w-[186.23px] h-[186.23px] shrink-0 bg-gray-300 rounded-[11.82px] overflow-hidden relative shadow-sm"><Image src="/image_photo/Photo2.svg" alt="Photo 2" fill className="object-cover" /></div>
-                <div className="w-[186.23px] h-[186.23px] shrink-0 bg-gray-300 rounded-[11.82px] overflow-hidden relative shadow-sm"><Image src="/image_photo/Photo3.svg" alt="Photo 3" fill className="object-cover" /></div>
-                <div className="w-[186.23px] h-[186.23px] shrink-0 bg-gray-300 rounded-[11.82px] overflow-hidden relative shadow-sm"><Image src="/image_photo/Photo4.svg" alt="Photo 4" fill className="object-cover" /></div>
-                <div className="w-[186.23px] h-[186.23px] shrink-0 bg-gray-300 rounded-[11.82px] overflow-hidden relative shadow-sm"><Image src="/image_photo/Photo5.svg" alt="Photo 5" fill className="object-cover" /></div>
+                <div className="w-[186.23px] h-[186.23px] shrink-0 rounded-[11.82px] overflow-hidden relative shadow-sm"><Image src="/image_photo/Photo1.svg" alt="Photo 1" fill className="object-cover" /></div>
+                <div className="w-[186.23px] h-[186.23px] shrink-0 rounded-[11.82px] overflow-hidden relative shadow-sm"><Image src="/image_photo/Photo2.svg" alt="Photo 2" fill className="object-cover" /></div>
+                <div className="w-[186.23px] h-[186.23px] shrink-0 rounded-[11.82px] overflow-hidden relative shadow-sm"><Image src="/image_photo/Photo3.svg" alt="Photo 3" fill className="object-cover" /></div>
+                <div className="w-[186.23px] h-[186.23px] shrink-0 rounded-[11.82px] overflow-hidden relative shadow-sm"><Image src="/image_photo/Photo4.svg" alt="Photo 4" fill className="object-cover" /></div>
+                <div className="w-[186.23px] h-[186.23px] shrink-0 rounded-[11.82px] overflow-hidden relative shadow-sm"><Image src="/image_photo/Photo5.svg" alt="Photo 5" fill className="object-cover" /></div>
                 
                 {/* Bloc 2 (Duplication exacte pour la boucle fluide) */}
                 <div className="w-[186.23px] h-[186.23px] shrink-0 bg-gray-300 rounded-[11.82px] overflow-hidden relative shadow-sm"><Image src="/image_photo/Photo1.svg" alt="Photo 1" fill className="object-cover" /></div>
