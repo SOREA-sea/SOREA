@@ -199,9 +199,9 @@ export default async function DashboardPage() {
           </div>
           <div className="glass-panel rounded-3xl p-6">
             <h3 className="text-xl font-bold mb-4">Ma jauge de streak</h3>
-            <div className="mx-auto w-full max-w-[480px]">
+           {/*  <div className="mx-auto w-full max-w-[480px]">
               <StreakTracker joursConsecutifs={4} />
-            </div>
+            </div>*/}
           </div>
         </div>
       </section>

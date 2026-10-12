@@ -28,7 +28,7 @@ export default function AffirmationTable() {
         <div className="bg-[#C0BBFC] text-purple-900 py-4 px-2 rounded-xl flex items-center justify-center">
           <span>Parlez comme si c'était&nbsp;<span className="font-bold">déjà là</span>&nbsp;</span>
         </div>
-        <div className="bg-[#C0BBFC] text-purple-900 py-4 px-2 rounded-xl flex items-center justify-center italic">
+        <div className="bg-[#C0BBFC] text-purple-900 py-4 px-2 rounded-xl flex items-center justify-center">
           “Je serai confiant•e”
         </div>
         <div className="bg-[#C0BBFC] text-purple-900 py-4 px-2 rounded-xl flex items-center justify-center">
@@ -44,7 +44,7 @@ export default function AffirmationTable() {
         <div className="bg-[#F4C4E4] text-purple-900 py-4 px-2 rounded-xl flex items-center justify-center">
           <span>&nbsp;<span className="font-bold">Évitez</span>&nbsp;les&nbsp;<span className="font-bold">négations</span>&nbsp;</span>
         </div>
-        <div className="bg-[#F4C4E4] text-purple-900 py-4 px-2 rounded-xl flex items-center justify-center italic">
+        <div className="bg-[#F4C4E4] text-purple-900 py-4 px-2 rounded-xl flex items-center justify-center">
           “Je ne veux plus stresser”
         </div>
         <div className="bg-[#F4C4E4] text-purple-900 py-4 px-2 rounded-xl flex items-center justify-center">
@@ -60,7 +60,7 @@ export default function AffirmationTable() {
         <div className="bg-[#B7F8F5] text-purple-900 py-4 px-2 rounded-xl flex items-center justify-center">
           <span>Commencez par “&nbsp;<span className="font-bold">Je</span>&nbsp;” </span>
         </div>
-        <div className="bg-[#B7F8F5] text-purple-900 py-4 px-2 rounded-xl flex items-center justify-center italic">
+        <div className="bg-[#B7F8F5] text-purple-900 py-4 px-2 rounded-xl flex items-center justify-center">
           “Les gens m'aiment”
         </div>
         <div className="bg-[#B7F8F5] text-purple-900 py-4 px-2 rounded-xl flex items-center justify-center">

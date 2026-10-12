@@ -74,7 +74,7 @@ export default function Navbar({ isLoggedIn = false }: { isLoggedIn?: boolean })
 
   const isAuthenticated = isLoggedIn || !!sessionUser;
   const ctaLabel = isAuthenticated ? "Mon dossier personnel" : "Se connecter";
-  const ctaHref = isAuthenticated ? "/dashboard" : "/login";
+  const ctaHref = isAuthenticated ? "/dashboard/dossierperso" : "/login";
 
   return (
     <>

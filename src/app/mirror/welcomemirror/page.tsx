@@ -11,31 +11,6 @@ import AffirmationGallery from "@/components/AffirmationGallery";
 export default function MiroirLandingPage() {
     const [isLoaded, setIsLoaded] = useState(false);// 1. Témoin de chargement
 
-    const [affirmations, setAffirmations] = useState([
-      { id: "1", title: "Confiance en soi", text: "Je suis confiant(e)" },
-      { id: "2", title: "Paix intérieure",text: "Je cultive la paix" }
-    ]);
-    const [trash, setTrash] = useState([]);
-    const [previewTab, setPreviewTab] = useState<"galerie" | "corbeille">("galerie");
-
-    // 2. Charger les données stockées au premier affichage de la page
-    useEffect(() => {
-      const savedAffirmations = localStorage.getItem("sorea_affirmations");
-      const savedTrash = localStorage.getItem("sorea_affirmations_trash");
-
-      if (savedAffirmations) setAffirmations(JSON.parse(savedAffirmations));
-      if (savedTrash) setTrash(JSON.parse(savedTrash));
-      setIsLoaded(true);
-    }, []);
-
-    // 3. Sauvegarder automatiquement dès qu'une affirmation ou la corbeille change
-    useEffect(() => {
-      if (isLoaded) {
-        localStorage.setItem("sorea_affirmations", JSON.stringify(affirmations));
-        localStorage.setItem("sorea_affirmations_trash", JSON.stringify(trash));
-      }
-    }, [affirmations, trash, isLoaded]);
-
   return (
     <div className="min-h-screen flex flex-col w-full bg-[#fcfbfe] font-sans text-gray-800">
       
@@ -57,7 +32,7 @@ export default function MiroirLandingPage() {
             <h1 className="text-4xl lg:text-3xl font-extrabold text-[#212121] tracking-tight">
               Prête à t'affirmer avec bienveillance ?
             </h1>
-            <Link href="mirror/miroir">
+            <Link href="miroir">
               <button className="bg-[#8B47FF] text-white font-bold px-8 py-4 rounded-2xl shadow-lg transition-all duration-300 hover:scale-105 hover:shadow-xl cursor-pointer">
                 Activer mon miroir
               </button>
@@ -85,7 +60,7 @@ export default function MiroirLandingPage() {
               <span className="text-2xl font-bold text-[#8B47FF]">01</span>
               <h3 className="text-xl font-bold text-gray-900">Inaugure ton miroir</h3>
               <p className="text-sm text-gray-600 leading-relaxed">
-                Active ton micro et ta caméra intelligente, observe ton jolie reflet.
+                Active ta caméra locale et ton micro intelligent, observe ton jolie reflet.
               </p>
             </div>
 
@@ -124,12 +99,7 @@ export default function MiroirLandingPage() {
           </div>
 
           {/* Colonne de droite : Le composant tout-en-un */}
-          <AffirmationGallery 
-            affirmations={affirmations}
-            setAffirmations={setAffirmations}
-            trash={trash}
-            setTrash={setTrash}
-          />
+          <AffirmationGallery />
 
         </section>
 

@@ -9,20 +9,36 @@ interface AffirmationCard {
   text: string;  // La citation
 }
 
-interface AffirmationGalleryProps {
-  affirmations: AffirmationCard[];
-  setAffirmations: React.Dispatch<React.SetStateAction<AffirmationCard[]>>;
-  trash: AffirmationCard[];
-  setTrash: React.Dispatch<React.SetStateAction<AffirmationCard[]>>;
-}
+interface AffirmationGalleryProps {}
 
-export default function AffirmationGallery({ 
-  affirmations, 
-  setAffirmations, 
-  trash, 
-  setTrash 
-}: AffirmationGalleryProps) {
+export default function AffirmationGallery({}: AffirmationGalleryProps) {
+  const [affirmations, setAffirmations] = React.useState<AffirmationCard[]>(() => {
+    if (typeof window !== "undefined") {
+      const saved = localStorage.getItem("sorea_affirmations");
+      if (saved) return JSON.parse(saved);
+    }
+    return [
+      { id: "1", title: "Confiance en soi", text: "● Je suis confiant(e)" },
+      { id: "2", title: "Paix intérieure", text: "● Je cultive la paix" }
+    ];
+  });
+
+  const [trash, setTrash] = React.useState<AffirmationCard[]>(() => {
+    if (typeof window !== "undefined") {
+      const saved = localStorage.getItem("sorea_affirmations_trash");
+      if (saved) return JSON.parse(saved);
+    }
+    return [];
+  });
+
+  // Sauvegarde automatique dans le localStorage
+  React.useEffect(() => {
+    localStorage.setItem("sorea_affirmations", JSON.stringify(affirmations));
+    localStorage.setItem("sorea_affirmations_trash", JSON.stringify(trash));
+  }, [affirmations, trash]);
+
   const [isOpen, setIsOpen] = useState(false); // Gère l'ouverture de la modale globale
+
   const [previewTab, setPreviewTab] = useState<"galerie" | "corbeille">("galerie"); // Onglet de l'aperçu
   const [activeTab, setActiveTab] = useState<"galerie" | "corbeille">("galerie"); // Onglet dans la modale
 
