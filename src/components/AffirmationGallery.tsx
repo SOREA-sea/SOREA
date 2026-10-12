@@ -58,6 +58,24 @@ export default function AffirmationGallery({
     setIsAdding(true);
     setActiveMenuId(null);
   };
+  // FONCTION : Gère automatiquement les puces à chaque saut de ligne
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      const target = e.currentTarget;
+      const start = target.selectionStart;
+      const end = target.selectionEnd;
+      
+      // Insère un saut de ligne et un rond
+      const newValue = currentText.substring(0, start) + "\n● " + currentText.substring(end);
+      setCurrentText(newValue);
+
+      // Repositionne le curseur juste après le rond inséré
+      setTimeout(() => {
+        target.selectionStart = target.selectionEnd = start + 3;
+      }, 0);
+    }
+  };
 
   const deleteCard = (id: string) => {
     const cardToDelete = affirmations.find(card => card.id === id);
@@ -215,7 +233,9 @@ export default function AffirmationGallery({
             </div> 
 
             {isAdding && (
-              <form onSubmit={handleSave} className="bg-purple-50/80 p-6 rounded-2xl border border-purple-200 flex flex-col gap-4 mt-2">
+              <div className="px-8 mt-2">
+              <form onSubmit={handleSave} className="bg-purple-50/80 p-6 rounded-2xl border border-purple-200 flex flex-col gap-4">
+                
                 <h3 className="text-lg font-bold text-purple-950">
                   {editingId ? "Modifier l'affirmation" : "Créer une nouvelle affirmation"}
                 </h3>
@@ -229,9 +249,11 @@ export default function AffirmationGallery({
                 />
                 <textarea 
                   value={currentText}
+                  onFocus={() => { if (!currentText) setCurrentText("● "); }}
+                  onKeyDown={handleKeyDown}
                   onChange={(e) => setCurrentText(e.target.value)}
-                  placeholder="Entrez votre citation (ex: Je réussis tout ce que j'entreprends...)"
-                  className="w-full bg-white border border-purple-200 rounded-xl px-4 py-3 text-gray-800 focus:outline-none focus:ring-2 focus:ring-[#8B47FF] h-24 resize-none"
+                  placeholder="Entrez vos affirmations... (Appuyez sur Entrée pour passer à la ligne)"
+                  className="w-full bg-white border border-purple-200 rounded-xl px-4 py-3 text-gray-800 focus:outline-none focus:ring-2 focus:ring-[#8B47FF] h-28 resize-none whitespace-pre-line"
                 />
 
                 <div className="flex justify-end gap-3">
@@ -250,9 +272,10 @@ export default function AffirmationGallery({
                   </button>
                 </div>
               </form>
+              </div>
             )}
 
-            <div className="flex flex-wrap items-start justify-start gap-4 py-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 p-8 pt-4 w-full">
               {activeTab === "galerie" ? (
                 <>
                   {affirmations.map((card) => (
@@ -262,7 +285,7 @@ export default function AffirmationGallery({
                         className="w-48 h-48 rounded-2xl bg-purple-50 border border-purple-200 p-4 flex flex-col items-center justify-center text-center shadow-sm cursor-pointer hover:bg-purple-100 transition-all relative gap-2"
                       >
                         <span className="text-sm font-bold text-purple-950">{card.title}</span>
-                        <span className="text-xs font-medium text-purple-800 italic line-clamp-3">&quot;{card.text}&quot;</span>
+                        <span className="text-xs font-medium text-purple-800 italic line-clamp-3 whitespace-pre-line text-left w-full px-2">&quot;{card.text}&quot;</span>
                       </div>
 
                       {activeMenuId === card.id && (
