@@ -5,7 +5,8 @@ import { X, Plus, Edit2, Trash2 } from "lucide-react";
 
 interface AffirmationCard {
   id: string;
-  text: string;
+  title: string; // Ajout du titre
+  text: string;  // La citation
 }
 
 interface AffirmationGalleryProps {
@@ -24,29 +25,35 @@ export default function AffirmationGallery({
   const [isOpen, setIsOpen] = useState(false); // Gère l'ouverture de la modale globale
   const [previewTab, setPreviewTab] = useState<"galerie" | "corbeille">("galerie"); // Onglet de l'aperçu
   const [activeTab, setActiveTab] = useState<"galerie" | "corbeille">("galerie"); // Onglet dans la modale
+
+  // NOUVEL ÉTAT : Permet de stocker l'ID de la carte dont on veut voir la citation dans l'aperçu
+  const [selectedPreviewId, setSelectedPreviewId] = useState<string | null>(null);
   
   const [isAdding, setIsAdding] = useState(false);
+  const [currentTitle, setCurrentTitle] = useState(""); // Nouvel état pour le titre
   const [currentText, setCurrentText] = useState("");
   const [editingId, setEditingId] = useState<string | null>(null);
   const [activeMenuId, setActiveMenuId] = useState<string | null>(null);
 
   const handleSave = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!currentText.trim()) return;
+    if (!currentTitle.trim() || !currentText.trim()) return;
 
     if (editingId) {
-      setAffirmations(affirmations.map(item => item.id === editingId ? { ...item, text: currentText } : item));
+      setAffirmations(affirmations.map(item => item.id === editingId ? { ...item, title: currentTitle, text: currentText } : item));
       setEditingId(null);
     } else {
-      setAffirmations([...affirmations, { id: Date.now().toString(), text: currentText }]);
+      setAffirmations([...affirmations, { id: Date.now().toString(), title: currentTitle, text: currentText }]);
     }
 
+    setCurrentTitle("");
     setCurrentText("");
     setIsAdding(false);
   };
 
   const startEdit = (card: AffirmationCard) => {
     setEditingId(card.id);
+    setCurrentTitle(card.title || "");
     setCurrentText(card.text);
     setIsAdding(true);
     setActiveMenuId(null);
@@ -69,6 +76,11 @@ export default function AffirmationGallery({
     }
     setActiveMenuId(null);
   };
+  // NOUVELLE FONCTION : Supprime définitivement de la corbeille
+  const permanentDeleteCard = (id: string) => {
+    setTrash(trash.filter(card => card.id !== id));
+    setActiveMenuId(null);
+  };
 
   return (
     <div className="flex flex-col items-center justify-center gap-6 w-full lg:w-auto">
@@ -78,7 +90,7 @@ export default function AffirmationGallery({
         onClick={() => setIsOpen(true)}
         className="bg-[#8B47FF] text-white font-bold px-8 py-4 rounded-2xl shadow-lg transition-all duration-300 hover:scale-105 hover:shadow-xl cursor-pointer"
       >
-        Personnaliser mon affirmation
+        Personnaliser mes affirmations
       </button>
 
       {/* BLOC APERÇU SUR LA PAGE D'ACCUEIL */}
@@ -102,12 +114,26 @@ export default function AffirmationGallery({
 
         <div className="grid grid-cols-2 gap-4">
           {previewTab === "galerie" ? (
-            <>
-              {affirmations.slice(0, 4).map((card) => (
-                <div key={card.id} className="aspect-square rounded-2xl overflow-hidden shadow-sm border border-gray-100 bg-purple-50 flex items-center justify-center p-3 text-center text-xs font-medium text-purple-700">
-                  &quot;{card.text}&quot;
-                </div>
-              ))}
+              <>
+                {affirmations.slice(0, 4).map((card) => {
+                  const isSelected = selectedPreviewId === card.id;
+                  return (
+                    <div 
+                      key={card.id} 
+                      onClick={() => setSelectedPreviewId(isSelected ? null : card.id)}
+                      className="aspect-square rounded-2xl overflow-hidden shadow-sm border border-purple-100 bg-purple-50 flex flex-col items-center justify-center p-3 text-center cursor-pointer hover:bg-purple-100 transition-all"
+                    >
+                      <span className="text-xs font-bold text-purple-900">{card.title}</span>
+                      
+                      {/* Le texte s'affiche uniquement si cette carte est cliquée */}
+                      {isSelected && (
+                        <span className="text-[11px] text-purple-800 italic mt-2 animate-fade-in">
+                          &quot;{card.text}&quot;
+                        </span>
+                      )}
+                    </div>
+                  );
+                })}
 
               {affirmations.length < 4 && (
                 <button 
@@ -118,31 +144,48 @@ export default function AffirmationGallery({
                 </button>
               )}
             </>
+            
           ) : (
             trash.length === 0 ? (
               <p className="col-span-2 text-gray-400 text-xs py-4 italic text-center">La corbeille est vide.</p>
             ) : (
               <>
-                {trash.slice(0, 4).map((card) => (
-                  <div key={card.id} className="aspect-square rounded-2xl overflow-hidden shadow-sm border border-gray-100 bg-purple-50/50 flex items-center justify-center p-3 text-center text-xs font-medium text-gray-500 opacity-75">
-                    &quot;{card.text}&quot;
-                  </div>
-                ))}
+                {trash.slice(0, 4).map((card) => {
+                  const isSelected = selectedPreviewId === card.id;
+                  return (
+                    <div 
+                      key={card.id} 
+                      onClick={() => setSelectedPreviewId(isSelected ? null : card.id)}
+                      className="aspect-square rounded-2xl overflow-hidden shadow-sm border border-gray-100 bg-purple-50/50 flex flex-col items-center justify-center p-3 text-center cursor-pointer hover:bg-purple-100 transition-all opacity-75"
+                    >
+                      <span className="text-xs font-bold text-gray-700">{card.title}</span>
+                      
+                      {isSelected && (
+                        <span className="text-[11px] text-gray-600 italic mt-2 animate-fade-in">
+                          &quot;{card.text}&quot;
+                        </span>
+                      )}
+                    </div>
+                  );
+                })}
                 {trash.length === 3 && (
                   <div className="aspect-square pointer-events-none opacity-0" aria-hidden="true" />
                 )}
               </>
             )
           )}
+
         </div>
       </div>
 
       {/* MODALE DE GESTION GLOBALE (S'ouvre au clic) */}
       {isOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 animate-fade-in">
-          <div className="bg-white rounded-[32px] w-full max-w-4xl p-8 shadow-2xl border border-purple-100 flex flex-col gap-6 relative max-h-[90vh] overflow-y-auto">
+          <div className="bg-white w-full max-w-4xl shadow-2xl border border-purple-100 flex flex-col gap-6 relative max-h-[90vh] overflow-y-auto">
             
-            <div className="flex flex-col gap-4 border-b border-purple-100 pb-4">
+            {/* EN-TÊTE FIXE LORS DU SCROLL */}
+            <div className="sticky top-0 bg-white z-20 flex flex-col gap-4 border-b border-purple-100 pt-8 px-8 pb-4">
+              
               <div className="flex items-center justify-between">
                 <h2 className="text-2xl font-bold text-gray-900">Personnalise tes Affirmations</h2>
                 <button 
@@ -178,12 +221,19 @@ export default function AffirmationGallery({
                 </h3>
                 <input 
                   type="text"
-                  value={currentText}
-                  onChange={(e) => setCurrentText(e.target.value)}
-                  placeholder="Ex: Je réussis tout ce que j'entreprends..."
+                  value={currentTitle}
+                  onChange={(e) => setCurrentTitle(e.target.value)}
+                  placeholder="Titre de l'affirmation (ex: Confiance en soi)..."
                   className="w-full bg-white border border-purple-200 rounded-xl px-4 py-3 text-gray-800 focus:outline-none focus:ring-2 focus:ring-[#8B47FF]"
                   autoFocus
                 />
+                <textarea 
+                  value={currentText}
+                  onChange={(e) => setCurrentText(e.target.value)}
+                  placeholder="Entrez votre citation (ex: Je réussis tout ce que j'entreprends...)"
+                  className="w-full bg-white border border-purple-200 rounded-xl px-4 py-3 text-gray-800 focus:outline-none focus:ring-2 focus:ring-[#8B47FF] h-24 resize-none"
+                />
+
                 <div className="flex justify-end gap-3">
                   <button 
                     type="button" 
@@ -209,9 +259,10 @@ export default function AffirmationGallery({
                     <div key={card.id} className="relative">
                       <div 
                         onClick={() => setActiveMenuId(activeMenuId === card.id ? null : card.id)}
-                        className="w-48 h-48 rounded-2xl bg-purple-50 border border-purple-200 p-4 flex items-center justify-center text-center text-sm font-medium text-purple-900 shadow-sm cursor-pointer hover:bg-purple-100 transition-all relative"
+                        className="w-48 h-48 rounded-2xl bg-purple-50 border border-purple-200 p-4 flex flex-col items-center justify-center text-center shadow-sm cursor-pointer hover:bg-purple-100 transition-all relative gap-2"
                       >
-                        &quot;{card.text}&quot;
+                        <span className="text-sm font-bold text-purple-950">{card.title}</span>
+                        <span className="text-xs font-medium text-purple-800 italic line-clamp-3">&quot;{card.text}&quot;</span>
                       </div>
 
                       {activeMenuId === card.id && (
@@ -255,15 +306,22 @@ export default function AffirmationGallery({
                       </div>
 
                       {activeMenuId === card.id && (
-                        <div className="absolute top-2 right-2 bg-white rounded-xl shadow-xl border border-gray-200 p-2 flex flex-col gap-1 z-20 w-36 animate-scale-up">
+                        <div className="absolute top-2 right-2 bg-white rounded-xl shadow-xl border border-gray-200 p-2 flex flex-col gap-1 z-20 w-40 animate-scale-up">
                           <button 
                             onClick={() => restoreCard(card.id)}
-                            className="flex items-center gap-2 text-xs font-semibold text-purple-700 hover:bg-purple-50 p-2 rounded-lg transition-colors text-left"
+                            className="flex items-center gap-2 text-xs font-semibold text-purple-700 hover:bg-purple-50 p-2 rounded-lg transition-colors text-left cursor-pointer"
                           >
                             Restaurer
                           </button>
+                          <button 
+                            onClick={() => permanentDeleteCard(card.id)}
+                            className="flex items-center gap-2 text-xs font-semibold text-red-600 hover:bg-red-50 p-2 rounded-lg transition-colors text-left cursor-pointer"
+                          >
+                            <Trash2 size={14} /> Supprimer définitivement
+                          </button>
                         </div>
                       )}
+
                     </div>
                   ))
                 )

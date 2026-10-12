@@ -12,8 +12,8 @@ export default function MiroirLandingPage() {
     const [isLoaded, setIsLoaded] = useState(false);// 1. Témoin de chargement
 
     const [affirmations, setAffirmations] = useState([
-      { id: "1", text: "Je suis confiant(e)" },
-      { id: "2", text: "Je cultive la paix" }
+      { id: "1", title: "Confiance en soi", text: "Je suis confiant(e)" },
+      { id: "2", title: "Paix intérieure",text: "Je cultive la paix" }
     ]);
     const [trash, setTrash] = useState([]);
     const [previewTab, setPreviewTab] = useState<"galerie" | "corbeille">("galerie");
