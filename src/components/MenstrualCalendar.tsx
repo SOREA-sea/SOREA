@@ -546,7 +546,25 @@ const isTodayWithNotification = isToday && hasNotif;
 
       </div>
 
-        <div className="bg-white rounded-2xl p-8 shadow-sm border border-gray-200">
+{/* 🌟 NOUVEAU : Les deux boutons non fonctionnels (Calendrier Menstruel / Todo-List) */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-2">
+        <button
+          type="button"
+          onClick={(e) => e.preventDefault()}
+          className="w-full h-[42px] px-6 rounded-[5px] border border-[#E256B3] bg-white text-black font-semibold text-base transition-all duration-200 hover:bg-[#FCE7F3] hover:border-[#E256B3] cursor-default"
+        >
+          Calendrier Menstruel
+        </button>
+        <button
+          type="button"
+          onClick={(e) => e.preventDefault()}
+          className="w-full h-[42px] px-6 rounded-[5px] border border-[#00CEC9] bg-white text-black font-semibold text-base transition-all duration-200 hover:bg-[#E0F2FE] hover:border-[#00CEC9] cursor-default"
+        >
+          Todo-List
+        </button>
+      </div>
+
+        <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-200">
         <div className="flex justify-between items-center mb-6 px-2">
           <span className="font-bold text-2xl text-black">
             {currentMonth.toLocaleDateString("en-US", { month: "short", year: "numeric" })}
