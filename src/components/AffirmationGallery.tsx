@@ -5,13 +5,19 @@ import { X, Plus, Edit2, Trash2 } from "lucide-react";
 
 interface AffirmationCard {
   id: string;
-  title: string; // Ajout du titre
-  text: string;  // La citation
+  title: string;
+  text: string;
 }
 
-interface AffirmationGalleryProps {}
+interface AffirmationGalleryProps {
+  externalIsOpen?: boolean;
+  setExternalIsOpen?: (open: boolean) => void;
+}
 
-export default function AffirmationGallery({}: AffirmationGalleryProps) {
+export default function AffirmationGallery({ 
+  externalIsOpen, 
+  setExternalIsOpen 
+}: AffirmationGalleryProps) {
   const [affirmations, setAffirmations] = React.useState<AffirmationCard[]>(() => {
     if (typeof window !== "undefined") {
       const saved = localStorage.getItem("sorea_affirmations");
@@ -31,22 +37,28 @@ export default function AffirmationGallery({}: AffirmationGalleryProps) {
     return [];
   });
 
-  // Sauvegarde automatique dans le localStorage
   React.useEffect(() => {
     localStorage.setItem("sorea_affirmations", JSON.stringify(affirmations));
     localStorage.setItem("sorea_affirmations_trash", JSON.stringify(trash));
   }, [affirmations, trash]);
 
-  const [isOpen, setIsOpen] = useState(false); // Gère l'ouverture de la modale globale
+  const [internalIsOpen, setInternalIsOpen] = useState(false);
 
-  const [previewTab, setPreviewTab] = useState<"galerie" | "corbeille">("galerie"); // Onglet de l'aperçu
-  const [activeTab, setActiveTab] = useState<"galerie" | "corbeille">("galerie"); // Onglet dans la modale
+  const isOpen = externalIsOpen !== undefined ? externalIsOpen : internalIsOpen;
+  const setIsOpen = (val: boolean | ((prev: boolean) => boolean)) => {
+    const resolvedVal = typeof val === "function" ? val(isOpen) : val;
+    if (setExternalIsOpen) {
+      setExternalIsOpen(resolvedVal);
+    }
+    setInternalIsOpen(resolvedVal);
+  };
 
-  // NOUVEL ÉTAT : Permet de stocker l'ID de la carte dont on veut voir la citation dans l'aperçu
+  const [previewTab, setPreviewTab] = useState<"galerie" | "corbeille">("galerie");
+  const [activeTab, setActiveTab] = useState<"galerie" | "corbeille">("galerie");
   const [selectedPreviewId, setSelectedPreviewId] = useState<string | null>(null);
   
   const [isAdding, setIsAdding] = useState(false);
-  const [currentTitle, setCurrentTitle] = useState(""); // Nouvel état pour le titre
+  const [currentTitle, setCurrentTitle] = useState("");
   const [currentText, setCurrentText] = useState("");
   const [editingId, setEditingId] = useState<string | null>(null);
   const [activeMenuId, setActiveMenuId] = useState<string | null>(null);
@@ -74,7 +86,21 @@ export default function AffirmationGallery({}: AffirmationGalleryProps) {
     setIsAdding(true);
     setActiveMenuId(null);
   };
-  // FONCTION : Gère automatiquement les puces à chaque saut de ligne
+
+  const selectForMirror = (card: AffirmationCard) => {
+    // 1. Sauvegarde la carte sélectionnée et active le mode personnalisées
+    localStorage.setItem("sorea_active_custom_affirmation", JSON.stringify(card));
+    localStorage.setItem("sorea_active_mode", "custom");
+
+    // 2. Notifie l'application en cas d'utilisation sur la même page
+    window.dispatchEvent(new Event("customAffirmationChanged"));
+    setActiveMenuId(null);
+    if (setExternalIsOpen) setExternalIsOpen(false);
+
+    // 3. Redirige automatiquement vers la page du miroir
+    window.location.href = "/mirror/miroir"; // Ajuste le chemin si ta route exacte est "/mirror/miroir"
+  };
+
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === "Enter") {
       e.preventDefault();
@@ -82,11 +108,9 @@ export default function AffirmationGallery({}: AffirmationGalleryProps) {
       const start = target.selectionStart;
       const end = target.selectionEnd;
       
-      // Insère un saut de ligne et un rond
       const newValue = currentText.substring(0, start) + "\n● " + currentText.substring(end);
       setCurrentText(newValue);
 
-      // Repositionne le curseur juste après le rond inséré
       setTimeout(() => {
         target.selectionStart = target.selectionEnd = start + 3;
       }, 0);
@@ -110,116 +134,110 @@ export default function AffirmationGallery({}: AffirmationGalleryProps) {
     }
     setActiveMenuId(null);
   };
-  // NOUVELLE FONCTION : Supprime définitivement de la corbeille
+
   const permanentDeleteCard = (id: string) => {
     setTrash(trash.filter(card => card.id !== id));
     setActiveMenuId(null);
   };
 
   return (
-    <div className="flex flex-col items-center justify-center gap-6 w-full lg:w-auto">
-      
-      {/* BOUTON D'OUVERTURE DE LA MODALE */}
-      <button 
-        onClick={() => setIsOpen(true)}
-        className="bg-[#8B47FF] text-white font-bold px-8 py-4 rounded-2xl shadow-lg transition-all duration-300 hover:scale-105 hover:shadow-xl cursor-pointer"
-      >
-        Personnaliser mes affirmations
-      </button>
-
-      {/* BLOC APERÇU SUR LA PAGE D'ACCUEIL */}
-      <div className="bg-white rounded-[32px] p-6 shadow-sm border border-purple-100 w-full max-w-[400px] flex flex-col gap-6">
-        <div className="flex gap-6 border-b border-purple-100 pb-3 text-sm">
+    <>
+      {externalIsOpen === undefined && (
+        <div className="flex flex-col items-center justify-center gap-6 w-full lg:w-auto">
           <button 
-            type="button"
-            onClick={() => setPreviewTab("galerie")}
-            className={`font-bold pb-2 -mb-[13px] cursor-pointer transition-colors ${previewTab === "galerie" ? "text-[#8B47FF] border-b-2 border-[#8B47FF]" : "text-gray-400 hover:text-gray-600"}`}
+            onClick={() => setIsOpen(true)}
+            className="bg-[#8B47FF] text-white font-bold px-8 py-4 rounded-2xl shadow-lg transition-all duration-300 hover:scale-105 hover:shadow-xl cursor-pointer"
           >
-            Galerie
+            Personnaliser mes affirmations
           </button>
-          <button 
-            type="button"
-            onClick={() => setPreviewTab("corbeille")}
-            className={`font-bold pb-2 -mb-[13px] cursor-pointer transition-colors ${previewTab === "corbeille" ? "text-[#8B47FF] border-b-2 border-[#8B47FF]" : "text-gray-400 hover:text-gray-600"}`}
-          >
-            Corbeille
-          </button>
-        </div>
 
-        <div className="grid grid-cols-2 gap-4">
-          {previewTab === "galerie" ? (
-              <>
-                {affirmations.slice(0, 4).map((card) => {
-                  const isSelected = selectedPreviewId === card.id;
-                  return (
-                    <div 
-                      key={card.id} 
-                      onClick={() => setSelectedPreviewId(isSelected ? null : card.id)}
-                      className="aspect-square rounded-2xl overflow-hidden shadow-sm border border-purple-100 bg-purple-50 flex flex-col items-center justify-center p-3 text-center cursor-pointer hover:bg-purple-100 transition-all"
+          <div className="bg-white rounded-[32px] p-6 shadow-sm border border-purple-100 w-full max-w-[400px] flex flex-col gap-6">
+            <div className="flex gap-6 border-b border-purple-100 pb-3 text-sm">
+              <button 
+                type="button"
+                onClick={() => setPreviewTab("galerie")}
+                className={`font-bold pb-2 -mb-[13px] cursor-pointer transition-colors ${previewTab === "galerie" ? "text-[#8B47FF] border-b-2 border-[#8B47FF]" : "text-gray-400 hover:text-gray-600"}`}
+              >
+                Galerie
+              </button>
+              <button 
+                type="button"
+                onClick={() => setPreviewTab("corbeille")}
+                className={`font-bold pb-2 -mb-[13px] cursor-pointer transition-colors ${previewTab === "corbeille" ? "text-[#8B47FF] border-b-2 border-[#8B47FF]" : "text-gray-400 hover:text-gray-600"}`}
+              >
+                Corbeille
+              </button>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              {previewTab === "galerie" ? (
+                <>
+                  {affirmations.slice(0, 4).map((card) => {
+                    const isSelected = selectedPreviewId === card.id;
+                    return (
+                      <div 
+                        key={card.id} 
+                        onClick={() => setSelectedPreviewId(isSelected ? null : card.id)}
+                        className="aspect-square rounded-2xl overflow-hidden shadow-sm border border-purple-100 bg-purple-50 flex flex-col items-center justify-center p-3 text-center cursor-pointer hover:bg-purple-100 transition-all"
+                      >
+                        <span className="text-xs font-bold text-purple-900">{card.title}</span>
+                        {isSelected && (
+                          <span className="text-[11px] text-purple-800 italic mt-2 animate-fade-in">
+                            &quot;{card.text}&quot;
+                          </span>
+                        )}
+                      </div>
+                    );
+                  })}
+
+                  {affirmations.length < 4 && (
+                    <button 
+                      onClick={() => setIsOpen(true)}
+                      className="aspect-square bg-[#FAF5FF] border-2 border-dashed border-purple-200 rounded-2xl flex items-center justify-center text-purple-300 hover:bg-purple-50 transition-colors cursor-pointer"
                     >
-                      <span className="text-xs font-bold text-purple-900">{card.title}</span>
-                      
-                      {/* Le texte s'affiche uniquement si cette carte est cliquée */}
-                      {isSelected && (
-                        <span className="text-[11px] text-purple-800 italic mt-2 animate-fade-in">
-                          &quot;{card.text}&quot;
-                        </span>
-                      )}
-                    </div>
-                  );
-                })}
-
-              {affirmations.length < 4 && (
-                <button 
-                  onClick={() => setIsOpen(true)}
-                  className="aspect-square bg-[#FAF5FF] border-2 border-dashed border-purple-200 rounded-2xl flex items-center justify-center text-purple-300 hover:bg-purple-50 transition-colors cursor-pointer"
-                >
-                  <span className="text-4xl font-light">+</span>
-                </button>
+                      <span className="text-4xl font-light">+</span>
+                    </button>
+                  )}
+                </>
+              ) : (
+                trash.length === 0 ? (
+                  <p className="col-span-2 text-gray-400 text-xs py-4 italic text-center">La corbeille est vide.</p>
+                ) : (
+                  <>
+                    {trash.slice(0, 4).map((card) => {
+                      const isSelected = selectedPreviewId === card.id;
+                      return (
+                        <div 
+                          key={card.id} 
+                          onClick={() => setSelectedPreviewId(isSelected ? null : card.id)}
+                          className="aspect-square rounded-2xl overflow-hidden shadow-sm border border-gray-100 bg-purple-50/50 flex flex-col items-center justify-center p-3 text-center cursor-pointer hover:bg-purple-100 transition-all opacity-75"
+                        >
+                          <span className="text-xs font-bold text-gray-700">{card.title}</span>
+                          {isSelected && (
+                            <span className="text-[11px] text-gray-600 italic mt-2 animate-fade-in">
+                              &quot;{card.text}&quot;
+                            </span>
+                          )}
+                        </div>
+                      );
+                    })}
+                    {trash.length === 3 && (
+                      <div className="aspect-square pointer-events-none opacity-0" aria-hidden="true" />
+                    )}
+                  </>
+                )
               )}
-            </>
-            
-          ) : (
-            trash.length === 0 ? (
-              <p className="col-span-2 text-gray-400 text-xs py-4 italic text-center">La corbeille est vide.</p>
-            ) : (
-              <>
-                {trash.slice(0, 4).map((card) => {
-                  const isSelected = selectedPreviewId === card.id;
-                  return (
-                    <div 
-                      key={card.id} 
-                      onClick={() => setSelectedPreviewId(isSelected ? null : card.id)}
-                      className="aspect-square rounded-2xl overflow-hidden shadow-sm border border-gray-100 bg-purple-50/50 flex flex-col items-center justify-center p-3 text-center cursor-pointer hover:bg-purple-100 transition-all opacity-75"
-                    >
-                      <span className="text-xs font-bold text-gray-700">{card.title}</span>
-                      
-                      {isSelected && (
-                        <span className="text-[11px] text-gray-600 italic mt-2 animate-fade-in">
-                          &quot;{card.text}&quot;
-                        </span>
-                      )}
-                    </div>
-                  );
-                })}
-                {trash.length === 3 && (
-                  <div className="aspect-square pointer-events-none opacity-0" aria-hidden="true" />
-                )}
-              </>
-            )
-          )}
-
+            </div>
+          </div>
         </div>
-      </div>
+      )}
 
-      {/* MODALE DE GESTION GLOBALE (S'ouvre au clic) */}
+      {/* MODALE DE GESTION GLOBALE */}
       {isOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 animate-fade-in">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 animate-fade-in">
           <div className="bg-white w-full max-w-4xl shadow-2xl border border-purple-100 flex flex-col gap-6 relative max-h-[90vh] overflow-y-auto">
             
-            {/* EN-TÊTE FIXE LORS DU SCROLL */}
             <div className="sticky top-0 bg-white z-20 flex flex-col gap-4 border-b border-purple-100 pt-8 px-8 pb-4">
-              
               <div className="flex items-center justify-between">
                 <h2 className="text-2xl font-bold text-gray-900">Personnalise tes Affirmations</h2>
                 <button 
@@ -250,44 +268,43 @@ export default function AffirmationGallery({}: AffirmationGalleryProps) {
 
             {isAdding && (
               <div className="px-8 mt-2">
-              <form onSubmit={handleSave} className="bg-purple-50/80 p-6 rounded-2xl border border-purple-200 flex flex-col gap-4">
-                
-                <h3 className="text-lg font-bold text-purple-950">
-                  {editingId ? "Modifier l'affirmation" : "Créer une nouvelle affirmation"}
-                </h3>
-                <input 
-                  type="text"
-                  value={currentTitle}
-                  onChange={(e) => setCurrentTitle(e.target.value)}
-                  placeholder="Titre de l'affirmation (ex: Confiance en soi)..."
-                  className="w-full bg-white border border-purple-200 rounded-xl px-4 py-3 text-gray-800 focus:outline-none focus:ring-2 focus:ring-[#8B47FF]"
-                  autoFocus
-                />
-                <textarea 
-                  value={currentText}
-                  onFocus={() => { if (!currentText) setCurrentText("● "); }}
-                  onKeyDown={handleKeyDown}
-                  onChange={(e) => setCurrentText(e.target.value)}
-                  placeholder="Entrez vos affirmations... (Appuyez sur Entrée pour passer à la ligne)"
-                  className="w-full bg-white border border-purple-200 rounded-xl px-4 py-3 text-gray-800 focus:outline-none focus:ring-2 focus:ring-[#8B47FF] h-28 resize-none whitespace-pre-line"
-                />
+                <form onSubmit={handleSave} className="bg-purple-50/80 p-6 rounded-2xl border border-purple-200 flex flex-col gap-4">
+                  <h3 className="text-lg font-bold text-purple-950">
+                    {editingId ? "Modifier l'affirmation" : "Créer une nouvelle affirmation"}
+                  </h3>
+                  <input 
+                    type="text"
+                    value={currentTitle}
+                    onChange={(e) => setCurrentTitle(e.target.value)}
+                    placeholder="Titre de l'affirmation (ex: Confiance en soi)..."
+                    className="w-full bg-white border border-purple-200 rounded-xl px-4 py-3 text-gray-800 focus:outline-none focus:ring-2 focus:ring-[#8B47FF]"
+                    autoFocus
+                  />
+                  <textarea 
+                    value={currentText}
+                    onFocus={() => { if (!currentText) setCurrentText("● "); }}
+                    onKeyDown={handleKeyDown}
+                    onChange={(e) => setCurrentText(e.target.value)}
+                    placeholder="Entrez vos affirmations... (Appuyez sur Entrée pour passer à la ligne)"
+                    className="w-full bg-white border border-purple-200 rounded-xl px-4 py-3 text-gray-800 focus:outline-none focus:ring-2 focus:ring-[#8B47FF] h-28 resize-none whitespace-pre-line"
+                  />
 
-                <div className="flex justify-end gap-3">
-                  <button 
-                    type="button" 
-                    onClick={() => setIsAdding(false)}
-                    className="px-5 py-2 rounded-xl text-gray-600 hover:bg-gray-200 font-semibold transition-colors"
-                  >
-                    Annuler
-                  </button>
-                  <button 
-                    type="submit"
-                    className="bg-[#8B47FF] text-white px-6 py-2 rounded-xl font-bold shadow-md hover:bg-[#7535e6] transition-colors"
-                  >
-                    {editingId ? "Mettre à jour" : "Ajouter"}
-                  </button>
-                </div>
-              </form>
+                  <div className="flex justify-end gap-3">
+                    <button 
+                      type="button" 
+                      onClick={() => setIsAdding(false)}
+                      className="px-5 py-2 rounded-xl text-gray-600 hover:bg-gray-200 font-semibold transition-colors"
+                    >
+                      Annuler
+                    </button>
+                    <button 
+                      type="submit"
+                      className="bg-[#8B47FF] text-white px-6 py-2 rounded-xl font-bold shadow-md hover:bg-[#7535e6] transition-colors"
+                    >
+                      {editingId ? "Mettre à jour" : "Ajouter"}
+                    </button>
+                  </div>
+                </form>
               </div>
             )}
 
@@ -305,16 +322,22 @@ export default function AffirmationGallery({}: AffirmationGalleryProps) {
                       </div>
 
                       {activeMenuId === card.id && (
-                        <div className="absolute top-2 right-2 bg-white rounded-xl shadow-xl border border-purple-100 p-2 flex flex-col gap-1 z-20 w-32 animate-scale-up">
+                        <div className="absolute top-2 right-2 bg-white rounded-xl shadow-xl border border-purple-100 p-2 flex flex-col gap-1 z-20 w-44 animate-scale-up">
+                          <button 
+                            onClick={() => selectForMirror(card)}
+                            className="flex items-center gap-2 text-xs font-semibold text-[#8B47FF] hover:bg-purple-50 p-2 rounded-lg transition-colors text-left cursor-pointer"
+                          >
+                            🪞Utiliser m'affirmer
+                          </button>
                           <button 
                             onClick={() => startEdit(card)}
-                            className="flex items-center gap-2 text-xs font-semibold text-gray-700 hover:text-[#8B47FF] hover:bg-purple-50 p-2 rounded-lg transition-colors text-left"
+                            className="flex items-center gap-2 text-xs font-semibold text-gray-700 hover:text-[#8B47FF] hover:bg-purple-50 p-2 rounded-lg transition-colors text-left cursor-pointer"
                           >
                             <Edit2 size={14} /> Modifier
                           </button>
                           <button 
                             onClick={() => deleteCard(card.id)}
-                            className="flex items-center gap-2 text-xs font-semibold text-red-600 hover:bg-red-50 p-2 rounded-lg transition-colors text-left"
+                            className="flex items-center gap-2 text-xs font-semibold text-red-600 hover:bg-red-50 p-2 rounded-lg transition-colors text-left cursor-pointer"
                           >
                             <Trash2 size={14} /> Supprimer
                           </button>
@@ -360,7 +383,6 @@ export default function AffirmationGallery({}: AffirmationGalleryProps) {
                           </button>
                         </div>
                       )}
-
                     </div>
                   ))
                 )
@@ -370,7 +392,6 @@ export default function AffirmationGallery({}: AffirmationGalleryProps) {
           </div>
         </div>
       )}
-
-    </div>
+    </>
   );
 }

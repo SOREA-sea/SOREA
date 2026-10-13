@@ -44,7 +44,7 @@ export default function MiroirLandingPage() {
             {/* Fond ovale lumineux avec dégradé et flou */}
             <div className="absolute inset-0 m-auto w-[500px] h-[600px] rounded-[50%] bg-[#C0BBFC] blur-3xl opacity-85 pointer-events-none"></div>
             <img
-              src="/image_icone/miroir.png"
+              src="/image_icone/miroir.svg"
               alt="Miroir affirmation"
               className="relative z-10 w-full h-full object-contain drop-shadow-2xl"
             />
@@ -102,7 +102,11 @@ export default function MiroirLandingPage() {
           <AffirmationGallery />
 
         </section>
-
+<Link href="miroir">
+              <button className="bg-[#8B47FF] text-white font-bold px-8 py-4 rounded-2xl shadow-lg transition-all duration-300 hover:scale-105 hover:shadow-xl cursor-pointer">
+                Activer mon miroir
+              </button>
+            </Link>
         {/* SECTION DAILY ENCOURAGEMENT (Remplace l'encadré violet de l'image) */}
        <div 
          className="w-full py-20 relative z-10 flex justify-center"

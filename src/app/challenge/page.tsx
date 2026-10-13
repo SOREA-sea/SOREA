@@ -49,7 +49,7 @@ const wheelDataConfig = {
   const sections = [
 
     {
-      img: "/image_icone/miroir.png",
+      img: "/image_icone/miroir.svg",
       alt: "miroir",
       imgWidth: "280px",
       title: "Miroir mon beau miroir",
@@ -183,7 +183,7 @@ const wheelDataConfig = {
 {/* MIROIR */}
 <section className="grid grid-cols-1 md:grid-cols-[auto_1fr] items-center gap-12">
           <div className="flex items-center justify-center">
-            <img src="/image_icone/miroir.png" alt="Miroir affirmation" style={{ width: "280px", display: "block" }} />
+            <img src="/image_icone/miroir.svg" alt="Miroir affirmation" style={{ width: "280px", display: "block" }} />
           </div>
           <article
             className="flex flex-col border-2 border-[#8B47FF] rounded-2xl p-8 gap-5"
