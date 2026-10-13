@@ -23,7 +23,7 @@ export default function MyPage() {
         <StreakTracker />
       </section>*/}
 
-      <section className="w-full flex justify-center">
+      <section className="w-full flex justify-center py-12">
         <MenstrualCalendar />
       </section>
 

@@ -141,10 +141,10 @@ const active = localStorage.getItem('sorea_has_notification') === 'true';
   };
 
   useEffect(() => {
-    queueMicrotask(() => {
-      void fetchProfile();
-      void fetchLoggedUser();
-    });
+    // Exécute les requêtes une seule fois à l'initialisation du composant
+    void fetchProfile();
+    void fetchLoggedUser();
+
     const handleStorageChange = () => {
       if (loggedUser) {
         const stored = localStorage.getItem(`sorea_todos_${loggedUser.id}`);
@@ -158,7 +158,7 @@ const active = localStorage.getItem('sorea_has_notification') === 'true';
     return () => {
       window.removeEventListener('storage', handleStorageChange);
     };
-  }, [loggedUser]);
+  }, []); // Dépendance vide [] pour éviter de relancer les requêtes en boucle
 
   const saveSettings = async () => {
     try {
@@ -413,128 +413,138 @@ const isTodayWithNotification = isToday && hasNotif;
     >
       <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between mb-8">
         <div>
-          <h2 className="text-3xl font-bold underline text-black">Calendrier Menstruel</h2>
+          <h1 className="text-3xl font-bold text-black font-boska">Mon rythme</h1>
           {profile?.isActive ? (
             <p className="text-black font-medium mt-1">Suivi activé</p>
           ) : (
             <p className="text-black font-medium mt-1">Mode par défaut (suivi inactif)</p>
           )}
         </div>
-        <button
-          onClick={() => setShowSettings(true)}
-          className="p-3 bg-white border border-[#8B47FF] text-[#8B47FF] rounded-2xl hover:bg-[#F4EBFF] transition-all duration-300 hover:scale-105 shadow-sm"
-        >
-          <Settings className="w-6 h-6" />
-        </button>
-      </div>
-
-      
-
-        <div className="flex flex-wrap gap-6 mb-8 text-sm font-medium justify-center">
-       
-        <div className="Printemps group relative flex items-center gap-2 cursor-pointer">
-          <div className="w-5 h-5 shrink-0 flex items-center justify-center">
-            <img src={phaseIcons["Printemps"]} alt="Icône Printemps" className="w-full h-full object-contain" />
-          </div>
-          <span className="text-black">Phase Pré-Ovulatoire</span>
-          {/* Tooltip */}
-          <div className="absolute bottom-full mb-2 hidden group-hover:block bg-gray-800 text-white text-xs rounded p-3 w-64 z-20 shadow-lg left-1/2 transform -translate-x-1/2 pointer-events-none">
-            <p className="font-bold mb-1">Le Printemps du cycle </p>
-            <p className="font-normal text-gray-200">
-              Le corps se prépare à libérer un ovule et l'utérus commence à
-              fabriquer une nouvelle muqueuse irriguée par le sang. Durant cette
-              période, l'énergie remonte doucement, favorisant un sentiment de
-              dynamisme et d'optimisme.
-            </p>
-          </div>
-
-        </div>
-      
-      {/* Été : Phase Ovulatoire */}
-        <div className="Été group relative flex items-center gap-2 cursor-pointer">  
-          <div className="w-5 h-5 shrink-0 flex items-center justify-center">
-            <img src={phaseIcons["Été"]} alt="Icône Été" className="w-full h-full object-contain" />
-          </div>
-          <span className="text-black">Phase Ovulatoire</span>
-          {/* Tooltip */}
-          <div className="absolute bottom-full mb-2 hidden group-hover:block bg-gray-800 text-white text-xs rounded p-3 w-64 z-20 shadow-lg left-1/2 transform -translate-x-1/2 pointer-events-none">
-            <p className="font-bold mb-1">L'Été du cycle </p>
-            <p className="font-normal text-gray-200">
-              C'est le moment où l’ovaire libère l’ovule pour la fécondation. Cette
-              phase correspond généralement à un pic d'énergie maximale, facilitant
-              la communication, le rayonnement et l’assurance.
-            </p>
-          </div>
-        </div>
-        
-        <div className="Automne group relative flex items-center gap-2 cursor-pointer">
-          <div className="w-5 h-5 shrink-0 flex items-center justify-center">
-            <img src={phaseIcons["Automne"]} alt="Icône Automne" className="w-full h-full object-contain" />
-          </div>
-          <span className="text-black">Phase Prémenstruelle</span>
-          {/* Tooltip */}
-          <div className="absolute bottom-full mb-2 hidden group-hover:block bg-gray-800 text-white text-xs rounded p-3 w-64 z-20 shadow-lg left-1/2 transform -translate-x-1/2 pointer-events-none">
-            <p className="font-bold mb-1">L'Automne du cycle </p>
-            <p className="font-normal text-gray-200">
-              L'ovule libéré n'a pas été fécondé. Les niveaux d'énergie commencent
-              à baisser, incitant naturellement à se tourner vers soi, et les
-              premiers signes du syndrome prémenstruel (SPM) peuvent faire leur
-              apparition ches certaines personnes.
-            </p>
-          </div>
-        </div>
-        
-<div className="Hiver group relative flex items-center gap-2 cursor-pointer">
-          <div className="w-5 h-5 shrink-0 flex items-center justify-center">
-            <img 
-              src={isSnowflakeMode ? "/image_icone/Flocon.svg" : phaseIcons["Hiver"]} 
-              alt={isSnowflakeMode ? "Icône Flocon" : "Icône Hiver"} 
-              className="w-full h-full object-contain" 
-            />
-          </div>
-          <span className="text-black">Phase Menstruelle</span>
-          {/* Tooltip */}
-          <div className="absolute bottom-full mb-2 hidden group-hover:block bg-gray-800 text-white text-xs rounded p-3 w-64 z-20 shadow-lg left-1/2 transform -translate-x-1/2 pointer-events-none">
-            <p className="font-bold mb-1">L'Hiver du cycle</p>
-            <p className="font-normal text-gray-200">
-              Cette période correspond au début des règles et au “nettoyage” de
-              l'utérus. Le corps exprime un besoin accru de repos, de douceur et
-              d'un rythme plus lent pour se régénérer pleinement.
-            </p>
-          </div>
-        
-        </div>
-       
-        </div>
-
-<div className="mb-8 rounded-3xl border border-[#EDE7FF] bg-[#FAF4FF] p-4 shadow-sm">
-        <p className="text-sm font-semibold text-[#5B3ABC] mb-3">Filtrer les phases</p>
-        <div className="flex flex-wrap gap-3">
-          {["Printemps", "Été", "Automne", "Hiver"].map((phase) => (
-            <button
-              key={phase}
-              type="button"
-              onClick={() => togglePhaseFilter(phase)}
-              className={`rounded-full border px-4 py-2 text-sm font-semibold transition ${phaseFilters.includes(phase) ? "bg-[#8B47FF] border-[#8B47FF] text-white" : "bg-white border-gray-200 text-gray-700 hover:bg-[#F4EBFF]"}`}
-            >
-              {phase}
-            </button>
-          ))}
+        <div className="flex items-center gap-3">
           <button
-            type="button"
-            onClick={() => setPhaseFilters([])}
-            className="rounded-full border border-gray-300 bg-white px-4 py-2 text-sm font-semibold text-gray-600 transition hover:bg-gray-100"
+            onClick={() => setIsSnowflakeMode(!isSnowflakeMode)}
+            className="px-4 py-3 bg-white border-2 border-[#8B47FF] text-[#8B47FF] font-bold rounded-2xl hover:bg-[#F4EBFF] transition-all duration-300 shadow-sm text-sm cursor-pointer"
           >
-            Réinitialiser
+            Mode {isSnowflakeMode ? "❄️Discret" : "🩸Menstrue"}
           </button>
           <button
-          onClick={() => setIsSnowflakeMode(!isSnowflakeMode)}
-          className="px-4 py-2 bg-white border-2 border-[#8B47FF] text-[#8B47FF] font-bold rounded-2xl hover:bg-[#F4EBFF] transition-all duration-300 shadow-sm text-sm"
-        >
-          Mode {isSnowflakeMode ? "❄️Discret" : "🩸Menstrue"}
-        </button>
+            onClick={() => setShowSettings(true)}
+            className="p-3 bg-white border border-[#8B47FF] text-[#8B47FF] rounded-2xl hover:bg-[#F4EBFF] transition-all duration-300 hover:scale-105 shadow-sm cursor-pointer"
+          >
+            <Settings className="w-6 h-6" />
+          </button>
         </div>
+      </div>
+
+      {/* BLOC : Je filtre mes phases */}
+      <div className="w-full mb-8 flex flex-col gap-6">
+        
+        {/* En-tête : Titre et Icône Help */}
+        <div className="flex items-center justify-between">
+          <h3 className="text-xl font-bold text-[#7F4DC5] underline underline-offset-4 font-satoshi">
+            Je filtre mes phases
+          </h3>
+
+          <div className="group relative flex items-center cursor-pointer">
+            <img 
+              src="/image_icone/Help.svg" 
+              alt="Aide" 
+              className="w-6 h-6 object-contain hover:scale-110 transition-transform" 
+            />
+            {/* Tooltip explicatif */}
+            <div className="invisible opacity-0 group-hover:visible group-hover:opacity-100 transition-all duration-200 absolute right-0 top-full mt-2 w-72 p-3 bg-gray-800 text-white text-xs rounded-xl shadow-xl z-30 pointer-events-none">
+              Clique sur une ou plusieurs phases pour filtrer l'affichage du calendrier et repérer tes périodes en un coup d'œil.
+            </div>
+          </div>
         </div>
+
+        {/* Grille 2 x 2 des phases */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-0">
+
+          {/* Phase Pré-Ovulatoire (Printemps) */}
+          <button
+            type="button"
+            onClick={() => togglePhaseFilter("Printemps")}
+            className={`flex items-center gap-4 px-5 py-4 rounded-2xl text-sm font-medium transition-all cursor-pointer text-left ${
+              phaseFilters.includes("Printemps")
+                ? " border-[#8B47FF] shadow-sm ring-2 ring-[#8B47FF]/20"
+                : " text-gray-800 hover:bg-[#FAF4FF] hover:border-[#8B47FF]/100"
+            }`}
+          >
+            <div className="w-6 h-6 shrink-0 flex items-center justify-center">
+              <img src={phaseIcons["Printemps"]} alt="Printemps" className="w-full h-full object-contain" />
+            </div>
+            <span className="font-semibold">Phase Pré-Ovulatoire</span>
+          </button>
+
+          {/* Phase Prémenstruelle (Automne) */}
+          <button
+            type="button"
+            onClick={() => togglePhaseFilter("Automne")}
+            className={`flex items-center gap-4 px-5 py-4 rounded-2xl text-sm font-medium transition-all cursor-pointer text-left ${
+              phaseFilters.includes("Automne")
+                ? " border-[#8B47FF] shadow-sm ring-2 ring-[#8B47FF]/20"
+                : " text-gray-800 hover:bg-[#FAF4FF] hover:border-[#8B47FF]/100"
+            }`}
+          >
+            <div className="w-6 h-6 shrink-0 flex items-center justify-center">
+              <img src={phaseIcons["Automne"]} alt="Automne" className="w-full h-full object-contain" />
+            </div>
+            <span className="font-semibold">Phase Prémenstruelle</span>
+          </button>
+
+          {/* Phase Ovulatoire (Été) */}
+          <button
+            type="button"
+            onClick={() => togglePhaseFilter("Été")}
+            className={`flex items-center gap-4 px-5 py-4 rounded-2xl text-sm font-medium transition-all cursor-pointer text-left ${
+              phaseFilters.includes("Été")
+                ? " border-[#8B47FF] shadow-sm ring-2 ring-[#8B47FF]/20"
+                : " text-gray-800 hover:bg-[#FAF4FF] hover:border-[#8B47FF]/100"
+            }`}
+          >
+            <div className="w-6 h-6 shrink-0 flex items-center justify-center">
+              <img src={phaseIcons["Été"]} alt="Été" className="w-full h-full object-contain" />
+            </div>
+            <span className="font-semibold">Phase Ovulatoire</span>
+          </button>
+
+          {/* Phase Menstruelle (Hiver) */}
+          <button
+            type="button"
+            onClick={() => togglePhaseFilter("Hiver")}
+            className={`flex items-center gap-4 px-5 py-4 rounded-2xl text-sm font-medium transition-all cursor-pointer text-left ${
+              phaseFilters.includes("Hiver")
+                ? " border-[#8B47FF] shadow-sm ring-2 ring-[#8B47FF]/20"
+                : " text-gray-800 hover:bg-[#FAF4FF] hover:border-[#8B47FF]/100"
+            }`}
+          >
+            <div className="w-6 h-6 shrink-0 flex items-center justify-center">
+              <img 
+                src={isSnowflakeMode ? "/image_icone/Flocon.svg" : phaseIcons["Hiver"]} 
+                alt="Hiver" 
+                className="w-full h-full object-contain" 
+              />
+            </div>
+            <span className="font-semibold">Phase Menstruelle</span>
+          </button>
+
+        </div>
+
+        {/* Bouton de réinitialisation si des filtres sont actifs */}
+        {phaseFilters.length > 0 && (
+          <div className="flex justify-end">
+            <button
+              type="button"
+              onClick={() => setPhaseFilters([])}
+              className="text-xs font-semibold text-[#8B47FF] underline hover:text-[#6f37e6] transition-colors cursor-pointer"
+            >
+              Réinitialiser les filtres
+            </button>
+          </div>
+        )}
+
+      </div>
 
         <div className="bg-white rounded-2xl p-8 shadow-sm border border-gray-200">
         <div className="flex justify-between items-center mb-6 px-2">
