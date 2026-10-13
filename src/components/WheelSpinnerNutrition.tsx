@@ -789,11 +789,11 @@ export default function WheelSpinnerNutrition() {
       <div className="flex items-center justify-center relative mt-[-55px] transform scale-[1.35] origin-top">
         
         {/*MENU DÉROULANT EN HAUT À DROITE DE LA ROUE */}
-                <div ref={menuRef} className="absolute -top-[100px] right-[-100px] translate-x-[110px] z-50 transform scale-[0.74]">
+                <div ref={menuRef} className="absolute -top-[30px] right-[-100px] translate-x-[110px] z-50">
                   <div className="relative">
                     <button
                       onClick={() => setIsMenuOpen(!isMenuOpen)}
-                      className="flex items-center justify-center p-3 bg-white/90 backdrop-blur border border-purple-100 rounded-full shadow-md hover:bg-white transition-all cursor-pointer"
+                      className="flex items-center justify-center p-3.5 bg-white/95 backdrop-blur border border-purple-200 rounded-full shadow-lg hover:bg-white hover:scale-105 transition-all cursor-pointer"
                     >
                       <img 
                         src="/image_icone/OutilDéroulant.svg" 

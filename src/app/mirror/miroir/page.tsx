@@ -22,6 +22,10 @@ export default function NouvellePage() {
   const [activeMode, setActiveMode] = useState<"default" | "cycle" | "custom">("default");
 
   const [activeCustomCard, setActiveCustomCard] = useState<any>(null);
+  const [customIndex, setCustomIndex] = useState<number>(0);
+
+  // État pour gérer la lecture / pause du bouton central
+  const [isPlaying, setIsPlaying] = useState<boolean>(false);
 
   // --- États pour les affirmations (100% local, plus d'IA) ---
   const [affirmation, setAffirmation] = useState<string>("");
@@ -68,6 +72,17 @@ export default function NouvellePage() {
       stopCamera();
     } else {
       startCamera();
+    }
+  };
+
+  const togglePlayPause = () => {
+    if (!isPlaying) {
+      setIsPlaying(true);
+      if (!affirmation) {
+        genererAffirmationMiroir();
+      }
+    } else {
+      setIsPlaying(false);
     }
   };
 
@@ -140,11 +155,13 @@ export default function NouvellePage() {
   return;
 }
 let maxLimit = hasSubscription ? 999 : 5;
-
+/* 
+    // Limite quotidienne mise en commentaire pour les tests illimités
     if (affirmationCount >= maxLimit) {
       alert(`Limite quotidienne atteinte ! Tu as utilisé tes ${maxLimit} reflets du jour. Reviens demain ! ✨`);
       return;
     }
+*/
 
     setLoading(true);
 
@@ -158,8 +175,19 @@ let maxLimit = hasSubscription ? 999 : 5;
         chosenText = chosen.text;
         chosenId = chosen.id;
       } else if (activeMode === "custom" && activeCustomCard) {
-        chosenText = activeCustomCard.text;
-        chosenId = activeCustomCard.id;
+        // Découpe le texte par lignes ou par retours à la ligne
+        const lines = activeCustomCard.text
+          .split("\n")
+          .map((l: string) => l.trim())
+          .filter((l: string) => l.length > 0);
+
+        const currentIndex = customIndex % lines.length;
+        chosenText = lines[currentIndex];
+        chosenId = `${activeCustomCard.id}_${currentIndex}`;
+
+        // Passe au suivant pour le prochain clic
+        const nextIndex = (currentIndex + 1) % lines.length;
+        setCustomIndex(nextIndex);
       } else {
         const chosen = pickAffirmation(currentPhase, usedAffirmationIds);
         chosenText = chosen.text;
@@ -208,11 +236,11 @@ let maxLimit = hasSubscription ? 999 : 5;
       const spokenText = clean(currentTranscript);
       const targetText = clean(textToMatch);
 
-      if (spokenText.length > 5 && (targetText.includes(spokenText) || spokenText.includes(targetText))) {
+      /*if (spokenText.length > 5 && (targetText.includes(spokenText) || spokenText.includes(targetText))) {
         recognition.onend = null;
         recognition.stop();
         genererAffirmationMiroir();
-      }
+      }*/
     };
 
     recognitionRef.current = recognition;
@@ -310,12 +338,14 @@ let maxLimit = hasSubscription ? 999 : 5;
     )}
   </div>
 
-  {/* Les 3 boutons avec gestion de la couleur active et bascule immédiate de l'affirmation */}
+  {/* Les 3 boutons de sélection de mode (changement de mode sans déclenchement automatique) */}
   <div className="flex w-[350px] h-[55px] bg-white border border-[#9b6fd9] rounded-[10px] overflow-hidden shadow-sm">
     <button 
       onClick={() => {
         setActiveMode("default");
-        // Optionnel : si tu veux générer immédiatement une affirmation de ce mode au clic
+        setAffirmation("");
+        setCustomIndex(0);
+        setIsPlaying(false);
       }}
       className={`flex-1 h-full flex items-center justify-center text-xs font-medium transition-colors border-r border-[#9b6fd9] cursor-pointer text-center px-1 ${
         activeMode === "default" ? "bg-purple-100 text-[#7F4DC5] font-bold" : "text-gray-800 hover:bg-purple-50"
@@ -327,6 +357,9 @@ let maxLimit = hasSubscription ? 999 : 5;
     <button 
       onClick={() => {
         setActiveMode("cycle");
+        setAffirmation("");
+        setCustomIndex(0);
+        setIsPlaying(false);
       }}
       className={`flex-1 h-full flex items-center justify-center text-xs font-medium transition-colors border-r border-[#9b6fd9] cursor-pointer text-center px-1 ${
         activeMode === "cycle" ? "bg-purple-100 text-[#7F4DC5] font-bold" : "text-gray-800 hover:bg-purple-50"
@@ -338,6 +371,9 @@ let maxLimit = hasSubscription ? 999 : 5;
     <button 
       onClick={() => {
         setActiveMode("custom");
+        setAffirmation("");
+        setCustomIndex(0);
+        setIsPlaying(false);
         setIsCustomModalOpen(true);
       }}
       className={`flex-1 h-full flex items-center justify-center text-xs font-medium transition-colors cursor-pointer text-center px-1 ${
@@ -409,41 +445,47 @@ let maxLimit = hasSubscription ? 999 : 5;
                   <div className="w-full border-b border-[#7F4DC5]/50" />
                 </div>
 
-                {/* Élément central cliquable avec play1.svg pour démarrer */}
+                {/* Élément central cliquable avec bascule Play / Pause (désactivé si le micro est éteint) */}
                 <div className="flex-1 flex items-center justify-center">
                   <button 
-                    onClick={genererAffirmationMiroir}
-                    disabled={loading}
-                    className="transition-transform duration-300 hover:scale-110 cursor-pointer disabled:opacity-50"
-                    title="Commencer"
+                    onClick={togglePlayPause}
+                    disabled={loading || !microActive}
+                    className={`transition-transform duration-300 ${
+                      !microActive ? "opacity-40 cursor-not-allowed" : "hover:scale-110 cursor-pointer"
+                    } disabled:opacity-40`}
+                    title={!microActive ? "Activez le micro pour utiliser le lecteur" : (isPlaying ? "Pause" : "Commencer")}
                   >
                     <img
-                      src="/image_icone/play1.svg"
-                      alt="Lecteur"
+                      src={isPlaying ? "/image_icone/pause1.svg" : "/image_icone/play1.svg"}
+                      alt={isPlaying ? "Pause" : "Lecture"}
                       className="w-20 h-20 object-contain"
                     />
                   </button>
                 </div>
 
-                {/* Bouton Suivant en bas de la frame */}
+                {/* Bouton Suivant : activé si micro désactivé, grisé et inactif si micro actif */}
                 <div className="w-full px-6 pb-4">
                   <button
                     onClick={genererAffirmationMiroir}
-                    disabled={loading}
-                    className="w-full bg-[#8B47FF] text-white font-bold py-3 rounded-xl shadow-lg transition-all duration-300 hover:scale-105 hover:shadow-xl disabled:opacity-50 cursor-pointer text-center"
+                    disabled={loading || microActive}
+                    className={`w-full bg-[#8B47FF] text-white font-bold py-3 rounded-xl shadow-lg transition-all duration-300 text-center ${
+                      microActive ? "opacity-40 cursor" : "hover:scale-105 hover:shadow-xl cursor-pointer"
+                    }`}
+                    title={microActive ? "Désactivez le micro pour utiliser le bouton Suivant" : "Affirmation suivante"}
                   >
-                    {loading ? "Chargement..." : "Suivant"}
+                    Suivant
                   </button>
                 </div>
+
               </div>
 
               {/* Affirmation superposée sur le miroir, en bas de l'ovale (cf. maquette Figma) */}
-              {affirmation && (
+              {affirmation && !loading && (
                 <div
-                  className="absolute z-20 text-center text-white text-sm font-medium rounded-lg"
+                  className="absolute z-20 text-center text-white text-sm font-medium rounded-[4px]"
                   style={{
                     width: "210px",
-                    top: "72%",
+                    top: cameraActive ? "72%" : "50%", // Centré en hauteur si la caméra est désactivée, sinon en bas
                     left: "50%",
                     transform: "translate(-50%, -50%)",
                     backgroundColor: "rgba(33, 33, 33, 0.5)",
@@ -451,6 +493,23 @@ let maxLimit = hasSubscription ? 999 : 5;
                   }}
                 >
                   {affirmation}
+                </div>
+              )}
+
+              {/* Chargement indépendant positionné au centre du miroir */}
+              {loading && (
+                <div
+                  className="absolute z-30 text-center text-white text-sm font-semibold rounded-lg shadow-lg animate-pulse"
+                  style={{
+                    width: "190px",
+                    top: "55%",
+                    left: "50%",
+                    transform: "translate(-50%, -50%)",
+                    backgroundColor: "rgba(33, 33, 33, 0.6)",
+                    padding: "12px 25px",
+                  }}
+                >
+                  Chargement...
                 </div>
               )}
             </div>

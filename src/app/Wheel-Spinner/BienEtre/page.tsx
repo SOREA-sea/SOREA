@@ -56,17 +56,18 @@ const hideInstructionsWellness = () => {
           
           {/* Bouton Retour stylé */}
           {/* 1. En-tête de la zone de jeu (Retour, Style, Favoris) */}
-    <div className="w-full flex items-center justify-between gap-4">
-      {/* Côté Gauche : Bouton Retour */}
-      <div className="flex-shrink-0">
-        <Link 
-          href="/Wheel-Spinner" // Lien vers la page de sélection
-              className="text-[#8B47FF] font-bold px-5 py-2 mt-12 rounded-2xl border-2 border-[#8B47FF] hover:bg-[#8B47FF] hover:text-white transition-all shadow-sm flex items-center gap-2"
+    
+    {/* Bouton Retour stylé */}
+          <div className="w-full max-w-[1440px] mx-auto px-[96px] sticky top-[85px] z-40 mb-[-60px]">
+          <div className="w-full max-w-[1228px] px-4 mb-10 self-center flex pointer-events-auto">
+            <Link 
+              href="/Wheel-Spinner" // Lien vers la page de sélection
+              className="text-[#8B47FF] font-bold px-6 py-2 rounded-2xl border border-[#8B47FF] hover:bg-[#8B47FF] hover:text-white transition-all shadow-sm flex items-center gap-2 cursor-pointer"
             >
               ← Retour aux choix
             </Link>
           </div>
-    </div>
+          </div>
 
           {/* La roue spécifique affichée ici directement */}
           {/* 2. Le jeu de la roue (maintenant dans la même div englobante) */}

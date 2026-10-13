@@ -63,6 +63,20 @@ export default function AffirmationGallery({
   const [editingId, setEditingId] = useState<string | null>(null);
   const [activeMenuId, setActiveMenuId] = useState<string | null>(null);
 
+  // Ferme le menu contextuel si on clique en dehors
+  React.useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      // On ferme uniquement si le clic n'est pas à l'intérieur d'un menu ou d'une carte active
+      setActiveMenuId(null);
+    };
+    if (activeMenuId !== null) {
+      document.addEventListener("click", handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener("click", handleClickOutside);
+    };
+  }, [activeMenuId]);
+
   const handleSave = (e: React.FormEvent) => {
     e.preventDefault();
     if (!currentTitle.trim() || !currentText.trim()) return;
@@ -91,7 +105,7 @@ export default function AffirmationGallery({
     // 1. Sauvegarde la carte sélectionnée et active le mode personnalisées
     localStorage.setItem("sorea_active_custom_affirmation", JSON.stringify(card));
     localStorage.setItem("sorea_active_mode", "custom");
-
+    localStorage.setItem("sorea_custom_index", "0"); // Réinitialise l'index au début de la liste
     // 2. Notifie l'application en cas d'utilisation sur la même page
     window.dispatchEvent(new Event("customAffirmationChanged"));
     setActiveMenuId(null);
@@ -113,6 +127,7 @@ export default function AffirmationGallery({
 
       setTimeout(() => {
         target.selectionStart = target.selectionEnd = start + 3;
+        target.scrollTop = target.scrollHeight; // Fait défiler le texte jusqu'en bas
       }, 0);
     }
   };
@@ -270,7 +285,7 @@ export default function AffirmationGallery({
               <div className="px-8 mt-2">
                 <form onSubmit={handleSave} className="bg-purple-50/80 p-6 rounded-2xl border border-purple-200 flex flex-col gap-4">
                   <h3 className="text-lg font-bold text-purple-950">
-                    {editingId ? "Modifier l'affirmation" : "Créer une nouvelle affirmation"}
+                    {editingId ? "Modifier ton affirmation" : "Créer ta nouvelle affirmation"}
                   </h3>
                   <input 
                     type="text"
@@ -286,7 +301,7 @@ export default function AffirmationGallery({
                     onKeyDown={handleKeyDown}
                     onChange={(e) => setCurrentText(e.target.value)}
                     placeholder="Entrez vos affirmations... (Appuyez sur Entrée pour passer à la ligne)"
-                    className="w-full bg-white border border-purple-200 rounded-xl px-4 py-3 text-gray-800 focus:outline-none focus:ring-2 focus:ring-[#8B47FF] h-28 resize-none whitespace-pre-line"
+                    className="w-full bg-white border border-purple-200 rounded-xl px-4 py-3 text-gray-800 focus:outline-none focus:ring-2 focus:ring-[#8B47FF] h-28 resize-none whitespace-pre-line overflow-y-auto"
                   />
 
                   <div className="flex justify-end gap-3">
@@ -322,7 +337,11 @@ export default function AffirmationGallery({
                       </div>
 
                       {activeMenuId === card.id && (
-                        <div className="absolute top-2 right-2 bg-white rounded-xl shadow-xl border border-purple-100 p-2 flex flex-col gap-1 z-20 w-44 animate-scale-up">
+                        <div 
+                          onClick={(e) => e.stopPropagation()}
+                          className="absolute top-2 right-2 bg-white rounded-xl shadow-xl border border-purple-100 p-2 flex flex-col gap-1 z-20 w-44 animate-scale-up"
+                        >
+
                           <button 
                             onClick={() => selectForMirror(card)}
                             className="flex items-center gap-2 text-xs font-semibold text-[#8B47FF] hover:bg-purple-50 p-2 rounded-lg transition-colors text-left cursor-pointer"
