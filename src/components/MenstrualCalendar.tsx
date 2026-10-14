@@ -356,11 +356,15 @@ const active = localStorage.getItem('sorea_has_notification') === 'true';
       const isSelected = selectedDate?.toDateString() === date.toDateString();
       const phaseVisible = !phaseFilters.length || (phase && phaseFilters.includes(phase));
       const hiddenStyles = !phaseVisible ? "opacity-30" : "";
-      const iconVisible = phaseVisible ? icon : null;
-      const hasTodos = Boolean(todosByDate[dateKey]?.length);
+      //Masquer les icônes de phase quand on est sur l'onglet Todo-List
+      const iconVisible = activeTab === 'calendar' && phaseVisible ? icon : null;
+
       const dayTodos = todosByDate[dateKey] || [];
-      const allTodosCompleted = dayTodos.length > 0 && dayTodos.every(todo => todo.completed); //Le point s'affiche s'il y a des tâches, MAIS disparaît si elle sont toutes complétées.
-      const showPurpleDot = dayTodos.length > 0 && !allTodosCompleted;
+      const allTodosCompleted = dayTodos.length > 0 && dayTodos.every(todo => todo.completed);
+      
+      //Masquer les indicateurs de tâche quand on est sur l'onglet Calendrier Menstruel
+      const showCheckmark = activeTab === 'todo' && allTodosCompleted;
+      const showPurpleDot = activeTab === 'todo' && dayTodos.length > 0 && !allTodosCompleted;
       
 
 const isTodayWithNotification = isToday && hasNotif;
@@ -377,12 +381,12 @@ const isTodayWithNotification = isToday && hasNotif;
           onClick={() => handleDayClick(day)}
           className={`h-12 sm:h-16 border-r border-b border-gray-200 flex flex-col items-center justify-center transition-colors cursor-pointer relative ${phaseColor} ${isToday ? "font-bold" : ""} ${hiddenStyles}`}
         >
-{/* 🌟 NOUVEAU : Badge rouge de notification sur la date du jour adéquate */}
+{/*Badge de notification sur la date du jour adéquate */}
     {isToday && hasNotif && (
       <span className="absolute top-1 right-1 w-2.5 h-2.5 bg-[#00CEC9] rounded-full animate-pulse z-10" />
     )}
 
-          {allTodosCompleted && (
+          {showCheckmark && (
       <img 
         src="/image_icone/Okey-Calendar.svg" 
         alt="Toutes les tâches terminées" 
@@ -390,7 +394,7 @@ const isTodayWithNotification = isToday && hasNotif;
       />
     )}
 
-          {showPurpleDot && <span className="absolute left-2 top-2 h-2.5 w-2.5 rounded-full bg-[#8B47FF] shadow-sm" />} 
+          {showPurpleDot && <span className="absolute left-2 top-2 h-2.5 w-2.5 rounded-full bg-[#8B47FF] shadow-sm" />}
           <span className="text-sm font-semibold">{day}</span>
           {iconVisible}
         </div>
