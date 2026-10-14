@@ -62,8 +62,9 @@ const [isSnowflakeMode, setIsSnowflakeMode] = useState(false);
   const [todosByDate, setTodosByDate] = useState<Record<string, TodoItem[]>>({});
   const [loggedUser, setLoggedUser] = useState<{ id: string; email: string } | null>(null);
   const [phaseFilters, setPhaseFilters] = useState<string[]>([]);
+  const [activeTab, setActiveTab] = useState<'calendar' | 'todo'>('calendar'); // État pour pour basculer entre 'calendar' et 'todo'
 
-  // 🌟 NOUVEAU : Vérifier si la date correspond à aujourd'hui et s'il y a une notification active
+  //NOUVEAU : Vérifier si la date correspond à aujourd'hui et s'il y a une notification active
 
       const [hasNotif, setHasNotif] = useState(false);
 
@@ -406,27 +407,52 @@ const isTodayWithNotification = isToday && hasNotif;
     setCurrentMonth(next);
   };
 
-  return (
+return (
     <div
       className="bg-white rounded-3xl p-10 shadow-sm w-full max-w-2xl mx-auto border-2 border-[#8B47FF] relative overflow-hidden"
       style={{ background: "radial-gradient(ellipse at center, #FEF0F9 0%, #FFFFFF 100%)" }}
     >
+      {/* BLOC : En-tête dynamique (change selon l'onglet actif) */}
       <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between mb-8">
         <div>
-          <h1 className="text-3xl font-bold text-black font-boska">Mon rythme</h1>
-          {profile?.isActive ? (
-            <p className="text-black font-medium mt-1">Suivi activé</p>
+          <h1 className="text-3xl font-bold text-black font-boska">
+            {activeTab === 'calendar' ? 'Mon rythme' : 'Agenda Todo-List'}
+          </h1>
+          {activeTab === 'calendar' ? (
+            profile?.isActive ? (
+              <p className="text-black font-medium mt-1">Suivi activé</p>
+            ) : (
+              <p className="text-black font-medium mt-1">Suivi inactif</p>
+            )
           ) : (
-            <p className="text-black font-medium mt-1">Mode par défaut (suivi inactif)</p>
+            <p className="text-black font-medium mt-1">Gérez vos tâches par date</p>
           )}
         </div>
         <div className="flex items-center gap-3">
-          <button
-            onClick={() => setIsSnowflakeMode(!isSnowflakeMode)}
-            className="px-4 py-3 bg-white border-2 border-[#8B47FF] text-[#8B47FF] font-bold rounded-2xl hover:bg-[#F4EBFF] transition-all duration-300 shadow-sm text-sm cursor-pointer"
-          >
-            Mode {isSnowflakeMode ? "❄️Discret" : "🩸Menstrue"}
-          </button>
+          {/* Le mode menstrue/discret s'affiche uniquement sur l'onglet calendrier */}
+          {activeTab === 'calendar' && (
+            <button
+              onClick={() => setIsSnowflakeMode(!isSnowflakeMode)}
+              className="px-4 py-3 bg-white border-2 border-[#8B47FF] text-[#8B47FF] font-bold rounded-2xl hover:bg-[#F4EBFF] transition-all duration-300 shadow-sm text-sm cursor-pointer"
+            >
+              Mode {isSnowflakeMode ? "❄️Discret" : "🩸Menstrue"}
+            </button>
+          )}
+
+          {/* L'icône d'aide à gauche du bouton des paramètres sur l'onglet Todo-List */}
+          {activeTab === 'todo' && (
+            <div className="group relative flex items-center cursor-pointer mr-1">
+              <img 
+                src="/image_icone/Help.svg" 
+                alt="Aide" 
+                className="w-6 h-6 object-contain hover:scale-110 transition-transform" 
+              />
+              <div className="invisible opacity-0 group-hover:visible group-hover:opacity-100 transition-all duration-200 absolute right-0 top-full mt-2 w-72 p-3 bg-gray-800 text-white text-xs rounded-xl shadow-xl z-30 pointer-events-none">
+                Cliquez sur une date du calendrier pour ajouter ou consulter vos tâches et la to-do list associée.
+              </div>
+            </div>
+          )}
+
           <button
             onClick={() => setShowSettings(true)}
             className="p-3 bg-white border border-[#8B47FF] text-[#8B47FF] rounded-2xl hover:bg-[#F4EBFF] transition-all duration-300 hover:scale-105 shadow-sm cursor-pointer"
@@ -436,131 +462,141 @@ const isTodayWithNotification = isToday && hasNotif;
         </div>
       </div>
 
-      {/* BLOC : Je filtre mes phases */}
-      <div className="w-full mb-8 flex flex-col gap-6">
-        
-        {/* En-tête : Titre et Icône Help */}
-        <div className="flex items-center justify-between">
-          <h3 className="text-xl font-bold text-[#7F4DC5] underline underline-offset-4 font-satoshi">
-            Je filtre mes phases
-          </h3>
+      {/* BLOC : Je filtre mes phases (Affiché uniquement si activeTab === 'calendar') */}
+      {activeTab === 'calendar' && (
+        <div className="w-full mb-8 flex flex-col gap-6">
+          
+          {/* En-tête : Titre et Icône Help */}
+          <div className="flex items-center justify-between">
+            <h3 className="text-xl font-bold text-[#7F4DC5] underline underline-offset-4 font-satoshi">
+              Je filtre mes phases
+            </h3>
 
-          <div className="group relative flex items-center cursor-pointer">
-            <img 
-              src="/image_icone/Help.svg" 
-              alt="Aide" 
-              className="w-6 h-6 object-contain hover:scale-110 transition-transform" 
-            />
-            {/* Tooltip explicatif */}
-            <div className="invisible opacity-0 group-hover:visible group-hover:opacity-100 transition-all duration-200 absolute right-0 top-full mt-2 w-72 p-3 bg-gray-800 text-white text-xs rounded-xl shadow-xl z-30 pointer-events-none">
-              Clique sur une ou plusieurs phases pour filtrer l'affichage du calendrier et repérer tes périodes en un coup d'œil.
+            <div className="group relative flex items-center cursor-pointer">
+              <img 
+                src="/image_icone/Help.svg" 
+                alt="Aide" 
+                className="w-6 h-6 object-contain hover:scale-110 transition-transform" 
+              />
+              {/* Tooltip explicatif */}
+              <div className="invisible opacity-0 group-hover:visible group-hover:opacity-100 transition-all duration-200 absolute right-0 top-full mt-2 w-72 p-3 bg-gray-800 text-white text-xs rounded-xl shadow-xl z-30 pointer-events-none">
+                Clique sur une ou plusieurs phases pour filtrer l'affichage du calendrier et repérer tes périodes en un coup d'œil.
+              </div>
             </div>
           </div>
-        </div>
 
-        {/* Grille 2 x 2 des phases */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-0">
+          {/* Grille 2 x 2 des phases */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-0">
 
-          {/* Phase Pré-Ovulatoire (Printemps) */}
-          <button
-            type="button"
-            onClick={() => togglePhaseFilter("Printemps")}
-            className={`flex items-center gap-4 px-5 py-4 rounded-2xl text-sm font-medium transition-all cursor-pointer text-left ${
-              phaseFilters.includes("Printemps")
-                ? " border-[#8B47FF] shadow-sm ring-2 ring-[#8B47FF]/20"
-                : " text-gray-800 hover:bg-[#FAF4FF] hover:border-[#8B47FF]/100"
-            }`}
-          >
-            <div className="w-6 h-6 shrink-0 flex items-center justify-center">
-              <img src={phaseIcons["Printemps"]} alt="Printemps" className="w-full h-full object-contain" />
-            </div>
-            <span className="font-semibold">Phase Pré-Ovulatoire</span>
-          </button>
-
-          {/* Phase Prémenstruelle (Automne) */}
-          <button
-            type="button"
-            onClick={() => togglePhaseFilter("Automne")}
-            className={`flex items-center gap-4 px-5 py-4 rounded-2xl text-sm font-medium transition-all cursor-pointer text-left ${
-              phaseFilters.includes("Automne")
-                ? " border-[#8B47FF] shadow-sm ring-2 ring-[#8B47FF]/20"
-                : " text-gray-800 hover:bg-[#FAF4FF] hover:border-[#8B47FF]/100"
-            }`}
-          >
-            <div className="w-6 h-6 shrink-0 flex items-center justify-center">
-              <img src={phaseIcons["Automne"]} alt="Automne" className="w-full h-full object-contain" />
-            </div>
-            <span className="font-semibold">Phase Prémenstruelle</span>
-          </button>
-
-          {/* Phase Ovulatoire (Été) */}
-          <button
-            type="button"
-            onClick={() => togglePhaseFilter("Été")}
-            className={`flex items-center gap-4 px-5 py-4 rounded-2xl text-sm font-medium transition-all cursor-pointer text-left ${
-              phaseFilters.includes("Été")
-                ? " border-[#8B47FF] shadow-sm ring-2 ring-[#8B47FF]/20"
-                : " text-gray-800 hover:bg-[#FAF4FF] hover:border-[#8B47FF]/100"
-            }`}
-          >
-            <div className="w-6 h-6 shrink-0 flex items-center justify-center">
-              <img src={phaseIcons["Été"]} alt="Été" className="w-full h-full object-contain" />
-            </div>
-            <span className="font-semibold">Phase Ovulatoire</span>
-          </button>
-
-          {/* Phase Menstruelle (Hiver) */}
-          <button
-            type="button"
-            onClick={() => togglePhaseFilter("Hiver")}
-            className={`flex items-center gap-4 px-5 py-4 rounded-2xl text-sm font-medium transition-all cursor-pointer text-left ${
-              phaseFilters.includes("Hiver")
-                ? " border-[#8B47FF] shadow-sm ring-2 ring-[#8B47FF]/20"
-                : " text-gray-800 hover:bg-[#FAF4FF] hover:border-[#8B47FF]/100"
-            }`}
-          >
-            <div className="w-6 h-6 shrink-0 flex items-center justify-center">
-              <img 
-                src={isSnowflakeMode ? "/image_icone/Flocon.svg" : phaseIcons["Hiver"]} 
-                alt="Hiver" 
-                className="w-full h-full object-contain" 
-              />
-            </div>
-            <span className="font-semibold">Phase Menstruelle</span>
-          </button>
-
-        </div>
-
-        {/* Bouton de réinitialisation si des filtres sont actifs */}
-        {phaseFilters.length > 0 && (
-          <div className="flex justify-end">
+            {/* Phase Pré-Ovulatoire (Printemps) */}
             <button
               type="button"
-              onClick={() => setPhaseFilters([])}
-              className="text-xs font-semibold text-[#8B47FF] underline hover:text-[#6f37e6] transition-colors cursor-pointer"
+              onClick={() => togglePhaseFilter("Printemps")}
+              className={`flex items-center gap-4 px-5 py-4 rounded-2xl text-sm font-medium transition-all cursor-pointer text-left ${
+                phaseFilters.includes("Printemps")
+                  ? " border-[#8B47FF] shadow-sm ring-2 ring-[#8B47FF]/20"
+                  : " text-gray-800 hover:bg-[#FAF4FF] hover:border-[#8B47FF]/100"
+              }`}
             >
-              Réinitialiser les filtres
+              <div className="w-6 h-6 shrink-0 flex items-center justify-center">
+                <img src={phaseIcons["Printemps"]} alt="Printemps" className="w-full h-full object-contain" />
+              </div>
+              <span className="font-semibold">Phase Pré-Ovulatoire</span>
             </button>
-          </div>
-        )}
 
-      </div>
+            {/* Phase Prémenstruelle (Automne) */}
+            <button
+              type="button"
+              onClick={() => togglePhaseFilter("Automne")}
+              className={`flex items-center gap-4 px-5 py-4 rounded-2xl text-sm font-medium transition-all cursor-pointer text-left ${
+                phaseFilters.includes("Automne")
+                  ? " border-[#8B47FF] shadow-sm ring-2 ring-[#8B47FF]/20"
+                  : " text-gray-800 hover:bg-[#FAF4FF] hover:border-[#8B47FF]/100"
+              }`}
+            >
+              <div className="w-6 h-6 shrink-0 flex items-center justify-center">
+                <img src={phaseIcons["Automne"]} alt="Automne" className="w-full h-full object-contain" />
+              </div>
+              <span className="font-semibold">Phase Prémenstruelle</span>
+            </button>
+
+            {/* Phase Ovulatoire (Été) */}
+            <button
+              type="button"
+              onClick={() => togglePhaseFilter("Été")}
+              className={`flex items-center gap-4 px-5 py-4 rounded-2xl text-sm font-medium transition-all cursor-pointer text-left ${
+                phaseFilters.includes("Été")
+                  ? " border-[#8B47FF] shadow-sm ring-2 ring-[#8B47FF]/20"
+                  : " text-gray-800 hover:bg-[#FAF4FF] hover:border-[#8B47FF]/100"
+              }`}
+            >
+              <div className="w-6 h-6 shrink-0 flex items-center justify-center">
+                <img src={phaseIcons["Été"]} alt="Été" className="w-full h-full object-contain" />
+              </div>
+              <span className="font-semibold">Phase Ovulatoire</span>
+            </button>
+
+            {/* Phase Menstruelle (Hiver) */}
+            <button
+              type="button"
+              onClick={() => togglePhaseFilter("Hiver")}
+              className={`flex items-center gap-4 px-5 py-4 rounded-2xl text-sm font-medium transition-all cursor-pointer text-left ${
+                phaseFilters.includes("Hiver")
+                  ? " border-[#8B47FF] shadow-sm ring-2 ring-[#8B47FF]/20"
+                  : " text-gray-800 hover:bg-[#FAF4FF] hover:border-[#8B47FF]/100"
+              }`}
+            >
+              <div className="w-6 h-6 shrink-0 flex items-center justify-center">
+                <img 
+                  src={isSnowflakeMode ? "/image_icone/Flocon.svg" : phaseIcons["Hiver"]} 
+                  alt="Hiver" 
+                  className="w-full h-full object-contain" 
+                />
+              </div>
+              <span className="font-semibold">Phase Menstruelle</span>
+            </button>
+
+          </div>
+
+          {/* Bouton de réinitialisation si des filtres sont actifs */}
+          {phaseFilters.length > 0 && (
+            <div className="flex justify-end">
+              <button
+                type="button"
+                onClick={() => setPhaseFilters([])}
+                className="text-xs font-semibold text-[#8B47FF] underline hover:text-[#6f37e6] transition-colors cursor-pointer"
+              >
+                Réinitialiser les filtres
+              </button>
+            </div>
+          )}
+
+        </div>
+      )}
 
 {/* 🌟 NOUVEAU : Les deux boutons non fonctionnels (Calendrier Menstruel / Todo-List) */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-2">
         <button
           type="button"
-          onClick={(e) => e.preventDefault()}
-          className="w-full h-[42px] px-6 rounded-[5px] border border-[#E256B3] bg-white text-black font-semibold text-base transition-all duration-200 hover:bg-[#FCE7F3] hover:border-[#E256B3] cursor-default"
+          onClick={() => setActiveTab('calendar')}
+          className={`w-full h-[42px] px-6 rounded-[5px] border border-[#E256B3] font-semibold text-base transition-all duration-200 cursor-pointer ${
+            activeTab === 'calendar' 
+              ? 'bg-[#FCE7F3] text-black shadow-sm' 
+              : 'bg-white text-black hover:bg-[#FCE7F3]'
+          }`}
         >
           Calendrier Menstruel
         </button>
         <button
           type="button"
-          onClick={(e) => e.preventDefault()}
-          className="w-full h-[42px] px-6 rounded-[5px] border border-[#00CEC9] bg-white text-black font-semibold text-base transition-all duration-200 hover:bg-[#E0F2FE] hover:border-[#00CEC9] cursor-default"
+          onClick={() => setActiveTab('todo')}
+          className={`w-full h-[42px] px-6 rounded-[5px] border border-[#00CEC9] font-semibold text-base transition-all duration-200 cursor-pointer ${
+            activeTab === 'todo' 
+              ? 'bg-[#E0F2FE] text-black shadow-sm' 
+              : 'bg-white text-black hover:bg-[#E0F2FE]'
+          }`}
         >
-          Todo-List
+          Agenda Todo-List
         </button>
       </div>
 
@@ -682,7 +718,7 @@ const isTodayWithNotification = isToday && hasNotif;
         </div>
       )}
 
-      {selectedDate && (
+      {selectedDate && activeTab === 'calendar' && (
         <div className="mt-8 bg-[#F4EBFF] rounded-2xl p-6 border border-[#8B47FF]/30">
           <div className="flex justify-between items-center mb-4">
             <h3 className="text-lg font-bold text-[#8B47FF]">

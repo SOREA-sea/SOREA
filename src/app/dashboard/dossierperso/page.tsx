@@ -193,9 +193,9 @@ export default async function DashboardPage() {
         </div>
         <div className="space-y-6">
           <div className="glass-panel rounded-3xl p-6">
-            <div className="mx-auto w-full max-w-[720px]">
+            {/*<div className="mx-auto w-full max-w-[720px]">
               <MenstrualCalendar />
-            </div>
+            </div>*/}
           </div>
           <div className="glass-panel rounded-3xl p-6">
             <h3 className="text-xl font-bold mb-4">Ma jauge de streak</h3>
