@@ -24,8 +24,8 @@ export default function AffirmationGallery({
       if (saved) return JSON.parse(saved);
     }
     return [
-      { id: "1", title: "Confiance en soi", text: "● Je suis confiant(e)" },
-      { id: "2", title: "Paix intérieure", text: "● Je cultive la paix" }
+      { id: "1", title: "Confiance en soi", text: "✓ Je suis confiant(e)" },
+      { id: "2", title: "Paix intérieure", text: "✓ Je cultive la paix" }
     ];
   });
 
@@ -122,7 +122,7 @@ export default function AffirmationGallery({
       const start = target.selectionStart;
       const end = target.selectionEnd;
       
-      const newValue = currentText.substring(0, start) + "\n● " + currentText.substring(end);
+      const newValue = currentText.substring(0, start) + "\n✓ " + currentText.substring(end);
       setCurrentText(newValue);
 
       setTimeout(() => {
@@ -297,7 +297,7 @@ export default function AffirmationGallery({
                   />
                   <textarea 
                     value={currentText}
-                    onFocus={() => { if (!currentText) setCurrentText("● "); }}
+                    onFocus={() => { if (!currentText) setCurrentText("✓ "); }}
                     onKeyDown={handleKeyDown}
                     onChange={(e) => setCurrentText(e.target.value)}
                     placeholder="Entrez vos affirmations... (Appuyez sur Entrée pour passer à la ligne)"
@@ -346,7 +346,7 @@ export default function AffirmationGallery({
                             onClick={() => selectForMirror(card)}
                             className="flex items-center gap-2 text-xs font-semibold text-[#8B47FF] hover:bg-purple-50 p-2 rounded-lg transition-colors text-left cursor-pointer"
                           >
-                            🪞Utiliser m'affirmer
+                            🪞 M'affirmer
                           </button>
                           <button 
                             onClick={() => startEdit(card)}

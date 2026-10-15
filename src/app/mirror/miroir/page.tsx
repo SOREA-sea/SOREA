@@ -30,6 +30,7 @@ export default function NouvellePage() {
   // --- États pour les affirmations (100% local, plus d'IA) ---
   const [affirmation, setAffirmation] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
+  const [showLoadingText, setShowLoadingText] = useState<boolean>(false); // État pour le délai de 3s avant l'affichage du texte "✨ Reflet suivant..."
   const [affirmationCount, setAffirmationCount] = useState<number>(0);
   const [usedAffirmationIds, setUsedAffirmationIds] = useState<string[]>([]);
   const [currentPhase, setCurrentPhase] = useState<Phase>("Printemps");
@@ -145,28 +146,28 @@ export default function NouvellePage() {
     return () => window.removeEventListener("customAffirmationChanged", loadCustom);
   }, []);
 
-  // --- Génère la prochaine affirmation localement (plus d'appel API/Gemini) ---
+ // --- Génère la prochaine affirmation avec un délai de transition de 3s pour "Reflet suivant..." ---
   const genererAffirmationMiroir = () => {
     const today = new Date().toISOString().split("T")[0];
 
-    // Limites quotidiennes
     if (!loggedUser) {
-  alert("Vous devez être inscrit pour utiliser le miroir !✨");
-  return;
-}
-let maxLimit = hasSubscription ? 999 : 5;
-/* 
-    // Limite quotidienne mise en commentaire pour les tests illimités
-    if (affirmationCount >= maxLimit) {
-      alert(`Limite quotidienne atteinte ! Tu as utilisé tes ${maxLimit} reflets du jour. Reviens demain ! ✨`);
+      alert("Vous devez être inscrit pour utiliser le miroir !✨");
       return;
     }
-*/
+    let maxLimit = 999; // Limite fixée à 999 pour tout le monde
 
     setLoading(true);
+    setShowLoadingText(false); // Réinitialisation au départ
 
-    // Petit délai de 3,5s avant que la phrase suivante n'apparaisse
-    setTimeout(() => {
+    // 1. Après 3 secondes d'attente, on affiche le message "✨ Reflet suivant..."
+    const showTimer = setTimeout(() => {
+      setShowLoadingText(true);
+    }, 3000);
+
+    // 2. Le message reste affiché pendant 3 secondes supplémentaires (soit au total 6 secondes avant le changement de phrase)
+    const hideTimer = setTimeout(() => {
+      setShowLoadingText(false);
+
       let chosenText = "";
       let chosenId = "";
 
@@ -175,7 +176,6 @@ let maxLimit = hasSubscription ? 999 : 5;
         chosenText = chosen.text;
         chosenId = chosen.id;
       } else if (activeMode === "custom" && activeCustomCard) {
-        // Découpe le texte par lignes ou par retours à la ligne
         const lines = activeCustomCard.text
           .split("\n")
           .map((l: string) => l.trim())
@@ -185,7 +185,6 @@ let maxLimit = hasSubscription ? 999 : 5;
         chosenText = lines[currentIndex];
         chosenId = `${activeCustomCard.id}_${currentIndex}`;
 
-        // Passe au suivant pour le prochain clic
         const nextIndex = (currentIndex + 1) % lines.length;
         setCustomIndex(nextIndex);
       } else {
@@ -205,9 +204,10 @@ let maxLimit = hasSubscription ? 999 : 5;
       localStorage.setItem(`sorea_affirmations_${today}`, nextCount.toString());
 
       setLoading(false);
-    }, 3500);
-};
-  // --- Reconnaissance vocale automatique (mode "perroquet") ---
+    }, 6000); // 3 secondes d'attente + 3 secondes d'affichage du message de transition
+  };
+
+// --- Reconnaissance vocale 100% locale, gratuite et ultra-tolérante ---
   const startSpeechRecognition = (textToMatch: string) => {
     if (!microActive || !textToMatch) return;
 
@@ -223,28 +223,83 @@ let maxLimit = hasSubscription ? 999 : 5;
     recognition.continuous = true;
     recognition.interimResults = true;
 
+    // Variable globale pour accumuler tout ce qui est dit pendant toute la session de l'affirmation
+    let fullSessionTranscript = "";
+
     recognition.onstart = () => setIsListening(true);
-    recognition.onend = () => setIsListening(false);
 
     recognition.onresult = (event: any) => {
-      let currentTranscript = "";
+      let currentIntervalTranscript = "";
       for (let i = event.resultIndex; i < event.results.length; ++i) {
-        currentTranscript += event.results[i][0].transcript;
+        currentIntervalTranscript += event.results[i][0].transcript;
       }
 
-      const clean = (str: string) => str.toLowerCase().replace(/[.,\/#!$%\^&\*;:{}=\-_`~()?"']/g, "").trim();
-      const spokenText = clean(currentTranscript);
-      const targetText = clean(textToMatch);
+      // On accumule au fil de l'eau pour ne jamais perdre ce qui a été dit
+      fullSessionTranscript += " " + currentIntervalTranscript;
 
-      /*if (spokenText.length > 5 && (targetText.includes(spokenText) || spokenText.includes(targetText))) {
+      // Nettoyage complet (suppression des symboles, puces, accents, mise en minuscules)
+      const normalize = (str: string) => 
+        str
+          .toLowerCase()
+          .normalize("NFD")
+          .replace(/[\u0300-\u036f]/g, "")
+          .replace(/[✓●•\*.,\/#!$%\^&\*;:{}=\-_`~()?"']/g, "")
+          .trim();
+
+      const spokenClean = normalize(fullSessionTranscript);
+      const targetClean = normalize(textToMatch);
+
+      const stopWords = new Set(["le", "la", "les", "un", "une", "des", "de", "du", "et", "à", "en", "que", "qui", "ce"]);
+      const targetWords = targetClean.split(/\s+/).filter(w => w.length > 2 && !stopWords.has(w));
+      const spokenWords = new Set(spokenClean.split(/\s+/));
+
+      // 1. Correspondance directe globale
+      const isDirectMatch = targetClean.includes(spokenClean) && spokenClean.length > 3;
+
+      // 2. Calcul du ratio de mots-clés
+      let matchedCount = 0;
+      if (targetWords.length > 0) {
+        targetWords.forEach(word => {
+          if (spokenWords.has(word)) matchedCount++;
+        });
+      }
+      const matchRatio = targetWords.length > 0 ? matchedCount / targetWords.length : 0;
+
+      // 3. Vérification du premier ou du dernier mot significatif
+      const cleanWords = targetClean.split(/\s+/).filter(w => w.length > 2 && !stopWords.has(w));
+      const firstWord = cleanWords[0] || "";
+      const lastWord = cleanWords[cleanWords.length - 1] || "";
+
+      const spokenWordsArray = spokenClean.split(/\s+/);
+      const hasFirstWord = firstWord && spokenWordsArray.includes(firstWord);
+      const hasLastWord = lastWord && spokenWordsArray.includes(lastWord);
+
+      // Validation immédiate dès qu'une condition de succès est remplie
+      if (isDirectMatch || hasFirstWord || hasLastWord || (targetWords.length > 0 && matchRatio >= 0.45)) {
         recognition.onend = null;
         recognition.stop();
         genererAffirmationMiroir();
-      }*/
+      }
+    };
+
+    // Relance automatique immédiate si le navigateur coupe l'écoute par inadvertance
+    recognition.onend = () => {
+      setIsListening(false);
+      if (microActive && textToMatch) {
+        try {
+          recognition.start();
+        } catch (e) {
+          // Ignore si l'instance est déjà active
+        }
+      }
     };
 
     recognitionRef.current = recognition;
-    recognition.start();
+    try {
+      recognition.start();
+    } catch (e) {
+      console.error("Erreur de démarrage de la reconnaissance vocale :", e);
+    }
   };
 
   // Relance l'écoute dès qu'une nouvelle affirmation arrive
@@ -479,13 +534,13 @@ let maxLimit = hasSubscription ? 999 : 5;
 
               </div>
 
-              {/* Affirmation superposée sur le miroir, en bas de l'ovale (cf. maquette Figma) */}
-              {affirmation && !loading && (
+              {/* Affirmation superposée sur le miroir (reste affichée pendant le chargement de la suivante) */}
+              {affirmation && (
                 <div
                   className="absolute z-20 text-center text-white text-sm font-medium rounded-[4px]"
                   style={{
                     width: "210px",
-                    top: cameraActive ? "72%" : "50%", // Centré en hauteur si la caméra est désactivée, sinon en bas
+                    top: cameraActive ? "72%" : "50%",
                     left: "50%",
                     transform: "translate(-50%, -50%)",
                     backgroundColor: "rgba(33, 33, 33, 0.5)",
@@ -497,19 +552,20 @@ let maxLimit = hasSubscription ? 999 : 5;
               )}
 
               {/* Chargement indépendant positionné au centre du miroir */}
-              {loading && (
+              {/* Chargement indépendant : n'apparaît qu'après 3 secondes grâce à showLoadingText */}
+              {loading && showLoadingText && (
                 <div
                   className="absolute z-30 text-center text-white text-sm font-semibold rounded-lg shadow-lg animate-pulse"
                   style={{
                     width: "190px",
-                    top: "55%",
+                    top: "35%",
                     left: "50%",
                     transform: "translate(-50%, -50%)",
-                    backgroundColor: "rgba(33, 33, 33, 0.6)",
-                    padding: "12px 25px",
+                    backgroundColor: "rgba(33, 33, 33, 0.8)",
+                    padding: "10px 20px",
                   }}
                 >
-                  Chargement...
+                  ✨ Un relflet arrive...
                 </div>
               )}
             </div>
