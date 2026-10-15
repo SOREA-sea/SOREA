@@ -166,7 +166,7 @@ export default function AffirmationGallery({
             Personnaliser mes affirmations
           </button>
 
-          <div className="bg-white rounded-[32px] p-6 shadow-sm border border-purple-100 w-full max-w-[400px] flex flex-col gap-6">
+          <div className="bg-white rounded-[20px] p-6 shadow-sm border border-purple-100 w-full max-w-[400px] flex flex-col gap-6">
             <div className="flex gap-6 border-b border-purple-100 pb-3 text-sm">
               <button 
                 type="button"

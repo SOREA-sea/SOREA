@@ -120,58 +120,58 @@ export default function RayonneSection() {
 
             {/* Colonne 1 : Défilement vers le HAUT */}
             <div className="relative h-[956px] overflow-hidden">
-              <div className="absolute top-0 left-0 flex flex-col gap-5 animate-scroll-up w-full">
+              <div className="absolute top-0 left-0 flex flex-col gap-6 animate-scroll-up w-full">
                 {/* Bloc 1 (Photos 1 à 5) */}
-                <div className="w-[186.23px] h-[186.23px] shrink-0 rounded-[11.82px] overflow-hidden relative shadow-sm"><Image src="/image_photo/Photo1.svg" alt="Photo 1" fill className="object-cover" /></div>
-                <div className="w-[186.23px] h-[186.23px] shrink-0 rounded-[11.82px] overflow-hidden relative shadow-sm"><Image src="/image_photo/Photo2.svg" alt="Photo 2" fill className="object-cover" /></div>
-                <div className="w-[186.23px] h-[186.23px] shrink-0 rounded-[11.82px] overflow-hidden relative shadow-sm"><Image src="/image_photo/Photo3.svg" alt="Photo 3" fill className="object-cover" /></div>
-                <div className="w-[186.23px] h-[186.23px] shrink-0 rounded-[11.82px] overflow-hidden relative shadow-sm"><Image src="/image_photo/Photo4.svg" alt="Photo 4" fill className="object-cover" /></div>
-                <div className="w-[186.23px] h-[186.23px] shrink-0 rounded-[11.82px] overflow-hidden relative shadow-sm"><Image src="/image_photo/Photo5.svg" alt="Photo 5" fill className="object-cover" /></div>
+                <div className="w-[170px] h-[170px] shrink-0 rounded-[11.82px] overflow-hidden relative shadow-sm"><Image src="/image_photo/Photo1.svg" alt="Photo 1" fill className="object-cover" /></div>
+                <div className="w-[170px] h-[170px] shrink-0 rounded-[11.82px] overflow-hidden relative shadow-sm"><Image src="/image_photo/Photo2.svg" alt="Photo 2" fill className="object-cover" /></div>
+                <div className="w-[170px] h-[170px] shrink-0 rounded-[11.82px] overflow-hidden relative shadow-sm"><Image src="/image_photo/Photo3.svg" alt="Photo 3" fill className="object-cover" /></div>
+                <div className="w-[170px] h-[170px] shrink-0 rounded-[11.82px] overflow-hidden relative shadow-sm"><Image src="/image_photo/Photo4.svg" alt="Photo 4" fill className="object-cover" /></div>
+                <div className="w-[170px] h-[170px] shrink-0 rounded-[11.82px] overflow-hidden relative shadow-sm"><Image src="/image_photo/Photo5.svg" alt="Photo 5" fill className="object-cover" /></div>
                 
                 {/* Bloc 2 (Duplication exacte pour la boucle fluide) */}
-                <div className="w-[186.23px] h-[186.23px] shrink-0 bg-gray-300 rounded-[11.82px] overflow-hidden relative shadow-sm"><Image src="/image_photo/Photo1.svg" alt="Photo 1" fill className="object-cover" /></div>
-                <div className="w-[186.23px] h-[186.23px] shrink-0 bg-gray-300 rounded-[11.82px] overflow-hidden relative shadow-sm"><Image src="/image_photo/Photo2.svg" alt="Photo 2" fill className="object-cover" /></div>
-                <div className="w-[186.23px] h-[186.23px] shrink-0 bg-gray-300 rounded-[11.82px] overflow-hidden relative shadow-sm"><Image src="/image_photo/Photo3.svg" alt="Photo 3" fill className="object-cover" /></div>
-                <div className="w-[186.23px] h-[186.23px] shrink-0 bg-gray-300 rounded-[11.82px] overflow-hidden relative shadow-sm"><Image src="/image_photo/Photo4.svg" alt="Photo 4" fill className="object-cover" /></div>
-                <div className="w-[186.23px] h-[186.23px] shrink-0 bg-gray-300 rounded-[11.82px] overflow-hidden relative shadow-sm"><Image src="/image_photo/Photo5.svg" alt="Photo 5" fill className="object-cover" /></div>
+                <div className="w-[170px] h-[170px] shrink-0 bg-gray-300 rounded-[11.82px] overflow-hidden relative shadow-sm"><Image src="/image_photo/Photo1.svg" alt="Photo 1" fill className="object-cover" /></div>
+                <div className="w-[170px] h-[170px] shrink-0 bg-gray-300 rounded-[11.82px] overflow-hidden relative shadow-sm"><Image src="/image_photo/Photo2.svg" alt="Photo 2" fill className="object-cover" /></div>
+                <div className="w-[170px] h-[170px] shrink-0 bg-gray-300 rounded-[11.82px] overflow-hidden relative shadow-sm"><Image src="/image_photo/Photo3.svg" alt="Photo 3" fill className="object-cover" /></div>
+                <div className="w-[170px] h-[170px] shrink-0 bg-gray-300 rounded-[11.82px] overflow-hidden relative shadow-sm"><Image src="/image_photo/Photo4.svg" alt="Photo 4" fill className="object-cover" /></div>
+                <div className="w-[170px] h-[170px] shrink-0 bg-gray-300 rounded-[11.82px] overflow-hidden relative shadow-sm"><Image src="/image_photo/Photo5.svg" alt="Photo 5" fill className="object-cover" /></div>
               </div>
             </div>
 
             {/* Colonne 2 : Défilement vers le BAS */}
             <div className="relative h-[956px] overflow-hidden pt-8">
-              <div className="absolute top-0 left-0 flex flex-col gap-5 animate-scroll-down w-full">
+              <div className="absolute top-0 left-0 flex flex-col gap-6 animate-scroll-down w-full">
                 {/* Bloc 1 (Photos 6 à 10) */}
-                <div className="w-[186.23px] h-[186.23px] shrink-0 bg-gray-300 rounded-[11.82px] overflow-hidden relative shadow-sm"><Image src="/image_photo/Photo6.svg" alt="Photo 6" fill className="object-cover" /></div>
-                <div className="w-[186.23px] h-[186.23px] shrink-0 bg-gray-300 rounded-[11.82px] overflow-hidden relative shadow-sm"><Image src="/image_photo/Photo7.svg" alt="Photo 7" fill className="object-cover" /></div>
-                <div className="w-[186.23px] h-[186.23px] shrink-0 bg-gray-300 rounded-[11.82px] overflow-hidden relative shadow-sm"><Image src="/image_photo/Photo8.svg" alt="Photo 8" fill className="object-cover" /></div>
-                <div className="w-[186.23px] h-[186.23px] shrink-0 bg-gray-300 rounded-[11.82px] overflow-hidden relative shadow-sm"><Image src="/image_photo/Photo9.svg" alt="Photo 9" fill className="object-cover" /></div>
-                <div className="w-[186.23px] h-[186.23px] shrink-0 bg-gray-300 rounded-[11.82px] overflow-hidden relative shadow-sm"><Image src="/image_photo/Photo10.svg" alt="Photo 10" fill className="object-cover" /></div>
+                <div className="w-[170px] h-[170px] shrink-0 bg-gray-300 rounded-[11.82px] overflow-hidden relative shadow-sm"><Image src="/image_photo/Photo6.svg" alt="Photo 6" fill className="object-cover" /></div>
+                <div className="w-[170px] h-[170px] shrink-0 bg-gray-300 rounded-[11.82px] overflow-hidden relative shadow-sm"><Image src="/image_photo/Photo7.svg" alt="Photo 7" fill className="object-cover" /></div>
+                <div className="w-[170px] h-[170px] shrink-0 bg-gray-300 rounded-[11.82px] overflow-hidden relative shadow-sm"><Image src="/image_photo/Photo8.svg" alt="Photo 8" fill className="object-cover" /></div>
+                <div className="w-[170px] h-[170px] shrink-0 bg-gray-300 rounded-[11.82px] overflow-hidden relative shadow-sm"><Image src="/image_photo/Photo9.svg" alt="Photo 9" fill className="object-cover" /></div>
+                <div className="w-[170px] h-[170px] shrink-0 bg-gray-300 rounded-[11.82px] overflow-hidden relative shadow-sm"><Image src="/image_photo/Photo10.svg" alt="Photo 10" fill className="object-cover" /></div>
                 
                 {/* Bloc 2 (Duplication exacte) */}
-                <div className="w-[186.23px] h-[186.23px] shrink-0 bg-gray-300 rounded-[11.82px] overflow-hidden relative shadow-sm"><Image src="/image_photo/Photo6.svg" alt="Photo 6" fill className="object-cover" /></div>
-                <div className="w-[186.23px] h-[186.23px] shrink-0 bg-gray-300 rounded-[11.82px] overflow-hidden relative shadow-sm"><Image src="/image_photo/Photo7.svg" alt="Photo 7" fill className="object-cover" /></div>
-                <div className="w-[186.23px] h-[186.23px] shrink-0 bg-gray-300 rounded-[11.82px] overflow-hidden relative shadow-sm"><Image src="/image_photo/Photo8.svg" alt="Photo 8" fill className="object-cover" /></div>
-                <div className="w-[186.23px] h-[186.23px] shrink-0 bg-gray-300 rounded-[11.82px] overflow-hidden relative shadow-sm"><Image src="/image_photo/Photo9.svg" alt="Photo 9" fill className="object-cover" /></div>
-                <div className="w-[186.23px] h-[186.23px] shrink-0 bg-gray-300 rounded-[11.82px] overflow-hidden relative shadow-sm"><Image src="/image_photo/Photo10.svg" alt="Photo 10" fill className="object-cover" /></div>
+                <div className="w-[170px] h-[170px] shrink-0 bg-gray-300 rounded-[11.82px] overflow-hidden relative shadow-sm"><Image src="/image_photo/Photo6.svg" alt="Photo 6" fill className="object-cover" /></div>
+                <div className="w-[170px] h-[170px] shrink-0 bg-gray-300 rounded-[11.82px] overflow-hidden relative shadow-sm"><Image src="/image_photo/Photo7.svg" alt="Photo 7" fill className="object-cover" /></div>
+                <div className="w-[170px] h-[170px] shrink-0 bg-gray-300 rounded-[11.82px] overflow-hidden relative shadow-sm"><Image src="/image_photo/Photo8.svg" alt="Photo 8" fill className="object-cover" /></div>
+                <div className="w-[170px] h-[170px] shrink-0 bg-gray-300 rounded-[11.82px] overflow-hidden relative shadow-sm"><Image src="/image_photo/Photo9.svg" alt="Photo 9" fill className="object-cover" /></div>
+                <div className="w-[170px] h-[170px] shrink-0 bg-gray-300 rounded-[11.82px] overflow-hidden relative shadow-sm"><Image src="/image_photo/Photo10.svg" alt="Photo 10" fill className="object-cover" /></div>
               </div>
             </div>
 
             {/* Colonne 3 : Défilement vers le HAUT */}
             <div className="relative h-[956px] overflow-hidden">
-              <div className="absolute top-0 left-0 flex flex-col gap-5 animate-scroll-up w-full">
+              <div className="absolute top-0 left-0 flex flex-col gap-6 animate-scroll-up w-full">
                 {/* Bloc 1 (Photos 11 à 15) */}
-                <div className="w-[186.23px] h-[186.23px] shrink-0 bg-gray-300 rounded-[11.82px] overflow-hidden relative shadow-sm"><Image src="/image_photo/Photo11.svg" alt="Photo 11" fill className="object-cover" /></div>
-                <div className="w-[186.23px] h-[186.23px] shrink-0 bg-gray-300 rounded-[11.82px] overflow-hidden relative shadow-sm"><Image src="/image_photo/Photo12.svg" alt="Photo 12" fill className="object-cover" /></div>
-                <div className="w-[186.23px] h-[186.23px] shrink-0 bg-gray-300 rounded-[11.82px] overflow-hidden relative shadow-sm"><Image src="/image_photo/Photo13.svg" alt="Photo 13" fill className="object-cover" /></div>
-                <div className="w-[186.23px] h-[186.23px] shrink-0 bg-gray-300 rounded-[11.82px] overflow-hidden relative shadow-sm"><Image src="/image_photo/Photo14.svg" alt="Photo 14" fill className="object-cover" /></div>
-                <div className="w-[186.23px] h-[186.23px] shrink-0 bg-gray-300 rounded-[11.82px] overflow-hidden relative shadow-sm"><Image src="/image_photo/Photo15.svg" alt="Photo 15" fill className="object-cover" /></div>
+                <div className="w-[170px] h-[170px] shrink-0 bg-gray-300 rounded-[11.82px] overflow-hidden relative shadow-sm"><Image src="/image_photo/Photo11.svg" alt="Photo 11" fill className="object-cover" /></div>
+                <div className="w-[170px] h-[170px] shrink-0 bg-gray-300 rounded-[11.82px] overflow-hidden relative shadow-sm"><Image src="/image_photo/Photo12.svg" alt="Photo 12" fill className="object-cover" /></div>
+                <div className="w-[170px] h-[170px] shrink-0 bg-gray-300 rounded-[11.82px] overflow-hidden relative shadow-sm"><Image src="/image_photo/Photo13.svg" alt="Photo 13" fill className="object-cover" /></div>
+                <div className="w-[170px] h-[170px] shrink-0 bg-gray-300 rounded-[11.82px] overflow-hidden relative shadow-sm"><Image src="/image_photo/Photo14.svg" alt="Photo 14" fill className="object-cover" /></div>
+                <div className="w-[170px] h-[170px] shrink-0 bg-gray-300 rounded-[11.82px] overflow-hidden relative shadow-sm"><Image src="/image_photo/Photo15.svg" alt="Photo 15" fill className="object-cover" /></div>
                 
                 {/* Bloc 2 (Duplication exacte) */}
-                <div className="w-[186.23px] h-[186.23px] shrink-0 bg-gray-300 rounded-[11.82px] overflow-hidden relative shadow-sm"><Image src="/image_photo/Photo11.svg" alt="Photo 11" fill className="object-cover" /></div>
-                <div className="w-[186.23px] h-[186.23px] shrink-0 bg-gray-300 rounded-[11.82px] overflow-hidden relative shadow-sm"><Image src="/image_photo/Photo12.svg" alt="Photo 12" fill className="object-cover" /></div>
-                <div className="w-[186.23px] h-[186.23px] shrink-0 bg-gray-300 rounded-[11.82px] overflow-hidden relative shadow-sm"><Image src="/image_photo/Photo13.svg" alt="Photo 13" fill className="object-cover" /></div>
-                <div className="w-[186.23px] h-[186.23px] shrink-0 bg-gray-300 rounded-[11.82px] overflow-hidden relative shadow-sm"><Image src="/image_photo/Photo14.svg" alt="Photo 14" fill className="object-cover" /></div>
-                <div className="w-[186.23px] h-[186.23px] shrink-0 bg-gray-300 rounded-[11.82px] overflow-hidden relative shadow-sm"><Image src="/image_photo/Photo15.svg" alt="Photo 15" fill className="object-cover" /></div>
+                <div className="w-[170px] h-[170px] shrink-0 bg-gray-300 rounded-[11.82px] overflow-hidden relative shadow-sm"><Image src="/image_photo/Photo11.svg" alt="Photo 11" fill className="object-cover" /></div>
+                <div className="w-[170px] h-[170px] shrink-0 bg-gray-300 rounded-[11.82px] overflow-hidden relative shadow-sm"><Image src="/image_photo/Photo12.svg" alt="Photo 12" fill className="object-cover" /></div>
+                <div className="w-[170px] h-[170px] shrink-0 bg-gray-300 rounded-[11.82px] overflow-hidden relative shadow-sm"><Image src="/image_photo/Photo13.svg" alt="Photo 13" fill className="object-cover" /></div>
+                <div className="w-[170px] h-[170px] shrink-0 bg-gray-300 rounded-[11.82px] overflow-hidden relative shadow-sm"><Image src="/image_photo/Photo14.svg" alt="Photo 14" fill className="object-cover" /></div>
+                <div className="w-[170px] h-[170px] shrink-0 bg-gray-300 rounded-[11.82px] overflow-hidden relative shadow-sm"><Image src="/image_photo/Photo15.svg" alt="Photo 15" fill className="object-cover" /></div>
               </div>
             </div>
 

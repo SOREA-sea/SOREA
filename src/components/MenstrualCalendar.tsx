@@ -43,6 +43,7 @@ export default function MenstrualCalendar() {
   const [loading, setLoading] = useState(true);
   const [showSettings, setShowSettings] = useState(false);
 const [isSnowflakeMode, setIsSnowflakeMode] = useState(false);
+const [showCalendarHelpModal, setShowCalendarHelpModal] = useState(false);
 
   const [isActiveForm, setIsActiveForm] = useState(false);
   const [cycleLengthForm, setCycleLengthForm] = useState(28);
@@ -127,6 +128,10 @@ const active = localStorage.getItem('sorea_has_notification') === 'true';
       setProfile(data.profile);
       setCycleInfo(data.cycleInfo);
       setIsActiveForm(data.profile.isActive);
+      // Si le suivi de cycle est désactivé, basculer par défaut sur l'Agenda Todo-List
+      if (!data.profile.isActive) {
+        setActiveTab('todo');
+      }
       setCycleLengthForm(data.profile.cycleLength);
       setPeriodLengthForm(data.profile.periodLength);
       if (data.profile.lastPeriodStartDate) {
@@ -177,6 +182,9 @@ const active = localStorage.getItem('sorea_has_notification') === 'true';
       const data = await res.json();
       setProfile(data.profile);
       setCycleInfo(data.cycleInfo);
+      if (!data.profile.isActive) {
+        setActiveTab('todo');
+      }
       setShowSettings(false);
     } catch (e) {
       console.error(e);
@@ -211,7 +219,11 @@ const active = localStorage.getItem('sorea_has_notification') === 'true';
     const localDate = new Date(date.getTime() - date.getTimezoneOffset() * 60000);
     const dateKey = localDate.toISOString().split("T")[0];
     setSelectedTodoDate(dateKey);
-    if (loggedUser) setShowTodoModal(true);
+    
+    //L'ouverture de la modale todo n'est autorisée que sur l'onglet 'todo'
+    if (loggedUser && activeTab === 'todo') {
+      setShowTodoModal(true);
+    }
   };
 
   const closeTodoModal = () => {
@@ -356,8 +368,8 @@ const active = localStorage.getItem('sorea_has_notification') === 'true';
       const isSelected = selectedDate?.toDateString() === date.toDateString();
       const phaseVisible = !phaseFilters.length || (phase && phaseFilters.includes(phase));
       const hiddenStyles = !phaseVisible ? "opacity-30" : "";
-      //Masquer les icônes de phase quand on est sur l'onglet Todo-List
-      const iconVisible = activeTab === 'calendar' && phaseVisible ? icon : null;
+      // Masquer les icônes de phase si le suivi est désactivé OU si l'on est sur l'onglet Todo-List
+      const iconVisible = profile?.isActive && activeTab === 'calendar' && phaseVisible ? icon : null;
 
       const dayTodos = todosByDate[dateKey] || [];
       const allTodosCompleted = dayTodos.length > 0 && dayTodos.every(todo => todo.completed);
@@ -437,7 +449,7 @@ return (
           {activeTab === 'calendar' && (
             <button
               onClick={() => setIsSnowflakeMode(!isSnowflakeMode)}
-              className="px-4 py-3 bg-white border-2 border-[#8B47FF] text-[#8B47FF] font-bold rounded-2xl hover:bg-[#F4EBFF] transition-all duration-300 shadow-sm text-sm cursor-pointer"
+              className="px-4 py-3.5 bg-white border border-[#8B47FF] text-[#8B47FF] font-bold rounded-2xl hover:bg-[#F4EBFF] transition-all duration-300 shadow-sm text-sm cursor-pointer"
             >
               Mode {isSnowflakeMode ? "❄️Discret" : "🩸Menstrue"}
             </button>
@@ -470,22 +482,21 @@ return (
       {activeTab === 'calendar' && (
         <div className="w-full mb-8 flex flex-col gap-6">
           
-          {/* En-tête : Titre et Icône Help */}
+          {/* En-tête : Titre et Icône Help cliquable */}
           <div className="flex items-center justify-between">
             <h3 className="text-xl font-bold text-[#7F4DC5] underline underline-offset-4 font-satoshi">
               Je filtre mes phases
             </h3>
 
-            <div className="group relative flex items-center cursor-pointer">
+            <div 
+              onClick={() => setShowCalendarHelpModal(true)} 
+              className="flex items-center cursor-pointer group"
+            >
               <img 
                 src="/image_icone/Help.svg" 
                 alt="Aide" 
-                className="w-6 h-6 object-contain hover:scale-110 transition-transform" 
+                className="w-6 h-6 object-contain group-hover:scale-110 transition-transform" 
               />
-              {/* Tooltip explicatif */}
-              <div className="invisible opacity-0 group-hover:visible group-hover:opacity-100 transition-all duration-200 absolute right-0 top-full mt-2 w-72 p-3 bg-gray-800 text-white text-xs rounded-xl shadow-xl z-30 pointer-events-none">
-                Clique sur une ou plusieurs phases pour filtrer l'affichage du calendrier et repérer tes périodes en un coup d'œil.
-              </div>
             </div>
           </div>
 
@@ -578,7 +589,6 @@ return (
         </div>
       )}
 
-{/* 🌟 NOUVEAU : Les deux boutons non fonctionnels (Calendrier Menstruel / Todo-List) */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-2">
         <button
           type="button"
@@ -620,13 +630,13 @@ return (
         </div>
 
         <div className="grid grid-cols-7 text-center text-xs font-semibold text-gray-500 mb-4">
-          <div>Mo</div>
-          <div>Tu</div>
-          <div>We</div>
-          <div>Th</div>
-          <div>Fr</div>
-          <div>Sa</div>
-          <div>Su</div>
+          <div>Lun</div>
+          <div>Mar</div>
+          <div>Mer</div>
+          <div>Jeu</div>
+          <div>Ven</div>
+          <div>Sam</div>
+          <div>Dim</div>
         </div>
 
         <div className="grid grid-cols-7 border-l border-t border-gray-200 bg-white relative">{renderCalendar()}</div>
@@ -643,7 +653,9 @@ return (
           <div className="w-full max-w-2xl rounded-3xl border border-[#8B47FF] bg-white p-6 shadow-2xl">
             <div className="flex items-center justify-between gap-4 mb-6">
               <div>
-                <p className="text-sm font-semibold text-[#5B3ABC]">Tâches du {selectedTodoDate}</p>
+                <p className="text-sm font-semibold text-[#5B3ABC]">
+                  Tâches du {selectedTodoDate.split('-').reverse().join('/')}
+                </p>
                 <p className="text-2xl font-bold text-black">
                   {new Date(selectedTodoDate).toLocaleDateString("fr-FR", { weekday: "long", day: "numeric", month: "long" })}
                 </p>
@@ -734,7 +746,7 @@ return (
           </div>
 
           {selectedDate.getTime() > new Date().setHours(23, 59, 59, 999) ? (
-            <p className="text-gray-500 font-medium italic">Vous ne pouvez pas renseigner de symptômes pour une date future.</p>
+            <p className="text-gray-500 font-medium italic">Vous ne pouvez renseigner vos symptômes que pour le jour en cours et les jours précédents.</p>
           ) : (
             <div className="space-y-6">
               <div>
@@ -862,6 +874,88 @@ return (
               >
                 Enregistrer
               </button>
+            </div>
+          </div>
+        </div>
+      )}
+      {/*NOUVEAU : Modale d'aide détaillée pour le Calendrier Menstruel */}
+      {showCalendarHelpModal && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-white p-8 shadow-2xl w-full max-w-2xl relative max-h-[90vh] overflow-y-auto custom-scrollbar">
+            <button 
+              onClick={() => setShowCalendarHelpModal(false)} 
+              className="absolute top-0 right-0 p-2 text-gray-400 hover:text-black transition-colors cursor-pointer"
+            >
+              <X className="w-5 h-5 " />
+            </button>
+
+            <div className="space-y-4">
+              {/* Consigne principale sur fond bg-gray-800 et texte blanc */}
+              <div className="bg-gray-800 text-white p-4 rounded-[5px] text-sm leading-relaxed shadow-md">
+                <p>→ Au-dessus de ton calendrier menstruel, clique sur une ou plusieurs phases pour filtrer l'affichage du calendrier et repérer tes périodes en un coup d'œil.</p>
+                
+                <p className="mt-2">→ Indique ton cycle menstruel dans les paramètres et tes symptômes directement dans les dates du calendrier.</p>
+              </div>
+
+              {/* Grille explicative des 4 phases */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-0 pt-2 relative">
+
+                {/*Ligne horizontale centrale (limitée proprement entre les cartes) */}
+  <div className="absolute left-2 right-2 top-[235px] h-[2px] bg-[#7F4DC5] -translate-y-1/2 pointer-events-none hidden md:block z-10"></div>
+  
+  {/*Ligne verticale centrale (limitée proprement du haut en bas) */}
+  <div className="absolute top-4 bottom-2 left-1/2 w-[2px] bg-[#7F4DC5] -translate-x-1/2 pointer-events-none hidden md:block z-10"></div>
+                
+                {/* Phase Printemps / Folliculaire */}
+                <div className=" p-4 rounded-2xl flex flex-col items-center">
+                  <div className="w-8 h-8 mb-2">
+                    <img src={phaseIcons["Printemps"]} alt="Printemps" className="w-full h-full object-contain" />
+                  </div>
+                  <h4 className="font-bold text-[#7F4DC5] text-base mb-1 text-center">Phase Folliculaire <br /> <span className="block font-bold text-sm">(Le Printemps du cycle)</span></h4>
+                  <p className="text-xs text-gray-700 leading-relaxed mt-2">
+                    Le corps se prépare à libérer un ovule et l'utérus commence à fabriquer une nouvelle muqueuse irriguée par le sang. Durant cette période l'énergie remonte doucement, favorisant un sentiment de dynamisme.
+                  </p>
+                </div>
+
+                {/* Phase Été / Ovulatoire */}
+                <div className=" p-4 rounded-2xl flex flex-col items-center">
+                  <div className="w-8 h-8 mb-2">
+                    <img src={phaseIcons["Été"]} alt="Été" className="w-full h-full object-contain" />
+                  </div>
+                  <h4 className="font-bold text-[#7F4DC5] text-base mb-1 text-center">Phase Ovulatoire <br /> <span className="block font-bold text-sm">(L'Été du cycle)</span></h4>
+                  <p className="text-xs text-gray-700 leading-relaxed mt-2">
+                    C'est le moment où l'ovaire libère l'ovule pour la fécondation. Cette phase correspond généralement à un pic d'énergie maximale, facilitant la communication, le rayonnement et l'assurance.
+                  </p>
+                </div>
+
+                {/* Phase Automne / Prémenstruelle */}
+                <div className=" p-4 rounded-2xl flex flex-col items-center">
+                  <div className="w-8 h-8 mb-2">
+                    <img src={phaseIcons["Automne"]} alt="Automne" className="w-full h-full object-contain" />
+                  </div>
+                  <h4 className="font-bold text-[#7F4DC5] text-base mb-1 text-center">Phase Prémenstruelle <br /> <span className="block font-bold text-sm">(L'Automne du cycle)</span></h4>
+                  <p className="text-xs text-gray-700 leading-relaxed mt-2">
+                    L'ovule libéré n'a pas été fécondé. Les niveaux d'énergie commencent à baisser, incitant naturellement à se tourner vers soi. Les premiers signes du syndrome prémenstruel (SPM) peuvent faire leur apparition chez certaines personnes.
+                  </p>
+                </div>
+
+                {/* Phase Hiver / Menstruelle (avec gestion dynamique de l'icône flocon selon le mode) */}
+                <div className="p-4 rounded-2xl flex flex-col items-center ">
+                  <div className="w-8 h-8 mb-2">
+                    <img 
+                      src={isSnowflakeMode ? "/image_icone/Flocon.svg" : phaseIcons["Hiver"]} 
+                      alt="Hiver" 
+                      className="w-full h-full object-contain" 
+                    />
+                  </div>
+                  <h4 className="font-bold text-[#7F4DC5] text-base mb-1 text-center">Phase Menstruelle <br /> <span className="block font-bold text-sm">(L'Hiver du cycle)</span></h4>
+                  <p className="text-xs text-gray-700 leading-relaxed mt-2">
+                    Cette période correspond au début des règles et au "nettoyage" de l'utérus. Le corps exprime un besoin accru de repos, de douceur et d'un rythme plus lent pour se régénérer pleinement.
+                  </p>
+                </div>
+
+              </div>
+
             </div>
           </div>
         </div>
