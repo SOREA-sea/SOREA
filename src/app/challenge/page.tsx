@@ -12,19 +12,19 @@ import FilRougeCard from "../../components/FilRougeCard";
 
 const wheelDataConfig = {
   "bien-etre": {
-    img: "/image_icone/image_Wheel-Spinner/WS_Bien-être1.svg",
+    img: "/image_Design-Sorea/image_Wheel-Spinner/WS_Bien-être1.svg",
     title: "Cultive ta paix intérieure",
     desc: "Développe un bien-être durable en apprenant à mieux te connaître, à renforcer ton équilibre émotionnel et à cultiver des habitudes positives qui permettront de révéler ton plein potentiel.",
     href: "/Wheel-Spinner/BienEtre"
   },
   "sport": {
-    img: "/image_icone/image_Wheel-Spinner/WS_Sport1.svg",
+    img: "/image_Design-Sorea/image_Wheel-Spinner/WS_Sport1.svg",
     title: "Active ton corps",
     desc: "Fait du mouvement ton allié du bien-être. Bouge à ton rythme, renforce ton corps et booste ton énergie pour révéler pleinement ton potentiel.",
     href: "/Wheel-Spinner/Sport",
   },
   "nutrition": {
-    img: "/image_icone/image_Wheel-Spinner/WS_Nutrition1.svg",
+    img: "/image_Design-SOREA/image_Wheel-Spinner/WS_Nutrition1.svg",
     title: "Nourri ton équilibre",
     desc: "Écoute ton corps et adopte une alimentation bienveillante pour découvrir ce qui te fait du bien. Repère tes besoins, sans pression ni culpabilité.",
     href: "/Wheel-Spinner/Nutrition"
@@ -49,7 +49,7 @@ const wheelDataConfig = {
   const sections = [
 
     {
-      img: "/image_icone/miroir.svg",
+      img: "/image_Design-SOREA/miroir.svg",
       alt: "miroir",
       imgWidth: "280px",
       title: "Miroir mon beau miroir",
@@ -64,7 +64,7 @@ const wheelDataConfig = {
     },
 
     {
-      img: "/image_icone/Appareil_photo.svg",
+      img: "/image_Design-SOREA/Appareil_photo.svg",
       alt: "Visualisation de mes possibles",
       imgWidth: "280px",
       title: "Je visualise, je me projette",
@@ -79,7 +79,7 @@ const wheelDataConfig = {
       locked: true,
     },
     /*{
-      img: "/image_icone/Lotus.svg",
+      img: "/image_Design-SOREA/Lotus.svg",
       alt: "Mon souffle, mon équilibre",
       imgWidth: "180px",
       title: "Mon souffle, mon équilibre",
@@ -95,7 +95,7 @@ const wheelDataConfig = {
     },*/
 
     /*{
-      img: "/image_icone/Courrier.svg",
+      img: "/image_Design-SOREA/Courrier.svg",
       alt: "Courrier du futur",
       imgWidth: "280px",
       title: "Au fil de mes mots",
@@ -111,7 +111,7 @@ const wheelDataConfig = {
     },*/
 
     {
-      img: "image_icone/image_Wheel-Spinner/WS_BienEtreHead1.svg",
+      img: "image_Design-SOREA/image_Wheel-Spinner/WS_BienEtreHead1.svg",
       alt: "Wheel-Spinner",
       imgWidth: "280px",
       title: "Ton potentiel intérieur",
@@ -183,7 +183,7 @@ const wheelDataConfig = {
 {/* MIROIR */}
 <section className="grid grid-cols-1 md:grid-cols-[auto_1fr] items-center gap-12">
           <div className="flex items-center justify-center">
-            <img src="/image_icone/miroir.svg" alt="Miroir affirmation" style={{ width: "280px", display: "block" }} />
+            <img src="/image_Design-SOREA/miroir.svg" alt="Miroir affirmation" style={{ width: "280px", display: "block" }} />
           </div>
           <article
             className="flex flex-col border-2 border-[#8B47FF] rounded-2xl p-8 gap-5"

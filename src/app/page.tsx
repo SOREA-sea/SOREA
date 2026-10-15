@@ -148,7 +148,7 @@ export default function Home() {
               {/* Roue de la fortune (Gauche) */}
               <div className="w-full md:w-1/2 flex justify-center items-center">
                 {/*<Image
-              src="/image_icone/image_Wheel-Spinner/WS_Bien-être1.png"
+              src="/image_Design-SOREA/image_Wheel-Spinner/WS_Bien-être1.png"
               alt="Roue des challenges SOREA"
               width={300}
               height={300}
@@ -156,7 +156,7 @@ export default function Home() {
               priority
             />*/}
                 <Image
-                  src="/image_LandingPage/DefisBienEtre.png"
+                  src="/image_Design-SOREA/DefisBienEtre.svg"
                   alt="Les challenges et surprises SOREA"
                   width={400}
                   height={400}
@@ -177,7 +177,7 @@ export default function Home() {
                 {/* Carte/Encadré translucide "Exemple de défis" */}
                 <div className="w-full max-w-[340px] bg-[#D6BBFF]/60 rounded-[8px] p-3 px-4 flex items-center gap-3">
                   <Image
-                    src="/image_icone/image_Wheel-Spinner/Introspection.svg"
+                    src="/image_Design-SOREA/image_Wheel-Spinner/Introspection.svg"
                     alt="icône Introspection"
                     width={50}
                     height={50}

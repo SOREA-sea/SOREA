@@ -84,6 +84,8 @@ export default function NouvellePage() {
       }
     } else {
       setIsPlaying(false);
+      // Dès que l'on clique sur pause, on désactive le micro et on stoppe la reconnaissance vocale
+      stopMicro();
     }
   };
 
@@ -442,7 +444,7 @@ export default function NouvellePage() {
 </div>
 
               <img
-                src="/image_icone/miroir.svg"
+                src="/image_Design-SOREA/miroir.svg"
                 alt="Cadre du miroir"
                 className="absolute z-0 w-full h-full object-contain pointer-events-none"
               />
@@ -506,7 +508,7 @@ export default function NouvellePage() {
                     onClick={togglePlayPause}
                     disabled={loading || !microActive}
                     className={`transition-transform duration-300 ${
-                      !microActive ? "opacity-40 cursor-not-allowed" : "hover:scale-110 cursor-pointer"
+                      !microActive ? "opacity-40 cursor" : "hover:scale-110 cursor-pointer"
                     } disabled:opacity-40`}
                     title={!microActive ? "Activez le micro pour utiliser le lecteur" : (isPlaying ? "Pause" : "Commencer")}
                   >
@@ -518,15 +520,15 @@ export default function NouvellePage() {
                   </button>
                 </div>
 
-                {/* Bouton Suivant : activé si micro désactivé, grisé et inactif si micro actif */}
+                {/* Bouton Suivant : désactivé si en pause (isPlaying = false), si en chargement, ou si le micro est actif */}
                 <div className="w-full px-6 pb-4">
                   <button
                     onClick={genererAffirmationMiroir}
-                    disabled={loading || microActive}
+                    disabled={loading || microActive || !isPlaying}
                     className={`w-full bg-[#8B47FF] text-white font-bold py-3 rounded-xl shadow-lg transition-all duration-300 text-center ${
-                      microActive ? "opacity-40 cursor" : "hover:scale-105 hover:shadow-xl cursor-pointer"
+                      (microActive || !isPlaying) ? "opacity-40 cursor-not-allowed" : "hover:scale-105 hover:shadow-xl cursor-pointer"
                     }`}
-                    title={microActive ? "Désactivez le micro pour utiliser le bouton Suivant" : "Affirmation suivante"}
+                    title={!isPlaying ? "Mettez lecture pour utiliser le bouton Suivant" : (microActive ? "Désactivez le micro pour utiliser le bouton Suivant" : "Affirmation suivante")}
                   >
                     Suivant
                   </button>
@@ -565,7 +567,7 @@ export default function NouvellePage() {
                     padding: "10px 20px",
                   }}
                 >
-                  ✨ Un relflet arrive...
+                  ✨ Une affirmation arrive...
                 </div>
               )}
             </div>

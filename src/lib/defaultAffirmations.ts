@@ -65,7 +65,7 @@ while (defaultAffirmationsList.length < 365) {
   const index = defaultAffirmationsList.length + 1;
   defaultAffirmationsList.push({
     id: `def_${index}`,
-    text: `Je suis en constante évolution et je célèbre la personne que je suis au quotidien (#${index}).`
+    text: `Je suis en constante évolution (#${index}).`
   });
 }
 

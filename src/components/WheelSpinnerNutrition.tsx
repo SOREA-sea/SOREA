@@ -7,7 +7,7 @@ import { getFavoriWheel, setFavoriWheel, WheelCategory } from "../lib/favorites-
 const themesData = [
   {
     name: "Nourrir mon corps",
-    iconPath: "/image_icone/image_Wheel-Spinner/Nourrir_mon_corps.svg",
+    iconPath: "/image_Design-SOREA/image_Wheel-Spinner/Nourrir_mon_corps.svg",
     desc: "Plongez au plus profond de vos pensées pour mieux vous comprendre.",
     objectifs: [
       "Évite de t'éparpiller, concentre-toi sur tes réponses.",
@@ -56,7 +56,7 @@ const themesData = [
   },
   {
     name: "Équilibre & harmonie",
-    iconPath: "/image_icone/image_Wheel-Spinner/Équilibre_&_harmonie.svg",
+    iconPath: "/image_Design-SOREA/image_Wheel-Spinner/Équilibre_&_harmonie.svg",
     desc: "Célébrez les petites victoires et les bonheurs quotidiens.",
     objectifs: [
       "Ouvre ton cœur aux cadeaux simples de la vie.",
@@ -105,7 +105,7 @@ const themesData = [
   },
   {
     name: "Hydratation consciente",
-    iconPath: "/image_icone/image_Wheel-Spinner/Hydratation_consciente.svg",
+    iconPath: "/image_Design-SOREA/image_Wheel-Spinner/Hydratation_consciente.svg",
     desc: "Vivez l'instant présent sans jugement.",
     objectifs: [
       "Reste ancré ici et maintenant.",
@@ -154,7 +154,7 @@ const themesData = [
   },
   {
     name: "Énergie & vitalité",
-    iconPath: "/image_icone/image_Wheel-Spinner/Énergie_&_vitalité.svg",
+    iconPath: "/image_Design-SOREA/image_Wheel-Spinner/Énergie_&_vitalité.svg",
     desc: "Accueillez et comprenez le message derrière chaque émotion.",
     objectifs: [
       "Nomme précisément ce que tu ressens.",
@@ -203,7 +203,7 @@ const themesData = [
   },
   {
     name: "Couleurs dans l'assiette",
-    iconPath: "/image_icone/image_Wheel-Spinner/Couleurs_dans_l'assiette.svg",
+    iconPath: "/image_Design-SOREA/image_Wheel-Spinner/Couleurs_dans_l'assiette.svg",
     desc: "Osez sortir de votre zone de confort pas à pas.",
     objectifs: [
       "Passe à l'action sans chercher la perfection.",
@@ -252,7 +252,7 @@ const themesData = [
   },
   {
     name: "Savourer l'instant",
-    iconPath: "/image_icone/image_Wheel-Spinner/Savourer_l'instant.svg",
+    iconPath: "/image_Design-SOREA/image_Wheel-Spinner/Savourer_l'instant.svg",
     desc: "Canalisez votre énergie et gérez vos impulsions.",
     objectifs: [
       "Garde ton calme face aux imprévus.",
@@ -301,7 +301,7 @@ const themesData = [
   },
   {
     name: "Saveurs du monde",
-    iconPath: "/image_icone/image_Wheel-Spinner/Saveurs_du_monde.svg",
+    iconPath: "/image_Design-SOREA/image_Wheel-Spinner/Saveurs_du_monde.svg",
     desc: "Nourrissez votre esprit de positif et de créativité.",
     objectifs: [
       "Laisse libre cours à ton imagination.",
@@ -350,7 +350,7 @@ const themesData = [
   },
   {
     name: "Digestion sereine",
-    iconPath: "/image_icone/image_Wheel-Spinner/Digestion_sereine.svg",
+    iconPath: "/image_Design-SOREA/image_Wheel-Spinner/Digestion_sereine.svg",
     desc: "Prenez du temps pour écouter vos besoins fondamentaux.",
     objectifs: [
       "Accorde-toi un moment de douceur mérité.",
@@ -399,7 +399,7 @@ const themesData = [
   },
   {
     name: "Mon assiette intelligente",
-    iconPath: "/image_icone/image_Wheel-Spinner/Mon_assiette_intelligente.svg",
+    iconPath: "/image_Design-SOREA/image_Wheel-Spinner/Mon_assiette_intelligente.svg",
     desc: "Clarifiez vos rêves et planifiez l'avenir en toute sérénité.",
     objectifs: [
       "Évite de t'éparpiller et choisis la priorité absolue du moment.",
@@ -448,7 +448,7 @@ const themesData = [
   },
   {
     name: "Relation alimentaire",
-    iconPath: "/image_icone/image_Wheel-Spinner/Relation_alimentaire.svg",
+    iconPath: "/image_Design-SOREA/image_Wheel-Spinner/Relation_alimentaire.svg",
     desc: "Libérez-vous du contrôle et acceptez le flux de la vie.",
     objectifs: [
       "Accepte ce que tu ne peux pas changer.",
