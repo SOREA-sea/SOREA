@@ -601,16 +601,30 @@ return (
         >
           Calendrier Menstruel
         </button>
+
         <button
           type="button"
-          onClick={() => setActiveTab('todo')}
-          className={`w-full h-[42px] px-6 rounded-[5px] border border-[#00CEC9] font-semibold text-base transition-all duration-200 cursor-pointer ${
+          onClick={() => {
+            setActiveTab('todo');
+            // NOUVEAU : Effacer la notification dès qu'on clique sur Agenda Todo-List
+            if (typeof window !== 'undefined') {
+              localStorage.removeItem('sorea_has_notification');
+              window.dispatchEvent(new Event('sorea_notification_update'));
+              window.dispatchEvent(new Event('storage'));
+            }
+          }}
+          className={`w-full h-[42px] px-6 rounded-[5px] border border-[#00CEC9] font-semibold text-base transition-all duration-200 cursor-pointer relative ${
             activeTab === 'todo' 
               ? 'bg-[#E0F2FE] text-black shadow-sm' 
               : 'bg-white text-black hover:bg-[#E0F2FE]'
           }`}
         >
-          Agenda Todo-List
+          <span>Agenda Todo-List</span>
+
+          {/* 🌟 NOUVEAU : Affichage de la puce turquoise uniquement dans le calendrier menstruel */}
+          {activeTab === 'calendar' && hasNotif && (
+            <span className="absolute top-1.5 right-2 w-2.5 h-2.5 bg-[#00CEC9] rounded-full animate-pulse pointer-events-none" />
+          )}
         </button>
       </div>
 

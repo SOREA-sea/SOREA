@@ -76,10 +76,10 @@ export default function Home() {
                 {/* Overlay Glassmorphism Figma */}
                 <div className="relative z-10 w-full h-[162px] bg-[#1E1E1E]/20 backdrop-blur-md rounded-[12px] px-[25px] py-[12px] flex flex-col justify-between items-center text-center text-[var(--color-Blanc-Violet)]">
                   <h3 className="text-base font-semibold leading-tight">
-                    Kit personnalisé
+                    Calendrier de suivi
                   </h3>
                   <p className="text-xs font-normal text-[var(--color-Blanc-Violet)] leading-snug">
-                    Un coffret sur-mesure, pensé pour vos besoins.
+                    Suivez vos progrès et organise toi quotidiennement
                   </p>
                   <button
                     onClick={() => router.push("/shop")}
@@ -101,10 +101,10 @@ export default function Home() {
                 {/* Overlay Glassmorphism Figma */}
                 <div className="relative z-10 w-full h-[162px] bg-[#1E1E1E]/20 backdrop-blur-md rounded-[12px] px-[25px] py-[12px] flex flex-col justify-between items-center text-center text-[var(--color-Blanc-Violet)]">
                   <h3 className="text-base font-semibold leading-tight">
-                    Espace Digital Personnalisable
+                    Espace Digital
                   </h3>
                   <p className="text-xs font-normal text-[var(--color-Blanc-Violet)] leading-snug">
-                    Suivez vos progrès et découvrez du contenu inspirant.
+                    Maintien ta discipline en te challengeant dans un espace cocooning
                   </p>
                   <button
                     onClick={() => router.push("/carnet")}
@@ -126,7 +126,7 @@ export default function Home() {
                 {/* Overlay Glassmorphism Figma */}
                 <div className="relative z-10 w-full h-[162px] bg-[#1E1E1E]/20 backdrop-blur-md rounded-[12px] px-[25px] py-[12px] flex flex-col justify-between items-center text-center text-[var(--color-Blanc-Violet)]">
                   <h3 className="text-base font-semibold leading-tight">
-                    Coaching et inspiration
+                    Deviens membre/ambassadrice
                   </h3>
                   <p className="text-xs font-normal text-[var(--color-Blanc-Violet)] leading-snug">
                     Des séances guidées par des coachs passionnées.
