@@ -63,7 +63,6 @@ export default function AffirmationGallery({
 
   const [previewTab, setPreviewTab] = useState<"galerie" | "corbeille">("galerie");
   const [activeTab, setActiveTab] = useState<"galerie" | "corbeille">("galerie");
-  const [selectedPreviewId, setSelectedPreviewId] = useState<string | null>(null);
   
   const [isAdding, setIsAdding] = useState(false);
   const [currentTitle, setCurrentTitle] = useState("");
@@ -163,6 +162,9 @@ export default function AffirmationGallery({
     setActiveMenuId(null);
   };
 
+  const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
+  const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
+
   return (
     <>
       {externalIsOpen === undefined && (
@@ -195,32 +197,24 @@ export default function AffirmationGallery({
             <div className="grid grid-cols-2 gap-4">
               {previewTab === "galerie" ? (
                 <>
-                  {affirmations.slice(0, 4).map((card) => {
-                    const isSelected = selectedPreviewId === card.id;
+                  {affirmations.slice(0, 3).map((card) => {
                     return (
                       <div 
                         key={card.id} 
-                        onClick={() => setSelectedPreviewId(isSelected ? null : card.id)}
-                        className="aspect-square rounded-2xl overflow-hidden shadow-sm border border-purple-100 bg-purple-50 flex flex-col items-center justify-center p-3 text-center cursor-pointer hover:bg-purple-100 transition-all"
+                        className="aspect-square rounded-2xl overflow-hidden shadow-sm border border-purple-100 bg-purple-50 flex flex-col items-center justify-center p-3 text-center"
                       >
                         <span className="text-xs font-bold text-purple-900">{card.title}</span>
-                        {isSelected && (
-                          <span className="text-[11px] text-purple-800 italic mt-2 animate-fade-in">
-                            &quot;{card.text}&quot;
-                          </span>
-                        )}
                       </div>
                     );
                   })}
 
-                  {affirmations.length < 4 && (
-                    <button 
-                      onClick={() => setIsOpen(true)}
-                      className="aspect-square bg-[#FAF5FF] border-2 border-dashed border-purple-200 rounded-2xl flex items-center justify-center text-purple-300 hover:bg-purple-50 transition-colors cursor-pointer"
-                    >
-                      <span className="text-4xl font-light">+</span>
-                    </button>
-                  )}
+                  {/* Le bouton + reste toujours visible et bloque l'affichage à 3 affirmations max dans l'aperçu */}
+                  <button 
+                    onClick={() => setIsOpen(true)}
+                    className="aspect-square bg-[#FAF5FF] border-2 border-dashed border-purple-200 rounded-2xl flex items-center justify-center text-purple-300 hover:bg-purple-50 hover:border-[#7F4DC5] hover:text-[#7F4DC5] transition-colors cursor-pointer group"
+                  >
+                    <span className="text-4xl font-light group-hover:text-[#7F4DC5]">+</span>
+                  </button>
                 </>
               ) : (
                 trash.length === 0 ? (
@@ -228,19 +222,12 @@ export default function AffirmationGallery({
                 ) : (
                   <>
                     {trash.slice(0, 4).map((card) => {
-                      const isSelected = selectedPreviewId === card.id;
                       return (
                         <div 
                           key={card.id} 
-                          onClick={() => setSelectedPreviewId(isSelected ? null : card.id)}
-                          className="aspect-square rounded-2xl overflow-hidden shadow-sm border border-gray-100 bg-purple-50/50 flex flex-col items-center justify-center p-3 text-center cursor-pointer hover:bg-purple-100 transition-all opacity-75"
+                          className="aspect-square rounded-2xl overflow-hidden shadow-sm border border-gray-100 bg-purple-50/50 flex flex-col items-center justify-center p-3 text-center opacity-75"
                         >
                           <span className="text-xs font-bold text-gray-700">{card.title}</span>
-                          {isSelected && (
-                            <span className="text-[11px] text-gray-600 italic mt-2 animate-fade-in">
-                              &quot;{card.text}&quot;
-                            </span>
-                          )}
                         </div>
                       );
                     })}
@@ -334,14 +321,38 @@ export default function AffirmationGallery({
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 p-8 pt-4 w-full">
               {activeTab === "galerie" ? (
                 <>
-                  {affirmations.map((card) => (
-                    <div key={card.id} className="relative">
+                  {affirmations.map((card, index) => (
+                    <div 
+                      key={card.id} 
+                      draggable
+                      onDragStart={() => setDraggedIndex(index)}
+                      onDragOver={(e) => {
+                        e.preventDefault();
+                        setDragOverIndex(index);
+                      }}
+                      onDrop={() => {
+                        if (draggedIndex === null || draggedIndex === index) return;
+                        const updated = [...affirmations];
+                        const [movedItem] = updated.splice(draggedIndex, 1);
+                        updated.splice(index, 0, movedItem);
+                        setAffirmations(updated);
+                        setDraggedIndex(null);
+                        setDragOverIndex(null);
+                      }}
+                      onDragEnd={() => {
+                        setDraggedIndex(null);
+                        setDragOverIndex(null);
+                      }}
+                      className={`relative transition-all ${dragOverIndex === index ? "border-l-4 border-[#7F4DC5] pl-1" : ""}`}
+                    >
                       <div 
                         onClick={() => setActiveMenuId(activeMenuId === card.id ? null : card.id)}
-                        className="w-48 h-48 rounded-2xl bg-purple-50 border border-purple-200 p-4 flex flex-col items-center justify-center text-center shadow-sm cursor-pointer hover:bg-purple-100 transition-all relative gap-2"
+                        className="w-48 h-48 rounded-2xl bg-purple-50 border border-purple-200 p-4 flex flex-col items-center justify-center text-center shadow-sm cursor-grab active:cursor-grabbing hover:bg-purple-100 transition-all relative gap-2"
                       >
                         <span className="text-sm font-bold text-purple-950">{card.title}</span>
-                        <span className="text-xs font-medium text-purple-800 italic line-clamp-3 whitespace-pre-line text-left w-full px-2">&quot;{card.text}&quot;</span>
+                        <span className="text-xs font-medium text-purple-800 italic line-clamp-3 whitespace-pre-line text-left w-full px-2">
+                          &quot;{card.text}&quot;
+                        </span>
                       </div>
 
                       {activeMenuId === card.id && (
