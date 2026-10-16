@@ -76,7 +76,7 @@ const [showCalendarHelpModal, setShowCalendarHelpModal] = useState(false);
   const checkNotif = () => {
 
     if (typeof window !== 'undefined') {
-const active = localStorage.getItem('sorea_has_notification') === 'true';
+const active = localStorage.getItem('sorea_has_notification') === 'true' || localStorage.getItem('sorea_todo_notification') === 'true';
       setHasNotif(active);
     }
   };
@@ -220,6 +220,16 @@ const active = localStorage.getItem('sorea_has_notification') === 'true';
     const dateKey = localDate.toISOString().split("T")[0];
     setSelectedTodoDate(dateKey);
     
+    // Dès que l'utilisatrice clique sur une date dans l'onglet todo, on considère qu'elle a vu la notification et on la retire
+    if (activeTab === 'todo' && hasNotif) {
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem('sorea_todo_notification');
+        localStorage.removeItem('sorea_has_notification');
+        setHasNotif(false);
+        window.dispatchEvent(new Event('sorea_notification_update'));
+      }
+    }
+
     //L'ouverture de la modale todo n'est autorisée que sur l'onglet 'todo'
     if (loggedUser && activeTab === 'todo') {
       setShowTodoModal(true);
@@ -393,8 +403,8 @@ const isTodayWithNotification = isToday && hasNotif;
           onClick={() => handleDayClick(day)}
           className={`h-12 sm:h-16 border-r border-b border-gray-200 flex flex-col items-center justify-center transition-colors cursor-pointer relative ${phaseColor} ${isToday ? "font-bold" : ""} ${hiddenStyles}`}
         >
-{/*Badge de notification sur la date du jour adéquate */}
-    {isToday && hasNotif && (
+{/*Badge de notification sur la date du jour uniquement dans l'Agenda Todo-List */}
+    {isToday && hasNotif && activeTab === 'todo' && (
       <span className="absolute top-1 right-1 w-2.5 h-2.5 bg-[#00CEC9] rounded-full animate-pulse z-10" />
     )}
 
@@ -605,13 +615,8 @@ return (
         <button
           type="button"
           onClick={() => {
+            // 🌟 Le clic sert uniquement à basculer sur l'onglet sans effacer le badge
             setActiveTab('todo');
-            // NOUVEAU : Effacer la notification dès qu'on clique sur Agenda Todo-List
-            if (typeof window !== 'undefined') {
-              localStorage.removeItem('sorea_has_notification');
-              window.dispatchEvent(new Event('sorea_notification_update'));
-              window.dispatchEvent(new Event('storage'));
-            }
           }}
           className={`w-full h-[42px] px-6 rounded-[5px] border border-[#00CEC9] font-semibold text-base transition-all duration-200 cursor-pointer relative ${
             activeTab === 'todo' 
@@ -621,8 +626,8 @@ return (
         >
           <span>Agenda Todo-List</span>
 
-          {/* 🌟 NOUVEAU : Affichage de la puce turquoise uniquement dans le calendrier menstruel */}
-          {activeTab === 'calendar' && hasNotif && (
+          {/* Le badge reste visible sur le bouton */}
+          {hasNotif && (
             <span className="absolute top-1.5 right-2 w-2.5 h-2.5 bg-[#00CEC9] rounded-full animate-pulse pointer-events-none" />
           )}
         </button>

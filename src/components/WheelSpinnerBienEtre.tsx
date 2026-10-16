@@ -981,6 +981,7 @@ export default function WheelSpinnerBienEtre() {
     }
     if (typeof window !== 'undefined') {
     localStorage.setItem('sorea_has_notification', 'true');
+    localStorage.setItem('sorea_todo_notification', 'true'); //pour l'agenda
     window.dispatchEvent(new Event('sorea_notification_update'));
   }
   }}
