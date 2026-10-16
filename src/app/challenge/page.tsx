@@ -150,7 +150,7 @@ const wheelDataConfig = {
             </p>
             <Link href="/Wheel-Spinner">
               <button className="bg-SOREA-V1 text-white font-bold px-10 py-5 rounded-2xl shadow-md transition-all duration-300 hover:scale-105 hover:shadow-xl tracking-[0.18em] uppercase cursor-pointer">
-                Tourner
+                Découvrir
               </button>
             </Link>
           </div>
@@ -159,9 +159,9 @@ const wheelDataConfig = {
             {isLoaded && <img src={currentWheelData.img} alt="roue" style={{ width: "280px", display: "block" }} />}
           </div>
 
-        <Link href={currentWheelData.href}>
+        <Link href={currentWheelData.href} className="group block">
           <article
-            className="flex flex-col border-2 border-[#8B47FF] rounded-2xl p-8 gap-5"
+            className="flex flex-col border-2 border-purple-200 hover:border-[#8B47FF] rounded-2xl p-8 gap-5 transition-all duration-300 relative"
             style={{ background: "radial-gradient(ellipse at center, #FEF0F9 0%, #FFFFFF 100%)" }}
           >
             <div className="flex items-center gap-2 text-[#8B47FF] font-bold text-sm tracking-[0.16em] uppercase whitespace-nowrap">
@@ -173,6 +173,9 @@ const wheelDataConfig = {
                 <p className="bg-[#F4EBFF] rounded-2xl p-5 text-[#4b3b5c] leading-relaxed">
                   {currentWheelData.desc}
                 </p>
+                <div className="text-right text-[#8B47FF] font-bold tracking-wider pt-2">
+                  Tourner →
+                </div>
               </>
             )}
             
