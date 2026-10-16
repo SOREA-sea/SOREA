@@ -8,6 +8,13 @@
   font-style: normal;
   font-display: swap;
 }
+@font-face {
+  font-family: 'Boska';
+  src: url('/fonts/Boska/Boska_Complete/Fonts/WEB/fonts/Boska-Light.woff2') format('woff2'); /* Vérifiez le nom exact du fichier woff2 */
+  font-weight: 300; /* ou 400 pour Regular */
+  font-style: normal;
+  font-display: swap;
+}
 
 @font-face {
   font-family: 'Satoshi';

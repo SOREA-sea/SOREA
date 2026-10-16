@@ -24,8 +24,16 @@ export default function AffirmationGallery({
       if (saved) return JSON.parse(saved);
     }
     return [
-      { id: "1", title: "Confiance en soi", text: "✓ Je suis confiant(e)" },
-      { id: "2", title: "Paix intérieure", text: "✓ Je cultive la paix" }
+      { 
+        id: "1", 
+        title: "Mon Bien-être", 
+        text: "✓ Je m’accepte tel(le) que je suis et j’ai de la valeur.\n✓ Mon esprit est calme et apaisé\n✓ Je prend soin de mon corps et de mon état d’esprit \n✓ Je m’entoure des bonnes personnes et je mérite d’être bien entouré(e)\n✓ Je reconnais les efforts que je fais, même lorsqu'ils sont invisibles.\n✓ J’accueille mon chemin parcouru avec fierté\n✓ Je vis pleinement chaque moment de ma vie.\n✓ Je compare mon parcours rien qu’à mon parcours passé.\n✓ Je crois en mon potentiel et j’ai du potentiel\n✓ Je cultive la sérénité au quotidien\n✓ Je surmonte mes défis et je grandis à travers eux.\n✓ Je mérite d’être heureux(se) et épanoui(e) dans ma vie et je le suis."
+      },
+      { 
+        id: "2", 
+        title: "Projet & Objectifs", 
+        text: "✓ Je fixe mes objectifs avec clarté et j'ai la capacité de les atteindre.\n✓ Je crois en la réussite de mes projets et en mes capacités à les concrétiser.\n✓ J'ai la discipline nécessaire pour concrétiser mes ambitions.\n✓ J'avance vers ce qui me tient à cœur.\n✓ Mes projets se développent de manière fluide et harmonieuse.\n✓ Je surmonte les obstacles avec confiance et persévérance.\n✓ J'attire les bonnes ressources et les bonnes personnes pour faire grandir mes projets.\n✓ Je reste concentré(e) et déterminé(e) face à mes priorités.\n✓ Je suis capable de dépasser mes doutes et de passer à l'action.\n✓ Je transforme mes idées en action.\n✓ Je suis fier(ère) du chemin parcouru et de ce que je construis chaque jour.\n✓ Je lâche prise et j’avance sereinement\n✓ Je mérite d'atteindre tous les objectifs que je me fixe." 
+      }
     ];
   });
 
@@ -216,7 +224,7 @@ export default function AffirmationGallery({
                 </>
               ) : (
                 trash.length === 0 ? (
-                  <p className="col-span-2 text-gray-400 text-xs py-4 italic text-center">La corbeille est vide.</p>
+                  <p className="col-span-2 text-gray-400 text-xs py-4 italic text-center justify-center">La corbeille est vide.</p>
                 ) : (
                   <>
                     {trash.slice(0, 4).map((card) => {

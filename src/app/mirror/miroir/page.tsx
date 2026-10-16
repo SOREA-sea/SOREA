@@ -383,13 +383,13 @@ export default function NouvellePage() {
             >
 
  {/* Groupe "Affirmation" et les 3 boutons placés strictement à gauche du miroir */}
-<div className="absolute left-[-380px] top-1/2 -translate-y-1/2 z-30 flex flex-col items-center gap-12">
-  <div className="flex flex-col items-center text-center gap-2">
-    <h1 className="text-3xl md:text-4xl font-serif text-[#7F4DC5] tracking-tight whitespace-nowrap">
+<div className="absolute left-[-380px] top-1/2 -translate-y-1/2 z-30 flex flex-col items-center gap-14">
+  <div className="flex flex-col items-center text-center gap-10">
+    <h1 className="text-3xl md:text-4xl font-serif font-light text-[#212121] tracking-wider whitespace-nowrap">
       Affirmation
     </h1>
     {activeMode === "custom" && activeCustomCard && (
-      <h2 className="text-lg font-semibold text-[#212121] italic">
+      <h2 className="text-4xl font-semibold text-[#7F4DC5] italic">
         {activeCustomCard.title}
       </h2>
     )}
@@ -526,7 +526,7 @@ export default function NouvellePage() {
                     onClick={genererAffirmationMiroir}
                     disabled={loading || microActive || !isPlaying}
                     className={`w-full bg-[#8B47FF] text-white font-bold py-3 rounded-xl shadow-lg transition-all duration-300 text-center ${
-                      (microActive || !isPlaying) ? "opacity-40 cursor-not-allowed" : "hover:scale-105 hover:shadow-xl cursor-pointer"
+                      (microActive || !isPlaying) ? "opacity-40 cursor" : "hover:scale-105 hover:shadow-xl cursor-pointer"
                     }`}
                     title={!isPlaying ? "Mettez lecture pour utiliser le bouton Suivant" : (microActive ? "Désactivez le micro pour utiliser le bouton Suivant" : "Affirmation suivante")}
                   >
