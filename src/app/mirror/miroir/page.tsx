@@ -148,6 +148,13 @@ export default function NouvellePage() {
     return () => window.removeEventListener("customAffirmationChanged", loadCustom);
   }, []);
 
+  // État pour la modale d'instructions du miroir
+  const [showInstruction, setShowInstruction] = useState(true);
+
+  const hideInstructionsMirror = () => {
+    setShowInstruction(false);
+  };
+
  // --- Génère la prochaine affirmation avec un délai de transition de 3s pour "Reflet suivant..." ---
   const genererAffirmationMiroir = () => {
     const today = new Date().toISOString().split("T")[0];
@@ -393,6 +400,11 @@ export default function NouvellePage() {
         {activeCustomCard.title}
       </h2>
     )}
+    {activeMode === "cycle" && (
+      <h2 className="text-4xl font-semibold text-[#7F4DC5] italic">
+        {currentPhase}
+      </h2>
+    )}
   </div>
 
   {/* Les 3 boutons de sélection de mode (changement de mode sans déclenchement automatique) */}
@@ -605,12 +617,44 @@ export default function NouvellePage() {
 
           </div>
         </div>
+        
       </main>
 
       {/* FOOTER */}
       <Footer />
       {/* Composant pour afficher la modale au clic sur "Personnalisées" */}
 <AffirmationGallery externalIsOpen={isCustomModalOpen} setExternalIsOpen={setIsCustomModalOpen} />
+
+{/* MODALE DE CONSIGNES DU MIROIR */}
+      {showInstruction && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-xs animate-in fade-in duration-300">
+          <div className="w-full max-w-lg mx-4 p-8 bg-white/95 backdrop-blur-md rounded-3xl shadow-2xl border border-purple-100 flex flex-col items-center relative animate-in zoom-in-95 duration-300">
+            <p className="text-center text-[#4b3b5c] text-xl font-bold mb-2">
+              Miroir mon beau miroir
+            </p>
+            <p className="text-gray-600 text-base mb-8 mt-3 text-center">
+              Affirme-toi chaque jour face à ton miroir virtuel. Répète des phrases positives à haute voix pour renforcer ta confiance et cultiver ta lumière intérieure.
+            </p>
+            
+            <div className="flex gap-4 w-full justify-center">
+              <button 
+                onClick={hideInstructionsMirror}
+                className="px-8 py-2.5 bg-[#8B47FF] text-white font-bold rounded-full hover:bg-[#7a3be6] transition-colors shadow-md text-sm cursor-pointer"
+              >
+                OK
+              </button>
+              <button 
+                onClick={hideInstructionsMirror}
+                className="px-4 py-2.5 bg-transparent text-gray-400 font-medium hover:text-[#8B47FF] transition-colors text-sm underline underline-offset-2 cursor-pointer"
+              >
+                Ne plus afficher
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
   );
+  
 }

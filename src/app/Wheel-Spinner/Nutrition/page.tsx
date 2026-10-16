@@ -70,7 +70,37 @@ const hideInstructionsNutrition = () => {
 
           {/* La roue spécifique affichée ici directement */}
           <div className="relative z-10 w-full flex flex-col items-center scale-65 origin-top">
-            <WheelSpinnerNutrition />
+            <div className="relative flex justify-center items-center">
+                        
+                        {/* Groupe "Défis Bien-être" et les 2 boutons placés strictement à gauche (dimensions et positionnement identiques au miroir) */}
+                        <div className="absolute left-[-380px] top-[450px] -translate-y-1/2 z-30 flex flex-col items-center gap-20">
+                          <div className="flex flex-col items-center text-center gap-10">
+                            <h1 className="text-3xl md:text-5xl font-serif font-light text-[#212121] tracking-wider whitespace-nowrap leading-tight">
+                              Défis<br />Nutrition
+                            </h1>
+                          </div>
+            
+                          {/* Les 2 boutons (Par défaut et Cycles menstruels) */}
+                          <div className="flex w-[350px] h-[55px] bg-white border border-[#9b6fd9] rounded-[10px] overflow-hidden shadow-sm">
+                            <button 
+                              type="button"
+                              onClick={(e) => e.preventDefault()}
+                              className="flex-1 h-full flex items-center justify-center text-xs font-medium transition-colors border-r border-[#9b6fd9] cursor-pointer text-center px-1"
+                            >
+                              Par défaut
+                            </button>
+            
+                            <button 
+                              type="button"
+                              onClick={(e) => e.preventDefault()}
+                              className="flex-1 h-full flex items-center justify-center text-xs font-medium transition-colors border-r border-[#9b6fd9] cursor-pointer text-center px-1"
+                            >
+                              Cycles menstruels
+                            </button>
+                          </div>
+                        </div>
+                        <WheelSpinnerNutrition />
+                      </div>
           </div>
 
         </div>
