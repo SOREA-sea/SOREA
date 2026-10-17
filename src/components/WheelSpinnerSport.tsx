@@ -3,6 +3,13 @@
 import React, { useRef, useState, useEffect } from "react";
 import { Star } from "lucide-react";
 import { getFavoriWheel, setFavoriWheel, WheelCategory } from "../lib/favorites-store";
+import { fetchCurrentPhase } from "../lib/cyclePhase";
+import { getCycleSportThemesForPhase } from "../lib/WheelCycleSport";
+import { Phase } from "../lib/affirmations";
+
+interface WheelSpinnerSportProps {
+  mode?: "default" | "cycle";
+}
 
 const themesData = [
   {
@@ -543,11 +550,19 @@ const THEMES = {
 // ============================================================================
 // COMPOSANT
 // ============================================================================
-export default function WheelSpinnerSport() {
+
+export default function WheelSpinnerSport({ mode = "default" }: WheelSpinnerSportProps) {
   const [isFavori, setIsFavori] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   
+  // 🌟 État de la phase du cycle
+  const [currentPhase, setCurrentPhase] = useState<Phase>("Printemps");
+
+  useEffect(() => {
+    fetchCurrentPhase().then(setCurrentPhase);
+  }, []);
+
     const [themeActif, setThemeActif] = useState<'clair' | 'vibrant'>(() => {
       if (typeof window !== 'undefined') {
         return localStorage.getItem('soreaThemeActif_Sport') as 'clair' | 'vibrant' || 'clair';
@@ -637,8 +652,11 @@ export default function WheelSpinnerSport() {
     setRaisonPersonnalisee("");
     if (idleRafRef.current) cancelAnimationFrame(idleRafRef.current);
 
-    const sectorIndex = Math.floor(Math.random() * 10);
-    const angleSecteur = 360 - (sectorIndex * 36) - 18;
+    // 🌟 Sélection dynamique selon le mode actif
+    const activeThemes = mode === "cycle" ? getCycleSportThemesForPhase(currentPhase) : themesData;
+
+    const sectorIndex = Math.floor(Math.random() * activeThemes.length);
+    const angleSecteur = 360 - (sectorIndex * (360 / activeThemes.length)) - 18;
     const degresDeDepart = angleActuel.current;
     const moduloDepart = ((degresDeDepart % 360) + 360) % 360;
     let difference = angleSecteur - moduloDepart;
@@ -658,7 +676,7 @@ export default function WheelSpinnerSport() {
         wheelGroupRef.current.style.transition = 'none';
         wheelGroupRef.current.style.transform = `rotate(${angleActuel.current}deg)`;
       }
-      const themeGagnant = themesData[sectorIndex];
+      const themeGagnant = activeThemes[sectorIndex];
       const randomDefi = themeGagnant.defis[Math.floor(Math.random() * themeGagnant.defis.length)];
       setResultatGagnant({
         name: themeGagnant.name,
@@ -981,7 +999,7 @@ export default function WheelSpinnerSport() {
     }
     if (typeof window !== 'undefined') {
     localStorage.setItem('sorea_has_notification', 'true');
-    localStorage.setItem('sorea_todo_notification', 'true'); //pour l'agenda
+    localStorage.setItem('sorea_todo_notification', 'true'); //Ajouté pour l'agenda
     window.dispatchEvent(new Event('sorea_notification_update'));
   }
   }}

@@ -3,6 +3,13 @@
 import React, { useRef, useState, useEffect } from "react";
 import { Star } from "lucide-react";
 import { getFavoriWheel, setFavoriWheel, WheelCategory } from "../lib/favorites-store";
+import { fetchCurrentPhase } from "../lib/cyclePhase";
+import { getCycleThemesForPhase } from "../lib/WheelCycleBienEtre";
+import { Phase } from "../lib/affirmations";
+
+interface WheelSpinnerBienEtreProps {
+  mode?: "default" | "cycle";
+}
 
 const themesData = [
   {
@@ -541,10 +548,15 @@ const THEMES = {
 // ============================================================================
 // COMPOSANT
 // ============================================================================
-export default function WheelSpinnerBienEtre() {
+export default function WheelSpinnerBienEtre({ mode = "default" }: WheelSpinnerBienEtreProps) {
   const [isFavori, setIsFavori] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
+
+  const [currentPhase, setCurrentPhase] = useState<Phase>("Printemps");
+ useEffect(() => {
+    fetchCurrentPhase().then(setCurrentPhase);
+  }, []);
 
   const [themeActif, setThemeActif] = useState<'clair' | 'vibrant'>(() => {
     if (typeof window !== 'undefined') {
@@ -634,8 +646,11 @@ export default function WheelSpinnerBienEtre() {
     setRaisonPersonnalisee("");
     if (idleRafRef.current) cancelAnimationFrame(idleRafRef.current);
 
-    const sectorIndex = Math.floor(Math.random() * 10);
-    const angleSecteur = 360 - (sectorIndex * 36) - 18;
+    // 🌸 Sélection dynamique selon le mode (Par défaut vs Cycles menstruels)
+    const activeThemes = mode === "cycle" ? getCycleThemesForPhase(currentPhase) : themesData;
+
+    const sectorIndex = Math.floor(Math.random() * activeThemes.length);
+    const angleSecteur = 360 - (sectorIndex * (360 / activeThemes.length)) - 18;
     const degresDeDepart = angleActuel.current;
     const moduloDepart = ((degresDeDepart % 360) + 360) % 360;
     let difference = angleSecteur - moduloDepart;
@@ -655,7 +670,7 @@ export default function WheelSpinnerBienEtre() {
         wheelGroupRef.current.style.transition = 'none';
         wheelGroupRef.current.style.transform = `rotate(${angleActuel.current}deg)`;
       }
-      const themeGagnant = themesData[sectorIndex];
+      const themeGagnant = activeThemes[sectorIndex];
       const randomDefi = themeGagnant.defis[Math.floor(Math.random() * themeGagnant.defis.length)];
       setResultatGagnant({
         name: themeGagnant.name,

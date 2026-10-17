@@ -9,6 +9,10 @@ import WheelSpinnerSport from "@/components/WheelSpinnerSport";
 
 export default function PageSport() {
  const [showInstruction, setShowInstructionsSport] = useState(true);
+
+ // 🌟 1. Ajout de l'état pour le mode actif
+ const [activeMode, setActiveMode] = useState<"default" | "cycle">("default");
+
 const hideInstructionsSport = () => {
     setShowInstructionsSport(false);
   };
@@ -81,26 +85,31 @@ const hideInstructionsSport = () => {
                           </div>
             
                           {/* Les 2 boutons (Par défaut et Cycles menstruels) */}
-                          <div className="flex w-[350px] h-[55px] bg-white border border-[#9b6fd9] rounded-[10px] overflow-hidden shadow-sm">
+                          <div className="flex w-[350px] h-[55px] bg-white border border-[#9b6fd9] rounded-[10px] overflow-hidden shadow-sm pointer-events-auto">
                             <button 
                               type="button"
-                              onClick={(e) => e.preventDefault()}
-                              className="flex-1 h-full flex items-center justify-center text-xs font-medium transition-colors border-r border-[#9b6fd9] cursor-pointer text-center px-1"
+                              onClick={() => setActiveMode("default")}
+                              className={`flex-1 h-full flex items-center justify-center text-xs font-medium transition-colors border-r border-[#9b6fd9] cursor-pointer text-center px-1 ${
+                                activeMode === "default" ? "bg-purple-100 text-[#7F4DC5] font-bold" : "text-gray-800 hover:bg-purple-50"
+                              }`}
                             >
                               Par défaut
                             </button>
             
                             <button 
                               type="button"
-                              onClick={(e) => e.preventDefault()}
-                              className="flex-1 h-full flex items-center justify-center text-xs font-medium transition-colors border-r border-[#9b6fd9] cursor-pointer text-center px-1"
+                              onClick={() => setActiveMode("cycle")}
+                              className={`flex-1 h-full flex items-center justify-center text-xs font-medium transition-colors cursor-pointer text-center px-1 ${
+                                activeMode === "cycle" ? "bg-purple-100 text-[#7F4DC5] font-bold" : "text-gray-800 hover:bg-purple-50"
+                              }`}
                             >
                               Cycles menstruels
                             </button>
                           </div>
                         </div>
             
-                        <WheelSpinnerSport />
+                        {/* 🌟 Transmission du mode au composant */}
+                        <WheelSpinnerSport mode={activeMode} />
                       </div>
           </div>
 
