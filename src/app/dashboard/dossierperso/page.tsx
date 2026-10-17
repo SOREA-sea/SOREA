@@ -83,7 +83,7 @@ export default async function DashboardPage() {
   ];
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 pt-20">
       <header>
         <p className="text-xs uppercase tracking-[0.28em] text-foreground/50">Tableau de bord</p>
         <h1 className="text-3xl md:text-4xl font-black section-title mt-1">

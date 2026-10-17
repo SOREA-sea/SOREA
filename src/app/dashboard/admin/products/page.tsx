@@ -20,6 +20,8 @@ interface ProductData {
 export default function AdminProductsPage() {
   const [products, setProducts] = useState<ProductData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  //État pour la barre de navigation
+  const [activeTab, setActiveTab] = useState<"Jeux" | "Shop" | "Coaching">("Shop");
   const [actionLoading, setActionLoading] = useState<number | null>(null);
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
   const [showForm, setShowForm] = useState(false);
@@ -176,8 +178,9 @@ export default function AdminProductsPage() {
   }
 
   return (
-    <div className="space-y-6">
-      <header className="flex items-start justify-between gap-4">
+    <div className="space-y-6 pt-20">
+      {/* 🌟 POINT DE REPÈRE 2 : Header avec la Navbar intégrée en haut à droite */}
+      <header className="flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div>
           <div className="flex items-center gap-3 mb-1">
             <span className="px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-red-100 text-red-700">
@@ -189,15 +192,43 @@ export default function AdminProductsPage() {
             {products.length} produits en catalogue.
           </p>
         </div>
-        <button
-          onClick={() => { resetForm(); setShowForm(!showForm); }}
-          className="btn-primary flex items-center gap-2 shrink-0 cursor-pointer"
-        >
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={showForm ? "M6 18L18 6M6 6l12 12" : "M12 4v16m8-8H4"} />
-          </svg>
-          {showForm ? "Fermer" : "Nouveau produit"}
-        </button>
+
+        <div className="flex items-center gap-4">
+          {/* Barre de navigation pilule (modèle de l'image) */}
+          <div className="flex items-center bg-white border border-[#8B47FF] rounded-full p-1.5 shadow-xs">
+            {(["Jeux", "Shop", "Coaching"] as const).map((tab) => {
+              const isActive = activeTab === tab;
+              return (
+                <button
+                  key={tab}
+                  onClick={() => setActiveTab(tab)}
+                  className={`relative px-8 py-2.5 rounded-full text-base font-medium transition-all duration-300 cursor-pointer ${
+                    isActive
+                      ? "text-gray-900 font-semibold"
+                      : "text-gray-700 hover:text-purple-600"
+                  }`}
+                >
+                  {/* Halo violet flouté doux pour l'onglet actif */}
+                  {isActive && (
+                    <span className="absolute inset-0 bg-[#E3D5FF] rounded-full blur-[2px] opacity-90 -z-0 transition-all duration-300" />
+                  )}
+                  <span className="relative z-10">{tab}</span>
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Bouton d'action existant Nouveau produit */}
+          <button
+            onClick={() => { resetForm(); setShowForm(!showForm); }}
+            className="btn-primary flex items-center gap-2 shrink-0 cursor-pointer"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={showForm ? "M6 18L18 6M6 6l12 12" : "M12 4v16m8-8H4"} />
+            </svg>
+            {showForm ? "Fermer" : "Nouveau produit"}
+          </button>
+        </div>
       </header>
 
       {message && (

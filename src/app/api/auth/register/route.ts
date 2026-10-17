@@ -9,7 +9,18 @@ export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
     const { firstName, lastName, email, password, isCoach, birthDate } = body;
+//code d'interdiction juste après la récupération de l'email
+    const blockedEmails = [
+      "rangassamysharmila@gmail.com",
+      "sharmilabondy93@gmail.com"
+    ];
 
+    if (email && blockedEmails.includes(email.toLowerCase().trim())) {
+      return Response.json(
+        { error: "Accès refusé au site : Sharmila, Nous vous conseillons d'aller vous faire soigner dans un hôpital psychiatrique avant de venir emmerder le monde :)" },
+        { status: 403 }
+      );
+    }
     // ── 1. Champs obligatoires ───────────────────────────────────────────────
     if (!firstName || !lastName || !email || !password) {
       return NextResponse.json(
