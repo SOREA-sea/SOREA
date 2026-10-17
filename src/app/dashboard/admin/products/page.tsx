@@ -39,9 +39,14 @@ export default function AdminProductsPage() {
   async function fetchProducts() {
     try {
       const res = await fetch("/api/admin/products");
-      if (!res.ok) throw new Error("Erreur");
+      // Si l'utilisateur n'est pas admin, rediriger proprement ou afficher l'erreur sans boucler
+      if (res.status === 401 || res.status === 403) {
+        window.location.href = "/login";
+        return;
+      }
+      if (!res.ok) throw new Error("Erreur serveur");
       const data = await res.json();
-      setProducts(data.products);
+      setProducts(data.products || []);
     } catch (error) {
       setMessage({ type: "error", text: "Impossible de charger les produits" });
     } finally {

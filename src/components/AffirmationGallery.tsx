@@ -61,8 +61,8 @@ export default function AffirmationGallery({
     setInternalIsOpen(resolvedVal);
   };
 
-  const [previewTab, setPreviewTab] = useState<"galerie" | "corbeille">("galerie");
-  const [activeTab, setActiveTab] = useState<"galerie" | "corbeille">("galerie");
+  const [previewTab, setPreviewTab] = useState<"galerie" | "boutique" | "corbeille">("galerie");
+  const [activeTab, setActiveTab] = useState<"galerie" | "boutique" | "corbeille">("galerie");
   
   const [isAdding, setIsAdding] = useState(false);
   const [currentTitle, setCurrentTitle] = useState("");
@@ -185,6 +185,14 @@ export default function AffirmationGallery({
               >
                 Galerie
               </button>
+              {/* 🌟 POINT DE REPÈRE 2 : Ajout de l'onglet Boutique dans l'aperçu */}
+              <button 
+                type="button"
+                onClick={() => setPreviewTab("boutique")}
+                className={`font-bold pb-2 -mb-[13px] cursor-pointer transition-colors ${previewTab === "boutique" ? "text-[#8B47FF] border-b-2 border-[#8B47FF]" : "text-gray-400 hover:text-gray-600"}`}
+              >
+                Boutique
+              </button>
               <button 
                 type="button"
                 onClick={() => setPreviewTab("corbeille")}
@@ -208,7 +216,6 @@ export default function AffirmationGallery({
                     );
                   })}
 
-                  {/* Le bouton + reste toujours visible et bloque l'affichage à 3 affirmations max dans l'aperçu */}
                   <button 
                     onClick={() => setIsOpen(true)}
                     className="aspect-square bg-[#FAF5FF] border-2 border-dashed border-purple-200 rounded-2xl flex items-center justify-center text-purple-300 hover:bg-purple-50 hover:border-[#7F4DC5] hover:text-[#7F4DC5] transition-colors cursor-pointer group"
@@ -216,6 +223,11 @@ export default function AffirmationGallery({
                     <span className="text-4xl font-light group-hover:text-[#7F4DC5]">+</span>
                   </button>
                 </>
+              ) : previewTab === "boutique" ? (
+                /* 🌟 POINT DE REPÈRE 3 : Contenu de l'aperçu Boutique */
+                <div className="col-span-2 py-6 text-center text-xs text-gray-400 italic">
+                  Aucun article dans la boutique pour le moment.
+                </div>
               ) : (
                 trash.length === 0 ? (
                   <p className="col-span-2 text-gray-400 text-xs py-4 italic text-center justify-center">La corbeille est vide.</p>
@@ -266,6 +278,14 @@ export default function AffirmationGallery({
                 >
                   Galerie
                 </button>
+                {/* 🌟 POINT DE REPÈRE 4 : Ajout de l'onglet Boutique dans la modale */}
+                <button 
+                  type="button"
+                  onClick={() => setActiveTab("boutique")}
+                  className={`font-bold pb-1 cursor-pointer transition-colors ${activeTab === "boutique" ? "text-[#8B47FF] border-b-2 border-[#8B47FF]" : "text-gray-400 hover:text-gray-600"}`}
+                >
+                  Boutique
+                </button>
                 <button 
                   type="button"
                   onClick={() => setActiveTab("corbeille")}
@@ -274,7 +294,7 @@ export default function AffirmationGallery({
                   Corbeille
                 </button>
               </div>
-            </div> 
+              </div>
 
             {isAdding && (
               <div className="px-8 mt-2">
@@ -392,6 +412,11 @@ export default function AffirmationGallery({
                     <span className="text-xs font-bold">Ajouter</span>
                   </button>
                 </>
+              ) : activeTab === "boutique" ? (
+                /* 🌟 POINT DE REPÈRE 5 : Contenu de la modale Boutique */
+                <div className="col-span-full py-12 text-center text-gray-500 text-sm italic">
+                  La boutique d'affirmations sera bientôt disponible.
+                </div>
               ) : (
                 trash.length === 0 ? (
                   <p className="text-gray-400 text-sm py-8 italic w-full text-center">La corbeille est vide.</p>

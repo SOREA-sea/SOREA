@@ -81,7 +81,7 @@ export default function Navbar({ isLoggedIn = false }: { isLoggedIn?: boolean })
       <header className="sorea-navbar">
         <Link href="/" className="sorea-logo-link" aria-label="Accueil SOREA">
           <Image
-            src="/image_icone/Logo-SOREA.png"
+            src="/image_Design-SOREA/LogoSOREA.svg"
             alt="Logo SOREA"
             width={64}
             height={64}
