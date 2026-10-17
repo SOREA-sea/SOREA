@@ -1,15 +1,25 @@
 "use client";
-import React, { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link"; // Import de Link pour le retour
 import Navbar from '@/components/Navbar';
 import Footer from "@/components/Footer";
 import DailyEncouragement from "@/components/DailyEncouragement";
 import WheelSpinnerBienEtre from "@/components/WheelSpinnerBienEtre";
+// 🌟 1. Ajout des imports pour la gestion de la phase
+import { fetchCurrentPhase } from "@/lib/cyclePhase";
+import { Phase } from "@/lib/affirmations";
 
 export default function PageBienEtre() {
   const [showInstruction, setShowInstructionsWellness] = useState(true);
-  // 🌟 État pour le mode actif des défis
+  // État pour le mode actif des défis
   const [activeMode, setActiveMode] = useState<"default" | "cycle">("default");
+  // 🌟 2. Ajout de l'état pour stocker la phase actuelle du cycle
+  const [currentPhase, setCurrentPhase] = useState<Phase>("Printemps");
+
+  // 🌟 3. Récupération de la phase au chargement de la page
+  useEffect(() => {
+    fetchCurrentPhase().then(setCurrentPhase);
+  }, []);
 const hideInstructionsWellness = () => {
     setShowInstructionsWellness(false);
   };
@@ -83,6 +93,12 @@ const hideInstructionsWellness = () => {
                 <h1 className="text-3xl md:text-5xl font-serif font-light text-[#212121] tracking-wider whitespace-nowrap leading-tight">
                   Défis<br />Bien-être
                 </h1>
+                {/* 🌟 4. Affichage dynamique de la phase si le mode "cycle" est actif */}
+                {activeMode === "cycle" && (
+                  <h2 className="text-4xl font-semibold text-[#7F4DC5] italic">
+                    {currentPhase}
+                  </h2>
+                )}
               </div>
 
               {/* Les 2 boutons (Par défaut et Cycles menstruels) */}
