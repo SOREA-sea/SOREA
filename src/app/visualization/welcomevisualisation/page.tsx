@@ -6,6 +6,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import DailyEncouragement from "@/components/DailyEncouragement";
 import AffirmationGallery from "@/components/AffirmationGallery";
+import VisualisationGallery from "@/components/VisualisationGallery";
 import VisualisationPellicule from "@/components/VisualisationPellicule";
 
 export default function VisualisationPage() {
@@ -24,6 +25,9 @@ export default function VisualisationPage() {
         
         {/* SECTION HÉRO (Titre + Description + Bouton + Pellicule emprisonnée) */}
         <section className="w-full max-w-[1440px] mx-auto px-[96px] pt-[60px] pb-[60px] relative flex flex-col lg:flex-row items-center justify-between min-h-[480px] overflow-hidden rounded-3xl">
+          {/* Dégradés haut et bas (blanc vers transparent) */}
+          <div className="absolute inset-x-0 top-0 h-20 bg-gradient-to-b from-[#FBF9FE] to-transparent z-10 pointer-events-none" />
+          <div className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-[#FBF9FE] to-transparent z-10 pointer-events-none" />
           
           {/* Texte de gauche */}
           <div className="flex flex-col items-start max-w-[540px] z-10 gap-6 py-25">
@@ -70,10 +74,14 @@ export default function VisualisationPage() {
             />
           </div>
 
-          {/* Composant AffirmationGallery à droite */}
-          <div className="flex-1 w-full max-w-[550px] flex justify-center">
-            <AffirmationGallery />
-          </div>
+         {/* Composant AffirmationGallery à droite */}
+          {/* <div className="flex-1 w-full max-w-[550px] flex justify-center">*/}
+          {/*  <AffirmationGallery />*/}
+         {/* </div>*/}
+          {/* Composant VisualisationGallery à droite */}
+            <div className="flex-1 w-full max-w-[550px] flex justify-center">
+              <VisualisationGallery />
+            </div>
 
         </section>
 

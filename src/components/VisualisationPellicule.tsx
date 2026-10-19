@@ -17,7 +17,7 @@ const marqueeStyles = `
 // Liste des images de démonstration à faire défiler dans la pellicule
 const filmPhotos = [
   "/image_photo/PelliculeNourritureSaine.svg",
-  "/image_photo/PelliculeBusiness1.svg",
+  "/image_photo/PelliculeBusiness.svg",
   "/image_photo/PelliculeDiplome.svg",
   "/image_photo/PelliculeVoyage.svg",
   "/image_photo/PelliculeLiberté.svg",
