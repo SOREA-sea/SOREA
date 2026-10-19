@@ -73,7 +73,7 @@ export default function Navbar({ isLoggedIn = false }: { isLoggedIn?: boolean })
   }, [isLoggedIn]);
 
   const isAuthenticated = isLoggedIn || !!sessionUser;
-  const ctaLabel = isAuthenticated ? "Mon espace cozy" : "Se connecter";
+  const ctaLabel = isAuthenticated ? "Mon espace" : "Se connecter";
   const ctaHref = isAuthenticated ? "/dashboard/dossierperso" : "/login";
 
   return (
@@ -81,7 +81,7 @@ export default function Navbar({ isLoggedIn = false }: { isLoggedIn?: boolean })
       <header className="sorea-navbar">
         <Link href="/" className="sorea-logo-link" aria-label="Accueil SOREA">
           <Image
-            src="/image_Design-SOREA/LogoSOREA.svg"
+            src="/image_Design-SOREA/Logo-SOREA1.svg"
             alt="Logo SOREA"
             width={64}
             height={64}
