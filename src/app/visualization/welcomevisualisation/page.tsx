@@ -8,6 +8,7 @@ import DailyEncouragement from "@/components/DailyEncouragement";
 import AffirmationGallery from "@/components/AffirmationGallery";
 import VisualisationGallery from "@/components/VisualisationGallery";
 import VisualisationPellicule from "@/components/VisualisationPellicule";
+import VisualisationSlide from "@/components/VisualisationSlide";
 
 export default function VisualisationPage() {
   return (
@@ -62,26 +63,18 @@ export default function VisualisationPage() {
 </div>
         </section>
 
-        {/* SECTION APPAREIL PHOTO (DiapoVisualisation) & GALERIE (AffirmationGallery) */}
+        {/* SECTION APPAREIL PHOTO AVEC DIAPORAMA & GALERIE */}
         <section id="projection" className="w-full max-w-[1440px] mx-auto px-[96px] py-[60px] flex flex-col lg:flex-row items-center justify-center gap-12 lg:gap-16">
           
-          {/* Appareil photo DiapoVisualisation.svg */}
+          {/* Appareil photo interactif avec écran Diaporama */}
           <div className="flex-1 flex justify-center items-center max-w-[500px]">
-            <img
-              src="/image_Design-SOREA/DiapoVisualisation.svg"
-              alt="Diapo Visualisation"
-              className="w-full h-auto object-contain drop-shadow-lg"
-            />
+            <VisualisationSlide />
           </div>
 
-         {/* Composant AffirmationGallery à droite */}
-          {/* <div className="flex-1 w-full max-w-[550px] flex justify-center">*/}
-          {/*  <AffirmationGallery />*/}
-         {/* </div>*/}
-          {/* Composant VisualisationGallery à droite */}
-            <div className="flex-1 w-full max-w-[550px] flex justify-center">
-              <VisualisationGallery />
-            </div>
+          {/* Galerie de Visualisation */}
+          <div className="flex-1 w-full max-w-[550px] flex justify-center">
+            <VisualisationGallery />
+          </div>
 
         </section>
 

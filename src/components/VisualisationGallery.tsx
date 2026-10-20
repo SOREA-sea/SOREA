@@ -252,22 +252,32 @@ export default function VisualisationGallery({
                   {pellicules.slice(0, 3).map((card) => (
                     <div
                       key={card.id}
-                      className="aspect-square rounded-2xl overflow-hidden shadow-sm border border-purple-100 bg-purple-50 flex flex-col items-center justify-between p-3 text-center relative group"
+                      onClick={() => setIsOpen(true)}
+                      className="relative w-full h-40 flex flex-col items-center justify-start cursor-pointer hover:scale-105 transition-transform"
                     >
-                      <span className="text-xs font-bold text-purple-900 z-10">
+                      <span className="text-xs font-bold text-purple-950 mb-1 text-center">
                         {card.title}
                       </span>
-                      {card.images.length > 0 ? (
+
+                      {/* Illustration Pellicule.svg avec aperçu des images */}
+                      <div className="relative w-full h-32 flex items-center justify-center">
+                        {/* Support Pellicule en dessous (z-10) */}
                         <img
-                          src={card.images[0]}
-                          alt={card.title}
-                          className="w-full h-20 object-cover rounded-xl mt-1"
+                          src="/image_Design-SOREA/Pellicule.svg"
+                          alt="Pellicule"
+                          className="absolute inset-0 w-full h-full object-contain z-10"
                         />
-                      ) : (
-                        <div className="w-full h-20 bg-purple-100/50 rounded-xl flex items-center justify-center text-xs text-purple-400">
-                          Sans image
+                        {/* Photo au-dessus (z-20) */}
+                        <div className="relative z-20 w-[68%] h-[68%] overflow-hidden">
+                          {card.images.length > 0 && (
+                            <img
+                              src={card.images[0]}
+                              alt={card.title}
+                              className="w-full h-full object-cover"
+                            />
+                          )}
                         </div>
-                      )}
+                      </div>
                     </div>
                   ))}
 
@@ -511,33 +521,40 @@ export default function VisualisationGallery({
                         dragOverIndex === index ? "border-l-4 border-[#7F4DC5] pl-1" : ""
                       }`}
                     >
-                      {/* CARTE PELLICULE SVG DE VISUALISATION */}
+                      {/* PELLICULE DE VISUALISATION (Directement comme carte) */}
                       <div
                         onClick={() =>
                           setActiveMenuId(activeMenuId === card.id ? null : card.id)
                         }
-                        className="w-48 h-48 rounded-2xl bg-purple-50 border border-purple-200 p-3 flex flex-col items-center justify-between text-center shadow-sm cursor-grab active:cursor-grabbing hover:bg-purple-100 transition-all relative"
+                        className="relative w-48 h-56 flex flex-col items-center justify-start cursor-pointer hover:scale-105 transition-transform group"
                       >
-                        <span className="text-sm font-bold text-purple-950 z-10">
+                        {/* Titre au-dessus de la pellicule */}
+                        <span className="text-sm font-bold text-purple-950 mb-2 text-center z-10">
                           {card.title}
                         </span>
 
-                        {/* PELLICULE.SVG AVEC IMAGES INTÉGRÉES */}
-                        <div className="relative w-full h-32 flex items-center justify-center overflow-hidden rounded-xl">
+                        {/* Conteneur de la Pellicule SVG */}
+                        <div className="relative w-full h-44 flex items-center justify-center">
+                          {/* 1. L'image de la pellicule SVG en fond (z-10) */}
                           <img
                             src="/image_Design-SOREA/Pellicule.svg"
-                            alt="Pellicule"
-                            className="absolute inset-0 w-full h-full object-contain z-10 pointer-events-none"
+                            alt="Pellicule support"
+                            className="absolute inset-0 w-full h-full object-contain z-10 drop-shadow-md"
                           />
-                          <div className="flex gap-1 overflow-hidden w-[80%] h-[70%] justify-center items-center">
-                            {card.images.slice(0, 3).map((imgUrl, i) => (
+
+                          {/* 2. L'image miniature affichée PAR-DESSUS la pellicule (z-20) */}
+                          <div className="relative z-20 w-[68%] h-[68%] overflow-hidden flex items-center justify-center">
+                            {card.images.length > 0 ? (
                               <img
-                                key={i}
-                                src={imgUrl}
-                                alt="Aperçu"
-                                className="w-10 h-10 object-cover rounded"
+                                src={card.images[0]}
+                                alt={card.title}
+                                className="w-full h-full object-cover"
                               />
-                            ))}
+                            ) : (
+                              <div className="w-full h-full bg-purple-100/60 flex items-center justify-center text-[10px] text-purple-400 font-semibold">
+                                Vide
+                              </div>
+                            )}
                           </div>
                         </div>
                       </div>
@@ -586,10 +603,10 @@ export default function VisualisationGallery({
                 </>
               ) : activeTab === "boutique" ? (
                 <div className="col-span-full py-12 text-center text-gray-500 text-sm italic">
-                  La boutique de thèmes de visualisation sera bientôt disponible.
+                  La boutique des visualisations sera bientôt disponible.
                 </div>
               ) : trash.length === 0 ? (
-                <p className="text-gray-400 text-sm py-8 italic w-full text-center">
+                <p className="col-span-full py-12 text-center txt-gray-500 text-sm italic">
                   La corbeille est vide.
                 </p>
               ) : (
