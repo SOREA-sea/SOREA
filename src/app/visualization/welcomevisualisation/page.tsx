@@ -40,7 +40,7 @@ export default function VisualisationPage() {
               Ajoute tes images inspirantes et projette-toi dans tes rêves : voyage, carrière, projets, instants de gratitude... Nourris ta pellicule du bien-être et ancre-toi dans le positif.
             </p>
 
-            <Link href="#projection">
+            <Link href="/visualization/visualisation">
               <button className="bg-[#8B47FF] hover:bg-[#7a3be0] text-white font-medium px-7 py-3.5 rounded-2xl shadow-md transition-all duration-300 hover:scale-105 hover:shadow-lg cursor-pointer">
                 Lancer la projection
               </button>
