@@ -235,32 +235,49 @@ return (
                     <X className="w-[4vh] h-[4vh]" />
                 </button>
 
-          <div className="flex items-center justify-center gap-8 md:gap-14 w-full h-full px-6">
+          <div className="flex items-center justify-center gap-8 md:gap-14 w-full h-full px-6 pl-[120px]">
             
-            {/* Conteneur Géant de la Pellicule qui s'agrandit librement au dézoom (utilisant vh/vw) */}
-            <div className="w-[110vw] h-[110vh] max-w-[120vh] max-h-[120vw] aspect-square overflow-hidden relative drop-shadow-2xl flex items-center justify-center">
-              <img
-                src="/image_Design-SOREA/Pellicule.svg"
-                alt="Cadre Pellicule Plein Écran"
-                className="absolute inset-0 w-full h-full object-contain z-10 pointer-events-none"
-              />
-
-              <div className="relative z-20 w-[67%] h-[67%] overflow-hidden flex items-center justify-center">
-                {images.length > 0 ? (
-                  <img
-                    src={images[currentIndex]}
-                    alt={`Image ${currentIndex + 1}`}
-                    className="w-full h-full object-cover transition-all duration-300 select-none"
-                  />
-                ) : (
-                  <div className="w-full h-full bg-white/90 flex items-center justify-center p-6 text-center">
-                    <span className="text-purple-900 font-medium text-base md:text-lg leading-snug">
-                      Intègre des images dans ta galerie pour visualiser
-                    </span>
-                  </div>
-                )}
-              </div>
-            </div>
+            {/* Conteneur Géant de la Pellicule en mode Glissement Vertical (Duplication) */}
+<div className="w-[115vw] h-[105vh] max-w-[125vh] max-h-[110vw] overflow-hidden relative drop-shadow-2xl flex items-center justify-center">  
+  {images.length > 0 ? (
+    <div
+      className="absolute top-0 left-0 w-full h-full flex flex-col transition-transform duration-500 ease-in-out z-20"
+      style={{ transform: `translateY(calc(-${currentIndex} * 100%))` }}
+    >
+      {images.map((imgSrc, idx) => (
+        <div key={idx} className="w-full h-full flex-shrink-0 relative flex items-center justify-center">
+          {/* Fond de la pellicule pour chaque slide dupliqué */}
+          <img
+            src="/image_Design-SOREA/Pellicule.svg"
+            alt="Cadre Pellicule Plein Écran"
+            className="absolute inset-0 w-full h-full object-contain z-10 pointer-events-none"
+          />
+          {/* Image interne dupliquée */}
+          <div className="relative z-20 w-[62%] h-[75%] overflow-hidden flex items-center justify-center">
+            <img
+              src={imgSrc}
+              alt={`Image ${idx + 1}`}
+              className="w-full h-full object-cover select-none pointer-events-none"
+            />
+          </div>
+        </div>
+      ))}
+    </div>
+  ) : (
+    <div className="w-full h-full relative flex items-center justify-center z-20">
+      <img
+        src="/image_Design-SOREA/Pellicule.svg"
+        alt="Cadre Pellicule Vide"
+        className="absolute inset-0 w-full h-full object-contain z-10 pointer-events-none"
+      />
+      <div className="relative z-20 w-[72%] h-[72%] bg-white/90 flex items-center justify-center p-6 text-center rounded-lg">
+        <span className="text-purple-900 font-medium text-base md:text-lg leading-snug">
+          Intègre des images dans ta galerie pour visualiser
+        </span>
+      </div>
+    </div>
+  )}
+</div>
 
             {/* Flèches de navigation adaptatives au zoom */}
 <div className="flex flex-col gap-[3vh] z-20">
