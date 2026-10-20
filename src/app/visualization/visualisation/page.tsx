@@ -104,7 +104,7 @@ return (
       </div>
 
       {/* CONTENU PRINCIPAL DU JEU */}
-      <main className="flex-1 w-full flex justify-center items-center my-8">
+      <main className="flex-1 w-full max-w-[1440px] mx-auto flex items-center my-9.5 pl-[90px]">
         <div className="flex items-center gap-10 md:gap-16 relative">
           
           {/* GROUPE "VISUALISATION" ET LES 2 BOUTONS STYLISÉS À GAUCHE */}
