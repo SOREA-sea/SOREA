@@ -4,6 +4,8 @@ import React, { useState, useEffect } from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import VisualisationGallery from "@/components/VisualisationGallery";
+import { createPortal } from "react-dom";
+import { X } from "lucide-react";
 
 
 interface VisualisationCard {
@@ -18,6 +20,9 @@ export default function Page() {
   const [activeMode, setActiveMode] = useState<"aleatoire" | "galerie">("galerie");
   const [randomImages, setRandomImages] = useState<string[]>([]);
   const [isGalleryModalOpen, setIsGalleryModalOpen] = useState(false);
+
+  // État pour le plein écran
+  const [isFullscreen, setIsFullscreen] = useState(false);
 
   // Fonction pour récupérer toutes les images de la galerie et les mélanger
   const loadRandomImages = () => {
@@ -84,6 +89,17 @@ export default function Page() {
     };
   }, []);
 
+// Gestion de la fermeture du plein écran avec la touche Échap
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setIsFullscreen(false);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
+
   // Défilement image par image (1 seule image à la fois)
   const changeSlide = (direction: -1 | 1) => {
     if (!activePellicule || !activePellicule.images || activePellicule.images.length === 0) return;
@@ -120,8 +136,8 @@ return (
               )}
             </div>
 
-            {/* Les 2 boutons de sélection avec le même design que le miroir */}
-            <div className="flex w-[260px] h-[50px] bg-white border border-[#9b6fd9] rounded-[10px] overflow-hidden shadow-sm">
+            {/* Les 2 boutons de sélection */}
+            <div className="flex w-[260px] h-[50px] bg-white border border-[#9b6fd9] overflow-hidden shadow-sm">
               <button
                 type="button"
                 onClick={() => {
@@ -156,7 +172,7 @@ return (
           </div>
           
           {/* Conteneur de la Pellicule SVG */}
-          <div className="w-[340px] h-[340px] sm:w-[450px] sm:h-[450px] md:w-[520px] md:h-[520px] overflow-hidden relative rounded-2xl drop-shadow-xl flex items-center justify-center">
+          <div className="w-[340px] h-[340px] sm:w-[450px] sm:h-[450px] md:w-[520px] md:h-[520px] overflow-hidden relative drop-shadow-xl flex items-center justify-center">
             <img
               src="/image_Design-SOREA/Pellicule.svg"
               alt="Cadre Pellicule"
@@ -180,31 +196,22 @@ return (
             </div>
           </div>
 
-          {/* Flèches de navigation verticale */}
-          <div className="flex flex-col gap-6 z-20">
+          {/* Bouton Play unique sans state (changement au survol CSS) */}
+          <div className="flex items-center justify-center z-20">
             <button
-              onClick={() => changeSlide(-1)}
-              disabled={images.length <= 1}
-              className="hover:scale-110 active:scale-95 transition-transform disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
-              title="Image précédente"
+              onClick={() => setIsFullscreen(true)}
+              className="group hover:scale-105 active:scale-95 transition-transform cursor-pointer relative w-16 h-16 sm:w-20 sm:h-20 flex items-center justify-center"
+              title="Lancer la projection en plein écran"
             >
               <img
-                src="/image_icone/Flèche_carré_haute.svg"
-                alt="Haut"
-                className="w-12 h-12 md:w-16 md:h-16 drop-shadow-md"
+                src="/image_icone/play0.svg"
+                alt="Play"
+                className="w-full h-full drop-shadow-md group-hover:hidden"
               />
-            </button>
-
-            <button
-              onClick={() => changeSlide(1)}
-              disabled={images.length <= 1}
-              className="hover:scale-110 active:scale-95 transition-transform disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
-              title="Image suivante"
-            >
               <img
-                src="/image_icone/Flèche_carré_basse.svg"
-                alt="Bas"
-                className="w-12 h-12 md:w-16 md:h-16 drop-shadow-md"
+                src="/image_icone/play1.svg"
+                alt="Play Hover"
+                className="w-full h-full drop-shadow-md hidden group-hover:block"
               />
             </button>
           </div>
@@ -214,6 +221,80 @@ return (
 
       {/* FOOTER */}
       <Footer />
+
+      {/* OVERLAY PLEIN ÉCRAN (Fond gris semi-transparent et flouté) */}
+      {isFullscreen && typeof window !== "undefined" && createPortal(
+        <div className="fixed inset-0 z-[99999] bg-[#212121] backdrop-blur-md flex items-center justify-center animate-fade-in">
+          
+          {/* Bouton Croix pour fermer adaptatif au zoom (taille et marge en vh/vw) */}
+                <button
+                    onClick={() => setIsFullscreen(false)}
+                    className="absolute top-[3vh] right-[3vw] text-white hover:text-purple-300 p-[1.2vh] rounded-full bg-black/20 hover:bg-black/40 transition-all cursor-pointer z-[100000] flex items-center justify-center"
+                    title="Quitter le plein écran (Échap)"
+                >
+                    <X className="w-[4vh] h-[4vh]" />
+                </button>
+
+          <div className="flex items-center justify-center gap-8 md:gap-14 w-full h-full px-6">
+            
+            {/* Conteneur Géant de la Pellicule qui s'agrandit librement au dézoom (utilisant vh/vw) */}
+            <div className="w-[110vw] h-[110vh] max-w-[120vh] max-h-[120vw] aspect-square overflow-hidden relative drop-shadow-2xl flex items-center justify-center">
+              <img
+                src="/image_Design-SOREA/Pellicule.svg"
+                alt="Cadre Pellicule Plein Écran"
+                className="absolute inset-0 w-full h-full object-contain z-10 pointer-events-none"
+              />
+
+              <div className="relative z-20 w-[67%] h-[67%] overflow-hidden flex items-center justify-center">
+                {images.length > 0 ? (
+                  <img
+                    src={images[currentIndex]}
+                    alt={`Image ${currentIndex + 1}`}
+                    className="w-full h-full object-cover transition-all duration-300 select-none"
+                  />
+                ) : (
+                  <div className="w-full h-full bg-white/90 flex items-center justify-center p-6 text-center">
+                    <span className="text-purple-900 font-medium text-base md:text-lg leading-snug">
+                      Intègre des images dans ta galerie pour visualiser
+                    </span>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Flèches de navigation adaptatives au zoom */}
+<div className="flex flex-col gap-[3vh] z-20">
+  <button
+    onClick={() => changeSlide(-1)}
+    disabled={images.length <= 1}
+    className="hover:scale-110 active:scale-95 transition-transform disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer bg-white/90 p-[1.5vh] rounded-[2vh] shadow-lg border border-purple-100 flex items-center justify-center"
+    title="Image précédente"
+  >
+    <img
+  src="/image_icone/Flèche_carré_haute.svg"
+  alt="Haut"
+  className="w-[8vh] h-[8vh]"
+/>
+  </button>
+
+  <button
+    onClick={() => changeSlide(1)}
+    disabled={images.length <= 1}
+    className="hover:scale-110 active:scale-95 transition-transform disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer bg-white/90 p-[1.5vh] rounded-[2vh] shadow-lg border border-purple-100 flex items-center justify-center"
+    title="Image suivante"
+  >
+    <img
+      src="/image_icone/Flèche_carré_basse.svg"
+      alt="Bas"
+      className="w-[8vh] h-[8vh]"
+    />
+  </button>
+</div>
+
+          </div>
+        </div>,
+        document.body
+      )}
 
       {/* Modale de la Galerie */}
       <VisualisationGallery
