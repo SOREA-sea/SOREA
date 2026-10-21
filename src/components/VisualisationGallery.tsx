@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
+import Link from "next/link";
 import { 
   X, 
   Plus, 
@@ -164,12 +165,13 @@ export default function VisualisationGallery({
     setActiveMenuId(null);
   };
 
-  // Gestion des fichiers importés (Ordinateur)
+  // Gestion de l'importation de plusieurs fichiers à la fois
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      const file = e.target.files[0];
-      const imageUrl = URL.createObjectURL(file);
-      setCurrentImages([...currentImages, imageUrl]);
+    if (e.target.files && e.target.files.length > 0) {
+      const newUrls = Array.from(e.target.files).map((file) =>
+        URL.createObjectURL(file)
+      );
+      setCurrentImages((prev) => [...prev, ...newUrls]);
       setShowInsertMenu(false);
     }
   };
@@ -199,6 +201,7 @@ export default function VisualisationGallery({
         ref={fileInputRef}
         onChange={handleFileUpload}
         accept="image/*"
+        multiple
         className="hidden"
       />
 
@@ -593,12 +596,13 @@ export default function VisualisationGallery({
                           onClick={(e) => e.stopPropagation()}
                           className="absolute top-2 right-2 bg-white rounded-xl shadow-xl border border-purple-100 p-2 flex flex-col gap-1 z-20 w-44 animate-scale-up"
                         >
-                          <button
+                         <Link
+                            href="/visualization/visualisation"
                             onClick={() => selectForProjection(card)}
                             className="flex items-center gap-2 text-xs font-semibold text-[#8B47FF] hover:bg-purple-50 p-2 rounded-lg transition-colors text-left cursor-pointer"
                           >
-                            🎬 Projeter
-                          </button>
+                            🖼️ Projeter
+                          </Link>
                           <button
                             onClick={() => startEdit(card)}
                             className="flex items-center gap-2 text-xs font-semibold text-gray-700 hover:text-[#8B47FF] hover:bg-purple-50 p-2 rounded-lg transition-colors text-left cursor-pointer"

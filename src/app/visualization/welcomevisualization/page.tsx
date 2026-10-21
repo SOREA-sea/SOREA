@@ -105,7 +105,8 @@ export default function VisualisationPage() {
                 Clarifier ses objectifs
               </h3>
               <p className="text-xs text-gray-600 leading-relaxed max-w-[280px]">
-                Visualiser ce qui compte vraiment permet de mieux définir ses priorités et de les garder à l'esprit. Ainsi, vous pourrez mieux détecter des opportunités qui passaient autrefois inaperçues.
+                Visualiser ce qui compte vraiment permet de mieux <b>définir ses priorités</b> et de les <b>garder à l'esprit</b>. Ainsi, nous pourrons <b>mieux détecter des opportunités qui passaient autrefois inaperçu</b>.
+
               </p>
             </div>
 
@@ -122,7 +123,7 @@ export default function VisualisationPage() {
                 Nourrir sa motivation
               </h3>
               <p className="text-xs text-gray-600 leading-relaxed max-w-[280px]">
-                Se représenter régulièrement ses aspirations peut renforcer sa motivation et rendre ses objectifs plus présents au quotidien. Les images qui suscitent des émotions positives deviennent alors des rappels personnels inspirants.
+                Se représenter régulièrement ses aspirations peut <b>renforcer sa motivation</b> et rendre ses objectifs plus présents au quotidien. Les images qui <b>suscitent des émotions positives</b> deviennent alors des rappels personnels inspirants.
               </p>
             </div>
 
@@ -139,7 +140,7 @@ export default function VisualisationPage() {
                 Passage à l'action
               </h3>
               <p className="text-xs text-gray-600 leading-relaxed max-w-[280px]">
-                Le cerveau est premier degré. Ne distinguant pas la réalité d'un scénario imaginé avec intensité, vivre virtuellement votre succès crée un cercle vertueux qui stimule naturellement votre passage à l'action.
+                Le cerveau est <b>premier degré</b>. Ne distinguant pas la réalité d’un scénario imaginé avec intensité, vivre virtuellement votre succès crée un <b>cercle vertueux</b> qui stimule naturellement <b>votre passage à l’action</b>. Oui. Naturellement…
               </p>
             </div>
 
