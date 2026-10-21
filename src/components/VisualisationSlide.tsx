@@ -60,13 +60,13 @@ export default function VisualisationSlide() {
       
       {/* 1. L'appareil photo de fond */}
       <img
-        src="/image_Design-SOREA/DiapoVisualisation.png"
+        src="/image_Design-SOREA/DiapoVisualisation.svg"
         alt="Appareil photo visualisation"
         className="w-full h-full object-contain relative z-10 pointer-events-none drop-shadow-xl"
       />
 
       {/* 2. Écran / Frame positionnée au niveau du rectangle de l'écran */}
-      <div className="absolute top-[40%] left-[13.5%] w-[263px] h-[168px] z-20 overflow-hidden rounded-[10px] bg-black/10 flex items-center justify-center">
+      <div className="absolute top-[40%] left-[14.5%] w-[263px] h-[168px] z-20 overflow-hidden rounded-[10px] bg-black/10 flex items-center justify-center">
         {images.length > 0 ? (
           <img
             src={images[currentIndex]}

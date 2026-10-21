@@ -31,14 +31,14 @@ export default function Page() {
       if (savedGallery) {
         try {
           const gallery: VisualisationCard[] = JSON.parse(savedGallery);
-          // Récupère toutes les images de toutes les pellicules
+          // Récupère toutes les images uniques de toutes les pellicules de la galerie
           const allImages = gallery.flatMap((p) => p.images || []);
-          // Mélange aléatoire (Fisher-Yates)
+          // Mélange aléatoire des images existantes
           const shuffled = [...allImages].sort(() => Math.random() - 0.5);
           setRandomImages(shuffled);
-          setCurrentIndex(shuffled.length); // Commence au milieu de la liste répétée
+          setCurrentIndex(shuffled.length); // Positionne au milieu pour la boucle infinie fluide
         } catch (e) {
-          console.error("Erreur de mélange aléatoire", e);
+          console.error("Erreur de mélange aléatoire des images", e);
         }
       }
     }
@@ -172,7 +172,7 @@ return (
                 type="button"
                 onClick={() => {
                   setActiveMode("aleatoire");
-                  loadRandomImages();
+                  loadRandomImages(); // Génère un mix aléatoire de toutes les images de la galerie
                 }}
                 className={`flex-1 h-full flex items-center justify-center text-xs font-medium transition-colors border-r border-[#9b6fd9] cursor-pointer text-center px-2 ${
                   activeMode === "aleatoire"
