@@ -189,6 +189,8 @@ export default function VisualisationGallery({
 
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
   const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
+  const [draggedImageIndex, setDraggedImageIndex] = useState<number | null>(null);
+  const [dragOverImageIndex, setDragOverImageIndex] = useState<number | null>(null);
 
   return (
     <>
@@ -447,30 +449,56 @@ export default function VisualisationGallery({
                     )}
                   </div>
 
-                  {/* APERÇU DES IMAGES AJOUTÉES À LA PELLICULE */}
-                  {currentImages.length > 0 && (
-                    <div className="flex gap-3 overflow-x-auto py-2">
-                      {currentImages.map((img, idx) => (
-                        <div
-                          key={idx}
-                          className="relative w-24 h-24 shrink-0 rounded-xl overflow-hidden border border-purple-200 group"
-                        >
-                          <img
-                            src={img}
-                            alt="Aperçu"
-                            className="w-full h-full object-cover"
-                          />
-                          <button
-                            type="button"
-                            onClick={() => removeImageFromPellicule(idx)}
-                            className="absolute top-1 right-1 bg-black/60 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600"
-                          >
-                            <X size={12} />
-                          </button>
-                        </div>
-                      ))}
-                    </div>
-                  )}
+                 {/* APERÇU DES IMAGES AJOUTÉES À LA PELLICULE AVEC TRAIT VERTICAL D'INDICATEUR */}
+{currentImages.length > 0 && (
+  <div className="flex gap-3 overflow-x-auto py-2">
+    {currentImages.map((img, idx) => (
+      <div
+        key={idx}
+        draggable
+        onDragStart={() => setDraggedImageIndex(idx)}
+        onDragOver={(e) => {
+          e.preventDefault();
+          setDragOverImageIndex(idx);
+        }}
+        onDrop={() => {
+          if (draggedImageIndex === null || draggedImageIndex === idx) return;
+          const updatedImages = [...currentImages];
+          const [movedImage] = updatedImages.splice(draggedImageIndex, 1);
+          updatedImages.splice(idx, 0, movedImage);
+          setCurrentImages(updatedImages);
+          setDraggedImageIndex(null);
+          setDragOverImageIndex(null);
+        }}
+        onDragEnd={() => {
+          setDraggedImageIndex(null);
+          setDragOverImageIndex(null);
+        }}
+        className="relative flex items-center shrink-0"
+      >
+        {/* Trait vertical indicateur au survol de glissement */}
+        {dragOverImageIndex === idx && (
+          <div className="w-1 h-20 bg-[#7F4DC5] rounded-full mr-2 transition-all animate-pulse" />
+        )}
+
+        <div className="relative w-24 h-24 rounded-xl overflow-hidden border border-purple-200 cursor-grab active:cursor-grabbing group">
+          <img
+            src={img}
+            alt="Aperçu"
+            className="w-full h-full object-cover pointer-events-none"
+          />
+          <button
+            type="button"
+            onClick={() => removeImageFromPellicule(idx)}
+            className="absolute top-1 right-1 bg-black/60 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600 cursor-pointer"
+          >
+            <X size={12} />
+          </button>
+        </div>
+      </div>
+    ))}
+  </div>
+)}
 
                   <div className="flex justify-end gap-3 mt-2">
                     <button

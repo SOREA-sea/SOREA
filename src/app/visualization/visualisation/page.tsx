@@ -120,7 +120,7 @@ return (
       </div>
 
       {/* CONTENU PRINCIPAL DU JEU */}
-      <main className="flex-1 w-full max-w-[1440px] mx-auto flex items-center my-9.5 pl-[90px]">
+      <main className="flex-1 w-full max-w-[1440px] mx-auto flex items-center mt-18 mb-9.5 pl-[90px]">
         <div className="flex items-center gap-10 md:gap-16 relative">
           
           {/* GROUPE "VISUALISATION" ET LES 2 BOUTONS STYLISÉS À GAUCHE */}
@@ -172,7 +172,7 @@ return (
           </div>
           
           {/* Conteneur de la Pellicule SVG */}
-          <div className="w-[340px] h-[340px] sm:w-[450px] sm:h-[450px] md:w-[520px] md:h-[520px] overflow-hidden relative drop-shadow-xl flex items-center justify-center">
+          <div className="w-[300px] h-[300px] sm:w-[380px] sm:h-[380px] md:w-[440px] md:h-[440px] overflow-hidden relative drop-shadow-xl flex items-center justify-center">
             <img
               src="/image_Design-SOREA/Pellicule.svg"
               alt="Cadre Pellicule"

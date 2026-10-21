@@ -75,8 +75,7 @@ const wheelDataConfig = {
         </>
       ),
       btnLabel: <>Visualisation<br />de mon idéal</>,
-      href: "/visualisation",
-      locked: true,
+      href: "visualization/welcomevisualization",
     },
     /*{
       img: "/image_Design-SOREA/Lotus.svg",
@@ -94,7 +93,7 @@ const wheelDataConfig = {
       locked: true,
     },*/
 
-    /*{
+    {
       img: "/image_Design-SOREA/Courrier.svg",
       alt: "Courrier du futur",
       imgWidth: "280px",
@@ -108,7 +107,7 @@ const wheelDataConfig = {
       btnLabel: <>Je laisse parler<br />ma plume</>,
       href: "/mot-a-moi",
       locked: true,
-    },*/
+    },
 
     {
       img: "image_Design-SOREA/image_Wheel-Spinner/WS_BienEtreHead1.svg",
