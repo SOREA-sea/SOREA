@@ -15,7 +15,7 @@ export default function VisualisationPage() {
     <div className="min-h-screen flex flex-col w-full bg-[#fcfbfe] font-sans text-gray-800 overflow-x-hidden">
       
       {/* NAVBAR */}
-      <div className="w-full relative z-20">
+      <div className="w-full relative z-30">
         <div className="max-w-[1440px] mx-auto px-[96px] pt-[24px]">
           <Navbar />
         </div>

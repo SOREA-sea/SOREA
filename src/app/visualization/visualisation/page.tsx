@@ -36,7 +36,7 @@ export default function Page() {
           // Mélange aléatoire (Fisher-Yates)
           const shuffled = [...allImages].sort(() => Math.random() - 0.5);
           setRandomImages(shuffled);
-          setCurrentIndex(0);
+          setCurrentIndex(shuffled.length); // Commence au milieu de la liste répétée
         } catch (e) {
           console.error("Erreur de mélange aléatoire", e);
         }
@@ -52,7 +52,7 @@ export default function Page() {
         try {
           const parsed = JSON.parse(savedActive);
           setActivePellicule(parsed);
-          setCurrentIndex(0);
+          setCurrentIndex(parsed.images?.length || 0);
           return;
         } catch (e) {
           console.error("Erreur de lecture de la pellicule active", e);
@@ -66,7 +66,7 @@ export default function Page() {
           const gallery = JSON.parse(savedGallery);
           if (gallery.length > 0) {
             setActivePellicule(gallery[0]);
-            setCurrentIndex(0);
+            setCurrentIndex(gallery[0].images?.length || 0);
           }
         } catch (e) {
           console.error("Erreur de lecture de la galerie", e);
@@ -100,14 +100,44 @@ export default function Page() {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, []);
 
-  // Défilement image par image (1 seule image à la fois)
-  const changeSlide = (direction: -1 | 1) => {
-    if (!activePellicule || !activePellicule.images || activePellicule.images.length === 0) return;
-    const total = activePellicule.images.length;
-    setCurrentIndex((prev) => (prev + direction + total) % total);
-  };
+const [noTransition, setNoTransition] = useState(false);
 
-  const images = activeMode === "galerie" ? (activePellicule?.images || []) : randomImages;
+  const rawImages = activeMode === "galerie" ? (activePellicule?.images || []) : randomImages;
+  const totalReal = rawImages.length;
+  // On répète la liste 3 fois pour permettre une boucle infinie et fluide indéfiniment à chaque clic
+  const images = totalReal > 0 ? [...rawImages, ...rawImages, ...rawImages] : [];
+
+ const changeSlide = (direction: -1 | 1) => {
+    if (totalReal <= 1) return;
+
+    // Si on atteint les extrémités de la liste triplée, on glisse d'abord normalement, puis on réinitialise l'index en arrière-plan sans transition une fois l'animation finie (500ms)
+    setCurrentIndex((prev) => {
+      const nextIndex = prev + direction;
+      return nextIndex;
+    });
+
+    setTimeout(() => {
+      setCurrentIndex((prev) => {
+        if (prev >= totalReal * 2) {
+          setNoTransition(true);
+          const resetVal = totalReal + (prev % totalReal);
+          requestAnimationFrame(() => {
+            requestAnimationFrame(() => setNoTransition(false));
+          });
+          return resetVal;
+        }
+        if (prev < totalReal) {
+          setNoTransition(true);
+          const resetVal = totalReal * 2 - (totalReal - (prev % totalReal));
+          requestAnimationFrame(() => {
+            requestAnimationFrame(() => setNoTransition(false));
+          });
+          return resetVal;
+        }
+        return prev;
+      });
+    }, 500);
+  };
 
 return (
     <div className="min-h-screen flex flex-col w-full bg-gradient-to-b from-purple-50 to-[#f9f5fa] font-sans text-gray-800">
@@ -241,7 +271,9 @@ return (
 <div className="w-[115vw] h-[105vh] max-w-[125vh] max-h-[110vw] overflow-hidden relative drop-shadow-2xl flex items-center justify-center">  
   {images.length > 0 ? (
     <div
-      className="absolute top-0 left-0 w-full h-full flex flex-col transition-transform duration-500 ease-in-out z-20"
+      className={`absolute top-0 left-0 w-full h-full flex flex-col z-20 ${
+        noTransition ? "" : "transition-transform duration-500 ease-in-out"
+      }`}
       style={{ transform: `translateY(calc(-${currentIndex} * 100%))` }}
     >
       {images.map((imgSrc, idx) => (

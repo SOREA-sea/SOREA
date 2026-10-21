@@ -320,7 +320,7 @@ export default function VisualisationGallery({
       {isOpen && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 animate-fade-in">
           <div className="bg-white w-full max-w-4xl shadow-2xl border border-purple-100 flex flex-col gap-6 relative max-h-[90vh] overflow-y-auto rounded-3xl">
-            <div className="sticky top-0 bg-white z-20 flex flex-col gap-4 border-b border-purple-100 pt-8 px-8 pb-4">
+            <div className="sticky top-0 bg-white z-30 flex flex-col gap-4 border-b border-purple-100 pt-8 px-8 pb-4">
               <div className="flex items-center justify-between">
                 <h2 className="text-2xl font-bold text-gray-900">
                   Personnalise tes Pellicules de Visualisation
@@ -523,8 +523,8 @@ export default function VisualisationGallery({
             )}
 
             {/* GRILLE DES PELLICULES */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 p-8 pt-4 w-full">
-              {activeTab === "galerie" ? (
+{/* GRILLE DES PELLICULES */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 p-8 pt-4 w-full">              {activeTab === "galerie" ? (
                 <>
                   {pellicules.map((card, index) => (
                     <div
@@ -574,7 +574,7 @@ export default function VisualisationGallery({
                           />
 
                           {/* 2. L'image miniature affichée PAR-DESSUS la pellicule (z-20) */}
-                          <div className="relative z-20 w-[68%] h-[68%] overflow-hidden flex items-center justify-center">
+                          <div className="relative z-20 w-[60%] h-[68%] overflow-hidden flex items-center justify-center">
                             {card.images.length > 0 ? (
                               <img
                                 src={card.images[0]}
