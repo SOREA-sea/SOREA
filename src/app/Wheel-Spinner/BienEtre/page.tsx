@@ -85,7 +85,7 @@ const hideInstructionsWellness = () => {
           {/* 2. Le jeu de la roue (maintenant dans la même div englobante) */}
        
            <div className="relative z-10 w-full flex flex-col items-center scale-65 origin-top">
-            <div className="relative flex justify-center items-center translate-x-[180px]">
+            <div className="relative flex justify-center items-center translate-x-[300px]">
             
             {/* Groupe "Défis Bien-être" et les 2 boutons placés strictement à gauche (dimensions et positionnement identiques au miroir) */}
             <div className="absolute left-[-600px] top-[450px] -translate-y-1/2 z-30 flex flex-col items-center gap-28">
@@ -93,7 +93,7 @@ const hideInstructionsWellness = () => {
                 <h1 className="text-3xl md:text-5xl font-serif font-light text-[#212121] tracking-wider whitespace-nowrap leading-tight">
                   Défis<br />Bien-être
                 </h1>
-                {/* 🌟 4. Affichage dynamique de la phase si le mode "cycle" est actif */}
+                {/* Affichage dynamique de la phase si le mode "cycle" est actif */}
                 {activeMode === "cycle" && (
                   <h2 className="text-4xl font-semibold text-[#7F4DC5] italic">
                     {currentPhase}

@@ -84,7 +84,7 @@ const hideInstructionsSport = () => {
           
           {/* La roue spécifique affichée ici directement */}
           <div className="relative z-10 w-full flex flex-col items-center scale-65 origin-top">
-            <div className="relative flex justify-center items-center translate-x-[180px]">
+            <div className="relative flex justify-center items-center translate-x-[300px]">
                         
                         {/* Groupe "Défis Sport" et les 2 boutons placés strictement à gauche (dimensions et positionnement identiques au miroir) */}
             <div className="absolute left-[-600px] top-[450px] -translate-y-1/2 z-30 flex flex-col items-center gap-28">

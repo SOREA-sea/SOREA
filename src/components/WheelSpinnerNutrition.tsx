@@ -18,8 +18,6 @@ const themesData = [
     desc: "Plongez au plus profond de vos pensées pour mieux vous comprendre.",
     objectifs: [
       "Évite de t'éparpiller, concentre-toi sur tes réponses.",
-      "Prends le temps d'écrire sans aucun filtre.",
-      "Accueille chaque pensée avec bienveillance."
     ],
     defis: [
       "Nourrir mon corps 1",
@@ -67,8 +65,6 @@ const themesData = [
     desc: "Célébrez les petites victoires et les bonheurs quotidiens.",
     objectifs: [
       "Ouvre ton cœur aux cadeaux simples de la vie.",
-      "Exprime sincèrement ce que tu ressens.",
-      "Prends conscience de l'abondance qui t'entoure."
     ],
     defis: [
       "Équilibre & harmonie 1",
@@ -116,8 +112,6 @@ const themesData = [
     desc: "Vivez l'instant présent sans jugement.",
     objectifs: [
       "Reste ancré ici et maintenant.",
-      "Observe tes sensations corporelles.",
-      "Ralentis ton rythme cardiaque par le souffle."
     ],
     defis: [
       "Hydratation consciente 1",
@@ -165,8 +159,6 @@ const themesData = [
     desc: "Accueillez et comprenez le message derrière chaque émotion.",
     objectifs: [
       "Nomme précisément ce que tu ressens.",
-      "Ne refoule aucune émotion, laisse-la traverser.",
-      "Fais preuve d'empathie envers toi et les autres."
     ],
     defis: [
       "Énergie & vitalité 1",
@@ -214,8 +206,6 @@ const themesData = [
     desc: "Osez sortir de votre zone de confort pas à pas.",
     objectifs: [
       "Passe à l'action sans chercher la perfection.",
-      "Fais confiance à tes capacités naturelles.",
-      "Chaque petit pas est une grande victoire."
     ],
     defis: [
       "Couleurs dans l'assiette 1",
@@ -263,8 +253,6 @@ const themesData = [
     desc: "Canalisez votre énergie et gérez vos impulsions.",
     objectifs: [
       "Garde ton calme face aux imprévus.",
-      "Reste focus sur l'essentiel.",
-      "Apprends à faire des pauses salvatrices."
     ],
     defis: [
       "Savourer l'instant 1",
@@ -312,8 +300,6 @@ const themesData = [
     desc: "Nourrissez votre esprit de positif et de créativité.",
     objectifs: [
       "Laisse libre cours à ton imagination.",
-      "Explore de nouvelles perspectives.",
-      "Entoure-toi d'idées stimulantes."
     ],
     defis: [
       "Saveurs du monde 1",
@@ -361,8 +347,6 @@ const themesData = [
     desc: "Prenez du temps pour écouter vos besoins fondamentaux.",
     objectifs: [
       "Accorde-toi un moment de douceur mérité.",
-      "Écoute les signaux de ton corps.",
-      "Reviens à ton essence."
     ],
     defis: [
       "Digestion sereine 1",
@@ -410,8 +394,6 @@ const themesData = [
     desc: "Clarifiez vos rêves et planifiez l'avenir en toute sérénité.",
     objectifs: [
       "Évite de t'éparpiller et choisis la priorité absolue du moment.",
-      "Connecte-toi à un projet ou un rêve qui a un réel sens à tes yeux.",
-      "Mets des mots sur ce que tu souhaites accomplir pour commencer à le rendre concret."
     ],
     defis: [
       "Mon assiette intelligente 1",
@@ -459,8 +441,6 @@ const themesData = [
     desc: "Libérez-vous du contrôle et acceptez le flux de la vie.",
     objectifs: [
       "Accepte ce que tu ne peux pas changer.",
-      "Détends tes muscles et ton esprit.",
-      "Fais confiance au processus naturel."
     ],
     defis: [
       "Relation alimentaire 1",
@@ -692,7 +672,7 @@ export default function WheelSpinnerNutrition({ mode = "default" }: WheelSpinner
   };
 
   return (
-    <div className="w-full flex justify-evenly items-center relative pt-32 pb-0" style={{ fontFamily: "'Inter', sans-serif" }}>
+    <div className="w-full flex justify-center items-center relative pt-32 pb-0 gap-[100px]" style={{ fontFamily: "'Inter', sans-serif" }}>
 
       {/* COLONNE CENTRALE : ROUE ET SOCLE GROUPÉS */}
       <div className="relative w-[340px] h-[460px] flex flex-col items-center justify-center transform scale-[1.35] origin-top">
@@ -851,9 +831,7 @@ export default function WheelSpinnerNutrition({ mode = "default" }: WheelSpinner
       </div>
 
       {/* COLONNE DROITE : CARTE DÉFI + BOUTONS D'ACTION EN DESSOUS */}
-      <div className={`flex flex-col gap-[16px] w-[320px] ml-[90px] transition-all duration-[600ms] ease-[cubic-bezier(0.16,1,0.3,1)] ${afficherFenetreResultat ? 'opacity-100 translate-x-0 pointer-events-auto' : 'opacity-0 translate-x-[40px] pointer-events-none'}`}>
-        
-        {/* LA CARTE DE DÉFI */}
+      <div className={`flex flex-col gap-[16px] w-[320px] ml-[130px] mt-[70px] transition-all duration-[600ms] ease-[cubic-bezier(0.16,1,0.3,1)] ${afficherFenetreResultat ? 'opacity-100 translate-x-0 pointer-events-auto' : 'opacity-0 translate-x-[40px] pointer-events-none'}`}>
         <div
           className="w-full border-[2px] border-dashed rounded-[24px] p-[30px_24px] shadow-[0px_10px_30px_rgba(0,0,0,0.05)] flex flex-col"
           style={{ backgroundColor: theme.bgCarte, borderColor: theme.borderCarte }}

@@ -671,8 +671,7 @@ export default function WheelSpinnerBienEtre({ mode = "default" }: WheelSpinnerB
   };
 
   return (
-    <div className="w-full flex justify-evenly items-center relative pt-32 pb-0" style={{ fontFamily: "'Inter', sans-serif" }}>
-
+<div className="w-full flex justify-center items-center relative pt-32 pb-0 gap-[100px]" style={{ fontFamily: "'Inter', sans-serif" }}>
       {/* COLONNE CENTRALE : ROUE ET SOCLE GROUPÉS */}
       <div className="relative w-[340px] h-[460px] flex flex-col items-center justify-center transform scale-[1.35] origin-top">
         
@@ -830,7 +829,7 @@ export default function WheelSpinnerBienEtre({ mode = "default" }: WheelSpinnerB
       </div>
 
       {/* COLONNE DROITE : CARTE DÉFI + BOUTONS D'ACTION EN DESSOUS */}
-      <div className={`flex flex-col gap-[16px] w-[320px] ml-[90px] transition-all duration-[600ms] ease-[cubic-bezier(0.16,1,0.3,1)] ${afficherFenetreResultat ? 'opacity-100 translate-x-0 pointer-events-auto' : 'opacity-0 translate-x-[40px] pointer-events-none'}`}>
+      <div className={`flex flex-col gap-[16px] w-[320px] ml-[130px] mt-[70px] transition-all duration-[600ms] ease-[cubic-bezier(0.16,1,0.3,1)] ${afficherFenetreResultat ? 'opacity-100 translate-x-0 pointer-events-auto' : 'opacity-0 translate-x-[40px] pointer-events-none'}`}>
         
         {/* LA CARTE DE DÉFI */}
         <div
