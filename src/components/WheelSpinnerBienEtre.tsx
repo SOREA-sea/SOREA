@@ -65,8 +65,6 @@ const themesData = [
     desc: "Célébrez les petites victoires et les bonheurs quotidiens.",
     objectifs: [
       "Ouvre ton cœur aux cadeaux simples de la vie.",
-      "Exprime sincèrement ce que tu ressens.",
-      "Prends conscience de l'abondance qui t'entoure."
     ],
     defis: [
       "Envoie un message de remerciement inattendu à un proche.",
@@ -114,8 +112,6 @@ const themesData = [
     desc: "Vivez l'instant présent sans jugement.",
     objectifs: [
       "Reste ancré ici et maintenant.",
-      "Observe tes sensations corporelles.",
-      "Ralentis ton rythme cardiaque par le souffle."
     ],
     defis: [
       "Prends 5 grandes respirations en fermant les yeux.",
@@ -163,8 +159,6 @@ const themesData = [
     desc: "Accueillez et comprenez le message derrière chaque émotion.",
     objectifs: [
       "Nomme précisément ce que tu ressens.",
-      "Ne refoule aucune émotion, laisse-la traverser.",
-      "Fais preuve d'empathie envers toi et les autres."
     ],
     defis: [
       "Prends un instant pour nommer ton émotion dominante en ce moment.",
@@ -212,8 +206,6 @@ const themesData = [
     desc: "Osez sortir de votre zone de confort pas à pas.",
     objectifs: [
       "Passe à l'action sans chercher la perfection.",
-      "Fais confiance à tes capacités naturelles.",
-      "Chaque petit pas est une grande victoire."
     ],
     defis: [
       "Prends une décision que tu repousses depuis plusieurs jours.",
@@ -261,8 +253,6 @@ const themesData = [
     desc: "Canalisez votre énergie et gérez vos impulsions.",
     objectifs: [
       "Garde ton calme face aux imprévus.",
-      "Reste focus sur l'essentiel.",
-      "Apprends à faire des pauses salvatrices."
     ],
     defis: [
       "Passe la prochaine heure sans regarder ton téléphone.",
@@ -310,8 +300,6 @@ const themesData = [
     desc: "Nourrissez votre esprit de positif et de créativité.",
     objectifs: [
       "Laisse libre cours à ton imagination.",
-      "Explore de nouvelles perspectives.",
-      "Entoure-toi d'idées stimulantes."
     ],
     defis: [
       "Cherche et note une citation inspirante aujourd'hui.",
@@ -359,8 +347,6 @@ const themesData = [
     desc: "Prenez du temps pour écouter vos besoins fondamentaux.",
     objectifs: [
       "Accorde-toi un moment de douceur mérité.",
-      "Écoute les signaux de ton corps.",
-      "Reviens à ton essence."
     ],
     defis: [
       "Prends un bain chaud ou une douche relaxante en conscience.",
@@ -408,8 +394,6 @@ const themesData = [
     desc: "Clarifiez vos rêves et planifiez l'avenir en toute sérénité.",
     objectifs: [
       "Évite de t'éparpiller et choisis la priorité absolue du moment.",
-      "Connecte-toi à un projet ou un rêve qui a un réel sens à tes yeux.",
-      "Mets des mots sur ce que tu souhaites accomplir pour commencer à le rendre concret."
     ],
     defis: [
       "Décris un objectif qui te tient à cœur. Juste un seul.",
@@ -457,8 +441,6 @@ const themesData = [
     desc: "Libérez-vous du contrôle et acceptez le flux de la vie.",
     objectifs: [
       "Accepte ce que tu ne peux pas changer.",
-      "Détends tes muscles et ton esprit.",
-      "Fais confiance au processus naturel."
     ],
     defis: [
       "Écris une frustration sur un papier et déchire-le physiquement.",
@@ -691,127 +673,22 @@ export default function WheelSpinnerBienEtre({ mode = "default" }: WheelSpinnerB
   return (
     <div className="w-full flex justify-evenly items-center relative pt-32 pb-0" style={{ fontFamily: "'Inter', sans-serif" }}>
 
-      {/* COLONNE GAUCHE : CARTE DÉFI */}
-      <div className="relative w-[320px] flex flex-col">
-
-        <div
-          className={`w-full min-h-[480px] border-[2px] border-dashed rounded-[24px] p-[30px_24px] shadow-[0px_10px_30px_rgba(0,0,0,0.05)] flex flex-col transition-all duration-[600ms] ease-[cubic-bezier(0.16,1,0.3,1)] ${afficherFenetreResultat ? 'opacity-100 translate-x-0 pointer-events-auto' : 'opacity-0 -translate-x-[40px] pointer-events-none'}`}
-          style={{ backgroundColor: theme.bgCarte, borderColor: theme.borderCarte }}
-        >
-          <div
-            className="w-[72px] h-[72px] rounded-full border-[1.5px] flex items-center justify-center mx-auto mb-[15px] shadow-[0px_4px_12px_rgba(127,77,197,0.08)] transition-colors duration-500"
-            style={{ backgroundColor: theme.bgBulle, borderColor: theme.borderBulle }}
-          >
-            {resultatGagnant && <img src={resultatGagnant.iconPath} alt={resultatGagnant.name} className="w-[40px] h-[40px] object-contain" />}
-          </div>
-
-          <div className="flex items-center justify-center gap-[6px] mb-[20px] relative">
-
-  <span
-    className="text-[22px] font-normal text-center transition-colors duration-500"
-    style={{ color: theme.textAccent }}
-  >
-    {resultatGagnant?.name}
-  </span>
-
-  {/* 🔽 AJOUTER À PARTIR D'ICI */}
-  <div className="relative flex items-center cursor-pointer group">
-
-    <img
-  src="/image_icone/Help.svg"
-  alt="Aide"
-  className="w-[18px] h-[18px] transition-transform duration-200 group-hover:scale-110"
-/>
-
-    <div
-      className="
-        invisible
-        opacity-0
-        group-hover:visible
-        group-hover:opacity-100
-        transition-all
-        duration-300
-
-        absolute
-        bottom-[125%]
-        left-1/2
-        -translate-x-1/2
-
-        w-[220px]
-        rounded-[8px]
-        px-[12px]
-        py-[10px]
-
-        text-[12px]
-        leading-[1.4]
-        text-white
-        font-normal
-        text-center
-
-        shadow-lg
-        z-20
-      "
-      style={{ backgroundColor: theme.borderCarte }}
-    >
-
-      {themesData.find(t => t.name === resultatGagnant?.name)?.desc}
-
-      <div
-        className="
-          absolute
-          top-full
-          left-1/2
-          -translate-x-1/2
-          w-0
-          h-0
-          border-l-[5px]
-          border-r-[5px]
-          border-t-[5px]
-          border-l-transparent
-          border-r-transparent
-        "
-        style={{ borderTopColor: theme.borderCarte }}
-      />
-
-    </div>
-
-  </div>
-  {/* 🔼 FIN DE L'AJOUT */}
-
-</div>
-
-          <div className="text-[15px] font-[700] text-[#212121] text-center mb-[20px] leading-[1.4] px-[10px]">
-            <strong>Défi du jour :</strong> <br />
-            <span className="font-medium mt-1 inline-block">{resultatGagnant?.defiDuJour}</span>
-          </div>
-
-          <div className="h-[1px] w-full my-[15px]" style={{ background: `radial-gradient(circle, ${theme.borderCarte} 0%, transparent 100%)` }}></div>
-
-          <div className="text-[20px] font-[800] text-[#1A1A1A] text-center mb-[15px]">Objectif</div>
-          <ul className="text-[14px] leading-[1.6] text-[#333333] pl-[20px] m-0 list-disc">
-            {resultatGagnant?.objectifs.map((obj, i) => (
-              <li key={i} className="mb-[12px]">{obj}</li>
-            ))}
-          </ul>
-        </div>
-      </div>
-
       {/* COLONNE CENTRALE : ROUE */}
       <div className="flex items-center justify-center relative mt-[-55px] transform scale-[1.35] origin-top">
         
         {/*MENU DÉROULANT EN HAUT À DROITE DE LA ROUE */}
-                <div ref={menuRef} className="absolute -top-[30px] right-[-100px] translate-x-[110px] z-50">
-                  <div className="relative">
-                    <button
-                      onClick={() => setIsMenuOpen(!isMenuOpen)}
-                      className="flex items-center justify-center p-3.5 bg-white/95 backdrop-blur border border-purple-200 rounded-full shadow-lg hover:bg-white hover:scale-105 transition-all cursor-pointer"
-                    >
-                      <img 
-                        src="/image_icone/OutilDéroulant.svg" 
-                        alt="Outils" 
-                        className="w-6 h-6 object-contain" 
-                      />
-                    </button>
+        <div ref={menuRef} className="absolute -top-[30px] right-[-100px] translate-x-[110px] z-50">
+          <div className="relative">
+            <button
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
+              className="flex items-center justify-center p-3.5 bg-white/95 backdrop-blur border border-purple-200 rounded-full shadow-lg hover:bg-white hover:scale-105 transition-all cursor-pointer"
+            >
+              <img 
+                src="/image_icone/OutilDéroulant.svg" 
+                alt="Outils" 
+                className="w-6 h-6 object-contain" 
+              />
+            </button>
 
             {isMenuOpen && (
               <div className="absolute right-0 mt-3 w-52 bg-white border border-purple-100 rounded-2xl shadow-xl p-2 flex flex-col gap-2 z-50">
@@ -950,116 +827,170 @@ export default function WheelSpinnerBienEtre({ mode = "default" }: WheelSpinnerB
         </div>
       </div>
 
-      {/* COLONNE DROITE : BOUTONS D'ACTION */}
-      <div className={`flex flex-col gap-[16px] w-[240px] transition-all duration-[600ms] ease-[cubic-bezier(0.16,1,0.3,1)] ${afficherFenetreResultat ? 'opacity-100 translate-x-0 pointer-events-auto' : 'opacity-0 translate-x-[40px] pointer-events-none'}`}>
-
-        {choixUtilisateur === 'attente' && (
-          <>
-     <button
-
-  onClick={() => { 
-    setChoixUtilisateur('oui');
-
-    // Logique d'ajout du défi dans le localStorage
-    if (resultatGagnant?.defiDuJour) {
-      const today = new Date();
-      const localToday = new Date(today.getTime() - today.getTimezoneOffset() * 60000);
-      const todayKey = localToday.toISOString().split('T')[0];
-      
-      for (let i = 0; i < localStorage.length; i++) {
-        const key = localStorage.key(i);
-        if (key && key.startsWith('sorea_todos_')) {
-          const stored = localStorage.getItem(key);
-          let todosObj = stored ? JSON.parse(stored) : {};
-          const currentTodos = todosObj[todayKey] || [];
-          
-          const texteFormaté = `${resultatGagnant.name} : ${resultatGagnant.defiDuJour}`;
-
-          const exists = currentTodos.some((t: any) => t.text === texteFormaté);
-          if (!exists) {
-            todosObj[todayKey] = [
-              ...currentTodos,
-              { 
-                id: `${todayKey}-${Date.now()}`,
-                themeName: resultatGagnant.name, 
-                text: texteFormaté, 
-                completed: false, 
-                category: 'bien-etre' 
-              }
-            ];
-            localStorage.setItem(key, JSON.stringify(todosObj));
-            window.dispatchEvent(new Event('storage'));
-          }
-          break;
-        }
-      }
-    }
-    if (typeof window !== 'undefined') {
-    localStorage.setItem('sorea_has_notification', 'true');
-    localStorage.setItem('sorea_todo_notification', 'true'); //pour l'agenda
-    window.dispatchEvent(new Event('sorea_notification_update'));
-  }
-  }}
-  className="p-[16px] text-white rounded-[8px] text-[15px] font-[600] shadow-[0px_4px_10px_rgba(0,0,0,0.05)] transition-all border-none cursor-pointer"
-  style={{ backgroundColor: theme.btnPrimary }}
-  onMouseOver={(e) => e.currentTarget.style.backgroundColor = theme.btnPrimaryHover}
-  onMouseOut={(e) => e.currentTarget.style.backgroundColor = theme.btnPrimary}
->
-  C'est parti !
-</button>
-            <button
-              onClick={() => setChoixUtilisateur('non')}
-              className="p-[16px] bg-[#B9B2B9] text-[#333] rounded-[8px] text-[15px] font-[600] shadow-[0px_4px_10px_rgba(0,0,0,0.05)] hover:bg-[#a59fa5] hover:-translate-y-[2px] transition-all border-none cursor-pointer"
-            >
-              Je ne peux pas le faire
-            </button>
-          </>
-        )}
-
-        {choixUtilisateur === 'oui' && (
-          <div className="flex flex-col gap-4 text-center bg-white p-6 rounded-2xl shadow-sm border" style={{ borderColor: theme.borderBulle }}>
-            <p className="font-bold text-lg" style={{ color: theme.textAccent }}>Super ! Bon défi 🎉</p>
-            <button onClick={reinitialiserJeu} className="text-[#4b3b5c] underline font-semibold mt-2 cursor-pointer bg-transparent border-none">Fermer et recommencer</button>
+      {/* COLONNE DROITE : CARTE DÉFI + BOUTONS D'ACTION EN DESSOUS */}
+      <div className={`flex flex-col gap-[16px] w-[320px] ml-[90px] self-start mt-[40px] transition-all duration-[600ms] ease-[cubic-bezier(0.16,1,0.3,1)] ${afficherFenetreResultat ? 'opacity-100 translate-x-0 pointer-events-auto' : 'opacity-0 translate-x-[40px] pointer-events-none'}`}>
+        
+        {/* LA CARTE DE DÉFI */}
+        <div
+          className="w-full border-[2px] border-dashed rounded-[24px] p-[30px_24px] shadow-[0px_10px_30px_rgba(0,0,0,0.05)] flex flex-col"
+          style={{ backgroundColor: theme.bgCarte, borderColor: theme.borderCarte }}
+        >
+          <div
+            className="w-[72px] h-[72px] rounded-full border-[1.5px] flex items-center justify-center mx-auto mb-[15px] shadow-[0px_4px_12px_rgba(127,77,197,0.08)] transition-colors duration-500"
+            style={{ backgroundColor: theme.bgBulle, borderColor: theme.borderBulle }}
+          >
+            {resultatGagnant && <img src={resultatGagnant.iconPath} alt={resultatGagnant.name} className="w-[40px] h-[40px] object-contain" />}
           </div>
-        )}
 
-        {choixUtilisateur === 'non' && (
-          <div className="flex flex-col gap-3 text-left bg-white p-5 rounded-2xl shadow-sm border" style={{ borderColor: theme.borderBulle }}>
-            <label className="text-[#4b3b5c] text-[13px] font-semibold mb-1">Tu peux choisir une raison ou écrire la tienne :</label>
-            <div className="flex flex-col gap-2">
-              {raisonsIndisponibilite.map((raison) => (
-                <button
-                  key={raison}
-                  type="button"
-                  onClick={() => setRaisonSelectionnee(raison)}
-                  className="rounded-xl px-3 py-2 text-left text-[12px] font-semibold transition-colors cursor-pointer"
-                  style={{
-                    backgroundColor: raisonSelectionnee === raison ? theme.bgBulle : 'white',
-                    border: `1px solid ${raisonSelectionnee === raison ? theme.borderCarte : theme.borderBulle}`,
-                    color: '#4b3b5c'
-                  }}
-                >
-                  {raison}
-                </button>
-              ))}
+          <div className="flex items-center justify-center gap-[6px] mb-[20px] relative">
+            <span
+              className="text-[22px] font-normal text-center transition-colors duration-500"
+              style={{ color: theme.textAccent }}
+            >
+              {resultatGagnant?.name}
+            </span>
+
+            <div className="relative flex items-center cursor-pointer group">
+              <img
+                src="/image_icone/Help.svg"
+                alt="Aide"
+                className="w-[18px] h-[18px] transition-transform duration-200 group-hover:scale-110"
+              />
+              <div
+                className="invisible opacity-0 group-hover:visible group-hover:opacity-100 transition-all duration-300 absolute bottom-[125%] left-1/2 -translate-x-1/2 w-[220px] rounded-[8px] px-[12px] py-[10px] text-[12px] leading-[1.4] text-white font-normal text-center shadow-lg z-20"
+                style={{ backgroundColor: theme.borderCarte }}
+              >
+                {themesData.find(t => t.name === resultatGagnant?.name)?.desc}
+                <div
+                  className="absolute top-full left-1/2 -translate-x-1/2 w-0 h-0 border-l-[5px] border-r-[5px] border-t-[5px] border-l-transparent border-r-transparent"
+                  style={{ borderTopColor: theme.borderCarte }}
+                />
+              </div>
             </div>
-            <textarea
-              value={raisonPersonnalisee}
-              onChange={(e) => setRaisonPersonnalisee(e.target.value)}
-              className="w-full border rounded-xl p-3 text-[13px] focus:outline-none resize-none mt-2"
-              style={{ borderColor: theme.borderBulle }}
-              rows={3}
-              placeholder="Écris ici pourquoi tu ne peux pas le faire..."
-            />
-            <button
-              onClick={() => { setRaisonSelectionnee(""); setRaisonPersonnalisee(""); reinitialiserJeu(); }}
-              className="bg-[#4b3b5c] text-white border-none rounded-full p-2 text-[14px] font-bold cursor-pointer mt-2 hover:bg-[#32273e] transition-colors"
-            >
-              Valider
-            </button>
           </div>
-        )}
+
+          <div className="text-[15px] font-[700] text-[#212121] text-center mb-[20px] leading-[1.4] px-[10px]">
+            <strong>Défi du jour :</strong> <br />
+            <span className="font-medium mt-1 inline-block">{resultatGagnant?.defiDuJour}</span>
+          </div>
+
+          <div className="h-[1px] w-full my-[15px]" style={{ background: `radial-gradient(circle, ${theme.borderCarte} 0%, transparent 100%)` }}></div>
+
+          <div className="text-[20px] font-[800] text-[#1A1A1A] text-center mb-[15px]">Objectif</div>
+          <ul className="text-[14px] leading-[1.6] text-[#333333] pl-[20px] m-0 list-disc">
+            {resultatGagnant?.objectifs.map((obj, i) => (
+              <li key={i} className="mb-[12px]">{obj}</li>
+            ))}
+          </ul>
+        </div>
+
+        {/* LES BOUTONS D'ACTION (PLACÉS JUSTE EN DESSOUS) */}
+        <div className="flex flex-col gap-[12px] w-full">
+          {choixUtilisateur === 'attente' && (
+            <>
+              <button
+                onClick={() => { 
+                  setChoixUtilisateur('oui');
+                  if (resultatGagnant?.defiDuJour) {
+                    const today = new Date();
+                    const localToday = new Date(today.getTime() - today.getTimezoneOffset() * 60000);
+                    const todayKey = localToday.toISOString().split('T')[0];
+                    
+                    for (let i = 0; i < localStorage.length; i++) {
+                      const key = localStorage.key(i);
+                      if (key && key.startsWith('sorea_todos_')) {
+                        const stored = localStorage.getItem(key);
+                        let todosObj = stored ? JSON.parse(stored) : {};
+                        const currentTodos = todosObj[todayKey] || [];
+                        const texteFormaté = `${resultatGagnant.name} : ${resultatGagnant.defiDuJour}`;
+                        const exists = currentTodos.some((t: any) => t.text === texteFormaté);
+                        if (!exists) {
+                          todosObj[todayKey] = [
+                            ...currentTodos,
+                            { 
+                              id: `${todayKey}-${Date.now()}`,
+                              themeName: resultatGagnant.name, 
+                              text: texteFormaté, 
+                              completed: false, 
+                              category: 'bien-etre' 
+                            }
+                          ];
+                          localStorage.setItem(key, JSON.stringify(todosObj));
+                          window.dispatchEvent(new Event('storage'));
+                        }
+                        break;
+                      }
+                    }
+                  }
+                  if (typeof window !== 'undefined') {
+                    localStorage.setItem('sorea_has_notification', 'true');
+                    localStorage.setItem('sorea_todo_notification', 'true');
+                    window.dispatchEvent(new Event('sorea_notification_update'));
+                  }
+                }}
+                className="p-[16px] text-white rounded-[8px] text-[15px] font-[600] shadow-[0px_4px_10px_rgba(0,0,0,0.05)] transition-all border-none cursor-pointer w-full text-center"
+                style={{ backgroundColor: theme.btnPrimary }}
+                onMouseOver={(e) => e.currentTarget.style.backgroundColor = theme.btnPrimaryHover}
+                onMouseOut={(e) => e.currentTarget.style.backgroundColor = theme.btnPrimary}
+              >
+                C'est parti !
+              </button>
+              <button
+                onClick={() => setChoixUtilisateur('non')}
+                className="p-[16px] bg-[#B9B2B9] text-[#333] rounded-[8px] text-[15px] font-[600] shadow-[0px_4px_10px_rgba(0,0,0,0.05)] hover:bg-[#a59fa5] hover:-translate-y-[2px] transition-all border-none cursor-pointer w-full text-center"
+              >
+                Je ne peux pas le faire
+              </button>
+            </>
+          )}
+
+          {choixUtilisateur === 'oui' && (
+            <div className="flex flex-col gap-4 text-center bg-white p-6 rounded-2xl shadow-sm border w-full" style={{ borderColor: theme.borderBulle }}>
+              <p className="font-bold text-lg" style={{ color: theme.textAccent }}>Super ! Bon défi 🎉</p>
+              <button onClick={reinitialiserJeu} className="text-[#4b3b5c] underline font-semibold mt-2 cursor-pointer bg-transparent border-none">Fermer et recommencer</button>
+            </div>
+          )}
+
+          {choixUtilisateur === 'non' && (
+            <div className="flex flex-col gap-3 text-left bg-white p-5 rounded-2xl shadow-sm border w-full" style={{ borderColor: theme.borderBulle }}>
+              <label className="text-[#4b3b5c] text-[13px] font-semibold mb-1">Tu peux choisir une raison ou écrire la tienne :</label>
+              <div className="flex flex-col gap-2">
+                {raisonsIndisponibilite.map((raison) => (
+                  <button
+                    key={raison}
+                    type="button"
+                    onClick={() => setRaisonSelectionnee(raison)}
+                    className="rounded-xl px-3 py-2 text-left text-[12px] font-semibold transition-colors cursor-pointer"
+                    style={{
+                      backgroundColor: raisonSelectionnee === raison ? theme.bgBulle : 'white',
+                      border: `1px solid ${raisonSelectionnee === raison ? theme.borderCarte : theme.borderBulle}`,
+                      color: '#4b3b5c'
+                    }}
+                  >
+                    {raison}
+                  </button>
+                ))}
+              </div>
+              <textarea
+                value={raisonPersonnalisee}
+                onChange={(e) => setRaisonPersonnalisee(e.target.value)}
+                className="w-full border rounded-xl p-3 text-[13px] focus:outline-none resize-none mt-2"
+                style={{ borderColor: theme.borderBulle }}
+                rows={3}
+                placeholder="Écris ici pourquoi tu ne peux pas le faire..."
+              />
+              <button
+                onClick={() => { setRaisonSelectionnee(""); setRaisonPersonnalisee(""); reinitialiserJeu(); }}
+                className="bg-[#4b3b5c] text-white border-none rounded-full p-2 text-[14px] font-bold cursor-pointer mt-2 hover:bg-[#32273e] transition-colors"
+              >
+                Valider
+              </button>
+            </div>
+          )}
+        </div>
+
       </div>
+
     </div>
   );
 }
