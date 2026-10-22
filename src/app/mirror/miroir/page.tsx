@@ -17,7 +17,7 @@ export default function NouvellePage() {
   const [isCustomModalOpen, setIsCustomModalOpen] = useState(false);
 
   const audioStreamRef = useRef<MediaStream | null>(null);
-  const [microActive, setMicroActive] = useState(true);
+  const [microActive, setMicroActive] = useState(false); // Désactivé par défaut pour ne pas bloquer les utilisateurs sans micro
   // État du mode d'affirmation sélectionné ('default' par défaut)
   const [activeMode, setActiveMode] = useState<"default" | "cycle" | "custom">("default");
 
@@ -148,8 +148,9 @@ export default function NouvellePage() {
     return () => window.removeEventListener("customAffirmationChanged", loadCustom);
   }, []);
 
-  // État pour la modale d'instructions du miroir
+  // État pour la modale d'instructions du miroir (étape 1 puis étape 2)
   const [showInstruction, setShowInstruction] = useState(true);
+  const [instructionStep, setInstructionStep] = useState<1 | 2>(1);
 
   const hideInstructionsMirror = () => {
     setShowInstruction(false);
@@ -514,15 +515,13 @@ export default function NouvellePage() {
                   <div className="w-full border-b border-[#7F4DC5]/50" />
                 </div>
 
-                {/* Élément central cliquable avec bascule Play / Pause (désactivé si le micro est éteint) */}
+                {/* Élément central cliquable avec bascule Play / Pause (indépendant du micro) */}
                 <div className="flex-1 flex items-center justify-center">
                   <button 
                     onClick={togglePlayPause}
-                    disabled={loading || !microActive}
-                    className={`transition-transform duration-300 ${
-                      !microActive ? "opacity-40 cursor" : "hover:scale-110 cursor-pointer"
-                    } disabled:opacity-40`}
-                    title={!microActive ? "Activez le micro pour utiliser le lecteur" : (isPlaying ? "Pause" : "Commencer")}
+                    disabled={loading}
+                    className="transition-transform duration-300 hover:scale-110 cursor-pointer disabled:opacity-40"
+                    title={isPlaying ? "Pause" : "Commencer"}
                   >
                     <img
                       src={isPlaying ? "/image_icone/pause1.svg" : "/image_icone/play1.svg"}
@@ -532,15 +531,15 @@ export default function NouvellePage() {
                   </button>
                 </div>
 
-                {/* Bouton Suivant : désactivé si en pause (isPlaying = false), si en chargement, ou si le micro est actif */}
+                {/* Bouton Suivant : actif dès que le jeu est en cours (isPlaying) */}
                 <div className="w-full px-6 pb-4">
                   <button
                     onClick={genererAffirmationMiroir}
-                    disabled={loading || microActive || !isPlaying}
+                    disabled={loading || !isPlaying}
                     className={`w-full bg-[#8B47FF] text-white font-bold py-3 rounded-xl shadow-lg transition-all duration-300 text-center ${
-                      (microActive || !isPlaying) ? "opacity-40 cursor" : "hover:scale-105 hover:shadow-xl cursor-pointer"
+                      !isPlaying ? "opacity-40 cursor" : "hover:scale-105 hover:shadow-xl cursor-pointer"
                     }`}
-                    title={!isPlaying ? "Mettez lecture pour utiliser le bouton Suivant" : (microActive ? "Désactivez le micro pour utiliser le bouton Suivant" : "Affirmation suivante")}
+                    title={!isPlaying ? "Mettez lecture pour utiliser le bouton Suivant" : "Affirmation suivante"}
                   >
                     Suivant
                   </button>
@@ -598,11 +597,13 @@ export default function NouvellePage() {
               </div>
             )}
 
-            {/* Consigne (indicateur d'écoute) sous le miroir */}
+            {/* Consigne sous le miroir */}
             {affirmation && (
-              <div className="flex items-center gap-2 px-4 py-1.5 bg-purple-100 text-[#8B47FF] rounded-full text-sm font-semibold animate-pulse">
+              <div className="flex items-center gap-2 px-4 py-1.5 bg-purple-100 text-[#8B47FF] rounded-full text-sm font-semibold">
                 <span className="w-2 h-2 rounded-full bg-[#8B47FF]"></span>
-                {isListening ? "Répétez à haute voix ce que vous voyez pour passer à la suivante..." : "Micro en attente..."}
+                {microActive 
+                  ? (isListening ? "Répétez à haute voix pour passer à la suivante..." : "Micro en attente...")
+                  : "Cliquez sur 'Suivant' pour passer à la phrase suivante"}
                 <span className="text-xs text-purple-400 font-normal ml-1">
                   ({affirmationCount} utilisé{affirmationCount > 1 ? 's' : ''} aujourd'hui — phase {currentPhase})
                 </span>
@@ -629,27 +630,51 @@ export default function NouvellePage() {
       {showInstruction && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-xs animate-in fade-in duration-300">
           <div className="w-full max-w-lg mx-4 p-8 bg-white/95 backdrop-blur-md rounded-3xl shadow-2xl border border-purple-100 flex flex-col items-center relative animate-in zoom-in-95 duration-300">
-            <p className="text-center text-[#4b3b5c] text-xl font-bold mb-2">
-              Miroir mon beau miroir
-            </p>
-            <p className="text-gray-600 text-base mb-8 mt-3 text-center">
-              Affirme-toi chaque jour face à ton miroir virtuel. Répète des phrases positives à haute voix pour renforcer ta confiance et cultiver ta lumière intérieure.
-            </p>
             
-            <div className="flex gap-4 w-full justify-center">
-              <button 
-                onClick={hideInstructionsMirror}
-                className="px-8 py-2.5 bg-[#8B47FF] text-white font-bold rounded-full hover:bg-[#7a3be6] transition-colors shadow-md text-sm cursor-pointer"
-              >
-                OK
-              </button>
-              <button 
-                onClick={hideInstructionsMirror}
-                className="px-4 py-2.5 bg-transparent text-gray-400 font-medium hover:text-[#8B47FF] transition-colors text-sm underline underline-offset-2 cursor-pointer"
-              >
-                Ne plus afficher
-              </button>
-            </div>
+            {instructionStep === 1 ? (
+              <>
+                <p className="text-center text-[#4b3b5c] text-xl font-bold mb-2">
+                  Miroir mon beau miroir
+                </p>
+                <p className="text-gray-600 text-base mb-8 mt-3 text-center">
+                  Affirme-toi chaque jour face à ton miroir virtuel. Répète des phrases positives à haute voix pour renforcer ta confiance et cultiver ta lumière intérieure.
+                </p>
+                
+                <div className="flex w-full justify-center">
+                  <button 
+                    onClick={() => setInstructionStep(2)}
+                    className="px-8 py-2.5 bg-[#8B47FF] text-white font-bold rounded-full hover:bg-[#7a3be6] transition-colors shadow-md text-sm cursor-pointer"
+                  >
+                    OK
+                  </button>
+                </div>
+              </>
+            ) : (
+              <>
+                <p className="text-center text-[#4b3b5c] text-xl font-bold mb-2">
+                  Comment jouer ?
+                </p>
+                <p className="text-gray-600 text-base mb-8 mt-3 text-center">
+                  Cliquez sur <strong>Play</strong> pour démarrer l'expérience. Vous pouvez répeter vos affirmations grâce au <b>Micro intelligent</b> ou utiliser le bouton <b>Suivant</b> pour faire défiler vos reflets manuellement.
+                </p>
+                
+                <div className="flex gap-4 w-full justify-center">
+                  <button 
+                    onClick={hideInstructionsMirror}
+                    className="px-8 py-2.5 bg-[#8B47FF] text-white font-bold rounded-full hover:bg-[#7a3be6] transition-colors shadow-md text-sm cursor-pointer"
+                  >
+                    OK
+                  </button>
+                  <button 
+                    onClick={hideInstructionsMirror}
+                    className="px-4 py-2.5 bg-transparent text-gray-400 font-medium hover:text-[#8B47FF] transition-colors text-sm underline underline-offset-2 cursor-pointer"
+                  >
+                    Ne plus afficher
+                  </button>
+                </div>
+              </>
+            )}
+
           </div>
         </div>
       )}
