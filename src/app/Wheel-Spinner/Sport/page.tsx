@@ -71,8 +71,8 @@ const hideInstructionsSport = () => {
         <div className="w-full max-w-[1440px] mx-auto flex flex-col items-center">
           
           {/* Bouton Retour stylé */}
-          <div className="w-full max-w-[1440px] mx-auto px-[96px] sticky top-[85px] z-40 mb-[-60px]">
-          <div className="w-full max-w-[1228px] px-4 mb-10 self-center flex pointer-events-auto">
+          <div className="w-full max-w-[1440px] mx-auto px-[96px] sticky top-[85px] z-40 pointer-events-none mb-[-60px]">
+          <div className="flex flex-col items-start gap-2 pointer-events-auto w-fit">
             <Link 
               href="/Wheel-Spinner" // Lien vers la page de sélection
               className="text-[#8B47FF] font-bold px-6 py-2 rounded-2xl border border-[#8B47FF] hover:bg-[#8B47FF] hover:text-white transition-all shadow-sm flex items-center gap-2 cursor-pointer"
