@@ -71,6 +71,26 @@ export default function VisualisationGallery({
     localStorage.setItem("sorea_visualisation_trash", JSON.stringify(trash));
   }, [pellicules, trash]);
 
+  const [isAdjustMode, setIsAdjustMode] = useState(false);
+  const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(null);
+  const [cropScale, setCropScale] = useState(1);
+  const [cropPos, setCropPos] = useState({ x: 0, y: 0 });
+  const [isDraggingImage, setIsDraggingImage] = useState(false);
+  const [dragStartPos, setDragStartPos] = useState({ x: 0, y: 0 });
+
+  // Gestion de la fermeture du rognage avec Échap
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape" && selectedImageIndex !== null) {
+        setSelectedImageIndex(null);
+        setCropScale(1);
+        setCropPos({ x: 0, y: 0 });
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [selectedImageIndex]);
+
   const [internalIsOpen, setInternalIsOpen] = useState(false);
   const isOpen = externalIsOpen !== undefined ? externalIsOpen : internalIsOpen;
   const setIsOpen = (val: boolean | ((prev: boolean) => boolean)) => {
@@ -390,8 +410,8 @@ export default function VisualisationGallery({
                     autoFocus
                   />
 
-                  {/* BOUTON ET MENU DE SÉLECTION DE RESSOURCES STYLE GOOGLE DOCS */}
-                  <div className="relative">
+                  {/* BOUTON ET MENU DE SÉLECTION DE RESSOURCES STYLE GOOGLE DOCS + BOUTON AJUSTER */}
+                  <div className={`relative flex items-center gap-3 ${isAdjustMode ? "z-40" : ""}`}>
                     <button
                       type="button"
                       onClick={() => setShowInsertMenu(!showInsertMenu)}
@@ -400,6 +420,22 @@ export default function VisualisationGallery({
                       <Plus size={18} />
                       Insérer une image
                       <ChevronDown size={16} />
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setIsAdjustMode(!isAdjustMode);
+                        setSelectedImageIndex(null);
+                        setCropScale(1);
+                      }}
+                      className={`flex items-center gap-2 border font-semibold px-4 py-2.5 rounded-xl transition-colors cursor-pointer text-sm ${
+                        isAdjustMode
+                          ? "bg-[#8B47FF] text-white border-[#8B47FF]"
+                          : "bg-white border-purple-300 text-purple-900 hover:bg-purple-100/50"
+                      }`}
+                    >
+                      Ajuster
                     </button>
 
                     {/* MENU DÉROULANT STYLE GOOGLE DOCS */}
@@ -453,57 +489,171 @@ export default function VisualisationGallery({
                   </div>
 
                  {/* APERÇU DES IMAGES AJOUTÉES À LA PELLICULE AVEC TRAIT VERTICAL D'INDICATEUR */}
+{/* APERÇU DES IMAGES AJOUTÉES AVEC GESTION DU MODE AJUSTEMENT ET OVERLAY GRIS */}
 {currentImages.length > 0 && (
-  <div className="flex gap-3 overflow-x-auto py-2">
-    {currentImages.map((img, idx) => (
-      <div
-        key={idx}
-        draggable
-        onDragStart={() => setDraggedImageIndex(idx)}
-        onDragOver={(e) => {
-          e.preventDefault();
-          setDragOverImageIndex(idx);
-        }}
-        onDrop={() => {
-          if (draggedImageIndex === null || draggedImageIndex === idx) return;
-          const updatedImages = [...currentImages];
-          const [movedImage] = updatedImages.splice(draggedImageIndex, 1);
-          updatedImages.splice(idx, 0, movedImage);
-          setCurrentImages(updatedImages);
-          setDraggedImageIndex(null);
-          setDragOverImageIndex(null);
-        }}
-        onDragEnd={() => {
-          setDraggedImageIndex(null);
-          setDragOverImageIndex(null);
-        }}
-        className="relative flex items-center shrink-0"
-      >
-        {/* Trait vertical indicateur au survol de glissement */}
-        {dragOverImageIndex === idx && (
-          <div className="w-1 h-20 bg-[#7F4DC5] rounded-full mr-2 transition-all animate-pulse" />
-        )}
+  <div className="relative">
+    {/* Fond gris à faible opacité recouvrant tout en mode ajustement sauf les images et le bouton */}
+    {isAdjustMode && (
+      <div className="absolute inset-[-12px] bg-gray-900/30 backdrop-blur-[1px] z-30 rounded-2xl pointer-events-none transition-all" />
+    )}
 
-        <div className="relative w-24 h-24 rounded-xl overflow-hidden border border-purple-200 cursor-grab active:cursor-grabbing group">
-          <img
-            src={img}
-            alt="Aperçu"
-            className="w-full h-full object-cover pointer-events-none"
-          />
-          <button
-            type="button"
-            onClick={() => removeImageFromPellicule(idx)}
-            className="absolute top-1 right-1 bg-black/60 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600 cursor-pointer"
-          >
-            <X size={12} />
-          </button>
+    <div className={`flex gap-3 overflow-x-auto py-2 relative ${isAdjustMode ? "z-40" : ""}`}>
+      {currentImages.map((img, idx) => (
+        <div
+          key={idx}
+          draggable={!isAdjustMode}
+          onClick={() => {
+            if (isAdjustMode) {
+              setSelectedImageIndex(idx);
+              setCropScale(1);
+            }
+          }}
+          onDragStart={() => setDraggedImageIndex(idx)}
+          onDragOver={(e) => {
+            e.preventDefault();
+            setDragOverImageIndex(idx);
+          }}
+          onDrop={() => {
+            if (draggedImageIndex === null || draggedImageIndex === idx) return;
+            const updatedImages = [...currentImages];
+            const [movedImage] = updatedImages.splice(draggedImageIndex, 1);
+            updatedImages.splice(idx, 0, movedImage);
+            setCurrentImages(updatedImages);
+            setDraggedImageIndex(null);
+            setDragOverImageIndex(null);
+          }}
+          onDragEnd={() => {
+            setDraggedImageIndex(null);
+            setDragOverImageIndex(null);
+          }}
+          className={`relative flex items-center shrink-0 ${isAdjustMode ? "cursor-pointer ring-2 ring-[#8B47FF] rounded-xl" : ""}`}
+        >
+          {/* Trait vertical indicateur au survol de glissement */}
+          {!isAdjustMode && dragOverImageIndex === idx && (
+            <div className="w-1 h-20 bg-[#7F4DC5] rounded-full mr-2 transition-all animate-pulse" />
+          )}
+
+          <div className="relative w-24 h-24 rounded-xl overflow-hidden border border-purple-200 cursor-grab active:cursor-grabbing group">
+            <img
+              src={img}
+              alt="Aperçu"
+              className="w-full h-full object-cover pointer-events-none"
+            />
+            {!isAdjustMode && (
+              <button
+                type="button"
+                onClick={() => removeImageFromPellicule(idx)}
+                className="absolute top-1 right-1 bg-black/60 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600 cursor-pointer"
+              >
+                <X size={12} />
+              </button>
+            )}
+          </div>
         </div>
-      </div>
-    ))}
+      ))}
+    </div>
   </div>
 )}
+{/*système de rognage */}
+
+{/* MODAL FULLSCREEN DE ROGNAGE & AJUSTEMENT (COPIE DU SYSTÈME DE PAGE.TSX) */}
+      {selectedImageIndex !== null && currentImages[selectedImageIndex] && (
+        <div className="fixed inset-0 z-[200000] bg-[#212121] backdrop-blur-md flex items-center justify-center animate-fade-in select-none">
+          
+          {/* Titre en haut à gauche */}
+          <h3 className="absolute top-[3vh] left-[3vw] text-white text-lg font-medium tracking-wide z-[100000]">
+            Rognage & Ajustement (Format Plein Écran)
+          </h3>
+
+          {/* Bouton Croix pour fermer en haut à droite */}
+          <button
+            type="button"
+            onClick={() => {
+              setSelectedImageIndex(null);
+              setCropScale(1);
+              setCropPos({ x: 0, y: 0 });
+            }}
+            className="absolute top-[3vh] right-[3vw] text-white hover:text-purple-300 p-[1.2vh] rounded-full bg-black/20 hover:bg-black/40 transition-all cursor-pointer z-[100000] flex items-center justify-center"
+            title="Quitter (Échap)"
+          >
+            <X className="w-[4vh] h-[4vh]" />
+          </button>
+
+          <div className="flex items-center justify-center w-full h-full px-6">
+            
+            {/* Conteneur Géant de la Pellicule (identique à page.tsx) */}
+            <div className="w-[115vw] h-[105vh] max-w-[125vh] max-h-[110vw] overflow-hidden relative drop-shadow-2xl flex items-center justify-center">  
+              <div className="w-full h-full relative flex items-center justify-center z-20">
+                {/* Fond de la pellicule SVG */}
+                <img
+                  src="/image_Design-SOREA/Pellicule.svg"
+                  alt="Cadre Pellicule Plein Écran"
+                  className="absolute inset-0 w-full h-full object-contain z-10 pointer-events-none"
+                />
+
+                {/* Carré de l'image interne avec les dimensions et règles exactes (w-[62%] h-[75%]) et bordure en pointillés */}
+                <div className="relative z-20 w-[62%] h-[75%] border-2 border-dashed border-white/80 overflow-hidden flex items-center justify-center bg-black/20">
+                  <img
+                    src={currentImages[selectedImageIndex]}
+                    alt="Ajustement"
+                    draggable={false}
+                    onMouseDown={(e) => {
+                      setIsDraggingImage(true);
+                      setDragStartPos({ x: e.clientX - cropPos.x, y: e.clientY - cropPos.y });
+                    }}
+                    onMouseMove={(e) => {
+                      if (!isDraggingImage) return;
+                      setCropPos({
+                        x: e.clientX - dragStartPos.x,
+                        y: e.clientY - dragStartPos.y,
+                      });
+                    }}
+                    onMouseUp={() => setIsDraggingImage(false)}
+                    onMouseLeave={() => setIsDraggingImage(false)}
+                    className="w-full h-full object-cover transition-transform select-none cursor-grab active:cursor-grabbing"
+                    style={{
+                      transform: `translate(${cropPos.x}px, ${cropPos.y}px) scale(${cropScale})`,
+                    }}
+                  />
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          {/* Barre inférieure : Curseur de Zoom & Bouton Valider */}
+          <div className="absolute bottom-[4vh] w-full max-w-3xl bg-white/10 backdrop-blur-md border border-white/20 p-4 rounded-2xl flex items-center gap-6 shadow-2xl z-[100000]">
+            <span className="text-sm font-medium text-white whitespace-nowrap">
+              Échelle (Zoom) :
+            </span>
+            <input
+              type="range"
+              min="1"
+              max="3"
+              step="0.05"
+              value={cropScale}
+              onChange={(e) => setCropScale(parseFloat(e.target.value))}
+              className="flex-1 accent-[#8B47FF] cursor-pointer h-2 bg-white/20 rounded-lg appearance-none"
+            />
+            <button
+              type="button"
+              onClick={() => {
+                setSelectedImageIndex(null);
+                setIsAdjustMode(false);
+                setCropScale(1);
+                setCropPos({ x: 0, y: 0 });
+              }}
+              className="bg-[#8B47FF] text-white font-bold px-8 py-3 rounded-xl shadow-lg hover:bg-[#7535e6] transition-all cursor-pointer text-sm"
+            >
+              Valider
+            </button>
+          </div>
+
+        </div>
+      )}
 
                   <div className="flex justify-end gap-3 mt-2">
+
                     <button
                       type="button"
                       onClick={() => setIsAdding(false)}
