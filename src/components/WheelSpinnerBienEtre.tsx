@@ -673,11 +673,11 @@ export default function WheelSpinnerBienEtre({ mode = "default" }: WheelSpinnerB
   return (
     <div className="w-full flex justify-evenly items-center relative pt-32 pb-0" style={{ fontFamily: "'Inter', sans-serif" }}>
 
-      {/* COLONNE CENTRALE : ROUE */}
-      <div className="flex items-center justify-center relative mt-[-55px] transform scale-[1.35] origin-top">
+      {/* COLONNE CENTRALE : ROUE ET SOCLE GROUPÉS */}
+      <div className="relative w-[340px] h-[460px] flex flex-col items-center justify-center transform scale-[1.35] origin-top">
         
         {/*MENU DÉROULANT EN HAUT À DROITE DE LA ROUE */}
-        <div ref={menuRef} className="absolute -top-[30px] right-[-100px] translate-x-[110px] z-50">
+        <div ref={menuRef} className="absolute top-0 right-[-20px] z-50">
           <div className="relative">
             <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
@@ -727,7 +727,8 @@ export default function WheelSpinnerBienEtre({ mode = "default" }: WheelSpinnerB
         </div>
         {/*FIN DU MENU DÉROULANT */}
 
-        <div className="absolute top-[34%] left-1/2 -translate-x-1/2 flex flex-col items-center justify-center z-0">
+        {/* SOCLE INTÉGRÉ DANS LE GROUPE */}
+        <div className="absolute top-[135px] left-1/2 -translate-x-1/2 flex flex-col items-center justify-center z-0">
           <div
             className="relative w-[161.93px] h-[311px] flex justify-center items-end pb-[10px] drop-shadow-[0px_38px_26px_rgba(0,0,0,0.25)] transition-colors duration-500"
             style={{ backgroundColor: theme.socle, clipPath: 'polygon(50% 0%, 0% 100%, 100% 100%)' }}
@@ -746,8 +747,9 @@ export default function WheelSpinnerBienEtre({ mode = "default" }: WheelSpinnerB
           ></div>
         </div>
 
+        {/* ROUE QUI TOURNE */}
         <div 
-          className={`relative w-[340px] h-[340px] flex justify-center items-center ${afficherFenetreResultat ? 'cursor-default' : 'cursor-pointer'}`} 
+          className={`absolute top-[10px] left-1/2 -translate-x-1/2 w-[340px] h-[340px] flex justify-center items-center z-10 ${afficherFenetreResultat ? 'cursor-default' : 'cursor-pointer'}`} 
           onClick={tournerLaRoue}
         >
           <div className="w-[330px] h-[330px] relative flex justify-center items-center" style={{ transformStyle: 'preserve-3d' }}>
@@ -828,7 +830,7 @@ export default function WheelSpinnerBienEtre({ mode = "default" }: WheelSpinnerB
       </div>
 
       {/* COLONNE DROITE : CARTE DÉFI + BOUTONS D'ACTION EN DESSOUS */}
-      <div className={`flex flex-col gap-[16px] w-[320px] ml-[90px] self-start mt-[40px] transition-all duration-[600ms] ease-[cubic-bezier(0.16,1,0.3,1)] ${afficherFenetreResultat ? 'opacity-100 translate-x-0 pointer-events-auto' : 'opacity-0 translate-x-[40px] pointer-events-none'}`}>
+      <div className={`flex flex-col gap-[16px] w-[320px] ml-[90px] transition-all duration-[600ms] ease-[cubic-bezier(0.16,1,0.3,1)] ${afficherFenetreResultat ? 'opacity-100 translate-x-0 pointer-events-auto' : 'opacity-0 translate-x-[40px] pointer-events-none'}`}>
         
         {/* LA CARTE DE DÉFI */}
         <div

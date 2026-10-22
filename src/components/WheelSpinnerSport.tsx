@@ -694,169 +694,65 @@ export default function WheelSpinnerSport({ mode = "default" }: WheelSpinnerSpor
     setChoixUtilisateur('attente');
   };
 
-  return (
+return (
     <div className="w-full flex justify-evenly items-center relative pt-32 pb-0" style={{ fontFamily: "'Inter', sans-serif" }}>
 
-      {/* COLONNE GAUCHE : CARTE DÉFI */}
-      <div className="relative w-[320px] flex flex-col">
-        
-        <div
-          className={`w-full min-h-[480px] border-[2px] border-dashed rounded-[24px] p-[30px_24px] shadow-[0px_10px_30px_rgba(0,0,0,0.05)] flex flex-col transition-all duration-[600ms] ease-[cubic-bezier(0.16,1,0.3,1)] ${afficherFenetreResultat ? 'opacity-100 translate-x-0 pointer-events-auto' : 'opacity-0 -translate-x-[40px] pointer-events-none'}`}
-          style={{ backgroundColor: theme.bgCarte, borderColor: theme.borderCarte }}
-        >
-          <div
-            className="w-[72px] h-[72px] rounded-full border-[1.5px] flex items-center justify-center mx-auto mb-[15px] shadow-[0px_4px_12px_rgba(127,77,197,0.08)] transition-colors duration-500"
-            style={{ backgroundColor: theme.bgBulle, borderColor: theme.borderBulle }}
-          >
-            {resultatGagnant && <img src={resultatGagnant.iconPath} alt={resultatGagnant.name} className="w-[40px] h-[40px] object-contain" />}
-          </div>
-
-          <div className="flex items-center justify-center gap-[6px] mb-[20px] relative">
-
-  <span
-    className="text-[22px] font-medium text-center transition-colors duration-500"
-    style={{ color: theme.textAccent }}
-  >
-    {resultatGagnant?.name}
-  </span>
-
-  {/* 🔽 AJOUTER À PARTIR D'ICI */}
-  <div className="relative flex items-center cursor-pointer group">
-
-    <img
-  src="/image_icone/Help.svg"
-  alt="Aide"
-  className="w-[18px] h-[18px] transition-transform duration-200 group-hover:scale-110"
-/>
-
-    <div
-      className="
-        invisible
-        opacity-0
-        group-hover:visible
-        group-hover:opacity-100
-        transition-all
-        duration-300
-
-        absolute
-        bottom-[125%]
-        left-1/2
-        -translate-x-1/2
-
-        w-[220px]
-        rounded-[8px]
-        px-[12px]
-        py-[10px]
-
-        text-[12px]
-        leading-[1.4]
-        text-white
-        font-normal
-        text-center
-
-        shadow-lg
-        z-20
-      "
-      style={{ backgroundColor: theme.borderCarte }}
-    >
-
-      {themesData.find(t => t.name === resultatGagnant?.name)?.desc}
-
-      <div
-        className="
-          absolute
-          top-full
-          left-1/2
-          -translate-x-1/2
-          w-0
-          h-0
-          border-l-[5px]
-          border-r-[5px]
-          border-t-[5px]
-          border-l-transparent
-          border-r-transparent
-        "
-        style={{ borderTopColor: theme.borderCarte }}
-      />
-
-    </div>
-
-  </div>
-  {/* 🔼 FIN DE L'AJOUT */}
-
-</div>
-
-          <div className="text-[15px] font-[700] text-[#212121] text-center mb-[20px] leading-[1.4] px-[10px]">
-            <strong>Défi du jour :</strong> <br />
-            <span className="font-medium mt-1 inline-block">{resultatGagnant?.defiDuJour}</span>
-          </div>
-
-          <div className="h-[1px] w-full my-[15px]" style={{ background: `radial-gradient(circle, ${theme.borderCarte} 0%, transparent 100%)` }}></div>
-
-          <div className="text-[20px] font-[800] text-[#212121] text-center mb-[15px]">Objectif</div>
-          <ul className="text-[14px] leading-[1.6] text-[#333333] pl-[20px] m-0 list-disc">
-            {resultatGagnant?.objectifs.map((obj, i) => (
-              <li key={i} className="mb-[12px]">{obj}</li>
-            ))}
-          </ul>
-        </div>
-      </div>
-
-      {/* COLONNE CENTRALE : ROUE */}
-      <div className="flex items-center justify-center relative mt-[-55px] transform scale-[1.35] origin-top">
+      {/* COLONNE CENTRALE : ROUE ET SOCLE GROUPÉS */}
+      <div className="relative w-[340px] h-[460px] flex flex-col items-center justify-center transform scale-[1.35] origin-top">
         
         {/*MENU DÉROULANT EN HAUT À DROITE DE LA ROUE */}
-                <div ref={menuRef} className="absolute -top-[30px] right-[-100px] translate-x-[110px] z-50">
-                  <div className="relative">
-                    <button
-                      onClick={() => setIsMenuOpen(!isMenuOpen)}
-                      className="flex items-center justify-center p-3.5 bg-white/95 backdrop-blur border border-purple-200 rounded-full shadow-lg hover:bg-white hover:scale-105 transition-all cursor-pointer"
-                    >
-                      <img 
-                        src="/image_icone/OutilDéroulant.svg" 
-                        alt="Outils" 
-                        className="w-6 h-6 object-contain" 
-                      />
-                    </button>
-        
-                    {isMenuOpen && (
-                      <div className="absolute right-0 mt-3 w-52 bg-white border border-purple-100 rounded-2xl shadow-xl p-2 flex flex-col gap-2 z-50">
-                        
-                        {/*Bouton Favoris */}
-                        <button
-                          onClick={() => {
-                            handleToggleFavori();
-                          }}
-                          className="flex items-center gap-3 w-full px-3.5 py-2.5 rounded-xl hover:bg-purple-50 transition-colors text-left cursor-pointer"
-                        >
-                          <Star size={30} className={isFavori ? "fill-[#8B47FF] text-[#8B47FF]" : "text-purple-300"} />
-                          <span className="text-sm font-bold text-[#592592]">
-                            {isFavori ? "Roue Favorite" : "Mettre en favori"}
-                          </span>
-                        </button>
-        
-                        {/* Bouton Style / Couleur */}
-                        <button
-                          onClick={() => {
-                            basculerTheme();
-                          }}
-                          className="flex items-center gap-3 w-full px-3.5 py-2.5 rounded-xl hover:bg-purple-50 transition-colors text-left cursor-pointer"
-                        >
-                          <img 
-                            src="/image_icone/Palette-peinture_Stroke.svg" 
-                            alt="Palette de style" 
-                            className="w-7 h-7 object-contain" 
-                          />
-                          <span className="text-sm font-bold text-[#592592]">Style</span>
-                        </button>
-        
-                      </div>
-                    )}
-                  </div>
-                </div>
-                {/*FIN DU MENU DÉROULANT */}
+        <div ref={menuRef} className="absolute top-0 right-[-20px] z-50">
+          <div className="relative">
+            <button
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
+              className="flex items-center justify-center p-3.5 bg-white/95 backdrop-blur border border-purple-200 rounded-full shadow-lg hover:bg-white hover:scale-105 transition-all cursor-pointer"
+            >
+              <img 
+                src="/image_icone/OutilDéroulant.svg" 
+                alt="Outils" 
+                className="w-6 h-6 object-contain" 
+              />
+            </button>
 
-        <div className="absolute top-[34%] left-1/2 -translate-x-1/2 flex flex-col items-center justify-center z-0">
+            {isMenuOpen && (
+              <div className="absolute right-0 mt-3 w-52 bg-white border border-purple-100 rounded-2xl shadow-xl p-2 flex flex-col gap-2 z-50">
+                
+                {/*Bouton Favoris */}
+                <button
+                  onClick={() => {
+                    handleToggleFavori();
+                  }}
+                  className="flex items-center gap-3 w-full px-3.5 py-2.5 rounded-xl hover:bg-purple-50 transition-colors text-left cursor-pointer"
+                >
+                  <Star size={30} className={isFavori ? "fill-[#8B47FF] text-[#8B47FF]" : "text-purple-300"} />
+                  <span className="text-sm font-bold text-[#592592]">
+                    {isFavori ? "Roue Favorite" : "Mettre en favori"}
+                  </span>
+                </button>
+
+                {/* Bouton Style / Couleur */}
+                <button
+                  onClick={() => {
+                    basculerTheme();
+                  }}
+                  className="flex items-center gap-3 w-full px-3.5 py-2.5 rounded-xl hover:bg-purple-50 transition-colors text-left cursor-pointer"
+                >
+                  <img 
+                    src="/image_icone/Palette-peinture_Stroke.svg" 
+                    alt="Palette de style" 
+                    className="w-7 h-7 object-contain" 
+                  />
+                  <span className="text-sm font-bold text-[#592592]">Style</span>
+                </button>
+
+              </div>
+            )}
+          </div>
+        </div>
+        {/*FIN DU MENU DÉROULANT */}
+
+        {/* SOCLE INTÉGRÉ DANS LE GROUPE */}
+        <div className="absolute top-[135px] left-1/2 -translate-x-1/2 flex flex-col items-center justify-center z-0">
           <div
             className="relative w-[161.93px] h-[311px] flex justify-center items-end pb-[10px] drop-shadow-[0px_38px_26px_rgba(0,0,0,0.25)] transition-colors duration-500"
             style={{ backgroundColor: theme.socle, clipPath: 'polygon(50% 0%, 0% 100%, 100% 100%)' }}
@@ -875,8 +771,9 @@ export default function WheelSpinnerSport({ mode = "default" }: WheelSpinnerSpor
           ></div>
         </div>
 
+        {/* ROUE QUI TOURNE */}
         <div 
-          className={`relative w-[340px] h-[340px] flex justify-center items-center ${afficherFenetreResultat ? 'cursor-default' : 'cursor-pointer'}`} 
+          className={`absolute top-[10px] left-1/2 -translate-x-1/2 w-[340px] h-[340px] flex justify-center items-center z-10 ${afficherFenetreResultat ? 'cursor-default' : 'cursor-pointer'}`} 
           onClick={tournerLaRoue}
         >
           <div className="w-[330px] h-[330px] relative flex justify-center items-center" style={{ transformStyle: 'preserve-3d' }}>
@@ -929,12 +826,12 @@ export default function WheelSpinnerSport({ mode = "default" }: WheelSpinnerSpor
             <div className="absolute top-[-10px] left-1/2 -translate-x-1/2 w-[37px] h-[50px] drop-shadow-[0px_4px_4px_rgba(0,0,0,0.25)] z-[5]">
               <svg className="w-full h-full block" viewBox="0 0 37 50" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <defs>
-                  <linearGradient id="sorea-grad-dyn" x1="0%" y1="0%" x2="0%" y2="100%">
+                  <linearGradient id="sorea-grad-dyn-sport" x1="0%" y1="0%" x2="0%" y2="100%">
                     <stop offset="0%" stopColor={theme.conic2} />
                     <stop offset="100%" stopColor={theme.conic1} />
                   </linearGradient>
                 </defs>
-                <path d="M18.5 0C8.28 0 0 8.28 0 18.5C0 29.5 18.5 50 18.5 50C18.5 50 37 29.5 37 18.5C37 8.28 28.72 0 18.5 0Z" fill="url(#sorea-grad-dyn)" />
+                <path d="M18.5 0C8.28 0 0 8.28 0 18.5C0 29.5 18.5 50 18.5 50C18.5 50 37 29.5 37 18.5C37 8.28 28.72 0 18.5 0Z" fill="url(#sorea-grad-dyn-sport)" />
               </svg>
               <div className="absolute top-[14px] left-1/2 -translate-x-1/2 -translate-y-1/2 flex justify-center items-center w-[16px] h-[16px]">
                 <div
@@ -956,113 +853,170 @@ export default function WheelSpinnerSport({ mode = "default" }: WheelSpinnerSpor
         </div>
       </div>
 
-      {/* COLONNE DROITE : BOUTONS D'ACTION */}
-      <div className={`flex flex-col gap-[16px] w-[240px] transition-all duration-[600ms] ease-[cubic-bezier(0.16,1,0.3,1)] ${afficherFenetreResultat ? 'opacity-100 translate-x-0 pointer-events-auto' : 'opacity-0 translate-x-[40px] pointer-events-none'}`}>
-
-        {choixUtilisateur === 'attente' && (
-          <>
-            <button
-  onClick={() => { 
-    setChoixUtilisateur('oui');
-    
-    // Logique d'ajout du défi dans le localStorage
-    if (resultatGagnant?.defiDuJour) {
-      const today = new Date();
-      const localToday = new Date(today.getTime() - today.getTimezoneOffset() * 60000);
-      const todayKey = localToday.toISOString().split('T')[0];
-      
-      for (let i = 0; i < localStorage.length; i++) {
-        const key = localStorage.key(i);
-        if (key && key.startsWith('sorea_todos_')) {
-          const stored = localStorage.getItem(key);
-          let todosObj = stored ? JSON.parse(stored) : {};
-          const currentTodos = todosObj[todayKey] || [];
-
-          const texteFormaté = `${resultatGagnant.name} : ${resultatGagnant.defiDuJour}`;
-
-          const exists = currentTodos.some((t: any) => t.text === texteFormaté);
-          if (!exists) {
-            todosObj[todayKey] = [
-              ...currentTodos,
-              { 
-                id: `${todayKey}-${Date.now()}`,
-                themeName: resultatGagnant.name, 
-                text: texteFormaté, completed: false, 
-                category: 'sport' }
-            ];
-            localStorage.setItem(key, JSON.stringify(todosObj));
-            window.dispatchEvent(new Event('storage'));
-          }
-          break;
-        }
-      }
-    }
-    if (typeof window !== 'undefined') {
-    localStorage.setItem('sorea_has_notification', 'true');
-    localStorage.setItem('sorea_todo_notification', 'true'); //Ajouté pour l'agenda
-    window.dispatchEvent(new Event('sorea_notification_update'));
-  }
-  }}
-  className="p-[16px] text-white rounded-[8px] text-[15px] font-[600] shadow-[0px_4px_10px_rgba(0,0,0,0.05)] transition-all border-none cursor-pointer"
-  style={{ backgroundColor: theme.btnPrimary }}
-  onMouseOver={(e) => e.currentTarget.style.backgroundColor = theme.btnPrimaryHover}
-  onMouseOut={(e) => e.currentTarget.style.backgroundColor = theme.btnPrimary}
->
-  C'est parti !
-</button>
-            <button
-              onClick={() => setChoixUtilisateur('non')}
-              className="p-[16px] bg-[#B9B2B9] text-[#333] rounded-[8px] text-[15px] font-[600] shadow-[0px_4px_10px_rgba(0,0,0,0.05)] hover:bg-[#a59fa5] hover:-translate-y-[2px] transition-all border-none cursor-pointer"
-            >
-              Je ne peux pas le faire
-            </button>
-          </>
-        )}
-
-        {choixUtilisateur === 'oui' && (
-          <div className="flex flex-col gap-4 text-center bg-white p-6 rounded-2xl shadow-sm border" style={{ borderColor: theme.borderBulle }}>
-            <p className="font-bold text-lg" style={{ color: theme.textAccent }}>Super ! Bon défi 🎉</p>
-            <button onClick={reinitialiserJeu} className="text-[#4b3b5c] underline font-semibold mt-2 cursor-pointer bg-transparent border-none">Fermer et recommencer</button>
+      {/* COLONNE DROITE : CARTE DÉFI + BOUTONS D'ACTION EN DESSOUS */}
+      <div className={`flex flex-col gap-[16px] w-[320px] ml-[90px] transition-all duration-[600ms] ease-[cubic-bezier(0.16,1,0.3,1)] ${afficherFenetreResultat ? 'opacity-100 translate-x-0 pointer-events-auto' : 'opacity-0 translate-x-[40px] pointer-events-none'}`}>
+        
+        {/* LA CARTE DE DÉFI */}
+        <div
+          className="w-full border-[2px] border-dashed rounded-[24px] p-[30px_24px] shadow-[0px_10px_30px_rgba(0,0,0,0.05)] flex flex-col"
+          style={{ backgroundColor: theme.bgCarte, borderColor: theme.borderCarte }}
+        >
+          <div
+            className="w-[72px] h-[72px] rounded-full border-[1.5px] flex items-center justify-center mx-auto mb-[15px] shadow-[0px_4px_12px_rgba(127,77,197,0.08)] transition-colors duration-500"
+            style={{ backgroundColor: theme.bgBulle, borderColor: theme.borderBulle }}
+          >
+            {resultatGagnant && <img src={resultatGagnant.iconPath} alt={resultatGagnant.name} className="w-[40px] h-[40px] object-contain" />}
           </div>
-        )}
 
-        {choixUtilisateur === 'non' && (
-          <div className="flex flex-col gap-3 text-left bg-white p-5 rounded-2xl shadow-sm border" style={{ borderColor: theme.borderBulle }}>
-            <label className="text-[#4b3b5c] text-[13px] font-semibold mb-1">Tu peux choisir une raison ou écrire la tienne :</label>
-            <div className="flex flex-col gap-2">
-              {raisonsIndisponibilite.map((raison) => (
-                <button
-                  key={raison}
-                  type="button"
-                  onClick={() => setRaisonSelectionnee(raison)}
-                  className="rounded-xl px-3 py-2 text-left text-[12px] font-semibold transition-colors cursor-pointer"
-                  style={{
-                    backgroundColor: raisonSelectionnee === raison ? theme.bgBulle : 'white',
-                    border: `1px solid ${raisonSelectionnee === raison ? theme.borderCarte : theme.borderBulle}`,
-                    color: '#4b3b5c'
-                  }}
-                >
-                  {raison}
-                </button>
-              ))}
+          <div className="flex items-center justify-center gap-[6px] mb-[20px] relative">
+            <span
+              className="text-[22px] font-medium text-center transition-colors duration-500"
+              style={{ color: theme.textAccent }}
+            >
+              {resultatGagnant?.name}
+            </span>
+
+            <div className="relative flex items-center cursor-pointer group">
+              <img
+                src="/image_icone/Help.svg"
+                alt="Aide"
+                className="w-[18px] h-[18px] transition-transform duration-200 group-hover:scale-110"
+              />
+              <div
+                className="invisible opacity-0 group-hover:visible group-hover:opacity-100 transition-all duration-300 absolute bottom-[125%] left-1/2 -translate-x-1/2 w-[220px] rounded-[8px] px-[12px] py-[10px] text-[12px] leading-[1.4] text-white font-normal text-center shadow-lg z-20"
+                style={{ backgroundColor: theme.borderCarte }}
+              >
+                {themesData.find(t => t.name === resultatGagnant?.name)?.desc}
+                <div
+                  className="absolute top-full left-1/2 -translate-x-1/2 w-0 h-0 border-l-[5px] border-r-[5px] border-t-[5px] border-l-transparent border-r-transparent"
+                  style={{ borderTopColor: theme.borderCarte }}
+                />
+              </div>
             </div>
-            <textarea
-              value={raisonPersonnalisee}
-              onChange={(e) => setRaisonPersonnalisee(e.target.value)}
-              className="w-full border rounded-xl p-3 text-[13px] focus:outline-none resize-none mt-2"
-              style={{ borderColor: theme.borderBulle }}
-              rows={3}
-              placeholder="Écris ici pourquoi tu ne peux pas le faire..."
-            />
-            <button
-              onClick={() => { setRaisonSelectionnee(""); setRaisonPersonnalisee(""); reinitialiserJeu(); }}
-              className="bg-[#4b3b5c] text-white border-none rounded-full p-2 text-[14px] font-bold cursor-pointer mt-2 hover:bg-[#32273e] transition-colors"
-            >
-              Valider
-            </button>
           </div>
-        )}
+
+          <div className="text-[15px] font-[700] text-[#212121] text-center mb-[20px] leading-[1.4] px-[10px]">
+            <strong>Défi du jour :</strong> <br />
+            <span className="font-medium mt-1 inline-block">{resultatGagnant?.defiDuJour}</span>
+          </div>
+
+          <div className="h-[1px] w-full my-[15px]" style={{ background: `radial-gradient(circle, ${theme.borderCarte} 0%, transparent 100%)` }}></div>
+
+          <div className="text-[20px] font-[800] text-[#212121] text-center mb-[15px]">Objectif</div>
+          <ul className="text-[14px] leading-[1.6] text-[#333333] pl-[20px] m-0 list-disc">
+            {resultatGagnant?.objectifs.map((obj, i) => (
+              <li key={i} className="mb-[12px]">{obj}</li>
+            ))}
+          </ul>
+        </div>
+
+        {/* LES BOUTONS D'ACTION (PLACÉS JUSTE EN DESSOUS) */}
+        <div className="flex flex-col gap-[12px] w-full">
+          {choixUtilisateur === 'attente' && (
+            <>
+              <button
+                onClick={() => { 
+                  setChoixUtilisateur('oui');
+                  if (resultatGagnant?.defiDuJour) {
+                    const today = new Date();
+                    const localToday = new Date(today.getTime() - today.getTimezoneOffset() * 60000);
+                    const todayKey = localToday.toISOString().split('T')[0];
+                    
+                    for (let i = 0; i < localStorage.length; i++) {
+                      const key = localStorage.key(i);
+                      if (key && key.startsWith('sorea_todos_')) {
+                        const stored = localStorage.getItem(key);
+                        let todosObj = stored ? JSON.parse(stored) : {};
+                        const currentTodos = todosObj[todayKey] || [];
+                        const texteFormaté = `${resultatGagnant.name} : ${resultatGagnant.defiDuJour}`;
+                        const exists = currentTodos.some((t: any) => t.text === texteFormaté);
+                        if (!exists) {
+                          todosObj[todayKey] = [
+                            ...currentTodos,
+                            { 
+                              id: `${todayKey}-${Date.now()}`,
+                              themeName: resultatGagnant.name, 
+                              text: texteFormaté, 
+                              completed: false, 
+                              category: 'sport' 
+                            }
+                          ];
+                          localStorage.setItem(key, JSON.stringify(todosObj));
+                          window.dispatchEvent(new Event('storage'));
+                        }
+                        break;
+                      }
+                    }
+                  }
+                  if (typeof window !== 'undefined') {
+                    localStorage.setItem('sorea_has_notification', 'true');
+                    localStorage.setItem('sorea_todo_notification', 'true');
+                    window.dispatchEvent(new Event('sorea_notification_update'));
+                  }
+                }}
+                className="p-[16px] text-white rounded-[8px] text-[15px] font-[600] shadow-[0px_4px_10px_rgba(0,0,0,0.05)] transition-all border-none cursor-pointer w-full text-center"
+                style={{ backgroundColor: theme.btnPrimary }}
+                onMouseOver={(e) => e.currentTarget.style.backgroundColor = theme.btnPrimaryHover}
+                onMouseOut={(e) => e.currentTarget.style.backgroundColor = theme.btnPrimary}
+              >
+                C'est parti !
+              </button>
+              <button
+                onClick={() => setChoixUtilisateur('non')}
+                className="p-[16px] bg-[#B9B2B9] text-[#333] rounded-[8px] text-[15px] font-[600] shadow-[0px_4px_10px_rgba(0,0,0,0.05)] hover:bg-[#a59fa5] hover:-translate-y-[2px] transition-all border-none cursor-pointer w-full text-center"
+              >
+                Je ne peux pas le faire
+              </button>
+            </>
+          )}
+
+          {choixUtilisateur === 'oui' && (
+            <div className="flex flex-col gap-4 text-center bg-white p-6 rounded-2xl shadow-sm border w-full" style={{ borderColor: theme.borderBulle }}>
+              <p className="font-bold text-lg" style={{ color: theme.textAccent }}>Super ! Bon défi 🎉</p>
+              <button onClick={reinitialiserJeu} className="text-[#4b3b5c] underline font-semibold mt-2 cursor-pointer bg-transparent border-none">Fermer et recommencer</button>
+            </div>
+          )}
+
+          {choixUtilisateur === 'non' && (
+            <div className="flex flex-col gap-3 text-left bg-white p-5 rounded-2xl shadow-sm border w-full" style={{ borderColor: theme.borderBulle }}>
+              <label className="text-[#4b3b5c] text-[13px] font-semibold mb-1">Tu peux choisir une raison ou écrire la tienne :</label>
+              <div className="flex flex-col gap-2">
+                {raisonsIndisponibilite.map((raison) => (
+                  <button
+                    key={raison}
+                    type="button"
+                    onClick={() => setRaisonSelectionnee(raison)}
+                    className="rounded-xl px-3 py-2 text-left text-[12px] font-semibold transition-colors cursor-pointer"
+                    style={{
+                      backgroundColor: raisonSelectionnee === raison ? theme.bgBulle : 'white',
+                      border: `1px solid ${raisonSelectionnee === raison ? theme.borderCarte : theme.borderBulle}`,
+                      color: '#4b3b5c'
+                    }}
+                  >
+                    {raison}
+                  </button>
+                ))}
+              </div>
+              <textarea
+                value={raisonPersonnalisee}
+                onChange={(e) => setRaisonPersonnalisee(e.target.value)}
+                className="w-full border rounded-xl p-3 text-[13px] focus:outline-none resize-none mt-2"
+                style={{ borderColor: theme.borderBulle }}
+                rows={3}
+                placeholder="Écris ici pourquoi tu ne peux pas le faire..."
+              />
+              <button
+                onClick={() => { setRaisonSelectionnee(""); setRaisonPersonnalisee(""); reinitialiserJeu(); }}
+                className="bg-[#4b3b5c] text-white border-none rounded-full p-2 text-[14px] font-bold cursor-pointer mt-2 hover:bg-[#32273e] transition-colors"
+              >
+                Valider
+              </button>
+            </div>
+          )}
+        </div>
+
       </div>
+
     </div>
   );
 }
