@@ -76,7 +76,7 @@ const hideInstructionsNutrition = () => {
           <div className="flex flex-col items-start gap-2 pointer-events-auto w-fit">
             <Link 
               href="/Wheel-Spinner" // Lien vers la page de sélection
-              className="text-[#8B47FF] font-bold px-6 py-2 rounded-2xl border border-[#8B47FF] hover:bg-[#8B47FF] hover:text-white transition-all shadow-sm flex items-center gap-2 cursor-pointer"
+              className="text-[#8B47FF] font-bold px-6 py-2 rounded-2xl border border-[#8B47FF] hover:bg-[#8B47FF] hover:text-white transition-all shadow-sm flex items-center gap-2 bg-white cursor-pointer"
             >
               ← Retour aux choix
             </Link>
@@ -85,10 +85,10 @@ const hideInstructionsNutrition = () => {
 
           {/* La roue spécifique affichée ici directement */}
           <div className="relative z-10 w-full flex flex-col items-center scale-65 origin-top">
-            <div className="relative flex justify-center items-center">
+            <div className="relative flex justify-center items-center translate-x-[180px]">
                         
-                        {/* Groupe "Défis Bien-être" et les 2 boutons placés strictement à gauche (dimensions et positionnement identiques au miroir) */}
-                        <div className="absolute left-[-380px] top-[450px] -translate-y-1/2 z-30 flex flex-col items-center gap-20">
+                        {/* Groupe "Défis Nutrition" et les 2 boutons placés strictement à gauche (dimensions et positionnement identiques au miroir) */}
+            <div className="absolute left-[-600px] top-[450px] -translate-y-1/2 z-30 flex flex-col items-center gap-28 ">
                           <div className="flex flex-col items-center text-center gap-10">
                             <h1 className="text-3xl md:text-5xl font-serif font-light text-[#212121] tracking-wider whitespace-nowrap leading-tight">
                               Défis<br />Nutrition
