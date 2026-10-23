@@ -8,17 +8,28 @@ import { createPortal } from "react-dom";
 import { X } from "lucide-react";
 
 
+interface CropTransform {
+  scale: number;
+  x: number;
+  y: number;
+}
+
+interface VisualisationImage {
+  url: string;
+  transform?: CropTransform;
+}
+
 interface VisualisationCard {
   id: string;
   title: string;
-  images: string[];
+  images: (string | VisualisationImage)[];
 }
 
 export default function Page() {
   const [activePellicule, setActivePellicule] = useState<VisualisationCard | null>(null);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [activeMode, setActiveMode] = useState<"aleatoire" | "galerie">("galerie");
-  const [randomImages, setRandomImages] = useState<string[]>([]);
+  const [randomImages, setRandomImages] = useState<(string | VisualisationImage)[]>([]);
   const [isGalleryModalOpen, setIsGalleryModalOpen] = useState(false);
 
   // État pour le plein écran
@@ -212,9 +223,16 @@ return (
             <div className="relative z-20 w-[58%] h-[65%] overflow-hidden flex items-center justify-center">
               {images.length > 0 ? (
                 <img
-                  src={images[currentIndex]}
+                  src={typeof images[currentIndex] === "string" ? images[currentIndex] : images[currentIndex].url}
                   alt={`Image ${currentIndex + 1}`}
-                  className="w-full h-full object-cover transition-all duration-300 select-none"
+                  className="w-full h-full object-contain transition-all duration-300 select-none"
+                  style={
+                    typeof images[currentIndex] !== "string" && images[currentIndex]?.transform
+                      ? {
+                          transform: `translate(${images[currentIndex].transform.x}px, ${images[currentIndex].transform.y}px) scale(${images[currentIndex].transform.scale})`,
+                        }
+                      : undefined
+                  }
                 />
               ) : (
                 <div className="w-full h-full bg-purple-50/90 flex items-center justify-center p-6 text-center">
@@ -287,9 +305,16 @@ return (
           {/* Image interne dupliquée */}
           <div className="relative z-20 w-[62%] h-[75%] overflow-hidden flex items-center justify-center">
             <img
-              src={imgSrc}
+              src={typeof imgSrc === "string" ? imgSrc : imgSrc.url}
               alt={`Image ${idx + 1}`}
               className="w-full h-full object-contain select-none pointer-events-none"
+              style={
+                typeof imgSrc !== "string" && imgSrc?.transform
+                  ? {
+                      transform: `translate(${imgSrc.transform.x}px, ${imgSrc.transform.y}px) scale(${imgSrc.transform.scale})`,
+                    }
+                  : undefined
+              }
             />
           </div>
         </div>
