@@ -122,17 +122,7 @@ export default function VisualisationGallery({
   
   const [activeMenuId, setActiveMenuId] = useState<string | null>(null);
 
-  // Menu d'insertion d'image style Google Docs
-  const [showInsertMenu, setShowInsertMenu] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
-
-  useEffect(() => {
-    const handleClickOutside = () => setActiveMenuId(null);
-    if (activeMenuId !== null) {
-      document.addEventListener("click", handleClickOutside);
-    }
-    return () => document.removeEventListener("click", handleClickOutside);
-  }, [activeMenuId]);
 
   const handleSave = (e: React.FormEvent) => {
     e.preventDefault();
@@ -197,23 +187,15 @@ export default function VisualisationGallery({
     setActiveMenuId(null);
   };
 
-  // Gestion de l'importation de plusieurs fichiers à la fois
+  // Gestion de l'importation de plusieurs fichiers à la fois depuis l'ordinateur
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
       const newImages = Array.from(e.target.files).map((file) => ({
         url: URL.createObjectURL(file),
       }));
       setCurrentImages((prev) => [...prev, ...newImages]);
-      setShowInsertMenu(false);
-    }
-  };
-
-  // Ajout par URL Web
-  const handleAddByUrl = () => {
-    const url = prompt("Entrez l'URL de l'image :");
-    if (url && url.trim()) {
-      setCurrentImages([...currentImages, { url: url.trim() }]);
-      setShowInsertMenu(false);
+      // Réinitialise l'input file pour permettre de re-sélectionner le même fichier si besoin
+      e.target.value = "";
     }
   };
 
@@ -429,16 +411,15 @@ export default function VisualisationGallery({
                     autoFocus
                   />
 
-                  {/* BOUTON ET MENU DE SÉLECTION DE RESSOURCES STYLE GOOGLE DOCS + BOUTON AJUSTER */}
-                  <div className={`relative flex items-center gap-3 ${isAdjustMode ? "z-40" : ""}`}>
+                  {/* BOUTON D'INSERTION DIRECTE ET BOUTON AJUSTER */}
+                  <div className={`flex items-center gap-3 ${isAdjustMode ? "z-40" : ""}`}>
                     <button
                       type="button"
-                      onClick={() => setShowInsertMenu(!showInsertMenu)}
+                      onClick={() => fileInputRef.current?.click()}
                       className="flex items-center gap-2 bg-white border border-purple-300 text-purple-900 font-semibold px-4 py-2.5 rounded-xl hover:bg-purple-100/50 transition-colors cursor-pointer text-sm"
                     >
                       <Plus size={18} />
                       Insérer une image
-                      <ChevronDown size={16} />
                     </button>
 
                     <button
@@ -456,55 +437,6 @@ export default function VisualisationGallery({
                     >
                       Ajuster
                     </button>
-
-                    {/* MENU DÉROULANT STYLE GOOGLE DOCS */}
-                    {showInsertMenu && (
-                      <div className="absolute top-12 left-0 bg-white rounded-2xl shadow-xl border border-gray-100 py-2 w-64 z-30 flex flex-col gap-0.5 animate-scale-up">
-                        <button
-                          type="button"
-                          onClick={() => fileInputRef.current?.click()}
-                          className="flex items-center gap-3 px-4 py-2.5 text-xs font-semibold text-gray-700 hover:bg-purple-50 hover:text-[#8B47FF] transition-colors text-left"
-                        >
-                          <Upload size={16} /> Importer depuis l'ordinateur
-                        </button>
-                        <button
-                          type="button"
-                          onClick={handleAddByUrl}
-                          className="flex items-center gap-3 px-4 py-2.5 text-xs font-semibold text-gray-700 hover:bg-purple-50 hover:text-[#8B47FF] transition-colors text-left"
-                        >
-                          <Search size={16} /> Rechercher sur le Web
-                        </button>
-                        <hr className="my-1 border-gray-100" />
-                        <button
-                          type="button"
-                          onClick={handleAddByUrl}
-                          className="flex items-center gap-3 px-4 py-2.5 text-xs font-semibold text-gray-700 hover:bg-purple-50 hover:text-[#8B47FF] transition-colors text-left"
-                        >
-                          <HardDrive size={16} /> Drive
-                        </button>
-                        <button
-                          type="button"
-                          onClick={handleAddByUrl}
-                          className="flex items-center gap-3 px-4 py-2.5 text-xs font-semibold text-gray-700 hover:bg-purple-50 hover:text-[#8B47FF] transition-colors text-left"
-                        >
-                          <ImageIcon size={16} /> Photos
-                        </button>
-                        <button
-                          type="button"
-                          onClick={handleAddByUrl}
-                          className="flex items-center gap-3 px-4 py-2.5 text-xs font-semibold text-gray-700 hover:bg-purple-50 hover:text-[#8B47FF] transition-colors text-left"
-                        >
-                          <Camera size={16} /> Appareil photo
-                        </button>
-                        <button
-                          type="button"
-                          onClick={handleAddByUrl}
-                          className="flex items-center gap-3 px-4 py-2.5 text-xs font-semibold text-gray-700 hover:bg-purple-50 hover:text-[#8B47FF] transition-colors text-left"
-                        >
-                          <LinkIcon size={16} /> À partir d'une URL
-                        </button>
-                      </div>
-                    )}
                   </div>
 
                  {/* APERÇU DES IMAGES AJOUTÉES À LA PELLICULE AVEC TRAIT VERTICAL D'INDICATEUR */}
