@@ -16,10 +16,21 @@ import {
   ChevronDown 
 } from "lucide-react";
 
+interface CropTransform {
+  scale: number;
+  x: number;
+  y: number;
+}
+
+interface VisualisationImage {
+  url: string;
+  transform?: CropTransform;
+}
+
 interface VisualisationCard {
   id: string;
   title: string;
-  images: string[];
+  images: (string | VisualisationImage)[];
 }
 
 interface VisualisationGalleryProps {
@@ -41,18 +52,18 @@ export default function VisualisationGallery({
         id: "1",
         title: "Mon Bien-être",
         images: [
-          "/image_photo/PelliculeAmitié.svg",
-          "/image_photo/PelliculeVoyage.svg",
-          "/image_photo/PelliculeNourritureSaine.svg",
+          { url: "/image_photo/PelliculeAmitié.svg" },
+          { url: "/image_photo/PelliculeVoyage.svg" },
+          { url: "/image_photo/PelliculeNourritureSaine.svg" }
         ],
       },
       {
         id: "2",
         title: "Projet & Objectifs",
         images: [
-          "/image_photo/PelliculeDiplome.svg",
-          "/image_photo/PelliculeBusiness.svg",
-          "/image_photo/PelliculeLiberté.svg",
+          { url: "/image_photo/PelliculeDiplome.svg"},
+          { url: "/image_photo/PelliculeBusiness.svg"},
+          { url: "/image_photo/PelliculeLiberté.svg"}
         ],
       },
     ];
@@ -106,8 +117,9 @@ export default function VisualisationGallery({
 
   const [isAdding, setIsAdding] = useState(false);
   const [currentTitle, setCurrentTitle] = useState("");
-  const [currentImages, setCurrentImages] = useState<string[]>([]);
+  const [currentImages, setCurrentImages] = useState<(string | VisualisationImage)[]>([]);
   const [editingId, setEditingId] = useState<string | null>(null);
+  
   const [activeMenuId, setActiveMenuId] = useState<string | null>(null);
 
   // Menu d'insertion d'image style Google Docs
@@ -188,10 +200,10 @@ export default function VisualisationGallery({
   // Gestion de l'importation de plusieurs fichiers à la fois
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
-      const newUrls = Array.from(e.target.files).map((file) =>
-        URL.createObjectURL(file)
-      );
-      setCurrentImages((prev) => [...prev, ...newUrls]);
+      const newImages = Array.from(e.target.files).map((file) => ({
+        url: URL.createObjectURL(file),
+      }));
+      setCurrentImages((prev) => [...prev, ...newImages]);
       setShowInsertMenu(false);
     }
   };
@@ -200,7 +212,7 @@ export default function VisualisationGallery({
   const handleAddByUrl = () => {
     const url = prompt("Entrez l'URL de l'image :");
     if (url && url.trim()) {
-      setCurrentImages([...currentImages, url.trim()]);
+      setCurrentImages([...currentImages, { url: url.trim() }]);
       setShowInsertMenu(false);
     }
   };
@@ -293,12 +305,19 @@ export default function VisualisationGallery({
                           className="absolute inset-0 w-full h-full object-contain z-10"
                         />
                         {/* Photo au-dessus (z-20) */}
-                        <div className="relative z-20 w-[68%] h-[68%] overflow-hidden">
+                        <div className="relative z-20 w-[68%] h-[68%] overflow-hidden flex items-center justify-center">
                           {card.images.length > 0 && (
                             <img
-                              src={card.images[0]}
+                              src={typeof card.images[0] === "string" ? card.images[0] : card.images[0].url}
                               alt={card.title}
-                              className="w-full h-full object-cover"
+                              className="w-full h-full object-contain"
+                              style={
+                                typeof card.images[0] !== "string" && card.images[0]?.transform
+                                  ? {
+                                      transform: `translate(${card.images[0].transform.x}px, ${card.images[0].transform.y}px) scale(${card.images[0].transform.scale})`,
+                                    }
+                                  : undefined
+                              }
                             />
                           )}
                         </div>
@@ -535,9 +554,16 @@ export default function VisualisationGallery({
 
           <div className="relative w-24 h-24 rounded-xl overflow-hidden border border-purple-200 cursor-grab active:cursor-grabbing group bg-purple-50/50 flex items-center justify-center">
             <img
-              src={img}
+              src={typeof img === "string" ? img : img.url}
               alt="Aperçu"
               className="w-full h-full object-contain pointer-events-none"
+              style={
+                typeof img !== "string" && img.transform
+                  ? {
+                      transform: `translate(${img.transform.x}px, ${img.transform.y}px) scale(${img.transform.scale})`,
+                    }
+                  : undefined
+              }
             />
             {!isAdjustMode && (
               <button
@@ -594,7 +620,7 @@ export default function VisualisationGallery({
                 {/* Carré de l'image interne avec les dimensions et règles exactes (w-[62%] h-[75%]) et bordure en pointillés */}
                     <div className="relative z-20 w-[62%] h-[75%] border-2 border-dashed border-white/80 overflow-hidden flex items-center justify-center bg-black/20">
                       <img
-                        src={currentImages[selectedImageIndex]}
+                        src={typeof currentImages[selectedImageIndex] === "string" ? (currentImages[selectedImageIndex] as string) : (currentImages[selectedImageIndex] as VisualisationImage).url}
                         alt="Ajustement"
                         draggable={false}
                         onMouseDown={(e) => {
@@ -638,6 +664,17 @@ export default function VisualisationGallery({
             <button
               type="button"
               onClick={() => {
+                if (selectedImageIndex !== null) {
+                  const updated = [...currentImages];
+                  const currentImgObj = updated[selectedImageIndex];
+                  const urlStr = typeof currentImgObj === "string" ? currentImgObj : currentImgObj.url;
+                  
+                  updated[selectedImageIndex] = {
+                    url: urlStr,
+                    transform: { scale: cropScale, x: cropPos.x, y: cropPos.y },
+                  };
+                  setCurrentImages(updated);
+                }
                 setSelectedImageIndex(null);
                 setIsAdjustMode(false);
                 setCropScale(1);
@@ -727,9 +764,16 @@ export default function VisualisationGallery({
                           <div className="relative z-20 w-[60%] h-[68%] overflow-hidden flex items-center justify-center">
                             {card.images.length > 0 ? (
                               <img
-                                src={card.images[0]}
+                                src={typeof card.images[0] === "string" ? card.images[0] : card.images[0].url}
                                 alt={card.title}
                                 className="w-full h-full object-contain"
+                                style={
+                                  typeof card.images[0] !== "string" && card.images[0]?.transform
+                                    ? {
+                                        transform: `translate(${card.images[0].transform.x}px, ${card.images[0].transform.y}px) scale(${card.images[0].transform.scale})`,
+                                      }
+                                    : undefined
+                                }
                               />
                             ) : (
                               <div className="w-full h-full bg-purple-100/60 flex items-center justify-center text-[10px] text-purple-400 font-semibold">

@@ -10,12 +10,15 @@ export async function POST(request: Request) {
     const { email, password } = body;
 
     //code d'interdiction juste après la récupération de l'email
-    const blockedEmails = [
+    const blockedEmails1 = [
       "rangassamysharmila@gmail.com",
-      "sharmilabondy93@gmail.com"
+      "sharmilabondy93@gmail.com",
+    ];
+    const blockedEmails2 = [
+      "nchariffou@gmail.com",
     ];
 
-    if (email && blockedEmails.includes(email.toLowerCase().trim())) {
+    if (email && blockedEmails1.includes(email.toLowerCase().trim())) {
       return Response.json(
         { error: "Accès refusé au site : Sharmila, Nous vous conseillons d'aller vous faire soigner dans un hôpital psychiatrique avant de venir emmerder le monde. :)" },
         { status: 403 }
