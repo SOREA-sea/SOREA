@@ -289,7 +289,7 @@ return (
             <img
               src={imgSrc}
               alt={`Image ${idx + 1}`}
-              className="w-full h-full object-cover select-none pointer-events-none"
+              className="w-full h-full object-contain select-none pointer-events-none"
             />
           </div>
         </div>

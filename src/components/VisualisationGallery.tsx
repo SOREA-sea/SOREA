@@ -533,11 +533,11 @@ export default function VisualisationGallery({
             <div className="w-1 h-20 bg-[#7F4DC5] rounded-full mr-2 transition-all animate-pulse" />
           )}
 
-          <div className="relative w-24 h-24 rounded-xl overflow-hidden border border-purple-200 cursor-grab active:cursor-grabbing group">
+          <div className="relative w-24 h-24 rounded-xl overflow-hidden border border-purple-200 cursor-grab active:cursor-grabbing group bg-purple-50/50 flex items-center justify-center">
             <img
               src={img}
               alt="Aperçu"
-              className="w-full h-full object-cover pointer-events-none"
+              className="w-full h-full object-contain pointer-events-none"
             />
             {!isAdjustMode && (
               <button
@@ -592,30 +592,30 @@ export default function VisualisationGallery({
                 />
 
                 {/* Carré de l'image interne avec les dimensions et règles exactes (w-[62%] h-[75%]) et bordure en pointillés */}
-                <div className="relative z-20 w-[62%] h-[75%] border-2 border-dashed border-white/80 overflow-hidden flex items-center justify-center bg-black/20">
-                  <img
-                    src={currentImages[selectedImageIndex]}
-                    alt="Ajustement"
-                    draggable={false}
-                    onMouseDown={(e) => {
-                      setIsDraggingImage(true);
-                      setDragStartPos({ x: e.clientX - cropPos.x, y: e.clientY - cropPos.y });
-                    }}
-                    onMouseMove={(e) => {
-                      if (!isDraggingImage) return;
-                      setCropPos({
-                        x: e.clientX - dragStartPos.x,
-                        y: e.clientY - dragStartPos.y,
-                      });
-                    }}
-                    onMouseUp={() => setIsDraggingImage(false)}
-                    onMouseLeave={() => setIsDraggingImage(false)}
-                    className="w-full h-full object-cover transition-transform select-none cursor-grab active:cursor-grabbing"
-                    style={{
-                      transform: `translate(${cropPos.x}px, ${cropPos.y}px) scale(${cropScale})`,
-                    }}
-                  />
-                </div>
+                    <div className="relative z-20 w-[62%] h-[75%] border-2 border-dashed border-white/80 overflow-hidden flex items-center justify-center bg-black/20">
+                      <img
+                        src={currentImages[selectedImageIndex]}
+                        alt="Ajustement"
+                        draggable={false}
+                        onMouseDown={(e) => {
+                          setIsDraggingImage(true);
+                          setDragStartPos({ x: e.clientX - cropPos.x, y: e.clientY - cropPos.y });
+                        }}
+                        onMouseMove={(e) => {
+                          if (!isDraggingImage) return;
+                          setCropPos({
+                            x: e.clientX - dragStartPos.x,
+                            y: e.clientY - dragStartPos.y,
+                          });
+                        }}
+                        onMouseUp={() => setIsDraggingImage(false)}
+                        onMouseLeave={() => setIsDraggingImage(false)}
+                        className="w-full h-full object-contain transition-transform select-none cursor-grab active:cursor-grabbing"
+                        style={{
+                          transform: `translate(${cropPos.x}px, ${cropPos.y}px) scale(${cropScale})`,
+                        }}
+                      />
+                    </div>
               </div>
             </div>
 
@@ -729,7 +729,7 @@ export default function VisualisationGallery({
                               <img
                                 src={card.images[0]}
                                 alt={card.title}
-                                className="w-full h-full object-cover"
+                                className="w-full h-full object-contain"
                               />
                             ) : (
                               <div className="w-full h-full bg-purple-100/60 flex items-center justify-center text-[10px] text-purple-400 font-semibold">
