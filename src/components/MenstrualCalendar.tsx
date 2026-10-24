@@ -230,7 +230,7 @@ const active = localStorage.getItem('sorea_has_notification') === 'true' || loca
       }
     }
 
-    //L'ouverture de la modale todo n'est autorisée que sur l'onglet 'todo'
+    // Ouverture de la modale todo sur l'onglet todo, ou de la modale de suivi quotidien sur l'onglet calendrier
     if (loggedUser && activeTab === 'todo') {
       setShowTodoModal(true);
     }
@@ -754,80 +754,93 @@ return (
       )}
 
       {selectedDate && activeTab === 'calendar' && (
-        <div className="mt-8 bg-[#F4EBFF] rounded-2xl p-6 border border-[#8B47FF]/30">
-          <div className="flex justify-between items-center mb-4">
-            <h3 className="text-lg font-bold text-[#8B47FF]">
-              Suivi quotidien - {selectedDate.toLocaleDateString("fr-FR", { weekday: 'long', day: 'numeric', month: 'long' })}
-            </h3>
-            <button onClick={() => setSelectedDate(null)} className="text-gray-500 hover:text-black">
-              <X className="w-5 h-5" />
-            </button>
-          </div>
-
-          {selectedDate.getTime() > new Date().setHours(23, 59, 59, 999) ? (
-            <p className="text-gray-500 font-medium italic">Vous ne pouvez renseigner vos symptômes que pour le jour en cours et les jours précédents.</p>
-          ) : (
-            <div className="space-y-6">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+          <div className="w-full max-w-2xl rounded-3xl border border-[#8B47FF] bg-white p-6 shadow-2xl">
+            <div className="flex items-center justify-between gap-4 mb-6">
               <div>
-                <p className="text-sm font-bold text-black mb-2">Flux</p>
-                <div className="flex flex-wrap gap-2">
-                  {['Léger', 'Moyen', 'Abondant'].map((f) => (
-                    <button
-                      key={f}
-                      onClick={() => handleSymptomChange('flow', f)}
-                      className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
-                        symptomLog.flow === f ? 'bg-[#8B47FF] text-white' : 'bg-white text-gray-700 border border-gray-300 hover:border-[#8B47FF]'
-                      }`}
-                    >
-                      {f}
-                    </button>
-                  ))}
-                </div>
+                <p className="text-sm font-semibold text-[#5B3ABC]">
+                  Suivi quotidien
+                </p>
+                <p className="text-2xl font-bold text-black">
+                  {selectedDate.toLocaleDateString("fr-FR", { weekday: 'long', day: 'numeric', month: 'long' })}
+                </p>
               </div>
-
-              <div>
-                <p className="text-sm font-bold text-black mb-2">Humeur</p>
-                <div className="flex flex-wrap gap-2">
-                  {['Heureuse', 'Irritable', 'Fatiguée', 'Anxieuse', 'Déprimée'].map((m) => (
-                    <button
-                      key={m}
-                      onClick={() => handleSymptomChange('mood', m)}
-                      className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
-                        symptomLog.mood === m ? 'bg-[#8B47FF] text-white' : 'bg-white text-gray-700 border border-gray-300 hover:border-[#8B47FF]'
-                      }`}
-                    >
-                      {m}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              <div>
-                <p className="text-sm font-bold text-black mb-2">Symptômes physiques</p>
-                <div className="flex flex-wrap gap-2">
-                  {['Crampes', 'Maux de tête', 'Acné', 'Seins douloureux'].map((s) => (
-                    <button
-                      key={s}
-                      onClick={() => handleSymptomChange('physicalSymptoms', s)}
-                      className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
-                        symptomLog.physicalSymptoms === s ? 'bg-[#8B47FF] text-white' : 'bg-white text-gray-700 border border-gray-300 hover:border-[#8B47FF]'
-                      }`}
-                    >
-                      {s}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
               <button
-                onClick={saveSymptom}
-                disabled={isSavingSymptom}
-                className="w-full py-3 mt-4 bg-[#8B47FF] text-white rounded-xl font-bold shadow-sm hover:opacity-90 transition-opacity"
+                onClick={() => setSelectedDate(null)}
+                className="rounded-full border border-gray-200 bg-white p-2 text-gray-600 transition hover:border-[#8B47FF] hover:text-black cursor-pointer"
               >
-                {isSavingSymptom ? 'Enregistrement...' : 'Enregistrer les symptômes'}
+                <X className="h-5 w-5" />
               </button>
             </div>
-          )}
+
+            {selectedDate.getTime() > new Date().setHours(23, 59, 59, 999) ? (
+              <p className="text-gray-500 font-medium italic py-4 text-center">Vous ne pouvez renseigner vos symptômes que pour le jour en cours et les jours précédents.</p>
+            ) : (
+              <div className="space-y-6 max-h-[360px] overflow-y-auto pr-2 custom-scrollbar">
+                <div>
+                  <p className="text-sm font-bold text-black mb-2">Flux</p>
+                  <div className="flex flex-wrap gap-2">
+                    {['Léger', 'Moyen', 'Abondant'].map((f) => (
+                      <button
+                        key={f}
+                        onClick={() => handleSymptomChange('flow', f)}
+                        className={`px-4 py-2 rounded-full text-sm font-medium transition-colors cursor-pointer ${
+                          symptomLog.flow === f ? 'bg-[#8B47FF] text-white' : 'bg-white text-gray-700 border border-gray-300 hover:border-[#8B47FF]'
+                        }`}
+                      >
+                        {f}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div>
+                  <p className="text-sm font-bold text-black mb-2">Humeur</p>
+                  <div className="flex flex-wrap gap-2">
+                    {['Heureuse', 'Irritable', 'Fatiguée', 'Anxieuse', 'Déprimée'].map((m) => (
+                      <button
+                        key={m}
+                        onClick={() => handleSymptomChange('mood', m)}
+                        className={`px-4 py-2 rounded-full text-sm font-medium transition-colors cursor-pointer ${
+                          symptomLog.mood === m ? 'bg-[#8B47FF] text-white' : 'bg-white text-gray-700 border border-gray-300 hover:border-[#8B47FF]'
+                        }`}
+                      >
+                        {m}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div>
+                  <p className="text-sm font-bold text-black mb-2">Symptômes physiques</p>
+                  <div className="flex flex-wrap gap-2">
+                    {['Crampes', 'Maux de tête', 'Acné', 'Seins douloureux'].map((s) => (
+                      <button
+                        key={s}
+                        onClick={() => handleSymptomChange('physicalSymptoms', s)}
+                        className={`px-4 py-2 rounded-full text-sm font-medium transition-colors cursor-pointer ${
+                          symptomLog.physicalSymptoms === s ? 'bg-[#8B47FF] text-white' : 'bg-white text-gray-700 border border-gray-300 hover:border-[#8B47FF]'
+                        }`}
+                      >
+                        {s}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <button
+                  onClick={async () => {
+                    await saveSymptom();
+                    setSelectedDate(null);
+                  }}
+                  disabled={isSavingSymptom}
+                  className="w-full py-3 mt-4 bg-[#8B47FF] text-white rounded-xl font-bold shadow-sm hover:opacity-90 transition-opacity cursor-pointer"
+                >
+                  {isSavingSymptom ? 'Enregistrement...' : 'Enregistrer les symptômes'}
+                </button>
+              </div>
+            )}
+          </div>
         </div>
       )}
 
