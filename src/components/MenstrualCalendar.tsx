@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { Settings, ChevronLeft, ChevronRight, X, Trash2 } from "lucide-react";
+import MenstrualFlux from "./MenstrualFlux";
 
 interface Profile {
   isActive: boolean;
@@ -999,63 +1000,15 @@ return (
                 </div>
               )}
 
-              {/* ONGLET 4 : FLUX */}
+            {/* ONGLET 4 : FLUX */}
               {symptomTab === 'flux' && (
-                <div className="space-y-8 py-4 flex flex-col items-center">
-                  <div className="w-full max-w-md px-6">
-                    <div className="relative flex items-center justify-between">
-                      {/* Ligne de progression */}
-                      <div className="absolute left-0 right-0 h-1.5 bg-purple-200 rounded-full z-0">
-                        <div 
-                          className="h-full bg-[#8B47FF] rounded-full transition-all duration-300"
-                          style={{ width: `${((fluxValue - 1) / 3) * 100}%` }}
-                        />
-                      </div>
-
-                      {/* Points d'étape de la jauge */}
-                      {[1, 2, 3, 4].map((val) => {
-                        const isReached = fluxValue >= val;
-                        const isCurrent = fluxValue === val;
-                        return (
-                          <button
-                            key={val}
-                            type="button"
-                            onClick={() => setFluxValue(val)}
-                            className={`relative z-10 w-6 h-6 rounded-full transition-all cursor-pointer flex items-center justify-center ${
-                              isReached ? 'bg-[#8B47FF]' : 'bg-purple-200'
-                            }`}
-                          >
-                            {/* Icône de goutte (ou flocon si isSnowflakeMode) sur le point actif */}
-                            {isCurrent && (
-                              <div className="absolute -top-7 w-6 h-6 flex items-center justify-center animate-bounce">
-                                <img
-                                  src={isSnowflakeMode ? "/image_icone/Flocon.svg" : "/image_Design-SOREA/Hiver.svg"}
-                                  alt="Flux icône"
-                                  className="w-5 h-5 object-contain"
-                                />
-                              </div>
-                            )}
-                          </button>
-                        );
-                      })}
-                    </div>
-                  </div>
-
-                  {/* Libellé dynamique du flux */}
-                  <div className="px-6 py-2 bg-purple-100 text-[#8B47FF] rounded-full font-bold text-sm shadow-sm">
-                    {fluxValue === 1 ? "Très léger" : fluxValue === 2 ? "Modéré" : fluxValue === 3 ? "Abondant" : "Très abondant"}
-                  </div>
-
-                  <div className="w-full p-4 rounded-2xl border border-gray-300 bg-white">
-                    <input
-                      type="text"
-                      placeholder="Plus de précisions..."
-                      value={fluxCustom}
-                      onChange={(e) => setFluxCustom(e.target.value)}
-                      className="w-full text-sm outline-none text-gray-800 placeholder-gray-400 bg-transparent"
-                    />
-                  </div>
-                </div>
+                <MenstrualFlux
+                  fluxValue={fluxValue}
+                  setFluxValue={setFluxValue}
+                  fluxCustom={fluxCustom}
+                  setFluxCustom={setFluxCustom}
+                  isSnowflakeMode={isSnowflakeMode}
+                />
               )}
 
               {/* ONGLET 5 : RÉSULTAT */}
