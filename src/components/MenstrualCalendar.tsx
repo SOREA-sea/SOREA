@@ -57,6 +57,16 @@ const [showCalendarHelpModal, setShowCalendarHelpModal] = useState(false);
   const [symptomLog, setSymptomLog] = useState<SymptomLog>({ flow: null, mood: null, physicalSymptoms: null });
   const [isSavingSymptom, setIsSavingSymptom] = useState(false);
 
+  const [symptomTab, setSymptomTab] = useState<'humeur' | 'symptome' | 'rectifier' | 'flux' | 'resultat'>('humeur');
+  const [selectedMoods, setSelectedMoods] = useState<string[]>([]);
+  const [customMood, setCustomMood] = useState("");
+  const [selectedPhysicalSymptoms, setSelectedPhysicalSymptoms] = useState<string[]>([]);
+  const [customPhysical, setCustomPhysical] = useState("");
+  const [openCategory, setOpenCategory] = useState<string | null>(null);
+  const [fluxValue, setFluxValue] = useState<number>(1); //Léger, Modéré, Abondant, Très abondant (ou plus)
+  const [fluxCustom, setFluxCustom] = useState("");
+  const [resultatSummary, setResultatSummary] = useState("");
+
   const [selectedTodoDate, setSelectedTodoDate] = useState<string | null>(null);
   const [showTodoModal, setShowTodoModal] = useState(false);
   const [todoInput, setTodoInput] = useState("");
@@ -204,8 +214,13 @@ const active = localStorage.getItem('sorea_has_notification') === 'true' || loca
           mood: data.log.mood,
           physicalSymptoms: data.log.physicalSymptoms,
         });
+        // Initialisation des états multiples si enregistrés
+        setSelectedMoods(data.log.mood ? data.log.mood.split(', ') : []);
+        setSelectedPhysicalSymptoms(data.log.physicalSymptoms ? data.log.physicalSymptoms.split(', ') : []);
       } else {
         setSymptomLog({ flow: null, mood: null, physicalSymptoms: null });
+        setSelectedMoods([]);
+        setSelectedPhysicalSymptoms([]);
       }
     } catch (e) {
       console.error(e);
@@ -755,7 +770,9 @@ return (
 
       {selectedDate && activeTab === 'calendar' && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-          <div className="w-full max-w-2xl rounded-3xl border border-[#8B47FF] bg-white p-6 shadow-2xl">
+          <div className="w-full max-w-2xl rounded-3xl border border-[#8B47FF] bg-white p-8 shadow-2xl relative">
+            
+            {/* En-tête */}
             <div className="flex items-center justify-between gap-4 mb-6">
               <div>
                 <p className="text-sm font-semibold text-[#5B3ABC]">
@@ -773,73 +790,316 @@ return (
               </button>
             </div>
 
-            {selectedDate.getTime() > new Date().setHours(23, 59, 59, 999) ? (
-              <p className="text-gray-500 font-medium italic py-4 text-center">Vous ne pouvez renseigner vos symptômes que pour le jour en cours et les jours précédents.</p>
-            ) : (
-              <div className="space-y-6 max-h-[360px] overflow-y-auto pr-2 custom-scrollbar">
-                <div>
-                  <p className="text-sm font-bold text-black mb-2">Flux</p>
-                  <div className="flex flex-wrap gap-2">
-                    {['Léger', 'Moyen', 'Abondant'].map((f) => (
-                      <button
-                        key={f}
-                        onClick={() => handleSymptomChange('flow', f)}
-                        className={`px-4 py-2 rounded-full text-sm font-medium transition-colors cursor-pointer ${
-                          symptomLog.flow === f ? 'bg-[#8B47FF] text-white' : 'bg-white text-gray-700 border border-gray-300 hover:border-[#8B47FF]'
-                        }`}
-                      >
-                        {f}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                <div>
-                  <p className="text-sm font-bold text-black mb-2">Humeur</p>
-                  <div className="flex flex-wrap gap-2">
-                    {['Heureuse', 'Irritable', 'Fatiguée', 'Anxieuse', 'Déprimée'].map((m) => (
-                      <button
-                        key={m}
-                        onClick={() => handleSymptomChange('mood', m)}
-                        className={`px-4 py-2 rounded-full text-sm font-medium transition-colors cursor-pointer ${
-                          symptomLog.mood === m ? 'bg-[#8B47FF] text-white' : 'bg-white text-gray-700 border border-gray-300 hover:border-[#8B47FF]'
-                        }`}
-                      >
-                        {m}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                <div>
-                  <p className="text-sm font-bold text-black mb-2">Symptômes physiques</p>
-                  <div className="flex flex-wrap gap-2">
-                    {['Crampes', 'Maux de tête', 'Acné', 'Seins douloureux'].map((s) => (
-                      <button
-                        key={s}
-                        onClick={() => handleSymptomChange('physicalSymptoms', s)}
-                        className={`px-4 py-2 rounded-full text-sm font-medium transition-colors cursor-pointer ${
-                          symptomLog.physicalSymptoms === s ? 'bg-[#8B47FF] text-white' : 'bg-white text-gray-700 border border-gray-300 hover:border-[#8B47FF]'
-                        }`}
-                      >
-                        {s}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
+            {/* Navbar des onglets */}
+            <div className="flex rounded-2xl border border-purple-200 p-1 mb-8 bg-white gap-1 overflow-x-auto">
+              {[
+                { id: 'humeur', label: 'Humeur' },
+                { id: 'symptome', label: 'Symptôme physique' },
+                { id: 'rectifier', label: 'À Rectifier !' },
+                { id: 'flux', label: 'Flux' },
+                { id: 'resultat', label: 'Résultat' },
+              ].map((tab) => (
                 <button
-                  onClick={async () => {
-                    await saveSymptom();
-                    setSelectedDate(null);
-                  }}
-                  disabled={isSavingSymptom}
-                  className="w-full py-3 mt-4 bg-[#8B47FF] text-white rounded-xl font-bold shadow-sm hover:opacity-90 transition-opacity cursor-pointer"
+                  key={tab.id}
+                  type="button"
+                  onClick={() => setSymptomTab(tab.id as any)}
+                  className={`flex-1 py-3 px-4 text-sm font-semibold rounded-xl transition-all cursor-pointer whitespace-nowrap text-center ${
+                    symptomTab === tab.id
+                      ? 'bg-[#C4B5FD] text-purple-950 shadow-sm font-bold'
+                      : 'text-gray-600 hover:bg-purple-50'
+                  }`}
                 >
-                  {isSavingSymptom ? 'Enregistrement...' : 'Enregistrer les symptômes'}
+                  {tab.label}
                 </button>
-              </div>
-            )}
+              ))}
+            </div>
+
+            {/* Contenu des onglets */}
+            <div className="min-h-[300px] max-h-[380px] overflow-y-auto pr-1 custom-scrollbar">
+              
+              {/* ONGLET 1 : HUMEUR */}
+              {symptomTab === 'humeur' && (
+                <div className="space-y-6">
+                  {/* Groupe Positif (Cadre Vert) */}
+                  <div className="p-4 rounded-2xl border-2 border-emerald-300 bg-emerald-50/20">
+                    <div className="flex flex-wrap gap-2">
+                      {[
+                        "Calme", "Confiante", "Dynamique", "Enthousiaste", "Épanouie",
+                        "Euphorique", "Extravertie", "Heureuse", "Joyeuse",
+                        "Mélancolique", "Motivé·e", "Optimiste", "Paisible", "Réservé·e",
+                        "Sereine", "Sociable", "Vitalité"
+                      ].map((m) => {
+                        const isSelected = selectedMoods.includes(m);
+                        return (
+                          <button
+                            key={m}
+                            type="button"
+                            onClick={() => {
+                              setSelectedMoods(prev => 
+                                isSelected ? prev.filter(item => item !== m) : [...prev, m]
+                              );
+                            }}
+                            className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all cursor-pointer ${
+                              isSelected 
+                                ? 'bg-[#8B47FF] text-white shadow-sm' 
+                                : 'bg-white text-gray-700 border border-gray-200 hover:border-[#8B47FF]'
+                            }`}
+                          >
+                            {m}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  {/* Groupe Négatif / Intense (Cadre Rose/Rouge) */}
+                  <div className="p-4 rounded-2xl border-2 border-rose-300 bg-rose-50/20">
+                    <div className="flex flex-wrap gap-2">
+                      {[
+                        "Anxieuse", "Apathe", "Déprimé·e", "Émotive", "Énervée",
+                        "Épuisée", "Fatiguée", "Insomnie", "Inquiète", "Irritable",
+                        "Léthargie", "Somnolente", "Stressée", "Triste"
+                      ].map((m) => {
+                        const isSelected = selectedMoods.includes(m);
+                        return (
+                          <button
+                            key={m}
+                            type="button"
+                            onClick={() => {
+                              setSelectedMoods(prev => 
+                                isSelected ? prev.filter(item => item !== m) : [...prev, m]
+                              );
+                            }}
+                            className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all cursor-pointer ${
+                              isSelected 
+                                ? 'bg-[#8B47FF] text-white shadow-sm' 
+                                : 'bg-white text-gray-700 border border-gray-200 hover:border-[#8B47FF]'
+                            }`}
+                          >
+                            {m}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  {/* Autre : Champ de texte */}
+                  <div className="p-4 rounded-2xl border border-gray-300 bg-white">
+                    <input
+                      type="text"
+                      placeholder="Autre : ..."
+                      value={customMood}
+                      onChange={(e) => setCustomMood(e.target.value)}
+                      className="w-full text-sm outline-none text-gray-800 placeholder-gray-400 bg-transparent"
+                    />
+                  </div>
+                </div>
+              )}
+
+              {/* ONGLET 2 : SYMPTÔME PHYSIQUE */}
+              {symptomTab === 'symptome' && (
+                <div className="space-y-4">
+                  {[
+                    {
+                      category: "Douleurs",
+                      items: ["Crampes", "Maux de tête", "Migraines", "Seins douloureux", "Douleurs pelviennes", "Douleurs lombaires", "Douleurs articulaires", "Douleurs musculaires", "Tensions dans le bas-ventre"]
+                    },
+                    {
+                      category: "Changements de peau et cheveux",
+                      items: ["Acné", "Peau grasse", "Peau sèche", "Boutons", "Teint terne", "Peau lumineuse", "Cheveux gras", "Cheveux secs", "Chute de cheveux", "Points noirs"]
+                    },
+                    {
+                      category: "Digestion et Appétit",
+                      items: ["Ballonnements", "Gaz", "Nausées", "Brûlures d'estomac", "Perte d'appétit", "Appétit accru", "Fringales", "Envie de sucre", "Envie de salé"]
+                    },
+                    {
+                      category: "Sécrétion et Intimité",
+                      items: ["Pertes blanches", "Glaire cervicale", "abondante", "Glaire cervicale filante", "Sécheresse vaginale", "Saignements intermenstruels", "Spotting"]
+                    },
+                    {
+                      category: "Selles et Transit",
+                      items: ["Selles molles", "Selles dures", "Selles fréquentes", "Constipation", "Diarrhée", "Transit ralenti", "Transit accéléré"]
+                    },
+                    {
+                      category: "Corps",
+                      items: ["Rétention d'eau", "Jambes lourdes", "Gonflement abdominal", "Prise de poids temporaire", "Seins gonfiés", "Ventre dur"]
+                    }
+                  ].map((cat) => {
+                    const isOpen = openCategory === cat.category;
+                    return (
+                      <div key={cat.category} className="border border-gray-300 rounded-2xl overflow-hidden bg-white shadow-sm">
+                        <button
+                          type="button"
+                          onClick={() => setOpenCategory(isOpen ? null : cat.category)}
+                          className="w-full px-5 py-4 text-left font-semibold text-gray-800 flex justify-between items-center hover:bg-purple-50 transition-colors cursor-pointer"
+                        >
+                          <span>{cat.category}</span>
+                          <span className="text-xl font-light">{isOpen ? '−' : '+'}</span>
+                        </button>
+                        {isOpen && (
+                          <div className="p-4 border-t border-gray-100 bg-purple-50/30 flex flex-wrap gap-2">
+                            {cat.items.map((item) => {
+                              const isSelected = selectedPhysicalSymptoms.includes(item);
+                              return (
+                                <button
+                                  key={item}
+                                  type="button"
+                                  onClick={() => {
+                                    setSelectedPhysicalSymptoms(prev =>
+                                      isSelected ? prev.filter(i => i !== item) : [...prev, item]
+                                    );
+                                  }}
+                                  className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all cursor-pointer ${
+                                    isSelected 
+                                      ? 'bg-[#8B47FF] text-white shadow-sm' 
+                                      : 'bg-white text-gray-700 border border-gray-200 hover:border-[#8B47FF]'
+                                  }`}
+                                >
+                                  {item}
+                                </button>
+                              );
+                            })}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+
+                  {/* Autre : Champ de texte */}
+                  <div className="p-4 rounded-2xl border border-gray-300 bg-white">
+                    <input
+                      type="text"
+                      placeholder="Autre : ..."
+                      value={customPhysical}
+                      onChange={(e) => setCustomPhysical(e.target.value)}
+                      className="w-full text-sm outline-none text-gray-800 placeholder-gray-400 bg-transparent"
+                    />
+                  </div>
+                </div>
+              )}
+
+              {/* ONGLET 3 : À RECTIFIER ! */}
+              {symptomTab === 'rectifier' && (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <button type="button" className="p-4 rounded-2xl border border-gray-300 bg-white hover:border-[#8B47FF] text-sm font-semibold text-gray-800 transition-all cursor-pointer shadow-sm text-center">
+                    J'ai mes règles !
+                  </button>
+                  <button type="button" className="p-4 rounded-2xl border border-gray-300 bg-white hover:border-[#8B47FF] text-sm font-semibold text-gray-800 transition-all cursor-pointer shadow-sm text-center">
+                    Mes règles continuent
+                  </button>
+                  <button type="button" className="p-4 rounded-2xl border border-gray-300 bg-white hover:border-[#8B47FF] text-sm font-semibold text-gray-800 transition-all cursor-pointer shadow-sm text-center">
+                    Je ne les ai pas
+                  </button>
+                  <button type="button" className="p-4 rounded-2xl border border-gray-300 bg-white hover:border-[#8B47FF] text-sm font-semibold text-gray-800 transition-all cursor-pointer shadow-sm text-center">
+                    Je ne les ai plus
+                  </button>
+                  <div className="sm:col-span-2 p-4 rounded-2xl border border-gray-300 bg-white">
+                    <input type="text" placeholder="Plus de précisions..." className="w-full text-sm outline-none text-gray-800 placeholder-gray-400 bg-transparent" />
+                  </div>
+                </div>
+              )}
+
+              {/* ONGLET 4 : FLUX */}
+              {symptomTab === 'flux' && (
+                <div className="space-y-8 py-4 flex flex-col items-center">
+                  <div className="w-full max-w-md px-6">
+                    <div className="relative flex items-center justify-between">
+                      {/* Ligne de progression */}
+                      <div className="absolute left-0 right-0 h-1.5 bg-purple-200 rounded-full z-0">
+                        <div 
+                          className="h-full bg-[#8B47FF] rounded-full transition-all duration-300"
+                          style={{ width: `${((fluxValue - 1) / 3) * 100}%` }}
+                        />
+                      </div>
+
+                      {/* Points d'étape de la jauge */}
+                      {[1, 2, 3, 4].map((val) => {
+                        const isReached = fluxValue >= val;
+                        const isCurrent = fluxValue === val;
+                        return (
+                          <button
+                            key={val}
+                            type="button"
+                            onClick={() => setFluxValue(val)}
+                            className={`relative z-10 w-6 h-6 rounded-full transition-all cursor-pointer flex items-center justify-center ${
+                              isReached ? 'bg-[#8B47FF]' : 'bg-purple-200'
+                            }`}
+                          >
+                            {/* Icône de goutte (ou flocon si isSnowflakeMode) sur le point actif */}
+                            {isCurrent && (
+                              <div className="absolute -top-7 w-6 h-6 flex items-center justify-center animate-bounce">
+                                <img
+                                  src={isSnowflakeMode ? "/image_icone/Flocon.svg" : "/image_Design-SOREA/Hiver.svg"}
+                                  alt="Flux icône"
+                                  className="w-5 h-5 object-contain"
+                                />
+                              </div>
+                            )}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  {/* Libellé dynamique du flux */}
+                  <div className="px-6 py-2 bg-purple-100 text-[#8B47FF] rounded-full font-bold text-sm shadow-sm">
+                    {fluxValue === 1 ? "Très léger" : fluxValue === 2 ? "Modéré" : fluxValue === 3 ? "Abondant" : "Très abondant"}
+                  </div>
+
+                  <div className="w-full p-4 rounded-2xl border border-gray-300 bg-white">
+                    <input
+                      type="text"
+                      placeholder="Plus de précisions..."
+                      value={fluxCustom}
+                      onChange={(e) => setFluxCustom(e.target.value)}
+                      className="w-full text-sm outline-none text-gray-800 placeholder-gray-400 bg-transparent"
+                    />
+                  </div>
+                </div>
+              )}
+
+              {/* ONGLET 5 : RÉSULTAT */}
+              {symptomTab === 'resultat' && (
+                <div className="space-y-6">
+                  <div>
+                    <h4 className="text-lg font-bold text-[#7F4DC5] mb-3">Comment s'est passé ta période Menstruelle ?</h4>
+                    <div className="p-4 rounded-2xl border border-gray-300 bg-white">
+                      <textarea
+                        rows={3}
+                        placeholder="Ma période menstruelle s'est vu accompagné de..."
+                        value={resultatSummary}
+                        onChange={(e) => setResultatSummary(e.target.value)}
+                        className="w-full text-sm outline-none text-gray-800 placeholder-gray-400 bg-transparent resize-none"
+                      />
+                    </div>
+                  </div>
+
+                  <button
+                    onClick={async () => {
+                      // Fusionner les sélections et textes personnalisés avant sauvegarde
+                      const finalMood = [...selectedMoods, customMood].filter(Boolean).join(', ');
+                      const finalPhysical = [...selectedPhysicalSymptoms, customPhysical].filter(Boolean).join(', ');
+                      const finalFlux = fluxValue === 1 ? "Léger" : fluxValue === 2 ? "Moyen" : fluxValue === 3 ? "Abondant" : "Très abondant";
+
+                      setSymptomLog({
+                        flow: finalFlux,
+                        mood: finalMood,
+                        physicalSymptoms: finalPhysical,
+                      });
+
+                      await saveSymptom();
+                      setSelectedDate(null);
+                    }}
+                    disabled={isSavingSymptom}
+                    className="w-full py-4 bg-[#8B47FF] text-white rounded-2xl font-bold shadow-lg hover:bg-[#7535e6] transition-all cursor-pointer text-base"
+                  >
+                    {isSavingSymptom ? 'Enregistrement...' : 'Enregistrer les symptômes'}
+                  </button>
+                </div>
+              )}
+
+            </div>
+
           </div>
         </div>
       )}
