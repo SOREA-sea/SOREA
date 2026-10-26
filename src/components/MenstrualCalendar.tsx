@@ -985,86 +985,108 @@ return (
               )}
 
               {/* ONGLET 2 : SYMPTÔME PHYSIQUE */}
-              {symptomTab === 'symptome' && (
-                <div className="space-y-4">
-                  {[
-                    {
-                      category: "Douleurs",
-                      items: ["Crampes", "Maux de tête", "Migraines", "Seins douloureux", "Douleurs pelviennes", "Douleurs lombaires", "Douleurs articulaires", "Douleurs musculaires", "Tensions dans le bas-ventre"]
-                    },
-                    {
-                      category: "Changements de peau et cheveux",
-                      items: ["Acné", "Peau grasse", "Peau sèche", "Boutons", "Teint terne", "Peau lumineuse", "Cheveux gras", "Cheveux secs", "Chute de cheveux", "Points noirs"]
-                    },
-                    {
-                      category: "Digestion et Appétit",
-                      items: ["Ballonnements", "Gaz", "Nausées", "Brûlures d'estomac", "Perte d'appétit", "Appétit accru", "Fringales", "Envie de sucre", "Envie de salé"]
-                    },
-                    {
-                      category: "Sécrétion et Intimité",
-                      items: ["Pertes blanches", "Glaire cervicale", "abondante", "Glaire cervicale filante", "Sécheresse vaginale", "Saignements intermenstruels", "Spotting"]
-                    },
-                    {
-                      category: "Selles et Transit",
-                      items: ["Selles molles", "Selles dures", "Selles fréquentes", "Constipation", "Diarrhée", "Transit ralenti", "Transit accéléré"]
-                    },
-                    {
-                      category: "Corps",
-                      items: ["Rétention d'eau", "Jambes lourdes", "Gonflement abdominal", "Prise de poids temporaire", "Seins gonfiés", "Ventre dur"]
-                    }
-                  ].map((cat) => {
-                    const isOpen = openCategory === cat.category;
-                    return (
-                      <div key={cat.category} className="border border-gray-300 rounded-2xl overflow-hidden bg-white shadow-sm">
-                        <button
-                          type="button"
-                          onClick={() => setOpenCategory(isOpen ? null : cat.category)}
-                          className="w-full px-5 py-4 text-left font-semibold text-gray-800 flex justify-between items-center hover:bg-purple-50 transition-colors cursor-pointer"
-                        >
-                          <span>{cat.category}</span>
-                          <span className="text-xl font-light">{isOpen ? '−' : '+'}</span>
-                        </button>
-                        {isOpen && (
-                          <div className="p-4 border-t border-gray-100 bg-purple-50/30 flex flex-wrap gap-2">
-                            {cat.items.map((item) => {
-                              const isSelected = selectedPhysicalSymptoms.includes(item);
-                              return (
-                                <button
-                                  key={item}
-                                  type="button"
-                                  onClick={() => {
-                                    setSelectedPhysicalSymptoms(prev =>
-                                      isSelected ? prev.filter(i => i !== item) : [...prev, item]
-                                    );
-                                  }}
-                                  className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all cursor-pointer ${
-                                    isSelected 
-                                      ? 'bg-[#8B47FF] text-white shadow-sm' 
-                                      : 'bg-white text-gray-700 border border-gray-200 hover:border-[#8B47FF]'
-                                  }`}
-                                >
-                                  {item}
-                                </button>
-                              );
-                            })}
-                          </div>
-                        )}
-                      </div>
-                    );
-                  })}
+              {symptomTab === 'symptome' && (() => {
+                const categoriesData = [
+                  {
+                    category: "Douleurs",
+                    items: ["Crampes", "Maux de tête", "Migraines", "Seins douloureux", "Douleurs pelviennes", "Douleurs lombaires", "Douleurs articulaires", "Douleurs musculaires", "Tensions dans le bas-ventre"]
+                  },
+                  {
+                    category: "Changements de peau et cheveux",
+                    items: ["Acné", "Peau grasse", "Peau sèche", "Boutons", "Teint terne", "Peau lumineuse", "Cheveux gras", "Cheveux secs", "Chute de cheveux", "Points noirs"]
+                  },
+                  {
+                    category: "Digestion et Appétit",
+                    items: ["Ballonnements", "Gaz", "Nausées", "Brûlures d'estomac", "Perte d'appétit", "Appétit accru", "Fringales", "Envie de sucre", "Envie de salé"]
+                  },
+                  {
+                    category: "Sécrétion et Intimité",
+                    items: ["Pertes blanches", "Glaire cervicale", "abondante", "Glaire cervicale filante", "Sécheresse vaginale", "Saignements intermenstruels", "Spotting"]
+                  },
+                  {
+                    category: "Selles et Transit",
+                    items: ["Selles molles", "Selles dures", "Selles fréquentes", "Constipation", "Diarrhée", "Transit ralenti", "Transit accéléré"]
+                  },
+                  {
+                    category: "Corps",
+                    items: ["Rétention d'eau", "Jambes lourdes", "Gonflement abdominal", "Prise de poids temporaire", "Seins gonfiés", "Ventre dur"]
+                  }
+                ];
 
-                  {/* Autre : Champ de texte */}
-                  <div className="p-4 rounded-2xl border border-gray-300 bg-white">
-                    <input
-                      type="text"
-                      placeholder="Autre : ..."
-                      value={customPhysical}
-                      onChange={(e) => setCustomPhysical(e.target.value)}
-                      className="w-full text-sm outline-none text-gray-800 placeholder-gray-400 bg-transparent"
-                    />
+                const openCatObj = categoriesData.find(c => c.category === openCategory);
+
+                return (
+                  <div className="space-y-4">
+                    {/* Grille 3 colonnes de boutons de catégories */}
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                      {categoriesData.map((cat) => {
+                        const isOpen = openCategory === cat.category;
+                        return (
+                          <button
+                            key={cat.category}
+                            type="button"
+                            onClick={() => setOpenCategory(isOpen ? null : cat.category)}
+                            className={`p-4 rounded-2xl border text-center text-xs font-semibold transition-all cursor-pointer flex flex-col items-center justify-between min-h-[75px] ${
+                              isOpen 
+                                ? 'border-[#8B47FF] bg-[#F4EBFF] text-[#8B47FF] shadow-sm' 
+                                : 'border-gray-300 bg-white text-gray-800 hover:border-[#8B47FF]'
+                            }`}
+                          >
+                            <span className="leading-tight">{cat.category}</span>
+                            <svg 
+                              className={`w-4 h-4 text-gray-500 mt-2 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} 
+                              fill="none" 
+                              stroke="currentColor" 
+                              strokeWidth="2" 
+                      viewBox="0 0 24 24"
+                            >
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+                            </svg>
+                          </button>
+                        );
+                      })}
+                    </div>
+
+                    {/* Contenu déroulant s'affichant proprement en dessous de la grille */}
+                    {openCatObj && (
+                      <div className="p-4 rounded-2xl border border-[#8B47FF]/30 bg-purple-50/30 flex flex-wrap gap-2 animate-in fade-in duration-200">
+                        {openCatObj.items.map((item) => {
+                          const isSelected = selectedPhysicalSymptoms.includes(item);
+                          return (
+                            <button
+                              key={item}
+                              type="button"
+                              onClick={() => {
+                                setSelectedPhysicalSymptoms(prev =>
+                                  isSelected ? prev.filter(i => i !== item) : [...prev, item]
+                                );
+                              }}
+                              className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all cursor-pointer ${
+                                isSelected 
+                                  ? 'bg-[#8B47FF] text-white shadow-sm' 
+                                  : 'bg-white text-gray-700 border border-gray-200 hover:border-[#8B47FF]'
+                              }`}
+                            >
+                              {item}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    )}
+
+                    {/* Autre : Champ de texte */}
+                    <div className="p-4 rounded-2xl border border-gray-300 bg-white">
+                      <input
+                        type="text"
+                        placeholder="Autre : ..."
+                        value={customPhysical}
+                        onChange={(e) => setCustomPhysical(e.target.value)}
+                        className="w-full text-sm outline-none text-gray-800 placeholder-gray-400 bg-transparent"
+                      />
+                    </div>
                   </div>
-                </div>
-              )}
+                );
+              })()}
 
               {/* ONGLET 3 : À RECTIFIER ! */}
               {symptomTab === 'rectifier' && (
