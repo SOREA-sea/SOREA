@@ -38,6 +38,19 @@ const phaseIcons: { [key: string]: string } = {
   Automne: "/image_icone/Automne.svg",
 };
 
+const POSITIVE_MOODS = [
+  "Calme", "Confiante", "Dynamique", "Enthousiaste", "Épanouie",
+  "Euphorique", "Extravertie", "Heureuse", "Joyeuse",
+  "Mélancolique", "Motivée", "Optimiste", "Paisible", "Réservée",
+  "Sereine", "Sociable", "Vitalité"
+];
+
+const NEGATIVE_MOODS = [
+  "Anxieuse", "Apathe", "Déprimée", "Émotive", "Énervée",
+  "Épuisée", "Fatiguée", "Insomnie", "Inquiète", "Irritable",
+  "Léthargie", "Somnolente", "Stressée", "Triste"
+];
+
 export default function MenstrualCalendar() {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [cycleInfo, setCycleInfo] = useState<CycleInfo | null>(null);
@@ -1088,6 +1101,46 @@ return (
               {/* ONGLET 5 : RÉSULTAT */}
               {symptomTab === 'resultat' && (
                 <div className="space-y-6">
+                  {/* Section des humeurs sélectionnées avec croix de suppression au survol */}
+                  {selectedMoods.length > 0 && (
+                    <div>
+                      <h4 className="text-lg font-bold text-[#7F4DC5] mb-3">Humeur</h4>
+                      <div className="flex flex-wrap gap-2">
+                        {selectedMoods.map((mood) => {
+                          const isPositive = POSITIVE_MOODS.includes(mood);
+                          const isNegative = NEGATIVE_MOODS.includes(mood);
+                          
+                          const borderClass = isPositive 
+                            ? "border-emerald-400 bg-emerald-50/10 text-gray-800" 
+                            : isNegative 
+                            ? "border-rose-300 bg-rose-50/10 text-gray-800" 
+                            : "border-gray-400 bg-white text-gray-800";
+
+                          return (
+                            <div key={mood} className="relative group/resultmood inline-flex items-center">
+                              <span
+                                className={`px-4 py-2 rounded-full text-xs font-medium border ${borderClass} shadow-sm pr-6`}
+                              >
+                                {mood}
+                              </span>
+                              {/* Bouton de suppression (croix) qui apparaît au survol */}
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setSelectedMoods(prev => prev.filter(m => m !== mood));
+                                }}
+                                className="absolute right-1.5 w-4 h-4 rounded-full bg-gray-200 text-gray-600 hover:bg-red-500 hover:text-white flex items-center justify-center text-[10px] font-bold opacity-0 group-hover/resultmood:opacity-100 transition-opacity cursor-pointer"
+                                title="Supprimer cette humeur"
+                              >
+                                ×
+                              </button>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+
                   <div>
                     <h4 className="text-lg font-bold text-[#7F4DC5] mb-3">Comment s'est passé ta période Menstruelle ?</h4>
                     <div className="p-4 rounded-2xl border border-gray-300 bg-white">
