@@ -78,6 +78,7 @@ const [showCalendarHelpModal, setShowCalendarHelpModal] = useState(false);
 
   const [selectedPhysicalSymptoms, setSelectedPhysicalSymptoms] = useState<string[]>([]);
   const [customPhysical, setCustomPhysical] = useState("");
+  const [customPhysicalsList, setCustomPhysicalsList] = useState<string[]>([]); // Liste des symptômes physiques personnalisés ajoutés
   const [openCategory, setOpenCategory] = useState<string | null>(null);
   const [fluxValue, setFluxValue] = useState<number>(1); //Léger, Modéré, Abondant, Très abondant (ou plus)
   const [fluxCustom, setFluxCustom] = useState("");
@@ -258,6 +259,20 @@ const active = localStorage.getItem('sorea_has_notification') === 'true' || loca
     setCustomMoodsList(prev => prev.filter(m => m !== moodToRemove));
     // S'assurer de la désélectionner si elle était cochée
     setSelectedMoods(prev => prev.filter(m => m !== moodToRemove));
+  };
+
+  const handleAddCustomPhysical = () => {
+    const trimmed = customPhysical.trim();
+    if (!trimmed) return;
+    if (!customPhysicalsList.includes(trimmed)) {
+      setCustomPhysicalsList(prev => [...prev, trimmed]);
+    }
+    setCustomPhysical("");
+  };
+
+  const handleRemoveCustomPhysical = (physicalToRemove: string) => {
+    setCustomPhysicalsList(prev => prev.filter(p => p !== physicalToRemove));
+    setSelectedPhysicalSymptoms(prev => prev.filter(p => p !== physicalToRemove));
   };
 
   const handleDayClick = (day: number) => {
@@ -992,7 +1007,7 @@ return (
                     items: ["Crampes", "Maux de tête", "Migraines", "Seins douloureux", "Douleurs pelviennes", "Douleurs lombaires", "Douleurs articulaires", "Douleurs musculaires", "Tensions dans le bas-ventre"]
                   },
                   {
-                    category: "Changements de peau et cheveux",
+                    category: "Peau et cheveux",
                     items: ["Acné", "Peau grasse", "Peau sèche", "Boutons", "Teint terne", "Peau lumineuse", "Cheveux gras", "Cheveux secs", "Chute de cheveux", "Points noirs"]
                   },
                   {
@@ -1013,76 +1028,144 @@ return (
                   }
                 ];
 
-                const openCatObj = categoriesData.find(c => c.category === openCategory);
+                const rows = [];
+                for (let i = 0; i < categoriesData.length; i += 3) {
+                  rows.push(categoriesData.slice(i, i + 3));
+                }
 
                 return (
                   <div className="space-y-4">
-                    {/* Grille 3 colonnes de boutons de catégories */}
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                      {categoriesData.map((cat) => {
-                        const isOpen = openCategory === cat.category;
-                        return (
-                          <button
-                            key={cat.category}
-                            type="button"
-                            onClick={() => setOpenCategory(isOpen ? null : cat.category)}
-                            className={`p-4 rounded-2xl border text-center text-xs font-semibold transition-all cursor-pointer flex flex-col items-center justify-between min-h-[75px] ${
-                              isOpen 
-                                ? 'border-[#8B47FF] bg-[#F4EBFF] text-[#8B47FF] shadow-sm' 
-                                : 'border-gray-300 bg-white text-gray-800 hover:border-[#8B47FF]'
-                            }`}
-                          >
-                            <span className="leading-tight">{cat.category}</span>
-                            <svg 
-                              className={`w-4 h-4 text-gray-500 mt-2 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} 
-                              fill="none" 
-                              stroke="currentColor" 
-                              strokeWidth="2" 
-                      viewBox="0 0 24 24"
-                            >
-                              <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
-                            </svg>
-                          </button>
-                        );
-                      })}
-                    </div>
+                    {rows.map((rowCats, rowIndex) => {
+                      const openCatInRow = rowCats.find(c => c.category === openCategory);
+                      return (
+                        <div key={rowIndex} className="space-y-3">
+                          {/* Ligne de 3 boutons */}
+                          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                            {rowCats.map((cat) => {
+                              const isOpen = openCategory === cat.category;
+                              return (
+                                <button
+                                  key={cat.category}
+                                  type="button"
+                                  onClick={() => setOpenCategory(isOpen ? null : cat.category)}
+                                  className={`p-4 text-center text-xs font-semibold transition-all cursor-pointer flex flex-col items-center justify-between min-h-[75px] bg-white ${
+                                    isOpen 
+                                      ? 'border-2 border-b-0 border-[#8B47FF] rounded-t-2xl rounded-b-none bg-[#F4EBFF] text-[#8B47FF]' 
+                                      : 'border border-gray-300 rounded-2xl text-gray-800 hover:border-[#8B47FF]'
+                                  }`}
+                                >
+                                  <span className="leading-tight">{cat.category}</span>
+                                  <svg 
+                                    className={`w-4 h-4 text-gray-500 mt-2 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} 
+                                    fill="none" 
+                                    stroke="currentColor" 
+                                    strokeWidth="2" 
+                                    viewBox="0 0 24 24"
+                                  >
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+                                  </svg>
+                                </button>
+                              );
+                            })}
+                          </div>
 
-                    {/* Contenu déroulant s'affichant proprement en dessous de la grille */}
-                    {openCatObj && (
-                      <div className="p-4 rounded-2xl border border-[#8B47FF]/30 bg-purple-50/30 flex flex-wrap gap-2 animate-in fade-in duration-200">
-                        {openCatObj.items.map((item) => {
-                          const isSelected = selectedPhysicalSymptoms.includes(item);
-                          return (
-                            <button
-                              key={item}
-                              type="button"
-                              onClick={() => {
-                                setSelectedPhysicalSymptoms(prev =>
-                                  isSelected ? prev.filter(i => i !== item) : [...prev, item]
+                          {/* Panneau déroulant avec lignes empilées (style de l'image de référence) */}
+                          {openCatInRow && (
+                            <div className="border-2 border-t-0 border-[#8B47FF] rounded-b-2xl bg-white max-h-[220px] overflow-y-auto custom-scrollbar -mt-3 shadow-sm animate-in fade-in duration-200">
+                              {openCatInRow.items.map((item, idx) => {
+                                const isSelected = selectedPhysicalSymptoms.includes(item);
+                                return (
+                                  <button
+                                    key={item}
+                                    type="button"
+                                    onClick={() => {
+                                      setSelectedPhysicalSymptoms(prev =>
+                                        isSelected ? prev.filter(i => i !== item) : [...prev, item]
+                                      );
+                                    }}
+                                    className={`w-full py-3 px-5 text-left text-xs font-medium transition-all cursor-pointer flex items-center justify-between ${
+                                      idx !== openCatInRow.items.length - 1 ? 'border-b border-gray-200' : ''
+                                    } ${
+                                      isSelected 
+                                        ? 'bg-[#8B47FF] text-white font-semibold' 
+                                        : 'bg-white text-gray-800 hover:bg-purple-50'
+                                    }`}
+                                  >
+                                    <span>{item}</span>
+                                    {isSelected && <span className="text-white text-xs font-bold">✓</span>}
+                                  </button>
                                 );
-                              }}
-                              className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all cursor-pointer ${
-                                isSelected 
-                                  ? 'bg-[#8B47FF] text-white shadow-sm' 
-                                  : 'bg-white text-gray-700 border border-gray-200 hover:border-[#8B47FF]'
-                              }`}
-                            >
-                              {item}
-                            </button>
-                          );
-                        })}
+                              })}
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+
+                    {/* Bloc des symptômes personnalisés ajoutés avec croix de suppression au survol */}
+                    {customPhysicalsList.length > 0 && (
+                      <div className="p-4 rounded-2xl border border-gray-300 bg-white">
+                        <div className="flex flex-wrap gap-2">
+                          {customPhysicalsList.map((cp) => {
+                            const isSelected = selectedPhysicalSymptoms.includes(cp);
+                            return (
+                              <div key={cp} className="relative group/physical inline-flex items-center">
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    setSelectedPhysicalSymptoms(prev =>
+                                      isSelected ? prev.filter(item => item !== cp) : [...prev, cp]
+                                    );
+                                  }}
+                                  className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all cursor-pointer pr-5 ${
+                                    isSelected 
+                                      ? 'bg-[#8B47FF] text-white shadow-sm' 
+                                      : 'bg-white text-gray-700 border border-gray-200 hover:border-[#8B47FF]'
+                                  }`}
+                                >
+                                  {cp}
+                                </button>
+                                {/* Bouton de suppression (croix) qui apparaît au survol du badge */}
+                                <button
+                                  type="button"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleRemoveCustomPhysical(cp);
+                                  }}
+                                  className="absolute right-1.5 w-4 h-4 rounded-full bg-gray-200 text-gray-600 hover:bg-red-500 hover:text-white flex items-center justify-center text-[10px] font-bold opacity-0 group-hover/physical:opacity-100 transition-opacity cursor-pointer"
+                                  title="Supprimer ce symptôme"
+                                >
+                                  ×
+                                </button>
+                              </div>
+                            );
+                          })}
+                        </div>
                       </div>
                     )}
 
-                    {/* Autre : Champ de texte */}
-                    <div className="p-4 rounded-2xl border border-gray-300 bg-white">
+                    {/* Autre : Champ de texte avec bouton Valider */}
+                    <div className="p-4 rounded-2xl border border-gray-300 bg-white flex items-center gap-3">
                       <input
                         type="text"
-                        placeholder="Autre : ..."
+                        placeholder="Autre..."
                         value={customPhysical}
                         onChange={(e) => setCustomPhysical(e.target.value)}
-                        className="w-full text-sm outline-none text-gray-800 placeholder-gray-400 bg-transparent"
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') {
+                            e.preventDefault();
+                            handleAddCustomPhysical();
+                          }
+                        }}
+                        className="flex-1 text-sm outline-none text-gray-800 placeholder-gray-400 bg-transparent"
                       />
+                      <button
+                        type="button"
+                        onClick={handleAddCustomPhysical}
+                        className="px-4 py-2 bg-[#8B47FF] text-white text-xs font-bold rounded-xl hover:bg-[#7535e6] transition-all cursor-pointer"
+                      >
+                        Valider
+                      </button>
                     </div>
                   </div>
                 );
@@ -1121,84 +1204,174 @@ return (
               )}
 
               {/* ONGLET 5 : RÉSULTAT */}
-              {symptomTab === 'resultat' && (
-                <div className="space-y-6">
-                  {/* Section des humeurs sélectionnées avec croix de suppression au survol */}
-                  {selectedMoods.length > 0 && (
-                    <div>
-                      <h4 className="text-lg font-bold text-[#7F4DC5] mb-3">Humeur</h4>
-                      <div className="flex flex-wrap gap-2">
-                        {selectedMoods.map((mood) => {
-                          const isPositive = POSITIVE_MOODS.includes(mood);
-                          const isNegative = NEGATIVE_MOODS.includes(mood);
-                          
-                          const borderClass = isPositive 
-                            ? "border-emerald-400 bg-emerald-50/10 text-gray-800" 
-                            : isNegative 
-                            ? "border-rose-300 bg-rose-50/10 text-gray-800" 
-                            : "border-gray-400 bg-white text-gray-800";
+              {symptomTab === 'resultat' && (() => {
+                const categoriesData = [
+                  {
+                    category: "Douleurs",
+                    items: ["Crampes", "Maux de tête", "Migraines", "Seins douloureux", "Douleurs pelviennes", "Douleurs lombaires", "Douleurs articulaires", "Douleurs musculaires", "Tensions dans le bas-ventre"]
+                  },
+                  {
+                    category: "Changements de peau et cheveux",
+                    items: ["Acné", "Peau grasse", "Peau sèche", "Boutons", "Teint terne", "Peau lumineuse", "Cheveux gras", "Cheveux secs", "Chute de cheveux", "Points noirs"]
+                  },
+                  {
+                    category: "Digestion et Appétit",
+                    items: ["Ballonnements", "Gaz", "Nausées", "Brûlures d'estomac", "Perte d'appétit", "Appétit accru", "Fringales", "Envie de sucre", "Envie de salé"]
+                  },
+                  {
+                    category: "Sécrétion et Intimité",
+                    items: ["Pertes blanches", "Glaire cervicale", "abondante", "Glaire cervicale filante", "Sécheresse vaginale", "Saignements intermenstruels", "Spotting"]
+                  },
+                  {
+                    category: "Selles et Transit",
+                    items: ["Selles molles", "Selles dures", "Selles fréquentes", "Constipation", "Diarrhée", "Transit ralenti", "Transit accéléré"]
+                  },
+                  {
+                    category: "Corps",
+                    items: ["Rétention d'eau", "Jambes lourdes", "Gonflement abdominal", "Prise de poids temporaire", "Seins gonfiés", "Ventre dur"]
+                  }
+                ];
+
+                return (
+                  <div className="space-y-6">
+                    {/* Section des humeurs sélectionnées avec croix de suppression au survol */}
+                    {selectedMoods.length > 0 && (
+                      <div>
+                        <h4 className="text-lg font-bold text-[#7F4DC5] mb-3">Humeur</h4>
+                        <div className="flex flex-wrap gap-2">
+                          {selectedMoods.map((mood) => {
+                            const isPositive = POSITIVE_MOODS.includes(mood);
+                            const isNegative = NEGATIVE_MOODS.includes(mood);
+                            
+                            const borderClass = isPositive 
+                              ? "border-emerald-400 bg-emerald-50/10 text-gray-800" 
+                              : isNegative 
+                              ? "border-rose-300 bg-rose-50/10 text-gray-800" 
+                              : "border-gray-400 bg-white text-gray-800";
+
+                            return (
+                              <div key={mood} className="relative group/resultmood inline-flex items-center">
+                                <span
+                                  className={`px-4 py-2 rounded-full text-xs font-medium border ${borderClass} shadow-sm pr-6`}
+                                >
+                                  {mood}
+                                </span>
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    setSelectedMoods(prev => prev.filter(m => m !== mood));
+                                  }}
+                                  className="absolute right-1.5 w-4 h-4 rounded-full bg-gray-200 text-gray-600 hover:bg-red-500 hover:text-white flex items-center justify-center text-[10px] font-bold opacity-0 group-hover/resultmood:opacity-100 transition-opacity cursor-pointer"
+                                  title="Supprimer cette humeur"
+                                >
+                                  ×
+                                </button>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Section des symptômes physiques groupés par catégorie avec ":" */}
+                    {selectedPhysicalSymptoms.length > 0 && (
+                      <div className="space-y-4">
+                        <h4 className="text-lg font-bold text-[#7F4DC5]">Symptômes physiques</h4>
+                        
+                        {categoriesData.map((cat) => {
+                          const matchedItems = cat.items.filter(item => selectedPhysicalSymptoms.includes(item));
+                          if (matchedItems.length === 0) return null;
 
                           return (
-                            <div key={mood} className="relative group/resultmood inline-flex items-center">
-                              <span
-                                className={`px-4 py-2 rounded-full text-xs font-medium border ${borderClass} shadow-sm pr-6`}
-                              >
-                                {mood}
-                              </span>
-                              {/* Bouton de suppression (croix) qui apparaît au survol */}
-                              <button
-                                type="button"
-                                onClick={() => {
-                                  setSelectedMoods(prev => prev.filter(m => m !== mood));
-                                }}
-                                className="absolute right-1.5 w-4 h-4 rounded-full bg-gray-200 text-gray-600 hover:bg-red-500 hover:text-white flex items-center justify-center text-[10px] font-bold opacity-0 group-hover/resultmood:opacity-100 transition-opacity cursor-pointer"
-                                title="Supprimer cette humeur"
-                              >
-                                ×
-                              </button>
+                            <div key={cat.category} className="flex flex-wrap items-center gap-3">
+                              <span className="font-bold text-[#7F6674] text-sm">{cat.category} :</span>
+                              <div className="flex flex-wrap gap-2">
+                                {matchedItems.map((item) => (
+                                  <div key={item} className="relative group/physitem inline-flex items-center">
+                                    <span className="px-3 py-1.5 rounded-full text-xs font-medium border border-gray-300 bg-white text-gray-800 shadow-sm pr-6">
+                                      {item}
+                                    </span>
+                                    <button
+                                      type="button"
+                                      onClick={() => {
+                                        setSelectedPhysicalSymptoms(prev => prev.filter(i => i !== item));
+                                      }}
+                                      className="absolute right-1 w-3.5 h-3.5 rounded-full bg-gray-200 text-gray-600 hover:bg-red-500 hover:text-white flex items-center justify-center text-[9px] font-bold opacity-0 group-hover/physitem:opacity-100 transition-opacity cursor-pointer"
+                                    >
+                                      ×
+                                    </button>
+                                  </div>
+                                ))}
+                              </div>
                             </div>
                           );
                         })}
+
+                        {/* Affichage des éléments "Autre" personnalisés avec le mini-titre en gras et gris "Autre" */}
+                        {customPhysicalsList.filter(cp => selectedPhysicalSymptoms.includes(cp)).length > 0 && (
+                          <div className="flex flex-wrap items-center gap-3">
+                            <span className="font-bold text-[#7F6674] text-sm">Autre :</span>
+                            <div className="flex flex-wrap gap-2">
+                              {customPhysicalsList
+                                .filter(cp => selectedPhysicalSymptoms.includes(cp))
+                                .map((cp) => (
+                                  <div key={cp} className="relative group/customphys inline-flex items-center">
+                                    <span className="px-3 py-1.5 rounded-full text-xs font-medium border border-gray-300 bg-white text-gray-800 shadow-sm pr-6">
+                                      {cp}
+                                    </span>
+                                    <button
+                                      type="button"
+                                      onClick={() => {
+                                        setSelectedPhysicalSymptoms(prev => prev.filter(i => i !== cp));
+                                      }}
+                                      className="absolute right-1 w-3.5 h-3.5 rounded-full bg-gray-200 text-gray-600 hover:bg-red-500 hover:text-white flex items-center justify-center text-[9px] font-bold opacity-0 group-hover/customphys:opacity-100 transition-opacity cursor-pointer"
+                                    >
+                                      ×
+                                    </button>
+                                  </div>
+                                ))}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    )}
+
+                    <div>
+                      <h4 className="text-lg font-bold text-[#7F4DC5] mb-3">Comment s'est passé ta période Menstruelle ?</h4>
+                      <div className="p-4 rounded-2xl border border-gray-300 bg-white">
+                        <textarea
+                          rows={3}
+                          placeholder="Ma période menstruelle s'est vu accompagné de..."
+                          value={resultatSummary}
+                          onChange={(e) => setResultatSummary(e.target.value)}
+                          className="w-full text-sm outline-none text-gray-800 placeholder-gray-400 bg-transparent resize-none"
+                        />
                       </div>
                     </div>
-                  )}
 
-                  <div>
-                    <h4 className="text-lg font-bold text-[#7F4DC5] mb-3">Comment s'est passé ta période Menstruelle ?</h4>
-                    <div className="p-4 rounded-2xl border border-gray-300 bg-white">
-                      <textarea
-                        rows={3}
-                        placeholder="Ma période menstruelle s'est vu accompagné de..."
-                        value={resultatSummary}
-                        onChange={(e) => setResultatSummary(e.target.value)}
-                        className="w-full text-sm outline-none text-gray-800 placeholder-gray-400 bg-transparent resize-none"
-                      />
-                    </div>
+                    <button
+                      onClick={async () => {
+                        const finalMood = [...selectedMoods, customMood].filter(Boolean).join(', ');
+                        const finalPhysical = [...selectedPhysicalSymptoms, customPhysical].filter(Boolean).join(', ');
+                        const finalFlux = fluxValue === 1 ? "Léger" : fluxValue === 2 ? "Moyen" : fluxValue === 3 ? "Abondant" : "Très abondant";
+
+                        setSymptomLog({
+                          flow: finalFlux,
+                          mood: finalMood,
+                          physicalSymptoms: finalPhysical,
+                        });
+
+                        await saveSymptom();
+                        setSelectedDate(null);
+                      }}
+                      disabled={isSavingSymptom}
+                      className="w-full py-4 bg-[#8B47FF] text-white rounded-2xl font-bold shadow-lg hover:bg-[#7535e6] transition-all cursor-pointer text-base"
+                    >
+                      {isSavingSymptom ? 'Enregistrement...' : 'Enregistrer les symptômes'}
+                    </button>
                   </div>
-
-                  <button
-                    onClick={async () => {
-                      // Fusionner les sélections et textes personnalisés avant sauvegarde
-                      const finalMood = [...selectedMoods, customMood].filter(Boolean).join(', ');
-                      const finalPhysical = [...selectedPhysicalSymptoms, customPhysical].filter(Boolean).join(', ');
-                      const finalFlux = fluxValue === 1 ? "Léger" : fluxValue === 2 ? "Moyen" : fluxValue === 3 ? "Abondant" : "Très abondant";
-
-                      setSymptomLog({
-                        flow: finalFlux,
-                        mood: finalMood,
-                        physicalSymptoms: finalPhysical,
-                      });
-
-                      await saveSymptom();
-                      setSelectedDate(null);
-                    }}
-                    disabled={isSavingSymptom}
-                    className="w-full py-4 bg-[#8B47FF] text-white rounded-2xl font-bold shadow-lg hover:bg-[#7535e6] transition-all cursor-pointer text-base"
-                  >
-                    {isSavingSymptom ? 'Enregistrement...' : 'Enregistrer les symptômes'}
-                  </button>
-                </div>
-              )}
+                );
+              })()}
 
             </div>
 
