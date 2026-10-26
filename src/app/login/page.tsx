@@ -64,7 +64,7 @@ function LoginContent() {
             }
             
             if (!res.ok) throw new Error(data.error || "Une erreur est survenue");
-            router.push("/dashboard");
+            router.push("/app");
             router.refresh();
         } catch (err) {
             setLoginError(err instanceof Error ? err.message : "Une erreur est survenue");

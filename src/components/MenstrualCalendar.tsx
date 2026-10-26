@@ -61,6 +61,8 @@ const [showCalendarHelpModal, setShowCalendarHelpModal] = useState(false);
   const [symptomTab, setSymptomTab] = useState<'humeur' | 'symptome' | 'rectifier' | 'flux' | 'resultat'>('humeur');
   const [selectedMoods, setSelectedMoods] = useState<string[]>([]);
   const [customMood, setCustomMood] = useState("");
+  const [customMoodsList, setCustomMoodsList] = useState<string[]>([]); // Liste des mots personnalisés ajoutés
+
   const [selectedPhysicalSymptoms, setSelectedPhysicalSymptoms] = useState<string[]>([]);
   const [customPhysical, setCustomPhysical] = useState("");
   const [openCategory, setOpenCategory] = useState<string | null>(null);
@@ -226,6 +228,23 @@ const active = localStorage.getItem('sorea_has_notification') === 'true' || loca
     } catch (e) {
       console.error(e);
     }
+  };
+
+  const handleAddCustomMood = () => {
+    const trimmed = customMood.trim();
+    if (!trimmed) return;
+    const word = trimmed.split(/\s+/)[0]; 
+    if (word && !customMoodsList.includes(word)) {
+      setCustomMoodsList(prev => [...prev, word]);
+    }
+    setCustomMood("");
+  };
+
+  const handleRemoveCustomMood = (moodToRemove: string) => {
+    // Supprimer de la liste personnalisée
+    setCustomMoodsList(prev => prev.filter(m => m !== moodToRemove));
+    // S'assurer de la désélectionner si elle était cochée
+    setSelectedMoods(prev => prev.filter(m => m !== moodToRemove));
   };
 
   const handleDayClick = (day: number) => {
@@ -827,7 +846,7 @@ return (
                       {[
                         "Calme", "Confiante", "Dynamique", "Enthousiaste", "Épanouie",
                         "Euphorique", "Extravertie", "Heureuse", "Joyeuse",
-                        "Mélancolique", "Motivé·e", "Optimiste", "Paisible", "Réservé·e",
+                        "Mélancolique", "Motivée", "Optimiste", "Paisible", "Réservée",
                         "Sereine", "Sociable", "Vitalité"
                       ].map((m) => {
                         const isSelected = selectedMoods.includes(m);
@@ -857,7 +876,7 @@ return (
                   <div className="p-4 rounded-2xl border-2 border-rose-300 bg-rose-50/20">
                     <div className="flex flex-wrap gap-2">
                       {[
-                        "Anxieuse", "Apathe", "Déprimé·e", "Émotive", "Énervée",
+                        "Anxieuse", "Apathe", "Déprimée", "Émotive", "Énervée",
                         "Épuisée", "Fatiguée", "Insomnie", "Inquiète", "Irritable",
                         "Léthargie", "Somnolente", "Stressée", "Triste"
                       ].map((m) => {
@@ -884,15 +903,70 @@ return (
                     </div>
                   </div>
 
-                  {/* Autre : Champ de texte */}
-                  <div className="p-4 rounded-2xl border border-gray-300 bg-white">
+                  {/* Bloc des mots personnalisés ajoutés avec croix de suppression au survol */}
+                  {customMoodsList.length > 0 && (
+                    <div className="p-4 rounded-2xl border border-gray-300 bg-white">
+                      <div className="flex flex-wrap gap-2">
+                        {customMoodsList.map((cm) => {
+                          const isSelected = selectedMoods.includes(cm);
+                          return (
+                            <div key={cm} className="relative group/mood inline-flex items-center">
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setSelectedMoods(prev =>
+                                    isSelected ? prev.filter(item => item !== cm) : [...prev, cm]
+                                  );
+                                }}
+                                className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all cursor-pointer pr-5 ${
+                                  isSelected 
+                                    ? 'bg-[#8B47FF] text-white shadow-sm' 
+                                    : 'bg-white text-gray-700 border border-gray-200 hover:border-[#8B47FF]'
+                                }`}
+                              >
+                                {cm}
+                              </button>
+                              {/* Bouton de suppression (croix) qui apparaît au survol du badge */}
+                              <button
+                                type="button"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleRemoveCustomMood(cm);
+                                }}
+                                className="absolute right-1.5 w-4 h-4 rounded-full bg-gray-200 text-gray-600 hover:bg-red-500 hover:text-white flex items-center justify-center text-[10px] font-bold opacity-0 group-hover/mood:opacity-100 transition-opacity cursor-pointer"
+                                title="Supprimer cette humeur"
+                              >
+                                ×
+                              </button>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Autre : Champ de texte avec bouton Valider */}
+                  <div className="p-4 rounded-2xl border border-gray-300 bg-white flex items-center gap-3">
                     <input
                       type="text"
-                      placeholder="Autre : ..."
+                      placeholder="Autre..."
                       value={customMood}
                       onChange={(e) => setCustomMood(e.target.value)}
-                      className="w-full text-sm outline-none text-gray-800 placeholder-gray-400 bg-transparent"
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          e.preventDefault();
+                          handleAddCustomMood();
+                        }
+                      }}
+                      className="flex-1 text-sm outline-none text-gray-800 placeholder-gray-400 bg-transparent"
                     />
+                    <button
+                      type="button"
+                      onClick={handleAddCustomMood}
+                      className="px-4 py-2 bg-[#8B47FF] text-white text-xs font-bold rounded-xl hover:bg-[#7535e6] transition-all cursor-pointer"
+                    >
+                      Valider
+                    </button>
                   </div>
                 </div>
               )}
@@ -1178,7 +1252,7 @@ return (
                   <div className="w-8 h-8 mb-2">
                     <img src={phaseIcons["Automne"]} alt="Automne" className="w-full h-full object-contain" />
                   </div>
-                  <h4 className="font-bold text-[#7F4DC5] text-base mb-1 text-center">Phase Prémenstruelle <br /> <span className="block font-bold text-sm">(L'Automne du cycle)</span></h4>
+                  <h4 className="font-bold text-[#7F4DC5] text-base mb-1 text-center">Phase Lutéale <br /> <span className="block font-bold text-sm">(L'Automne du cycle)</span></h4>
                   <p className="text-xs text-gray-700 leading-relaxed mt-2">
                     L'ovule libéré n'a pas été fécondé. Les niveaux d'énergie commencent à baisser, incitant naturellement à se tourner vers soi. Les premiers signes du syndrome prémenstruel (SPM) peuvent faire leur apparition chez certaines personnes.
                   </p>
