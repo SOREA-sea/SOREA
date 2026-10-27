@@ -50,7 +50,7 @@ export default function MenstrualFlux({
           {/* Ligne de fond horizontale de couleur #C0ACFF */}
           <div className="absolute left-6 right-6 h-1.5 bg-[#C0ACFF] rounded-full z-0">
             <div 
-              className="h-full bg-[#F95C5C] rounded-full transition-all duration-300"
+              className={`h-full rounded-full transition-all duration-300 ${isSnowflakeMode ? 'bg-[#00CEC9]' : 'bg-[#F95C5C]'}`}
               style={{ width: `${((currentFlux - 1) / 4) * 100}%` }}
             />
           </div>
@@ -68,7 +68,7 @@ export default function MenstrualFlux({
                   isCurrent 
                     ? 'bg-transparent shadow-none' 
                     : isReached 
-                    ? 'bg-[#F48B8B]' 
+                    ? (isSnowflakeMode ? 'bg-[#B7F8F5]' : 'bg-[#F48B8B]') 
                     : 'bg-[#7F4DC5]'
                 }`}
               >
