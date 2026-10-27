@@ -843,8 +843,8 @@ return (
               {[
                 { id: 'humeur', label: 'Humeur' },
                 { id: 'symptome', label: 'Symptôme physique' },
-                { id: 'rectifier', label: 'À Rectifier !' },
                 { id: 'flux', label: 'Flux' },
+                { id: 'rectifier', label: 'Reprogrammer !' },
                 { id: 'resultat', label: 'Résultat' },
               ].map((tab) => (
                 <button
@@ -1195,11 +1195,11 @@ return (
             {/* ONGLET 4 : FLUX */}
               {symptomTab === 'flux' && (
                 <MenstrualFlux
-                  fluxValue={fluxValue}
-                  setFluxValue={setFluxValue}
-                  fluxCustom={fluxCustom}
-                  setFluxCustom={setFluxCustom}
                   isSnowflakeMode={isSnowflakeMode}
+                  value={fluxValue}
+                  onChange={setFluxValue}
+                  customValue={fluxCustom}
+                  onCustomChange={setFluxCustom}
                 />
               )}
 
