@@ -1306,11 +1306,20 @@ return (
                     {confirmedFlux && (
                       <div>
                         <h4 className="text-lg font-bold text-[#7F4DC5] mb-3">Flux</h4>
-                        <div className="flex items-center gap-6 text-sm">
-                          <span className="text-[#7F6674] font-medium">Mon flux est</span>
-                          <span className="font-bold text-[#E256B3]">{confirmedFlux}</span>
-                          <span className="text-[#7F6674] font-medium">à</span>
-                          <span className="text-gray-800">{fluxTime}</span>
+                        <div className="flex flex-col gap-3">
+                          <div className="flex items-center gap-6 text-sm">
+                            <span className="text-[#7F6674] font-medium">Mon flux est</span>
+                            <span className="font-bold text-[#E256B3]">{confirmedFlux}</span>
+                            <span className="text-[#7F6674] font-medium">à</span>
+                            <span className="text-gray-800">{fluxTime}</span>
+                          </div>
+                          {fluxCustom.trim() && (
+                            <div className="flex flex-wrap gap-2">
+                              <span className="px-4 py-1.5 rounded-full text-xs font-medium border border-[#E256B3] bg-white text-gray-800 shadow-sm">
+                                {fluxCustom.trim()}
+                              </span>
+                            </div>
+                          )}
                         </div>
                       </div>
                     )}

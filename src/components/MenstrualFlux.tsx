@@ -89,39 +89,42 @@ export default function MenstrualFlux({
         {currentFlux === 1 ? "Très léger" : currentFlux === 2 ? "Léger" : currentFlux === 3 ? "Modéré" : currentFlux === 4 ? "Abondant" : "Très abondant"}
       </div>
 
-      {/* Champ de précision "Plus de précisions..." */}
-      <div className="w-full p-4 rounded-2xl border border-gray-300 bg-white shadow-sm mb-2">
+      {/* Champ de précision "Plus de précisions..." avec bouton Valider intégré */}
+      <div className="w-full p-4 rounded-2xl border border-gray-300 bg-white shadow-sm mb-2 flex items-center gap-3">
         <input
           type="text"
           placeholder="Plus de précisions..."
           value={currentCustom}
           onChange={(e) => {
             handleCustomChange(e.target.value);
-            setIsValidated(false); // Repasse en mode modifiable / bouton clair si modification
+            setIsValidated(false);
           }}
-          className="w-full text-sm outline-none text-gray-800 placeholder-gray-400 bg-transparent"
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+              e.preventDefault();
+              setIsValidated(true);
+              const fluxText = currentFlux === 1 ? "Très léger" : currentFlux === 2 ? "Léger" : currentFlux === 3 ? "Modéré" : currentFlux === 4 ? "Abondant" : "Très abondant";
+              if (onValidate) {
+                onValidate(fluxText, getCurrentTime());
+              }
+            }
+          }}
+          className="flex-1 text-sm outline-none text-gray-800 placeholder-gray-400 bg-transparent"
         />
+        <button
+          type="button"
+          onClick={() => {
+            setIsValidated(true);
+            const fluxText = currentFlux === 1 ? "Très léger" : currentFlux === 2 ? "Léger" : currentFlux === 3 ? "Modéré" : currentFlux === 4 ? "Abondant" : "Très abondant";
+            if (onValidate) {
+              onValidate(fluxText, getCurrentTime());
+            }
+          }}
+          className="px-4 py-2 bg-[#8B47FF] text-white text-xs font-bold rounded-xl hover:bg-[#7535e6] transition-all cursor-pointer"
+        >
+          {isValidated ? "Validé ✓" : "Valider"}
+        </button>
       </div>
-
-      {/* Bouton Valider (clair et désactivé tant qu'on n'a pas validé ou en cas de modif) */}
-      <button
-        type="button"
-        disabled={isValidated}
-        onClick={() => {
-          setIsValidated(true);
-          const fluxText = currentFlux === 1 ? "Très léger" : currentFlux === 2 ? "Léger" : currentFlux === 3 ? "Modéré" : currentFlux === 4 ? "Abondant" : "Très abondant";
-          if (onValidate) {
-            onValidate(fluxText, getCurrentTime());
-          }
-        }}
-        className={`w-full py-3 rounded-2xl font-bold text-sm transition-all ${
-          isValidated 
-            ? 'bg-gray-200 text-gray-400 cursor-not-allowed shadow-none' 
-            : 'bg-[#8B47FF] text-white hover:bg-[#7535e6] shadow-md cursor-pointer'
-        }`}
-      >
-        {isValidated ? "Validé ✓" : "Valider le flux"}
-      </button>
     </div>
   );
 }
