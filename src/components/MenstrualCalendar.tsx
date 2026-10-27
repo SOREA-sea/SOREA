@@ -1240,6 +1240,45 @@ return (
 
                 return (
                   <div className="space-y-6">
+                    {/* Section des humeurs sélectionnées avec croix de suppression au survol */}
+                    {selectedMoods.length > 0 && (
+                      <div>
+                        <h4 className="text-lg font-bold text-[#7F4DC5] mb-3">Humeur</h4>
+                        <div className="flex flex-wrap gap-2">
+                          {selectedMoods.map((mood) => {
+                            const isPositive = POSITIVE_MOODS.includes(mood);
+                            const isNegative = NEGATIVE_MOODS.includes(mood);
+                            
+                            const borderClass = isPositive 
+                              ? "border-emerald-400 bg-emerald-50/10 text-gray-800" 
+                              : isNegative 
+                              ? "border-rose-300 bg-rose-50/10 text-gray-800" 
+                              : "border-gray-400 bg-white text-gray-800";
+
+                            return (
+                              <div key={mood} className="relative group/resultmood inline-flex items-center">
+                                <span
+                                  className={`px-4 py-2 rounded-full text-xs font-medium border ${borderClass} shadow-sm pr-6`}
+                                >
+                                  {mood}
+                                </span>
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    setSelectedMoods(prev => prev.filter(m => m !== mood));
+                                  }}
+                                  className="absolute right-1.5 w-4 h-4 rounded-full bg-gray-200 text-gray-600 hover:bg-red-500 hover:text-white flex items-center justify-center text-[10px] font-bold opacity-0 group-hover/resultmood:opacity-100 transition-opacity cursor-pointer"
+                                  title="Supprimer cette humeur"
+                                >
+                                  ×
+                                </button>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    )}
+
                     {/* Section des symptômes physiques groupés par catégorie avec ":" */}
                     {selectedPhysicalSymptoms.length > 0 && (
                       <div className="space-y-4">
@@ -1308,9 +1347,9 @@ return (
                         <h4 className="text-lg font-bold text-[#7F4DC5] mb-3">Flux</h4>
                         <div className="flex flex-col gap-3">
                           <div className="flex items-center gap-6 text-sm">
-                            <span className="text-[#7F6674] font-medium">Mon flux est</span>
-                            <span className="font-bold text-[#E256B3]">{confirmedFlux}</span>
-                            <span className="text-[#7F6674] font-medium">à</span>
+                            <span className="font-bold text-[#7F6674]">Mon flux est</span>
+                            <span className=" text-[#E256B3]">{confirmedFlux}</span>
+                            <span className="font-bold text-[#7F6674]">à</span>
                             <span className="text-gray-800">{fluxTime}</span>
                           </div>
                           {fluxCustom.trim() && (
