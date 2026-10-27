@@ -64,20 +64,22 @@ export default function MenstrualFlux({
                 key={val}
                 type="button"
                 onClick={() => handleFluxChange(val)}
-                className={`relative z-10 w-6 h-6 rounded-full transition-all cursor-pointer flex items-center justify-center ${
-                  isReached ? 'bg-[#F48B8B]' : 'bg-[#7F4DC5]'
+                className={`relative z-10 w-6 h-6 rounded-full transition-all duration-200 cursor-pointer flex items-center justify-center hover:scale-125 ${
+                  isCurrent 
+                    ? 'bg-transparent shadow-none' 
+                    : isReached 
+                    ? 'bg-[#F48B8B]' 
+                    : 'bg-[#7F4DC5]'
                 }`}
               >
-                {/* Icône dynamique (Goutte de sang ou Flocon selon le mode Discret / Menstru) */}
-                {isCurrent && (
-                  <div className="absolute -top-7 w-7 h-7 flex items-center justify-center animate-bounce">
-                    <img
-                      src={isSnowflakeMode ? "/image_icone/Flocon.svg" : "/image_Design-SOREA/Hiver.svg"}
-                      alt="Icône flux"
-                      className="w-6 h-6 object-contain drop-shadow-md"
-                    />
-                  </div>
-                )}
+                {/* L'icône remplace le point sélectionné */}
+                {isCurrent ? (
+                  <img
+                    src={isSnowflakeMode ? "/image_icone/Flocon.svg" : "/image_Design-SOREA/Hiver.svg"}
+                    alt="Icône flux"
+                    className="w-7 h-7 object-contain drop-shadow-md transition-transform"
+                  />
+                ) : null}
               </button>
             );
           })}
