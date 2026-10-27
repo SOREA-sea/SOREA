@@ -80,8 +80,10 @@ const [showCalendarHelpModal, setShowCalendarHelpModal] = useState(false);
   const [customPhysical, setCustomPhysical] = useState("");
   const [customPhysicalsList, setCustomPhysicalsList] = useState<string[]>([]); // Liste des symptômes physiques personnalisés ajoutés
   const [openCategory, setOpenCategory] = useState<string | null>(null);
-  const [fluxValue, setFluxValue] = useState<number>(1); //Léger, Modéré, Abondant, Très abondant (ou plus)
+  const [fluxValue, setFluxValue] = useState<number>(1); 
   const [fluxCustom, setFluxCustom] = useState("");
+  const [confirmedFlux, setConfirmedFlux] = useState<string | null>(null); // Flux validé pour le Résultat
+  const [fluxTime, setFluxTime] = useState<string>(""); // Heure réelle validée
   const [resultatSummary, setResultatSummary] = useState("");
 
   const [selectedTodoDate, setSelectedTodoDate] = useState<string | null>(null);
@@ -1200,6 +1202,10 @@ return (
                   onChange={setFluxValue}
                   customValue={fluxCustom}
                   onCustomChange={setFluxCustom}
+                  onValidate={(fluxText, timeText) => {
+                    setConfirmedFlux(fluxText);
+                    setFluxTime(timeText);
+                  }}
                 />
               )}
 
@@ -1273,66 +1279,16 @@ return (
                       </div>
                     )}
 
-                    {/* Section des symptômes physiques groupés par catégorie avec ":" */}
-                    {selectedPhysicalSymptoms.length > 0 && (
-                      <div className="space-y-4">
-                        <h4 className="text-lg font-bold text-[#7F4DC5]">Symptômes physiques</h4>
-                        
-                        {categoriesData.map((cat) => {
-                          const matchedItems = cat.items.filter(item => selectedPhysicalSymptoms.includes(item));
-                          if (matchedItems.length === 0) return null;
-
-                          return (
-                            <div key={cat.category} className="flex flex-wrap items-center gap-3">
-                              <span className="font-bold text-[#7F6674] text-sm">{cat.category} :</span>
-                              <div className="flex flex-wrap gap-2">
-                                {matchedItems.map((item) => (
-                                  <div key={item} className="relative group/physitem inline-flex items-center">
-                                    <span className="px-3 py-1.5 rounded-full text-xs font-medium border border-gray-300 bg-white text-gray-800 shadow-sm pr-6">
-                                      {item}
-                                    </span>
-                                    <button
-                                      type="button"
-                                      onClick={() => {
-                                        setSelectedPhysicalSymptoms(prev => prev.filter(i => i !== item));
-                                      }}
-                                      className="absolute right-1 w-3.5 h-3.5 rounded-full bg-gray-200 text-gray-600 hover:bg-red-500 hover:text-white flex items-center justify-center text-[9px] font-bold opacity-0 group-hover/physitem:opacity-100 transition-opacity cursor-pointer"
-                                    >
-                                      ×
-                                    </button>
-                                  </div>
-                                ))}
-                              </div>
-                            </div>
-                          );
-                        })}
-
-                        {/* Affichage des éléments "Autre" personnalisés avec le mini-titre en gras et gris "Autre" */}
-                        {customPhysicalsList.filter(cp => selectedPhysicalSymptoms.includes(cp)).length > 0 && (
-                          <div className="flex flex-wrap items-center gap-3">
-                            <span className="font-bold text-[#7F6674] text-sm">Autre :</span>
-                            <div className="flex flex-wrap gap-2">
-                              {customPhysicalsList
-                                .filter(cp => selectedPhysicalSymptoms.includes(cp))
-                                .map((cp) => (
-                                  <div key={cp} className="relative group/customphys inline-flex items-center">
-                                    <span className="px-3 py-1.5 rounded-full text-xs font-medium border border-gray-300 bg-white text-gray-800 shadow-sm pr-6">
-                                      {cp}
-                                    </span>
-                                    <button
-                                      type="button"
-                                      onClick={() => {
-                                        setSelectedPhysicalSymptoms(prev => prev.filter(i => i !== cp));
-                                      }}
-                                      className="absolute right-1 w-3.5 h-3.5 rounded-full bg-gray-200 text-gray-600 hover:bg-red-500 hover:text-white flex items-center justify-center text-[9px] font-bold opacity-0 group-hover/customphys:opacity-100 transition-opacity cursor-pointer"
-                                    >
-                                      ×
-                                    </button>
-                                  </div>
-                                ))}
-                            </div>
-                          </div>
-                        )}
+                    {/* Section Flux dans Résultat (affichée uniquement si l'utilisatrice a validé son choix) */}
+                    {confirmedFlux && (
+                      <div>
+                        <h4 className="text-lg font-bold text-[#7F4DC5] mb-3">Flux</h4>
+                        <div className="flex items-center gap-6 text-sm">
+                          <span className="text-[#7F6674] font-medium">Mon flux est</span>
+                          <span className="font-bold text-[#F95C5C]">{confirmedFlux}</span>
+                          <span className="text-[#7F6674] font-medium">à</span>
+                          <span className="text-gray-800">{fluxTime}</span>
+                        </div>
                       </div>
                     )}
 

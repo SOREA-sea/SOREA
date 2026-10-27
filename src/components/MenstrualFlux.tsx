@@ -16,9 +16,17 @@ export default function MenstrualFlux({
   onChange,
   customValue,
   onCustomChange,
-}: MenstrualFluxProps) {
+  onValidate,
+}: MenstrualFluxProps & { onValidate?: (flux: string, time: string) => void }) {
   const [internalFlux, setInternalFlux] = React.useState<number>(1);
   const [internalCustom, setInternalCustom] = React.useState<string>("");
+  const [isValidated, setIsValidated] = React.useState<boolean>(false);
+
+  // Heure réelle actuelle (ex: "14:32")
+  const getCurrentTime = () => {
+    const now = new Date();
+    return now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  };
 
   const currentFlux = value !== undefined ? value : internalFlux;
   const currentCustom = customValue !== undefined ? customValue : internalCustom;
@@ -82,15 +90,38 @@ export default function MenstrualFlux({
       </div>
 
       {/* Champ de précision "Plus de précisions..." */}
-      <div className="w-full p-4 rounded-2xl border border-gray-300 bg-white shadow-sm">
+      <div className="w-full p-4 rounded-2xl border border-gray-300 bg-white shadow-sm mb-2">
         <input
           type="text"
           placeholder="Plus de précisions..."
           value={currentCustom}
-          onChange={(e) => handleCustomChange(e.target.value)}
+          onChange={(e) => {
+            handleCustomChange(e.target.value);
+            setIsValidated(false); // Repasse en mode modifiable / bouton clair si modification
+          }}
           className="w-full text-sm outline-none text-gray-800 placeholder-gray-400 bg-transparent"
         />
       </div>
+
+      {/* Bouton Valider (clair et désactivé tant qu'on n'a pas validé ou en cas de modif) */}
+      <button
+        type="button"
+        disabled={isValidated}
+        onClick={() => {
+          setIsValidated(true);
+          const fluxText = currentFlux === 1 ? "Très léger" : currentFlux === 2 ? "Léger" : currentFlux === 3 ? "Modéré" : currentFlux === 4 ? "Abondant" : "Très abondant";
+          if (onValidate) {
+            onValidate(fluxText, getCurrentTime());
+          }
+        }}
+        className={`w-full py-3 rounded-2xl font-bold text-sm transition-all ${
+          isValidated 
+            ? 'bg-gray-200 text-gray-400 cursor-not-allowed shadow-none' 
+            : 'bg-[#8B47FF] text-white hover:bg-[#7535e6] shadow-md cursor-pointer'
+        }`}
+      >
+        {isValidated ? "Validé ✓" : "Valider le flux"}
+      </button>
     </div>
   );
 }
