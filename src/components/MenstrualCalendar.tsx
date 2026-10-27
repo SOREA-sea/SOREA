@@ -1240,52 +1240,75 @@ return (
 
                 return (
                   <div className="space-y-6">
-                    {/* Section des humeurs sélectionnées avec croix de suppression au survol */}
-                    {selectedMoods.length > 0 && (
-                      <div>
-                        <h4 className="text-lg font-bold text-[#7F4DC5] mb-3">Humeur</h4>
-                        <div className="flex flex-wrap gap-2">
-                          {selectedMoods.map((mood) => {
-                            const isPositive = POSITIVE_MOODS.includes(mood);
-                            const isNegative = NEGATIVE_MOODS.includes(mood);
-                            
-                            const borderClass = isPositive 
-                              ? "border-emerald-400 bg-emerald-50/10 text-gray-800" 
-                              : isNegative 
-                              ? "border-rose-300 bg-rose-50/10 text-gray-800" 
-                              : "border-gray-400 bg-white text-gray-800";
+                    {/* Section des symptômes physiques groupés par catégorie avec ":" */}
+                    {selectedPhysicalSymptoms.length > 0 && (
+                      <div className="space-y-4">
+                        <h4 className="text-lg font-bold text-[#7F4DC5]">Symptômes physiques</h4>
+                        
+                        {categoriesData.map((cat) => {
+                          const matchedItems = cat.items.filter(item => selectedPhysicalSymptoms.includes(item));
+                          if (matchedItems.length === 0) return null;
 
-                            return (
-                              <div key={mood} className="relative group/resultmood inline-flex items-center">
-                                <span
-                                  className={`px-4 py-2 rounded-full text-xs font-medium border ${borderClass} shadow-sm pr-6`}
-                                >
-                                  {mood}
-                                </span>
-                                <button
-                                  type="button"
-                                  onClick={() => {
-                                    setSelectedMoods(prev => prev.filter(m => m !== mood));
-                                  }}
-                                  className="absolute right-1.5 w-4 h-4 rounded-full bg-gray-200 text-gray-600 hover:bg-red-500 hover:text-white flex items-center justify-center text-[10px] font-bold opacity-0 group-hover/resultmood:opacity-100 transition-opacity cursor-pointer"
-                                  title="Supprimer cette humeur"
-                                >
-                                  ×
-                                </button>
+                          return (
+                            <div key={cat.category} className="flex flex-wrap items-center gap-3">
+                              <span className="font-bold text-[#7F6674] text-sm">{cat.category} :</span>
+                              <div className="flex flex-wrap gap-2">
+                                {matchedItems.map((item) => (
+                                  <div key={item} className="relative group/physitem inline-flex items-center">
+                                    <span className="px-3 py-1.5 rounded-full text-xs font-medium border border-gray-300 bg-white text-gray-800 shadow-sm pr-6">
+                                      {item}
+                                    </span>
+                                    <button
+                                      type="button"
+                                      onClick={() => {
+                                        setSelectedPhysicalSymptoms(prev => prev.filter(i => i !== item));
+                                      }}
+                                      className="absolute right-1 w-3.5 h-3.5 rounded-full bg-gray-200 text-gray-600 hover:bg-red-500 hover:text-white flex items-center justify-center text-[9px] font-bold opacity-0 group-hover/physitem:opacity-100 transition-opacity cursor-pointer"
+                                    >
+                                      ×
+                                    </button>
+                                  </div>
+                                ))}
                               </div>
-                            );
-                          })}
-                        </div>
+                            </div>
+                          );
+                        })}
+
+                        {/* Affichage des éléments "Autre" personnalisés */}
+                        {customPhysicalsList.filter(cp => selectedPhysicalSymptoms.includes(cp)).length > 0 && (
+                          <div className="flex flex-wrap items-center gap-3">
+                            <span className="font-bold text-[#7F6674] text-sm">Autre :</span>
+                            <div className="flex flex-wrap gap-2">
+                              {customPhysicalsList
+                                .filter(cp => selectedPhysicalSymptoms.includes(cp))
+                                .map((cp) => (
+                                  <div key={cp} className="relative group/customphys inline-flex items-center">
+                                    <span className="px-3 py-1.5 rounded-full text-xs font-medium border border-gray-300 bg-white text-gray-800 shadow-sm pr-6">
+                                      {cp}
+                                    </span>
+                                    <button
+                                      type="button"
+                                      onClick={() => {
+                                        setSelectedPhysicalSymptoms(prev => prev.filter(i => i !== cp));
+                                      }}
+                                      className="absolute right-1 w-3.5 h-3.5 rounded-full bg-gray-200 text-gray-600 hover:bg-red-500 hover:text-white flex items-center justify-center text-[9px] font-bold opacity-0 group-hover/customphys:opacity-100 transition-opacity cursor-pointer"
+                                    >
+                                      ×
+                                    </button>
+                                  </div>
+                                ))}
+                            </div>
+                          </div>
+                        )}
                       </div>
                     )}
 
-                    {/* Section Flux dans Résultat (affichée uniquement si l'utilisatrice a validé son choix) */}
                     {confirmedFlux && (
                       <div>
                         <h4 className="text-lg font-bold text-[#7F4DC5] mb-3">Flux</h4>
                         <div className="flex items-center gap-6 text-sm">
                           <span className="text-[#7F6674] font-medium">Mon flux est</span>
-                          <span className="font-bold text-[#F95C5C]">{confirmedFlux}</span>
+                          <span className="font-bold text-[#E256B3]">{confirmedFlux}</span>
                           <span className="text-[#7F6674] font-medium">à</span>
                           <span className="text-gray-800">{fluxTime}</span>
                         </div>
