@@ -571,8 +571,48 @@ return (
           )}
 
           <button
+            type="button"
+            onClick={() => {
+              const newState = !isActiveForm;
+              setIsActiveForm(newState);
+              // Sauvegarde immédiate du switch on/off
+              setTimeout(async () => {
+                try {
+                  await fetch("/api/menstrual-profile", {
+                    method: "PUT",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                      isActive: newState,
+                      cycleLength: cycleLengthForm,
+                      periodLength: periodLengthForm,
+                      lastPeriodStartDate: newState ? lastPeriodStartForm : null,
+                    }),
+                  });
+                  fetchProfile?.();
+                } catch (e) {
+                  console.error(e);
+                }
+              }, 0);
+            }}
+            className={`relative inline-flex h-8 w-16 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none shadow-sm items-center px-1 ${
+              isActiveForm ? 'bg-[#22C55E]' : 'bg-[#EF4444]'
+            }`}
+            title="Activer ou désactiver le suivi"
+          >
+            <span className={`text-[10px] font-bold text-white absolute ${isActiveForm ? 'left-1.5' : 'right-2'}`}>
+              {isActiveForm ? 'ON' : 'OFF'}
+            </span>
+            <span
+              className={`pointer-events-none inline-block h-6 w-6 transform rounded-full bg-white shadow-lg ring-0 transition duration-200 ease-in-out ${
+                isActiveForm ? 'translate-x-8' : 'translate-x-0'
+              }`}
+            />
+          </button>
+
+          <button
             onClick={() => setShowSettings(true)}
             className="p-3 bg-white border border-[#8B47FF] text-[#8B47FF] rounded-2xl hover:bg-[#F4EBFF] transition-all duration-300 hover:scale-105 shadow-sm cursor-pointer"
+            title="Ouvrir les paramètres du cycle"
           >
             <Settings className="w-6 h-6" />
           </button>
@@ -1440,15 +1480,6 @@ return (
             </button>
             <h3 className="text-2xl font-bold mb-6 text-black underline">Paramètres</h3>
             <div className="space-y-6">
-              <label className="flex items-center justify-between p-4 bg-[#F4EBFF] border border-[#8B47FF]/30 rounded-xl cursor-pointer hover:bg-[#E8D9FF] transition-colors">
-                <span className="font-bold text-[#8B47FF]">Activer le suivi</span>
-                <input
-                  type="checkbox"
-                  checked={isActiveForm}
-                  onChange={(e) => setIsActiveForm(e.target.checked)}
-                  className="w-5 h-5 rounded border-gray-300 text-[#8B47FF] focus:ring-[#8B47FF]"
-                />
-              </label>
               {isActiveForm && (
                 <div className="space-y-4 animate-in fade-in slide-in-from-top-4 duration-300">
                   <div className="p-4 bg-gray-50 rounded-xl border border-gray-200">
