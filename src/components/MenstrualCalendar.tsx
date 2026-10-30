@@ -385,12 +385,9 @@ const active = localStorage.getItem('sorea_has_notification') === 'true' || loca
   const getPhaseForDate = (date: Date) => {
     if (!profile) return null;
     
-    // Application par défaut d'un cycle standard de 28 jours si non défini
     let cLength = profile.cycleLength || 28;
     const pLength = profile.periodLength || 5;
     
-    // Algorithme d'ajustement dynamique : Si une date de début de règles est présente, 
-    // on ajuste dynamiquement la longueur si l'écart avec la date actuelle dépasse le cycle théorique
     let refDateStr = profile.lastPeriodStartDate;
     if (!refDateStr && cycleInfo?.refDate) {
       refDateStr = cycleInfo.refDate;
@@ -406,24 +403,14 @@ const active = localStorage.getItem('sorea_has_notification') === 'true' || loca
     const diffTime = target.getTime() - ref.getTime();
     const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
 
-    // Si on est avant la date de référence, on retourne null ou phase neutre
-    if (diffDays < 0) return null;
+    // Calcul modulo gérant correctement les dates antérieures et postérieures à la référence
+    const currentDay = (((diffDays % cLength) + cLength) % cLength) + 1;
 
-    // Ajustement dynamique sur l'historique des cycles (Moyenne glissante si plusieurs cycles se sont écoulés)
-    const elapsedCycles = Math.floor(diffDays / cLength);
-    const adjustedRefTime = ref.getTime() + elapsedCycles * cLength * (1000 * 60 * 60 * 24);
-    const adjustedRef = new Date(adjustedRefTime);
-
-    const currentDiffTime = target.getTime() - adjustedRef.getTime();
-    const currentDay = Math.floor(currentDiffTime / (1000 * 60 * 60 * 24)) + 1;
-
-    const normalizedDay = (((currentDay - 1) % cLength) + cLength) % cLength + 1;
-
-    if (normalizedDay <= pLength) return "Hiver";
+    if (currentDay <= pLength) return "Hiver";
     const ovStart = cLength - 14;
     const ovEnd = cLength - 12;
-    if (normalizedDay < ovStart) return "Printemps";
-    if (normalizedDay >= ovStart && normalizedDay <= ovEnd) return "Été";
+    if (currentDay < ovStart) return "Printemps";
+    if (currentDay >= ovStart && currentDay <= ovEnd) return "Été";
     return "Automne";
   };
 
