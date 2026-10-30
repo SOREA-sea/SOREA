@@ -383,21 +383,47 @@ const active = localStorage.getItem('sorea_has_notification') === 'true' || loca
   };
 
   const getPhaseForDate = (date: Date) => {
-    if (!cycleInfo || !profile) return null;
-    const ref = new Date(cycleInfo.refDate);
+    if (!profile) return null;
+    
+    // Application par défaut d'un cycle standard de 28 jours si non défini
+    let cLength = profile.cycleLength || 28;
+    const pLength = profile.periodLength || 5;
+    
+    // Algorithme d'ajustement dynamique : Si une date de début de règles est présente, 
+    // on ajuste dynamiquement la longueur si l'écart avec la date actuelle dépasse le cycle théorique
+    let refDateStr = profile.lastPeriodStartDate;
+    if (!refDateStr && cycleInfo?.refDate) {
+      refDateStr = cycleInfo.refDate;
+    }
+
+    if (!refDateStr) return null;
+
+    const ref = new Date(refDateStr);
     ref.setHours(0, 0, 0, 0);
     const target = new Date(date);
     target.setHours(0, 0, 0, 0);
+
     const diffTime = target.getTime() - ref.getTime();
     const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-    const cLength = profile.cycleLength || 28;
-    const currentDay = (((diffDays % cLength) + cLength) % cLength) + 1;
-    const pLength = profile.periodLength || 5;
-    if (currentDay <= pLength) return "Hiver";
+
+    // Si on est avant la date de référence, on retourne null ou phase neutre
+    if (diffDays < 0) return null;
+
+    // Ajustement dynamique sur l'historique des cycles (Moyenne glissante si plusieurs cycles se sont écoulés)
+    const elapsedCycles = Math.floor(diffDays / cLength);
+    const adjustedRefTime = ref.getTime() + elapsedCycles * cLength * (1000 * 60 * 60 * 24);
+    const adjustedRef = new Date(adjustedRefTime);
+
+    const currentDiffTime = target.getTime() - adjustedRef.getTime();
+    const currentDay = Math.floor(currentDiffTime / (1000 * 60 * 60 * 24)) + 1;
+
+    const normalizedDay = (((currentDay - 1) % cLength) + cLength) % cLength + 1;
+
+    if (normalizedDay <= pLength) return "Hiver";
     const ovStart = cLength - 14;
     const ovEnd = cLength - 12;
-    if (currentDay < ovStart) return "Printemps";
-    if (currentDay >= ovStart && currentDay <= ovEnd) return "Été";
+    if (normalizedDay < ovStart) return "Printemps";
+    if (normalizedDay >= ovStart && normalizedDay <= ovEnd) return "Été";
     return "Automne";
   };
 
@@ -1425,29 +1451,19 @@ return (
               </label>
               {isActiveForm && (
                 <div className="space-y-4 animate-in fade-in slide-in-from-top-4 duration-300">
-                  {(!profile?.isActive || showSurvey) && (
-                    <div className="p-4 bg-gray-50 rounded-xl border border-gray-200">
-                      <p className="text-sm font-bold text-black mb-3">Quel est votre type de cycle habituel ?</p>
-                      <div className="space-y-2">
-                        <label className="flex items-center gap-2 cursor-pointer">
-                          <input type="radio" name="cycleType" checked={cycleLengthForm === 24} onChange={() => setCycleLengthForm(24)} className="text-[#8B47FF] focus:ring-[#8B47FF]" />
-                          <span className="text-sm text-gray-700">🔴 Plutôt courts (environ 3 semaines)</span>
-                        </label>
-                        <label className="flex items-center gap-2 cursor-pointer">
-                          <input type="radio" name="cycleType" checked={cycleLengthForm === 28} onChange={() => setCycleLengthForm(28)} className="text-[#8B47FF] focus:ring-[#8B47FF]" />
-                          <span className="text-sm text-gray-700">🟢 Standard / Moyens (environ 4 semaines)</span>
-                        </label>
-                        <label className="flex items-center gap-2 cursor-pointer">
-                          <input type="radio" name="cycleType" checked={cycleLengthForm === 32} onChange={() => setCycleLengthForm(32)} className="text-[#8B47FF] focus:ring-[#8B47FF]" />
-                          <span className="text-sm text-gray-700">🔵 Plutôt longs (plus de 4 semaines)</span>
-                        </label>
-                        <label className="flex items-center gap-2 cursor-pointer">
-                          <input type="radio" name="cycleType" checked={! [24, 28, 32].includes(cycleLengthForm)} onChange={() => setCycleLengthForm(28)} className="text-[#8B47FF] focus:ring-[#8B47FF]" />
-                          <span className="text-sm text-gray-700">⚫ Je ne sais pas du tout</span>
-                        </label>
-                      </div>
+                  <div className="p-4 bg-gray-50 rounded-xl border border-gray-200">
+                    <label className="block text-sm font-bold text-black mb-2 text-center">Combien de jours durent vos règles ?</label>
+                    <div className="flex items-center justify-center">
+                      <input
+                        type="number"
+                        min="1"
+                        max="15"
+                        value={periodLengthForm}
+                        onChange={(e) => setPeriodLengthForm(parseInt(e.target.value) || 5)}
+                        className="w-20 px-3 py-2 border-2 border-gray-200 rounded-xl bg-white text-black text-center font-bold focus:border-[#8B47FF] outline-none"
+                      />
                     </div>
-                  )}
+                  </div>
                   <div>
                     <label className="block text-sm font-bold text-black mb-2">Début des dernières règles</label>
                     <input
@@ -1457,7 +1473,7 @@ return (
                       className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl bg-white text-black focus:border-[#8B47FF] outline-none transition-all"
                     />
                     <p className="text-xs text-gray-500 mt-2 italic">
-                      <span className="underline">Le site applique par défaut un cycle standard théorique de 28 jours.</span>
+                      <span className="underline">Le site applique par défaut un cycle standard théorique de 28 jours avec un ajustement dynamique.</span>
                     </p>
                   </div>
                 </div>
