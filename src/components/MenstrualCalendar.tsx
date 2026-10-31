@@ -916,7 +916,7 @@ return (
                 { id: 'symptome', label: 'Symptôme physique' },
                 { id: 'flux', label: 'Flux' },
                 { id: 'resultat', label: 'Résultat' },
-                { id: 'rectifier', label: 'Reprogrammer !' },
+                { id: 'rectifier', label: 'Paramètre' },
               ].map((tab) => (
                 <button
                   key={tab.id}
@@ -1467,7 +1467,7 @@ return (
                           </div>
                           {fluxCustom.trim() && (
                             <div className="flex flex-wrap gap-2">
-                              <span className="px-4 py-1.5 rounded-full text-xs font-medium border border-[#E256B3] bg-white text-gray-800 shadow-sm">
+                              <span className="px-4 py-1.5 rounded-[0px] text-xs font-medium border border-[#E256B3] bg-white text-gray-800 shadow-sm">
                                 {fluxCustom.trim()}
                               </span>
                             </div>

@@ -92,7 +92,7 @@ export default function MenstrualFlux({
       </div>
 
       {/* Champ de précision "Plus de précisions..." avec bouton Valider intégré */}
-      <div className="w-full p-4 rounded-2xl border border-gray-300 bg-white shadow-sm mb-2 flex items-center gap-3">
+      <div className={`w-full p-4 border ${isValidated ? 'border-[#E256B3]' : 'border-gray-300'} bg-white shadow-sm mb-2 flex items-center gap-3`}>
         <input
           type="text"
           placeholder="Plus de précisions..."
@@ -122,9 +122,11 @@ export default function MenstrualFlux({
               onValidate(fluxText, getCurrentTime());
             }
           }}
-          className="px-4 py-2 bg-[#8B47FF] text-white text-xs font-bold rounded-xl hover:bg-[#7535e6] transition-all cursor-pointer"
+          className={`px-4 py-2 text-xs font-bold rounded-xl transition-all cursor-pointer ${
+            isValidated ? 'bg-[#C4B5FD] text-white shadow-sm' : 'bg-[#8B47FF] text-white hover:bg-[#7535e6]'
+          }`}
         >
-          {isValidated ? "Validé ✓" : "Valider"}
+          Ok
         </button>
       </div>
     </div>
