@@ -1392,7 +1392,7 @@ return (
                         <h4 className="text-lg font-bold text-[#7F4DC5]">Symptômes physiques</h4>
                         
                         {categoriesData.map((cat) => {
-                          const matchedItems = cat.items.filter(item => tempSelectedPhysicalSymptoms.includes(item));
+                          const matchedItems = cat.items.filter(item => selectedPhysicalSymptoms.includes(item));
                           if (matchedItems.length === 0) return null;
 
                           return (
@@ -1407,7 +1407,8 @@ return (
                                     <button
                                       type="button"
                                       onClick={() => {
-                                        setSelectedPhysicalSymptoms(prev => prev.filter(i => i !== item));
+                                        setTempSelectedPhysicalSymptoms(prev => prev.filter(i => i !== item));
+                                        setIsPhysicalValidated(false);
                                       }}
                                       className="absolute right-1 w-3.5 h-3.5 rounded-full bg-gray-200 text-gray-600 hover:bg-red-500 hover:text-white flex items-center justify-center text-[9px] font-bold opacity-0 group-hover/physitem:opacity-100 transition-opacity cursor-pointer"
                                     >
@@ -1435,7 +1436,8 @@ return (
                                     <button
                                       type="button"
                                       onClick={() => {
-                                        setSelectedPhysicalSymptoms(prev => prev.filter(i => i !== cp));
+                                        setTempSelectedPhysicalSymptoms(prev => prev.filter(i => i !== cp));
+                                        setIsPhysicalValidated(false);
                                       }}
                                       className="absolute right-1 w-3.5 h-3.5 rounded-full bg-gray-200 text-gray-600 hover:bg-red-500 hover:text-white flex items-center justify-center text-[9px] font-bold opacity-0 group-hover/customphys:opacity-100 transition-opacity cursor-pointer"
                                     >
