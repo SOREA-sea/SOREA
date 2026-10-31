@@ -887,7 +887,10 @@ return (
         </div>
       )}
 
-      {selectedDate && activeTab === 'calendar' && (
+      {selectedDate && activeTab === 'calendar' && (() => {
+        const currentSelectedPhase = getPhaseForDate(selectedDate);
+
+        return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
           <div className="w-full max-w-2xl rounded-3xl border border-[#8B47FF] bg-white p-8 shadow-2xl relative">
             
@@ -914,7 +917,7 @@ return (
               {[
                 { id: 'humeur', label: 'Humeur' },
                 { id: 'symptome', label: 'Symptôme physique' },
-                { id: 'flux', label: 'Flux' },
+                ...(currentSelectedPhase === 'Hiver' ? [{ id: 'flux', label: 'Flux' }] : []),
                 { id: 'resultat', label: 'Résultat' },
                 { id: 'rectifier', label: 'Paramètre' },
               ].map((tab) => (
@@ -1539,7 +1542,8 @@ return (
 
           </div>
         </div>
-      )}
+      );
+      })()}
 
       {showSettings && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
