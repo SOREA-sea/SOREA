@@ -17,10 +17,13 @@ export default function MenstrualFlux({
   customValue,
   onCustomChange,
   onValidate,
-}: MenstrualFluxProps & { onValidate?: (flux: string, time: string) => void }) {
+  onGlobalValidate,
+}: MenstrualFluxProps & { onValidate?: (flux: string, time: string) => void; onGlobalValidate?: (fluxText: string, timeText: string) => void }) {
   const [internalFlux, setInternalFlux] = React.useState<number>(1);
   const [internalCustom, setInternalCustom] = React.useState<string>("");
+  const [tempCustom, setTempCustom] = React.useState<string>(customValue !== undefined ? customValue : "");
   const [isValidated, setIsValidated] = React.useState<boolean>(false);
+  const [isGlobalValidated, setIsGlobalValidated] = React.useState<boolean>(false);
 
   // Heure réelle actuelle (ex: "14:32")
   const getCurrentTime = () => {
@@ -31,14 +34,22 @@ export default function MenstrualFlux({
   const currentFlux = value !== undefined ? value : internalFlux;
   const currentCustom = customValue !== undefined ? customValue : internalCustom;
 
+  // Synchroniser le texte temporaire si la prop change
+  React.useEffect(() => {
+    if (customValue !== undefined) {
+      setTempCustom(customValue);
+    }
+  }, [customValue]);
+
   const handleFluxChange = (val: number) => {
     if (onChange) onChange(val);
     if (value === undefined) setInternalFlux(val);
+    setIsGlobalValidated(false);
   };
 
   const handleCustomChange = (val: string) => {
-    if (onCustomChange) onCustomChange(val);
-    if (customValue === undefined) setInternalCustom(val);
+    setTempCustom(val);
+    setIsGlobalValidated(false);
   };
 
   return (
@@ -91,42 +102,39 @@ export default function MenstrualFlux({
         {currentFlux === 1 ? "Très léger" : currentFlux === 2 ? "Léger" : currentFlux === 3 ? "Modéré" : currentFlux === 4 ? "Abondant" : "Très abondant"}
       </div>
 
-      {/* Champ de précision "Plus de précisions..." avec bouton Valider intégré */}
-      <div className={`w-full p-4 border ${isValidated ? 'border-[#E256B3]' : 'border-gray-300'} bg-white shadow-sm mb-2 flex items-center gap-3`}>
+      {/* Champ de précision "Plus de précisions..." */}
+      <div className={`w-full p-4 rounded-2xl border ${isGlobalValidated ? 'border-[#E256B3]' : 'border-gray-300'} bg-white shadow-sm mb-2 flex items-center gap-3`}>
         <input
           type="text"
           placeholder="Plus de précisions..."
-          value={currentCustom}
+          value={tempCustom}
           onChange={(e) => {
             handleCustomChange(e.target.value);
-            setIsValidated(false);
+            setIsGlobalValidated(false);
           }}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter') {
-              e.preventDefault();
-              setIsValidated(true);
-              const fluxText = currentFlux === 1 ? "Très léger" : currentFlux === 2 ? "Léger" : currentFlux === 3 ? "Modéré" : currentFlux === 4 ? "Abondant" : "Très abondant";
-              if (onValidate) {
-                onValidate(fluxText, getCurrentTime());
-              }
-            }
-          }}
-          className="flex-1 text-sm outline-none text-gray-800 placeholder-gray-400 bg-transparent"
+          className="w-full text-sm outline-none text-gray-800 placeholder-gray-400 bg-transparent"
         />
+      </div>
+
+      {/* Bouton Valider global tout en bas pour envoyer vers le Résultat */}
+      <div className="flex justify-center pt-4 w-full">
         <button
           type="button"
           onClick={() => {
-            setIsValidated(true);
+            if (onCustomChange) onCustomChange(tempCustom);
+            if (customValue === undefined) setInternalCustom(tempCustom);
+            setIsGlobalValidated(true);
+
             const fluxText = currentFlux === 1 ? "Très léger" : currentFlux === 2 ? "Léger" : currentFlux === 3 ? "Modéré" : currentFlux === 4 ? "Abondant" : "Très abondant";
-            if (onValidate) {
-              onValidate(fluxText, getCurrentTime());
+            if (onGlobalValidate) {
+              onGlobalValidate(fluxText, getCurrentTime());
             }
           }}
-          className={`px-4 py-2 text-xs font-bold rounded-xl transition-all cursor-pointer ${
-            isValidated ? 'bg-[#C4B5FD] text-white shadow-sm' : 'bg-[#8B47FF] text-white hover:bg-[#7535e6]'
+          className={`w-full py-3 text-sm font-bold rounded-2xl shadow-lg transition-all cursor-pointer ${
+            isGlobalValidated ? 'bg-[#C4B5FD] text-white' : 'bg-[#8B47FF] text-white hover:bg-[#7535e6]'
           }`}
         >
-          Ok
+          Valider
         </button>
       </div>
     </div>

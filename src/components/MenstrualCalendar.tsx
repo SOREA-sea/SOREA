@@ -1054,19 +1054,28 @@ return (
                       type="text"
                       placeholder="Autre..."
                       value={customMood}
-                      onChange={(e) => setCustomMood(e.target.value)}
+                      onChange={(e) => {
+                        setCustomMood(e.target.value);
+                        setIsMoodValidated(false);
+                      }}
                       onKeyDown={(e) => {
                         if (e.key === 'Enter') {
                           e.preventDefault();
                           handleAddCustomMood();
+                          setIsMoodValidated(true);
                         }
                       }}
                       className="flex-1 text-sm outline-none text-gray-800 placeholder-gray-400 bg-transparent"
                     />
                     <button
                       type="button"
-                      onClick={handleAddCustomMood}
-                      className="px-4 py-2 bg-[#8B47FF] text-white text-xs font-bold rounded-xl hover:bg-[#7535e6] transition-all cursor-pointer"
+                      onClick={() => {
+                        handleAddCustomMood();
+                        setIsMoodValidated(true);
+                      }}
+                      className={`px-4 py-2 text-xs font-bold rounded-xl transition-all cursor-pointer ${
+                        isMoodValidated ? 'bg-[#C4B5FD] text-white shadow-sm' : 'bg-[#8B47FF] text-white hover:bg-[#7535e6]'
+                      }`}
                     >
                       Ok
                     </button>
@@ -1243,19 +1252,28 @@ return (
                         type="text"
                         placeholder="Autre..."
                         value={customPhysical}
-                        onChange={(e) => setCustomPhysical(e.target.value)}
+                        onChange={(e) => {
+                          setCustomPhysical(e.target.value);
+                          setIsPhysicalValidated(false);
+                        }}
                         onKeyDown={(e) => {
                           if (e.key === 'Enter') {
                             e.preventDefault();
                             handleAddCustomPhysical();
+                            setIsPhysicalValidated(true);
                           }
                         }}
                         className="flex-1 text-sm outline-none text-gray-800 placeholder-gray-400 bg-transparent"
                       />
                       <button
                         type="button"
-                        onClick={handleAddCustomPhysical}
-                        className="px-4 py-2 bg-[#8B47FF] text-white text-xs font-bold rounded-xl hover:bg-[#7535e6] transition-all cursor-pointer"
+                        onClick={() => {
+                          handleAddCustomPhysical();
+                          setIsPhysicalValidated(true);
+                        }}
+                        className={`px-4 py-2 text-xs font-bold rounded-xl transition-all cursor-pointer ${
+                          isPhysicalValidated ? 'bg-[#C4B5FD] text-white shadow-sm' : 'bg-[#8B47FF] text-white hover:bg-[#7535e6]'
+                        }`}
                       >
                         Ok
                       </button>
@@ -1309,7 +1327,7 @@ return (
                   onChange={setFluxValue}
                   customValue={fluxCustom}
                   onCustomChange={setFluxCustom}
-                  onValidate={(fluxText, timeText) => {
+                  onGlobalValidate={(fluxText, timeText) => {
                     setConfirmedFlux(fluxText);
                     setFluxTime(timeText);
                   }}
