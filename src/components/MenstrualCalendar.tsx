@@ -1086,11 +1086,14 @@ return (
                   <div className="flex justify-center pt-4">
                     <button
                       type="button"
+                      disabled={isMoodValidated}
                       onClick={() => {
                         setSelectedMoods(tempSelectedMoods);
                         setIsMoodValidated(true);
                       }}
-                      className="px-8 py-2 bg-[#8B47FF] hover:bg-[#7535e6] text-white text-sm font-bold rounded-2xl shadow-lg transition-all cursor-pointer"
+                      className={`px-8 py-2 text-white text-sm font-bold rounded-2xl shadow-lg transition-all ${
+                        isMoodValidated ? 'bg-[#C4B5FD] cursor' : 'bg-[#8B47FF] hover:bg-[#7535e6] cursor-pointer'
+                      }`}
                     >
                       Valider
                     </button>
@@ -1283,11 +1286,14 @@ return (
                     <div className="flex justify-center pt-4 pb-2">
                       <button
                         type="button"
+                        disabled={isPhysicalValidated}
                         onClick={() => {
                           setSelectedPhysicalSymptoms(tempSelectedPhysicalSymptoms);
                           setIsPhysicalValidated(true);
                         }}
-                        className="px-8 py-2 bg-[#8B47FF] hover:bg-[#7535e6] text-white text-sm font-bold rounded-2xl shadow-lg transition-all cursor-pointer"
+                        className={`px-8 py-2 text-white text-sm font-bold rounded-2xl shadow-lg transition-all ${
+                          isPhysicalValidated ? 'bg-[#C4B5FD] cursor' : 'bg-[#8B47FF] hover:bg-[#7535e6] cursor-pointer'
+                        }`}
                       >
                         Valider
                       </button>
