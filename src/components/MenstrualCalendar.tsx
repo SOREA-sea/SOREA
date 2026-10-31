@@ -73,10 +73,12 @@ const [showCalendarHelpModal, setShowCalendarHelpModal] = useState(false);
 
   const [symptomTab, setSymptomTab] = useState<'humeur' | 'symptome' | 'rectifier' | 'flux' | 'resultat'>('humeur');
   const [selectedMoods, setSelectedMoods] = useState<string[]>([]);
+  const [tempSelectedMoods, setTempSelectedMoods] = useState<string[]>([]);
   const [customMood, setCustomMood] = useState("");
   const [customMoodsList, setCustomMoodsList] = useState<string[]>([]); // Liste des mots personnalisés ajoutés
 
   const [selectedPhysicalSymptoms, setSelectedPhysicalSymptoms] = useState<string[]>([]);
+  const [tempSelectedPhysicalSymptoms, setTempSelectedPhysicalSymptoms] = useState<string[]>([]);
   const [customPhysical, setCustomPhysical] = useState("");
   const [customPhysicalsList, setCustomPhysicalsList] = useState<string[]>([]); // Liste des symptômes physiques personnalisés ajoutés
   const [openCategory, setOpenCategory] = useState<string | null>(null);
@@ -234,12 +236,18 @@ const active = localStorage.getItem('sorea_has_notification') === 'true' || loca
           physicalSymptoms: data.log.physicalSymptoms,
         });
         // Initialisation des états multiples si enregistrés
-        setSelectedMoods(data.log.mood ? data.log.mood.split(', ') : []);
-        setSelectedPhysicalSymptoms(data.log.physicalSymptoms ? data.log.physicalSymptoms.split(', ') : []);
+        const moods = data.log.mood ? data.log.mood.split(', ') : [];
+        const physicals = data.log.physicalSymptoms ? data.log.physicalSymptoms.split(', ') : [];
+        setSelectedMoods(moods);
+        setTempSelectedMoods(moods);
+        setSelectedPhysicalSymptoms(physicals);
+        setTempSelectedPhysicalSymptoms(physicals);
       } else {
         setSymptomLog({ flow: null, mood: null, physicalSymptoms: null });
         setSelectedMoods([]);
+        setTempSelectedMoods([]);
         setSelectedPhysicalSymptoms([]);
+        setTempSelectedPhysicalSymptoms([]);
       }
     } catch (e) {
       console.error(e);
@@ -260,6 +268,7 @@ const active = localStorage.getItem('sorea_has_notification') === 'true' || loca
     // Supprimer de la liste personnalisée
     setCustomMoodsList(prev => prev.filter(m => m !== moodToRemove));
     // S'assurer de la désélectionner si elle était cochée
+    setTempSelectedMoods(prev => prev.filter(m => m !== moodToRemove));
     setSelectedMoods(prev => prev.filter(m => m !== moodToRemove));
   };
 
@@ -274,6 +283,7 @@ const active = localStorage.getItem('sorea_has_notification') === 'true' || loca
 
   const handleRemoveCustomPhysical = (physicalToRemove: string) => {
     setCustomPhysicalsList(prev => prev.filter(p => p !== physicalToRemove));
+    setTempSelectedPhysicalSymptoms(prev => prev.filter(p => p !== physicalToRemove));
     setSelectedPhysicalSymptoms(prev => prev.filter(p => p !== physicalToRemove));
   };
 
@@ -899,8 +909,8 @@ return (
                 { id: 'humeur', label: 'Humeur' },
                 { id: 'symptome', label: 'Symptôme physique' },
                 { id: 'flux', label: 'Flux' },
-                { id: 'rectifier', label: 'Reprogrammer !' },
                 { id: 'resultat', label: 'Résultat' },
+                { id: 'rectifier', label: 'Reprogrammer !' },
               ].map((tab) => (
                 <button
                   key={tab.id}
@@ -932,13 +942,13 @@ return (
                         "Mélancolique", "Motivée", "Optimiste", "Paisible", "Réservée",
                         "Sereine", "Sociable", "Vitalité"
                       ].map((m) => {
-                        const isSelected = selectedMoods.includes(m);
+                        const isSelected = tempSelectedMoods.includes(m);
                         return (
                           <button
                             key={m}
                             type="button"
                             onClick={() => {
-                              setSelectedMoods(prev => 
+                              setTempSelectedMoods(prev => 
                                 isSelected ? prev.filter(item => item !== m) : [...prev, m]
                               );
                             }}
@@ -963,13 +973,13 @@ return (
                         "Épuisée", "Fatiguée", "Insomnie", "Inquiète", "Irritable",
                         "Léthargie", "Somnolente", "Stressée", "Triste"
                       ].map((m) => {
-                        const isSelected = selectedMoods.includes(m);
+                        const isSelected = tempSelectedMoods.includes(m);
                         return (
                           <button
                             key={m}
                             type="button"
                             onClick={() => {
-                              setSelectedMoods(prev => 
+                              setTempSelectedMoods(prev => 
                                 isSelected ? prev.filter(item => item !== m) : [...prev, m]
                               );
                             }}
@@ -1047,6 +1057,19 @@ return (
                       type="button"
                       onClick={handleAddCustomMood}
                       className="px-4 py-2 bg-[#8B47FF] text-white text-xs font-bold rounded-xl hover:bg-[#7535e6] transition-all cursor-pointer"
+                    >
+                      Ok
+                    </button>
+                  </div>
+
+                  {/* Bouton Valider pour enregistrer les choix dans le Résultat sans changer d'onglet */}
+                  <div className="flex justify-center pt-4">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSelectedMoods(tempSelectedMoods);
+                      }}
+                      className="px-8 py-2 bg-[#8B47FF] text-white text-sm font-bold rounded-2xl shadow-lg hover:bg-[#7535e6] transition-all cursor-pointer"
                     >
                       Valider
                     </button>
@@ -1128,13 +1151,13 @@ return (
                           {openCatInRow && (
                             <div className="border-2 border-t-0 border-[#8B47FF] rounded-b-2xl bg-white max-h-[220px] overflow-y-auto custom-scrollbar -mt-3 shadow-sm animate-in fade-in duration-200">
                               {openCatInRow.items.map((item, idx) => {
-                                const isSelected = selectedPhysicalSymptoms.includes(item);
+                                const isSelected = tempSelectedPhysicalSymptoms.includes(item);
                                 return (
                                   <button
                                     key={item}
                                     type="button"
                                     onClick={() => {
-                                      setSelectedPhysicalSymptoms(prev =>
+                                      setTempSelectedPhysicalSymptoms(prev =>
                                         isSelected ? prev.filter(i => i !== item) : [...prev, item]
                                       );
                                     }}
@@ -1162,7 +1185,7 @@ return (
                       <div className="p-4 rounded-2xl border border-gray-300 bg-white">
                         <div className="flex flex-wrap gap-2">
                           {customPhysicalsList.map((cp) => {
-                            const isSelected = selectedPhysicalSymptoms.includes(cp);
+                            const isSelected = tempSelectedPhysicalSymptoms.includes(cp);
                             return (
                               <div key={cp} className="relative group/physical inline-flex items-center">
                                 <button
@@ -1218,6 +1241,19 @@ return (
                         type="button"
                         onClick={handleAddCustomPhysical}
                         className="px-4 py-2 bg-[#8B47FF] text-white text-xs font-bold rounded-xl hover:bg-[#7535e6] transition-all cursor-pointer"
+                      >
+                        Ok
+                      </button>
+                    </div>
+
+                    {/* Bouton Valider pour enregistrer les sélections sans changer d'onglet */}
+                    <div className="flex justify-center pt-4 pb-2">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setSelectedPhysicalSymptoms(tempSelectedPhysicalSymptoms);
+                        }}
+                        className="px-8 py-2 bg-[#8B47FF] text-white text-sm font-bold rounded-2xl shadow-lg hover:bg-[#7535e6] transition-all cursor-pointer"
                       >
                         Valider
                       </button>
@@ -1338,7 +1374,7 @@ return (
                         <h4 className="text-lg font-bold text-[#7F4DC5]">Symptômes physiques</h4>
                         
                         {categoriesData.map((cat) => {
-                          const matchedItems = cat.items.filter(item => selectedPhysicalSymptoms.includes(item));
+                          const matchedItems = cat.items.filter(item => tempSelectedPhysicalSymptoms.includes(item));
                           if (matchedItems.length === 0) return null;
 
                           return (
