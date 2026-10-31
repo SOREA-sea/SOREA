@@ -1373,6 +1373,8 @@ return (
                                   type="button"
                                   onClick={() => {
                                     setSelectedMoods(prev => prev.filter(m => m !== mood));
+                                    setTempSelectedMoods(prev => prev.filter(m => m !== mood));
+                                    setIsMoodValidated(false);
                                   }}
                                   className="absolute right-1.5 w-4 h-4 rounded-full bg-gray-200 text-gray-600 hover:bg-red-500 hover:text-white flex items-center justify-center text-[10px] font-bold opacity-0 group-hover/resultmood:opacity-100 transition-opacity cursor-pointer"
                                   title="Supprimer cette humeur"
@@ -1405,15 +1407,16 @@ return (
                                       {item}
                                     </span>
                                     <button
-                                      type="button"
-                                      onClick={() => {
-                                        setTempSelectedPhysicalSymptoms(prev => prev.filter(i => i !== item));
-                                        setIsPhysicalValidated(false);
-                                      }}
-                                      className="absolute right-1 w-3.5 h-3.5 rounded-full bg-gray-200 text-gray-600 hover:bg-red-500 hover:text-white flex items-center justify-center text-[9px] font-bold opacity-0 group-hover/physitem:opacity-100 transition-opacity cursor-pointer"
-                                    >
-                                      ×
-                                    </button>
+                                  type="button"
+                                  onClick={() => {
+                                    setSelectedPhysicalSymptoms(prev => prev.filter(i => i !== item));
+                                    setTempSelectedPhysicalSymptoms(prev => prev.filter(i => i !== item));
+                                    setIsPhysicalValidated(false);
+                                  }}
+                                  className="absolute right-1 w-3.5 h-3.5 rounded-full bg-gray-200 text-gray-600 hover:bg-red-500 hover:text-white flex items-center justify-center text-[9px] font-bold opacity-0 group-hover/physitem:opacity-100 transition-opacity cursor-pointer"
+                                >
+                                  ×
+                                </button>
                                   </div>
                                 ))}
                               </div>
@@ -1436,6 +1439,7 @@ return (
                                     <button
                                       type="button"
                                       onClick={() => {
+                                        setSelectedPhysicalSymptoms(prev => prev.filter(i => i !== cp));
                                         setTempSelectedPhysicalSymptoms(prev => prev.filter(i => i !== cp));
                                         setIsPhysicalValidated(false);
                                       }}
