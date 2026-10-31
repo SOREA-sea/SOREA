@@ -74,11 +74,13 @@ const [showCalendarHelpModal, setShowCalendarHelpModal] = useState(false);
   const [symptomTab, setSymptomTab] = useState<'humeur' | 'symptome' | 'rectifier' | 'flux' | 'resultat'>('humeur');
   const [selectedMoods, setSelectedMoods] = useState<string[]>([]);
   const [tempSelectedMoods, setTempSelectedMoods] = useState<string[]>([]);
+  const [isMoodValidated, setIsMoodValidated] = useState(false); // État visuel Valider Humeur
   const [customMood, setCustomMood] = useState("");
   const [customMoodsList, setCustomMoodsList] = useState<string[]>([]); // Liste des mots personnalisés ajoutés
 
   const [selectedPhysicalSymptoms, setSelectedPhysicalSymptoms] = useState<string[]>([]);
   const [tempSelectedPhysicalSymptoms, setTempSelectedPhysicalSymptoms] = useState<string[]>([]);
+  const [isPhysicalValidated, setIsPhysicalValidated] = useState(false); // État visuel Valider Symptôme
   const [customPhysical, setCustomPhysical] = useState("");
   const [customPhysicalsList, setCustomPhysicalsList] = useState<string[]>([]); // Liste des symptômes physiques personnalisés ajoutés
   const [openCategory, setOpenCategory] = useState<string | null>(null);
@@ -260,6 +262,7 @@ const active = localStorage.getItem('sorea_has_notification') === 'true' || loca
     const word = trimmed.split(/\s+/)[0]; 
     if (word && !customMoodsList.includes(word)) {
       setCustomMoodsList(prev => [...prev, word]);
+      setIsMoodValidated(false);
     }
     setCustomMood("");
   };
@@ -270,6 +273,7 @@ const active = localStorage.getItem('sorea_has_notification') === 'true' || loca
     // S'assurer de la désélectionner si elle était cochée
     setTempSelectedMoods(prev => prev.filter(m => m !== moodToRemove));
     setSelectedMoods(prev => prev.filter(m => m !== moodToRemove));
+    setIsMoodValidated(false);
   };
 
   const handleAddCustomPhysical = () => {
@@ -277,6 +281,7 @@ const active = localStorage.getItem('sorea_has_notification') === 'true' || loca
     if (!trimmed) return;
     if (!customPhysicalsList.includes(trimmed)) {
       setCustomPhysicalsList(prev => [...prev, trimmed]);
+      setIsPhysicalValidated(false);
     }
     setCustomPhysical("");
   };
@@ -285,6 +290,7 @@ const active = localStorage.getItem('sorea_has_notification') === 'true' || loca
     setCustomPhysicalsList(prev => prev.filter(p => p !== physicalToRemove));
     setTempSelectedPhysicalSymptoms(prev => prev.filter(p => p !== physicalToRemove));
     setSelectedPhysicalSymptoms(prev => prev.filter(p => p !== physicalToRemove));
+    setIsPhysicalValidated(false);
   };
 
   const handleDayClick = (day: number) => {
@@ -743,7 +749,7 @@ return (
         <button
           type="button"
           onClick={() => {
-            // 🌟 Le clic sert uniquement à basculer sur l'onglet sans effacer le badge
+            // Le clic sert uniquement à basculer sur l'onglet sans effacer le badge
             setActiveTab('todo');
           }}
           className={`w-full h-[42px] px-6 rounded-[5px] border border-[#00CEC9] font-semibold text-base transition-all duration-200 cursor-pointer relative ${
@@ -951,6 +957,7 @@ return (
                               setTempSelectedMoods(prev => 
                                 isSelected ? prev.filter(item => item !== m) : [...prev, m]
                               );
+                              setIsMoodValidated(false);
                             }}
                             className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all cursor-pointer ${
                               isSelected 
@@ -982,6 +989,7 @@ return (
                               setTempSelectedMoods(prev => 
                                 isSelected ? prev.filter(item => item !== m) : [...prev, m]
                               );
+                              setIsMoodValidated(false);
                             }}
                             className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all cursor-pointer ${
                               isSelected 
@@ -1010,6 +1018,8 @@ return (
                                   setTempSelectedMoods(prev =>
                                     isSelected ? prev.filter(item => item !== cm) : [...prev, cm]
                                   );
+                                  setIsMoodValidated(false);
+                                  setIsMoodValidated(false);
                                 }}
                                 className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all cursor-pointer pr-5 ${
                                   isSelected 
@@ -1068,8 +1078,11 @@ return (
                       type="button"
                       onClick={() => {
                         setSelectedMoods(tempSelectedMoods);
+                        setIsMoodValidated(true);
                       }}
-                      className="px-8 py-2 bg-[#8B47FF] text-white text-sm font-bold rounded-2xl shadow-lg hover:bg-[#7535e6] transition-all cursor-pointer"
+                      className={`px-8 py-2 text-white text-sm font-bold rounded-2xl shadow-lg transition-all cursor-pointer ${
+                        isMoodValidated ? 'bg-[#C4B5FD]' : 'bg-[#8B47FF] hover:bg-[#7535e6]'
+                      }`}
                     >
                       Valider
                     </button>
@@ -1160,6 +1173,7 @@ return (
                                       setTempSelectedPhysicalSymptoms(prev =>
                                         isSelected ? prev.filter(i => i !== item) : [...prev, item]
                                       );
+                                      setIsPhysicalValidated(false);
                                     }}
                                     className={`w-full py-3 px-5 text-left text-xs font-medium transition-all cursor-pointer flex items-center justify-between ${
                                       idx !== openCatInRow.items.length - 1 ? 'border-b border-gray-200' : ''
@@ -1194,6 +1208,7 @@ return (
                                     setTempSelectedPhysicalSymptoms(prev =>
                                       isSelected ? prev.filter(item => item !== cp) : [...prev, cp]
                                     );
+                                    setIsPhysicalValidated(false);
                                   }}
                                   className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all cursor-pointer pr-5 ${
                                     isSelected 
@@ -1252,8 +1267,11 @@ return (
                         type="button"
                         onClick={() => {
                           setSelectedPhysicalSymptoms(tempSelectedPhysicalSymptoms);
+                          setIsPhysicalValidated(true);
                         }}
-                        className="px-8 py-2 bg-[#8B47FF] text-white text-sm font-bold rounded-2xl shadow-lg hover:bg-[#7535e6] transition-all cursor-pointer"
+                        className={`px-8 py-2 text-white text-sm font-bold rounded-2xl shadow-lg transition-all cursor-pointer ${
+                          isPhysicalValidated ? 'bg-[#C4B5FD]' : 'bg-[#8B47FF] hover:bg-[#7535e6]'
+                        }`}
                       >
                         Valider
                       </button>
