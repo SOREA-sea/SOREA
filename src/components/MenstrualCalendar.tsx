@@ -51,7 +51,7 @@ const NEGATIVE_MOODS = [
   "Léthargie", "Somnolente", "Stressée", "Triste"
 ];
 
-export default function MenstrualCalendar() {
+export default function MenstrualCalendar({ onSaveSuccess }: { onSaveSuccess?: () => void }) {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [cycleInfo, setCycleInfo] = useState<CycleInfo | null>(null);
   const [loading, setLoading] = useState(true);
@@ -1528,6 +1528,7 @@ return (
 
                         await saveSymptom();
                         setSelectedDate(null);
+                        if (onSaveSuccess) onSaveSuccess();
                       }}
                       disabled={isSavingSymptom}
                       className="w-full py-4 bg-[#8B47FF] text-white rounded-2xl font-bold shadow-lg hover:bg-[#7535e6] transition-all cursor-pointer text-base"
