@@ -1001,13 +1001,13 @@ return (
                     <div className="p-4 rounded-2xl border border-gray-300 bg-white">
                       <div className="flex flex-wrap gap-2">
                         {customMoodsList.map((cm) => {
-                          const isSelected = selectedMoods.includes(cm);
+                          const isSelected = tempSelectedMoods.includes(cm);
                           return (
                             <div key={cm} className="relative group/mood inline-flex items-center">
                               <button
                                 type="button"
                                 onClick={() => {
-                                  setSelectedMoods(prev =>
+                                  setTempSelectedMoods(prev =>
                                     isSelected ? prev.filter(item => item !== cm) : [...prev, cm]
                                   );
                                 }}
@@ -1191,7 +1191,7 @@ return (
                                 <button
                                   type="button"
                                   onClick={() => {
-                                    setSelectedPhysicalSymptoms(prev =>
+                                    setTempSelectedPhysicalSymptoms(prev =>
                                       isSelected ? prev.filter(item => item !== cp) : [...prev, cp]
                                     );
                                   }}
