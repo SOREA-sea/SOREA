@@ -120,6 +120,7 @@ export default function MenstrualFlux({
       <div className="flex justify-center pt-4 w-full">
         <button
           type="button"
+          disabled={isGlobalValidated}
           onClick={() => {
             if (onCustomChange) onCustomChange(tempCustom);
             if (customValue === undefined) setInternalCustom(tempCustom);
@@ -130,8 +131,8 @@ export default function MenstrualFlux({
               onGlobalValidate(fluxText, getCurrentTime());
             }
           }}
-          className={`w-full py-3 text-sm font-bold rounded-2xl shadow-lg transition-all cursor-pointer ${
-            isGlobalValidated ? 'bg-[#C4B5FD] text-white' : 'bg-[#8B47FF] text-white hover:bg-[#7535e6]'
+          className={`w-full py-3 text-sm font-bold rounded-2xl shadow-lg transition-all ${
+            isGlobalValidated ? 'bg-[#C4B5FD] text-white cursor' : 'bg-[#8B47FF] text-white hover:bg-[#7535e6] cursor-pointer'
           }`}
         >
           Valider

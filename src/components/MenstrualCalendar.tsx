@@ -1069,12 +1069,13 @@ return (
                     />
                     <button
                       type="button"
+                      disabled={isMoodValidated}
                       onClick={() => {
                         handleAddCustomMood();
                         setIsMoodValidated(true);
                       }}
-                      className={`px-4 py-2 text-xs font-bold rounded-xl transition-all cursor-pointer ${
-                        isMoodValidated ? 'bg-[#C4B5FD] text-white shadow-sm' : 'bg-[#8B47FF] text-white hover:bg-[#7535e6]'
+                      className={`px-4 py-2 text-xs font-bold rounded-xl transition-all ${
+                        isMoodValidated ? 'bg-[#C4B5FD] text-white shadow-sm cursor' : 'bg-[#8B47FF] text-white hover:bg-[#7535e6] cursor-pointer'
                       }`}
                     >
                       Ok
@@ -1089,9 +1090,7 @@ return (
                         setSelectedMoods(tempSelectedMoods);
                         setIsMoodValidated(true);
                       }}
-                      className={`px-8 py-2 text-white text-sm font-bold rounded-2xl shadow-lg transition-all cursor-pointer ${
-                        isMoodValidated ? 'bg-[#C4B5FD]' : 'bg-[#8B47FF] hover:bg-[#7535e6]'
-                      }`}
+                      className="px-8 py-2 bg-[#8B47FF] hover:bg-[#7535e6] text-white text-sm font-bold rounded-2xl shadow-lg transition-all cursor-pointer"
                     >
                       Valider
                     </button>
@@ -1267,12 +1266,13 @@ return (
                       />
                       <button
                         type="button"
+                        disabled={isPhysicalValidated}
                         onClick={() => {
                           handleAddCustomPhysical();
                           setIsPhysicalValidated(true);
                         }}
-                        className={`px-4 py-2 text-xs font-bold rounded-xl transition-all cursor-pointer ${
-                          isPhysicalValidated ? 'bg-[#C4B5FD] text-white shadow-sm' : 'bg-[#8B47FF] text-white hover:bg-[#7535e6]'
+                        className={`px-4 py-2 text-xs font-bold rounded-xl transition-all ${
+                          isPhysicalValidated ? 'bg-[#C4B5FD] text-white shadow-sm cursor' : 'bg-[#8B47FF] text-white hover:bg-[#7535e6] cursor-pointer'
                         }`}
                       >
                         Ok
@@ -1287,9 +1287,7 @@ return (
                           setSelectedPhysicalSymptoms(tempSelectedPhysicalSymptoms);
                           setIsPhysicalValidated(true);
                         }}
-                        className={`px-8 py-2 text-white text-sm font-bold rounded-2xl shadow-lg transition-all cursor-pointer ${
-                          isPhysicalValidated ? 'bg-[#C4B5FD]' : 'bg-[#8B47FF] hover:bg-[#7535e6]'
-                        }`}
+                        className="px-8 py-2 bg-[#8B47FF] hover:bg-[#7535e6] text-white text-sm font-bold rounded-2xl shadow-lg transition-all cursor-pointer"
                       >
                         Valider
                       </button>
