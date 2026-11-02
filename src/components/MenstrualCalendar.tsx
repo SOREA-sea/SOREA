@@ -301,6 +301,9 @@ const active = localStorage.getItem('sorea_has_notification') === 'true' || loca
     const dateKey = localDate.toISOString().split("T")[0];
     setSelectedTodoDate(dateKey);
     
+    // Stocker la date au format jj/mm/aaaa pour la récupérer lors de l'enregistrement de la synthèse
+    localStorage.setItem('sorea_selected_date', localDate.toLocaleDateString("fr-FR"));
+    
     // Dès que l'utilisatrice clique sur une date dans l'onglet todo, on considère qu'elle a vu la notification et on la retire
     if (activeTab === 'todo' && hasNotif) {
       if (typeof window !== 'undefined') {
@@ -1530,11 +1533,36 @@ return (
                         setSelectedDate(null);
 
                         // Enregistrer directement la synthèse dans le localStorage persistant des synthèses
-                        if (typeof window !== 'undefined') {
-                          const now = new Date();
-                          const dateStr = now.toLocaleDateString("fr-FR");
-                          const timeStr = now.toLocaleTimeString("fr-FR", { hour: '2-digit', minute: '2-digit' });
-                          const newItem = { id: Date.now().toString(), date: dateStr, time: timeStr };
+                        if (typeof window !== 'undefined' && selectedDate) {
+                          const localDate = new Date(selectedDate.getTime() - selectedDate.getTimezoneOffset() * 60000);
+                          const dateStr = localDate.toLocaleDateString("fr-FR");
+                          const timeStr = new Date().toLocaleTimeString("fr-FR", { hour: '2-digit', minute: '2-digit' });
+                          
+                          const phaseName = getPhaseForDate(selectedDate);
+                          let calculatedPhaseName = "Phase Menstruelle [Hiver]";
+                          let calculatedIcon = "/image_Design-SOREA/Hiver.svg";
+
+                          if (phaseName === "Printemps") {
+                            calculatedPhaseName = "Phase Folliculaire [Printemps]";
+                            calculatedIcon = "/image_icone/Printemps.svg";
+                          } else if (phaseName === "Été") {
+                            calculatedPhaseName = "Phase Ovulatoire [Été]";
+                            calculatedIcon = "/image_icone/Été.svg";
+                          } else if (phaseName === "Automne") {
+                            calculatedPhaseName = "Phase Lutéale [Automne]";
+                            calculatedIcon = "/image_icone/Automne.svg";
+                          } else if (phaseName === "Hiver") {
+                            calculatedPhaseName = "Phase Menstruelle [Hiver]";
+                            calculatedIcon = isSnowflakeMode ? "/image_icone/Flocon.svg" : "/image_Design-SOREA/Hiver.svg";
+                          }
+
+                          const newItem = { 
+                            id: Date.now().toString(), 
+                            date: dateStr, 
+                            time: timeStr, 
+                            phase: calculatedPhaseName, 
+                            icon: calculatedIcon 
+                          };
 
                           const existing = localStorage.getItem('sorea_saved_summaries');
                           let summariesList = [];

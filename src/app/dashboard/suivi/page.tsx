@@ -5,8 +5,61 @@ import MenstrualCalendar from "@/components/MenstrualCalendar";
 import { Download } from "lucide-react";
 
 export default function SuiviPage() {
-  const [summaries, setSummaries] = useState<Array<{ id: string; date: string; time: string }>>([]);
+  const [summaries, setSummaries] = useState<Array<{ id: string; date: string; time: string; phase?: string; icon?: string }>>([]);
   const [activeTab, setActiveTab] = useState<"Liste" | "Par date">("Liste");
+  const [profile, setProfile] = useState<{ cycleLength: number; periodLength: number; lastPeriodStartDate: string | null } | null>(null);
+
+  // Charger le profil menstruel pour déterminer la phase de chaque synthèse
+  useEffect(() => {
+    async function fetchProfile() {
+      try {
+        const res = await fetch("/api/menstrual-profile");
+        if (res.ok) {
+          const data = await res.json();
+          setProfile(data.profile);
+        }
+      } catch (e) {
+        console.error(e);
+      }
+    }
+    fetchProfile();
+  }, []);
+
+  const getPhaseInfo = (dateStr: string) => {
+    const parts = dateStr.split('/');
+    if (parts.length !== 3) return { name: "Phase Menstruelle [Hiver]", icon: "/image_Design-SOREA/Hiver.svg" };
+    const day = parseInt(parts[0], 10);
+    const monthIndex = parseInt(parts[1], 10) - 1;
+    const year = parseInt(parts[2], 10);
+    const date = new Date(year, monthIndex, day);
+
+    if (!profile || !profile.lastPeriodStartDate) {
+      return { name: "Phase Menstruelle [Hiver]", icon: "/image_Design-SOREA/Hiver.svg" };
+    }
+
+    const cLength = profile.cycleLength || 28;
+    const pLength = profile.periodLength || 5;
+    const ref = new Date(profile.lastPeriodStartDate);
+    ref.setHours(0, 0, 0, 0);
+    date.setHours(0, 0, 0, 0);
+
+    const diffTime = date.getTime() - ref.getTime();
+    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+    const currentDay = (((diffDays % cLength) + cLength) % cLength) + 1;
+
+    if (currentDay <= pLength) {
+      return { name: "Phase Menstruelle [Hiver]", icon: "/image_Design-SOREA/Hiver.svg" };
+    }
+    const ovStart = cLength - 14;
+    const ovEnd = cLength - 12;
+    if (currentDay < ovStart) {
+      return { name: "Phase Folliculaire [Printemps]", icon: "/image_icone/Printemps.svg" };
+    }
+    if (currentDay >= ovStart && currentDay <= ovEnd) {
+      return { name: "Phase Ovulatoire [Été]", icon: "/image_icone/Été.svg" };
+    }
+    return { name: "Phase Lutéale [Automne]", icon: "/image_icone/Automne.svg" };
+  };
 
   // Charger les synthèses sauvegardées au démarrage de la page
   useEffect(() => {
@@ -32,7 +85,11 @@ export default function SuiviPage() {
           const dateStr = now.toLocaleDateString("fr-FR");
           const timeStr = now.toLocaleTimeString("fr-FR", { hour: '2-digit', minute: '2-digit' });
           
-          const newItem = { id: Date.now().toString(), date: dateStr, time: timeStr };
+          // Récupère la date sélectionnée s'il y en a une, sinon la date actuelle
+          const targetDateStr = (typeof window !== 'undefined' && localStorage.getItem('sorea_selected_date')) || dateStr;
+          const calculatedPhase = getPhaseInfo(targetDateStr);
+          
+          const newItem = { id: Date.now().toString(), date: targetDateStr, time: timeStr, phase: calculatedPhase.name, icon: calculatedPhase.icon };
           
           setSummaries(prev => {
             const updated = [newItem, ...prev];
@@ -132,11 +189,16 @@ export default function SuiviPage() {
           </div>
         </div>
 
-        <div class="content-box">
-          <div class="section-title">Informations Générales</div>
-          <p><strong>Utilisatrice :</strong> Prénom NOM</p>
-          <p><strong>Période enregistrée :</strong> ${item.date}</p>
-        </div>
+        ${(() => {
+          const phaseName = (item as any).phase || getPhaseInfo(item.date).name;
+          const phaseIcon = (item as any).icon || getPhaseInfo(item.date).icon;
+          return `
+            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 25px; font-size: 16px; font-weight: bold;">
+              <img src="${phaseIcon}" alt="Icône phase" width="24" height="24" style="object-fit: contain;" />
+              <span>${phaseName}</span>
+            </div>
+          `;
+        })()}
 
         <div class="content-box">
           <div class="section-title">Résumé du Journal</div>
@@ -210,34 +272,118 @@ export default function SuiviPage() {
         </div>
       </header>
 
-      {/* Liste des frames de synthèse empilées les unes au-dessus des autres */}
-      {summaries.map((item) => (
-        <div key={item.id} className="w-full bg-white rounded-xl border-2 border-[#8B47FF] p-6 shadow-sm flex flex-col gap-4 transition-all animate-in fade-in duration-300 mb-4">
-          <div className="flex items-center justify-between">
-            <div className="space-y-1">
-              <h3 className="text-xl font-bold text-[#8B47FF]">Prénom NOM</h3>
-              <p className="text-sm font-semibold text-gray-800">Synthèse Suivi menstruel</p>
-            </div>
-            <div className="flex flex-col items-end gap-2">
-              <button
-                type="button"
-                onClick={() => handleDownloadPDF(item)}
-                className="text-[#E256B3] hover:text-[#c73e99] hover:scale-110 transition-all cursor-pointer p-2"
-                title="Télécharger la synthèse (PDF A4)"
-              >
-                <Download className="w-6 h-6" />
-              </button>
-              <span className="text-xs text-gray-500">
-                {item.date} à {item.time}
-              </span>
-            </div>
-          </div>
+      {/* Affichage conditionnel selon l'onglet actif : Liste ou Par date */}
+      {activeTab === "Liste" ? (
+        summaries.map((item) => {
+          const phaseInfo = getPhaseInfo(item.date);
+          return (
+            <div key={item.id} className="w-full bg-white rounded-xl border-2 border-[#8B47FF] p-6 shadow-sm flex flex-col gap-4 transition-all animate-in fade-in duration-300 mb-4">
+              <div className="flex items-center justify-between">
+                <div className="space-y-1">
+                  <h3 className="text-xl font-bold text-[#8B47FF]">Prénom NOM</h3>
+                  <p className="text-sm font-semibold text-gray-800">Synthèse Suivi menstruel</p>
+                </div>
+                <div className="flex flex-col items-end gap-2">
+                  <button
+                    type="button"
+                    onClick={() => handleDownloadPDF(item)}
+                    className="text-[#E256B3] hover:text-[#c73e99] hover:scale-110 transition-all cursor-pointer p-2"
+                    title="Télécharger la synthèse (PDF A4)"
+                  >
+                    <Download className="w-6 h-6" />
+                  </button>
+                  <span className="text-xs text-gray-500">
+                    {item.date} à {item.time}
+                  </span>
+                </div>
+              </div>
 
-          <div className="pt-3 border-t border-gray-100 text-[11px] text-gray-500 italic text-center">
-            Ces informations sont fournies à titre purement indicatif. Pour obtenir un diagnostic ou un avis médical, consultez un professionnel.
-          </div>
-        </div>
-      ))}
+              <div className="flex items-center gap-3 py-1">
+                      <img src={(item as any).icon || getPhaseInfo(item.date).icon} alt={(item as any).phase || getPhaseInfo(item.date).name} className="w-6 h-6 object-contain" />
+                      <span className="text-sm font-bold text-gray-900">{(item as any).phase || getPhaseInfo(item.date).name}</span>
+              </div>
+
+              <div className="pt-3 border-t border-gray-100 text-[11px] text-gray-500 italic text-center">
+                Ces informations sont fournies à titre purement indicatif. Pour obtenir un diagnostic ou un avis médical, consultez un professionnel.
+              </div>
+            </div>
+          );
+        })
+      ) : (
+        (() => {
+          // Grouper les synthèses par mois et année (ex: "Novembre 2026") en respectant les dates réelles
+          const grouped: Record<string, { timestamp: number; items: Array<{ id: string; date: string; time: string }> }> = {};
+          
+          summaries.forEach((item) => {
+            const parts = item.date.split('/');
+            if (parts.length === 3) {
+              const day = parseInt(parts[0], 10);
+              const monthIndex = parseInt(parts[1], 10) - 1;
+              const year = parseInt(parts[2], 10);
+              const d = new Date(year, monthIndex, day);
+              const monthYearStr = d.toLocaleDateString("fr-FR", { month: 'long', year: 'numeric' });
+              const capitalized = monthYearStr.charAt(0).toUpperCase() + monthYearStr.slice(1);
+              
+              // Clé de tri basée sur l'année et le mois (ex: 2026-10)
+              const sortKey = `${year}-${String(monthIndex + 1).padStart(2, '0')}`;
+              
+              if (!grouped[capitalized]) {
+                grouped[capitalized] = { timestamp: new Date(year, monthIndex, 1).getTime(), items: [] };
+              }
+              grouped[capitalized].items.push(item);
+            } else {
+              if (!grouped["Autres"]) {
+                grouped["Autres"] = { timestamp: 0, items: [] };
+              }
+              grouped["Autres"].items.push(item);
+            }
+          });
+
+          // Trier les groupes par date (du plus récent au plus ancien ou inversement selon "Croissant")
+          const sortedEntries = Object.entries(grouped).sort((a, b) => a[1].timestamp - b[1].timestamp);
+
+          return sortedEntries.map(([monthYear, groupData]) => (
+            <div key={monthYear} className="space-y-4 mb-8">
+              <h2 className="text-2xl font-bold text-[#8B47FF] pt-2">{monthYear}</h2>
+              {groupData.items.map((item) => {
+                const phaseInfo = getPhaseInfo(item.date);
+                return (
+                  <div key={item.id} className="w-full bg-white rounded-xl border-2 border-[#8B47FF] p-6 shadow-sm flex flex-col gap-4 transition-all animate-in fade-in duration-300 mb-4">
+                    <div className="flex items-center justify-between">
+                      <div className="space-y-1">
+                        <h3 className="text-xl font-bold text-[#8B47FF]">Prénom NOM</h3>
+                        <p className="text-sm font-semibold text-gray-800">Synthèse Suivi menstruel</p>
+                      </div>
+                      <div className="flex flex-col items-end gap-2">
+                        <button
+                          type="button"
+                          onClick={() => handleDownloadPDF(item)}
+                          className="text-[#E256B3] hover:text-[#c73e99] hover:scale-110 transition-all cursor-pointer p-2"
+                          title="Télécharger la synthèse (PDF A4)"
+                        >
+                          <Download className="w-6 h-6" />
+                        </button>
+                        <span className="text-xs text-gray-500">
+                          {item.date} à {item.time}
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-3 py-1">
+                      <img src={(item as any).icon || getPhaseInfo(item.date).icon} alt={(item as any).phase || getPhaseInfo(item.date).name} className="w-6 h-6 object-contain" />
+                      <span className="text-sm font-bold text-gray-900">{(item as any).phase || getPhaseInfo(item.date).name}</span>
+                    </div>
+
+                    <div className="pt-3 border-t border-gray-100 text-[11px] text-gray-500 italic text-center">
+                      Ces informations sont fournies à titre purement indicatif. Pour obtenir un diagnostic ou un avis médical, consultez un professionnel.
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          ));
+        })()
+      )}
 
       </div>
   );
