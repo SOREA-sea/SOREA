@@ -8,6 +8,7 @@ import Footer from "../../components/Footer";
 /*import StreakTracker from "../../components/StreakTracker";*/
 import MenstrualCalendar from "../../components/MenstrualCalendar";
 import { notFound } from 'next/navigation';
+
  
 export default function MyPage() {
   return (

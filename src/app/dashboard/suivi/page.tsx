@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import MenstrualCalendar from "@/components/MenstrualCalendar";
 import { Download } from "lucide-react";
 
@@ -8,13 +8,26 @@ export default function SuiviPage() {
   const [showSummaryCard, setShowSummaryCard] = useState(false);
   const [summaryData, setSummaryData] = useState<{ date: string; time: string } | null>(null);
 
-  const handleSaveSymptoms = () => {
-    const now = new Date();
-    const dateStr = now.toLocaleDateString("fr-FR");
-    const timeStr = now.toLocaleTimeString("fr-FR", { hour: '2-digit', minute: '2-digit' });
-    setSummaryData({ date: dateStr, time: timeStr });
-    setShowSummaryCard(true);
-  };
+  useEffect(() => {
+    const checkSummary = () => {
+      if (typeof window !== 'undefined') {
+        const isSaved = localStorage.getItem('sorea_show_summary') === 'true';
+        if (isSaved) {
+          const now = new Date();
+          const dateStr = now.toLocaleDateString("fr-FR");
+          const timeStr = now.toLocaleTimeString("fr-FR", { hour: '2-digit', minute: '2-digit' });
+          setSummaryData({ date: dateStr, time: timeStr });
+          setShowSummaryCard(true);
+        }
+      }
+    };
+
+    checkSummary();
+    window.addEventListener('sorea_summary_update', checkSummary);
+    return () => {
+      window.removeEventListener('sorea_summary_update', checkSummary);
+    };
+  }, []);
 
   // Fonction de téléchargement / impression PDF au format A4
   const handleDownloadPDF = () => {
@@ -53,12 +66,6 @@ export default function SuiviPage() {
             font-size: 24px;
             font-weight: bold;
             color: #8B47FF;
-          }
-          .title {
-            font-size: 20px;
-            font-weight: bold;
-            color: #212121;
-            margin-bottom: 5px;
           }
           .subtitle {
             font-size: 14px;
@@ -135,7 +142,7 @@ export default function SuiviPage() {
 
   return (
     <div className="space-y-6 pt-20 px-4 max-w-2xl mx-auto">
-      {/* Frame de synthèse qui s'affiche au-dessus du composant une fois cliqué */}
+      {/* Frame de synthèse qui s'affiche au-dessus du composant uniquement sur dashboard/suivi */}
       {showSummaryCard && summaryData && (
         <div className="w-full bg-white rounded-xl border-2 border-[#8B47FF] p-6 shadow-sm flex flex-col gap-4 transition-all animate-in fade-in duration-300">
           <div className="flex items-center justify-between">
@@ -158,14 +165,12 @@ export default function SuiviPage() {
             </div>
           </div>
 
-          {/* Mention légale indicative */}
           <div className="pt-3 border-t border-gray-100 text-[11px] text-gray-500 italic text-center">
             Ces informations sont fournies à titre purement indicatif. Pour obtenir un diagnostic ou un avis médical, consultez un professionnel.
           </div>
         </div>
       )}
 
-      <MenstrualCalendar onSaveSuccess={handleSaveSymptoms} />
     </div>
   );
 }

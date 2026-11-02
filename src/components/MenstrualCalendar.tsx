@@ -51,7 +51,7 @@ const NEGATIVE_MOODS = [
   "Léthargie", "Somnolente", "Stressée", "Triste"
 ];
 
-export default function MenstrualCalendar({ onSaveSuccess }: { onSaveSuccess?: () => void }) {
+export default function MenstrualCalendar() {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [cycleInfo, setCycleInfo] = useState<CycleInfo | null>(null);
   const [loading, setLoading] = useState(true);
@@ -1528,7 +1528,13 @@ return (
 
                         await saveSymptom();
                         setSelectedDate(null);
-                        if (onSaveSuccess) onSaveSuccess();
+
+                        // Déclencher l'affichage de la synthèse uniquement via le stockage local (écouté par la page dashboard/suivi)
+                        if (typeof window !== 'undefined') {
+                          localStorage.setItem('sorea_show_summary', 'true');
+                          localStorage.setItem('sorea_summary_timestamp', Date.now().toString());
+                          window.dispatchEvent(new Event('sorea_summary_update'));
+                        }
                       }}
                       disabled={isSavingSymptom}
                       className="w-full py-4 bg-[#8B47FF] text-white rounded-2xl font-bold shadow-lg hover:bg-[#7535e6] transition-all cursor-pointer text-base"
