@@ -1529,10 +1529,24 @@ return (
                         await saveSymptom();
                         setSelectedDate(null);
 
-                        // Déclencher l'affichage de la synthèse uniquement via le stockage local (écouté par la page dashboard/suivi)
+                        // Enregistrer directement la synthèse dans le localStorage persistant des synthèses
                         if (typeof window !== 'undefined') {
-                          localStorage.setItem('sorea_show_summary', 'true');
-                          localStorage.setItem('sorea_summary_timestamp', Date.now().toString());
+                          const now = new Date();
+                          const dateStr = now.toLocaleDateString("fr-FR");
+                          const timeStr = now.toLocaleTimeString("fr-FR", { hour: '2-digit', minute: '2-digit' });
+                          const newItem = { id: Date.now().toString(), date: dateStr, time: timeStr };
+
+                          const existing = localStorage.getItem('sorea_saved_summaries');
+                          let summariesList = [];
+                          if (existing) {
+                            try {
+                              summariesList = JSON.parse(existing);
+                            } catch (e) {
+                              console.error(e);
+                            }
+                          }
+                          const updated = [newItem, ...summariesList];
+                          localStorage.setItem('sorea_saved_summaries', JSON.stringify(updated));
                           window.dispatchEvent(new Event('sorea_summary_update'));
                         }
                       }}

@@ -5,9 +5,23 @@ import MenstrualCalendar from "@/components/MenstrualCalendar";
 import { Download } from "lucide-react";
 
 export default function SuiviPage() {
-  const [showSummaryCard, setShowSummaryCard] = useState(false);
-  const [summaryData, setSummaryData] = useState<{ date: string; time: string } | null>(null);
+  const [summaries, setSummaries] = useState<Array<{ id: string; date: string; time: string }>>([]);
 
+  // Charger les synthèses sauvegardées au démarrage de la page
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const savedSummaries = localStorage.getItem('sorea_saved_summaries');
+      if (savedSummaries) {
+        try {
+          setSummaries(JSON.parse(savedSummaries));
+        } catch (e) {
+          console.error(e);
+        }
+      }
+    }
+  }, []);
+
+  // Écouter l'enregistrement d'une nouvelle synthèse
   useEffect(() => {
     const checkSummary = () => {
       if (typeof window !== 'undefined') {
@@ -16,23 +30,28 @@ export default function SuiviPage() {
           const now = new Date();
           const dateStr = now.toLocaleDateString("fr-FR");
           const timeStr = now.toLocaleTimeString("fr-FR", { hour: '2-digit', minute: '2-digit' });
-          setSummaryData({ date: dateStr, time: timeStr });
-          setShowSummaryCard(true);
+          
+          const newItem = { id: Date.now().toString(), date: dateStr, time: timeStr };
+          
+          setSummaries(prev => {
+            const updated = [newItem, ...prev];
+            localStorage.setItem('sorea_saved_summaries', JSON.stringify(updated));
+            return updated;
+          });
+          
+          localStorage.removeItem('sorea_show_summary');
         }
       }
     };
 
-    checkSummary();
     window.addEventListener('sorea_summary_update', checkSummary);
     return () => {
       window.removeEventListener('sorea_summary_update', checkSummary);
     };
   }, []);
 
-  // Fonction de téléchargement / impression PDF au format A4
-  const handleDownloadPDF = () => {
-    if (!summaryData) return;
-
+  // Fonction de téléchargement / impression PDF au format A4 pour une carte spécifique
+  const handleDownloadPDF = (item: { date: string; time: string }) => {
     const printWindow = window.open("", "_blank");
     if (!printWindow) return;
 
@@ -41,7 +60,7 @@ export default function SuiviPage() {
       <html lang="fr">
       <head>
         <meta charset="UTF-8">
-        <title>Synthese_Suivi_Menstruel_${summaryData.date.replace(/\//g, "-")}</title>
+        <title>Synthese_Suivi_Menstruel_${item.date.replace(/\//g, "-")}</title>
         <style>
           @page {
             size: A4 portrait;
@@ -108,14 +127,14 @@ export default function SuiviPage() {
           </div>
           <div class="date-info">
             <strong>Généré le :</strong><br/>
-            ${summaryData.date} à ${summaryData.time}
+            ${item.date} à ${item.time}
           </div>
         </div>
 
         <div class="content-box">
           <div class="section-title">Informations Générales</div>
           <p><strong>Utilisatrice :</strong> Prénom NOM</p>
-          <p><strong>Période enregistrée :</strong> ${summaryData.date}</p>
+          <p><strong>Période enregistrée :</strong> ${item.date}</p>
         </div>
 
         <div class="content-box">
@@ -141,10 +160,10 @@ export default function SuiviPage() {
   };
 
   return (
-    <div className="space-y-6 pt-20 px-4 max-w-2xl mx-auto">
-      {/* Frame de synthèse qui s'affiche au-dessus du composant uniquement sur dashboard/suivi */}
-      {showSummaryCard && summaryData && (
-        <div className="w-full bg-white rounded-xl border-2 border-[#8B47FF] p-6 shadow-sm flex flex-col gap-4 transition-all animate-in fade-in duration-300">
+    <div className="space-y-6 pt-20 px-4 max-w-2xl mx-auto pb-12">
+      {/* Liste des frames de synthèse empilées les unes au-dessus des autres */}
+      {summaries.map((item) => (
+        <div key={item.id} className="w-full bg-white rounded-xl border-2 border-[#8B47FF] p-6 shadow-sm flex flex-col gap-4 transition-all animate-in fade-in duration-300 mb-4">
           <div className="flex items-center justify-between">
             <div className="space-y-1">
               <h3 className="text-xl font-bold text-[#8B47FF]">Prénom NOM</h3>
@@ -153,14 +172,14 @@ export default function SuiviPage() {
             <div className="flex flex-col items-end gap-2">
               <button
                 type="button"
-                onClick={handleDownloadPDF}
+                onClick={() => handleDownloadPDF(item)}
                 className="text-[#E256B3] hover:text-[#c73e99] hover:scale-110 transition-all cursor-pointer p-2"
                 title="Télécharger la synthèse (PDF A4)"
               >
                 <Download className="w-6 h-6" />
               </button>
               <span className="text-xs text-gray-500">
-                {summaryData.date} à {summaryData.time}
+                {item.date} à {item.time}
               </span>
             </div>
           </div>
@@ -169,8 +188,8 @@ export default function SuiviPage() {
             Ces informations sont fournies à titre purement indicatif. Pour obtenir un diagnostic ou un avis médical, consultez un professionnel.
           </div>
         </div>
-      )}
+      ))}
 
-    </div>
+      </div>
   );
 }
