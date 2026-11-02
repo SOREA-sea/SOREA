@@ -6,6 +6,7 @@ import { Download } from "lucide-react";
 
 export default function SuiviPage() {
   const [summaries, setSummaries] = useState<Array<{ id: string; date: string; time: string }>>([]);
+  const [activeTab, setActiveTab] = useState<"Liste" | "Par date">("Liste");
 
   // Charger les synthèses sauvegardées au démarrage de la page
   useEffect(() => {
@@ -161,6 +162,54 @@ export default function SuiviPage() {
 
   return (
     <div className="space-y-6 pt-20 px-4 max-w-2xl mx-auto pb-12">
+      <header className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+        <div>
+          <h1 className="text-3xl font-black section-title">Suivi Menstruel</h1>
+          <p className="text-foreground/60 mt-2">
+            Retrouvez l'historique de vos synthèses enregistrées.
+          </p>
+        </div>
+
+        <div className="flex flex-col items-end gap-2">
+          <div className="flex items-center gap-4">
+            <div className="flex items-center bg-white border border-[#8B47FF] rounded-full p-1.5 shadow-xs">
+              {(["Liste", "Par date"] as const).map((tab) => {
+                const isActive = activeTab === tab;
+                return (
+                  <button
+                    key={tab}
+                    onClick={() => setActiveTab(tab)}
+                    className={`relative px-8 py-2.5 rounded-full text-base font-medium whitespace-nowrap transition-all duration-300 cursor-pointer ${
+                      isActive
+                        ? "text-gray-900 font-semibold"
+                        : "text-gray-700 hover:text-purple-600"
+                    }`}
+                  >
+                    {isActive && (
+                      <span className="absolute inset-0 bg-[#E3D5FF] rounded-full blur-[2px] opacity-90 -z-0 transition-all duration-300" />
+                    )}
+                    <span className="relative z-10">{tab}</span>
+                  </button>
+                );
+              })}
+            </div>
+
+            <button
+              type="button"
+              className="w-12 h-12 bg-white border border-[#8B47FF] rounded-full hover:bg-[#F4EBFF] transition-all shadow-xs cursor-pointer flex items-center justify-center shrink-0"
+              title="Filtrer"
+            >
+              <img 
+                src="/image_icone/Filter.svg" 
+                alt="Filtrer" 
+                className="w-7 h-7 object-contain" 
+              />
+            </button>
+          </div>
+          <span className="text-sm font-medium text-gray-700 pr-2">Croissant</span>
+        </div>
+      </header>
+
       {/* Liste des frames de synthèse empilées les unes au-dessus des autres */}
       {summaries.map((item) => (
         <div key={item.id} className="w-full bg-white rounded-xl border-2 border-[#8B47FF] p-6 shadow-sm flex flex-col gap-4 transition-all animate-in fade-in duration-300 mb-4">
