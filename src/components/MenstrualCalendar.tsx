@@ -75,6 +75,7 @@ export default function MenstrualCalendar() {
   const [periodLengthForm, setPeriodLengthForm] = useState(5);
   const [lastPeriodStartForm, setLastPeriodStartForm] = useState("");
   const [showSurvey, setShowSurvey] = useState(false);
+  const [showSurveyModal, setShowSurveyModal] = useState(false); // État pour afficher la modale "Vous êtes..."
 
   const [currentMonth, setCurrentMonth] = useState(new Date());
 
@@ -593,9 +594,9 @@ return (
               const newState = !isActiveForm;
               setIsActiveForm(newState);
               
-              // Si on active le suivi (passage à ON), on ouvre automatiquement la frame des paramètres
+              // Si on active le suivi (passage à ON), on ouvre le questionnaire "Vous êtes..." (3e image)
               if (newState) {
-                setShowSettings(true);
+                setShowSurveyModal(true);
               }
 
               // Sauvegarde immédiate du switch on/off
@@ -1661,6 +1662,59 @@ return (
               >
                 Enregistrer
               </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modale "Vous êtes..." s'ouvre à l'activation du suivi */}
+      {showSurveyModal && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-3xl p-8 shadow-2xl w-full max-w-lg relative border-2 border-[#8B47FF]">
+            <button 
+              onClick={() => setShowSurveyModal(false)} 
+              className="absolute top-4 right-4 p-2 text-gray-400 hover:text-black transition-colors"
+            >
+              <X className="w-6 h-6" />
+            </button>
+            <h3 className="text-2xl font-bold mb-8 text-[#7F4DC5] text-center font-boska">Vous êtes...</h3>
+            
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
+              <button
+                type="button"
+                onClick={() => {
+                  setShowSurveyModal(false);
+                  setShowSettings(true); // Ouvre la modale des paramètres (2e image)
+                }}
+                className="p-5 rounded-xl border-2 border-[#8B47FF] bg-white text-black font-semibold text-base hover:bg-[#F4EBFF] transition-all cursor-pointer text-center shadow-sm"
+              >
+                Réglée
+              </button>
+              <button
+                type="button"
+                onClick={() => setShowSurveyModal(false)}
+                className="p-5 rounded-xl border-2 border-[#8B47FF] bg-white text-black font-semibold text-base hover:bg-[#F4EBFF] transition-all cursor-pointer text-center shadow-sm"
+              >
+                Enceinte
+              </button>
+              <button
+                type="button"
+                onClick={() => setShowSurveyModal(false)}
+                className="p-5 rounded-xl border-2 border-[#8B47FF] bg-white text-black font-semibold text-base hover:bg-[#F4EBFF] transition-all cursor-pointer text-center shadow-sm"
+              >
+                Ménopausée
+              </button>
+              <button
+                type="button"
+                onClick={() => setShowSurveyModal(false)}
+                className="p-5 rounded-xl border-2 border-[#8B47FF] bg-white text-black font-semibold text-base hover:bg-[#F4EBFF] transition-all cursor-pointer text-center shadow-sm"
+              >
+                Autres
+              </button>
+            </div>
+
+            <div className="text-right text-xs text-gray-500 font-semibold">
+              1/3
             </div>
           </div>
         </div>
