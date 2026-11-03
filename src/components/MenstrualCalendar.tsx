@@ -592,6 +592,12 @@ return (
             onClick={() => {
               const newState = !isActiveForm;
               setIsActiveForm(newState);
+              
+              // Si on active le suivi (passage à ON), on ouvre automatiquement la frame des paramètres
+              if (newState) {
+                setShowSettings(true);
+              }
+
               // Sauvegarde immédiate du switch on/off
               setTimeout(async () => {
                 try {
@@ -626,14 +632,7 @@ return (
             />
           </button>
 
-          <button
-            onClick={() => setShowSettings(true)}
-            className="p-3 bg-white border border-[#8B47FF] text-[#8B47FF] rounded-2xl hover:bg-[#F4EBFF] transition-all duration-300 hover:scale-105 shadow-sm cursor-pointer"
-            title="Ouvrir les paramètres du cycle"
-          >
-            <Settings className="w-6 h-6" />
-          </button>
-        </div>
+          </div>
       </div>
 
       {/* BLOC : Je filtre mes phases (Affiché uniquement si activeTab === 'calendar') */}
