@@ -107,6 +107,7 @@ export default function MenstrualCalendar() {
   const [todoModalTab, setTodoModalTab] = useState<'todo' | 'quotidien'>('todo');
   const [todoInput, setTodoInput] = useState("");
   const [quotidienInput, setQuotidienInput] = useState("");
+  const [selectedQuotidienIds, setSelectedQuotidienIds] = useState<Record<string, string[]>>({}); // Suivi des tâches quotidiennes sélectionnées par date
   const [draggedTodoId, setDraggedTodoId] = useState<string | null>(null);
   const [todosByDate, setTodosByDate] = useState<Record<string, TodoItem[]>>({});
   const [quotidienTodosByDate, setQuotidienTodosByDate] = useState<Record<string, TodoItem[]>>({});
@@ -399,7 +400,7 @@ const active = localStorage.getItem('sorea_has_notification') === 'true' || loca
     if (!trimmed) return;
     const newId = `q-${selectedTodoDate}-${Date.now()}`;
     
-    // Ajout dans le Quotidien
+    // Ajout dans le Quotidien uniquement à la création
     setQuotidienTodosByDate((prev) => {
       const current = prev[selectedTodoDate] || [];
       return {
@@ -411,19 +412,48 @@ const active = localStorage.getItem('sorea_has_notification') === 'true' || loca
       };
     });
 
-    // Ajout automatique et synchrone dans la Todo-List principale
-    setTodosByDate((prev) => {
-      const current = prev[selectedTodoDate] || [];
-      return {
-        ...prev,
-        [selectedTodoDate]: [
-          ...current,
-          { id: newId, text: trimmed, completed: false },
-        ],
-      };
-    });
-
     setQuotidienInput("");
+  };
+
+  // Fonction pour basculer (sélectionner/désélectionner) une tâche quotidienne vers la Todo-List
+  const toggleQuotidienSelection = (todo: TodoItem) => {
+    if (!selectedTodoDate) return;
+    const currentSelected = selectedQuotidienIds[selectedTodoDate] || [];
+    const isAlreadySelected = currentSelected.includes(todo.id);
+
+    let updatedSelected;
+    if (isAlreadySelected) {
+      // Retirer de la Todo-List
+      updatedSelected = currentSelected.filter(id => id !== todo.id);
+      setTodosByDate((prev) => {
+        const current = prev[selectedTodoDate] || [];
+        const next = current.filter(t => t.id !== todo.id);
+        const copy = { ...prev };
+        if (next.length) {
+          copy[selectedTodoDate] = next;
+        } else {
+          delete copy[selectedTodoDate];
+        }
+        return copy;
+      });
+    } else {
+      // Ajouter dans la Todo-List
+      updatedSelected = [...currentSelected, todo.id];
+      setTodosByDate((prev) => {
+        const current = prev[selectedTodoDate] || [];
+        // Éviter les doublons
+        if (current.some(t => t.id === todo.id)) return prev;
+        return {
+          ...prev,
+          [selectedTodoDate]: [...current, { ...todo, completed: false }]
+        };
+      });
+    }
+
+    setSelectedQuotidienIds(prev => ({
+      ...prev,
+      [selectedTodoDate]: updatedSelected
+    }));
   };
 
   const toggleTodo = (todoId: string) => {
@@ -959,74 +989,87 @@ return (
 
             <div className="space-y-3 max-h-[360px] overflow-y-auto pr-2 custom-scrollbar">
               {((todoModalTab === 'todo' ? todosByDate[selectedTodoDate] : quotidienTodosByDate[selectedTodoDate]) ?? []).length > 0 ? (
-                ((todoModalTab === 'todo' ? todosByDate[selectedTodoDate] : quotidienTodosByDate[selectedTodoDate]) ?? []).map((todo) => (
-                  <div 
-                    key={todo.id} 
-                    draggable
-                    onDragStart={() => handleDragStart(todo.id)}
-                    onDragOver={handleDragOver}
-                    onDrop={() => handleDrop(todo.id)}
-                    className="group flex items-center justify-between gap-4 rounded-3xl border px-4 py-3 transition cursor-grab active:cursor-grabbing"
-                  style={{
-    backgroundColor: 
-      todoModalTab === 'quotidien' ? '#FFE4E6' : // Rouge clair pour le Quotidien
-      todo.category === 'bien-etre' ? 'rgba(139, 71, 255, 0.15)' : // Violet léger
-      todo.category === 'sport' ? '#CEFFFD' :       // Bleu léger
-      todo.category === 'nutrition' ? '#FFE8F7' :   // Rose léger
-      'transparent',
-    borderColor: 
-      todoModalTab === 'quotidien' ? '#FDA4AF' : // Rouge clair plus foncé pour la bordure
-      '#E5E7EB' // Bordure grise par défaut
-  }}
-  >
-                    <div className="flex items-center gap-3 flex-1">
-                      {/* Drag Handle : clair par défaut (opacity-30) et couleur de base au survol (opacity-100) */}
-                      <img 
-                        src="/image_icone/DragHandle.svg" 
-                        alt="Déplacer" 
-                        className="w-4 h-4 object-contain cursor-grab active:cursor-grabbing opacity-30 group-hover:opacity-100 transition-opacity shrink-0" 
-                        title="Maintenir pour déplacer"
-                      />
-                      <label className="flex items-center gap-3 flex-1 cursor-pointer">
-                      <span
-                        className={`relative flex h-5 w-5 shrink-0 items-center justify-center rounded-[6px] border transition ${
-                          todo.completed ? "border-emerald-500 bg-emerald-500" : "border-gray-300 bg-white"
-                        }`}
-                      >
-                        <input
-                          type="checkbox"
-                          checked={todo.completed}
-                          onChange={() => toggleTodo(todo.id)}
-                          className="absolute inset-0 h-full w-full opacity-0 cursor-pointer"
-                        />
-                        {todo.completed && (
-                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="h-3.5 w-3.5 text-white">
-                            <path d="M5 13l4 4L19 7" />
-                          </svg>
-                        )}
-                      </span>
-                      <span 
-                        className={`text-sm ${todo.completed ? "text-gray-400 line-through" : ""}`}
-                        style={{
-                          color: todo.completed 
-                            ? "#9CA3AF" 
-                            : todoModalTab === 'quotidien' 
-                            ? "#9F1239" // Rouge foncé forcé en style en ligne
-                            : "#111827"  // Noir par défaut pour la Todo-List
-                        }}
-                      >
-                        {todo.text}
-                      </span>
-                    </label>
-                    </div>
-                    <button
-                      onClick={() => deleteTodo(todo.id)}
-                      className="flex h-11 w-11 items-center justify-center rounded-full text-gray-400 transition hover:text-red-600"
+                ((todoModalTab === 'todo' ? todosByDate[selectedTodoDate] : quotidienTodosByDate[selectedTodoDate]) ?? []).map((todo) => {
+                  const isQuotidienTab = todoModalTab === 'quotidien';
+                  const isQuotidienSelected = isQuotidienTab && (selectedQuotidienIds[selectedTodoDate] || []).includes(todo.id);
+                  const isQuotidienInTodo = !isQuotidienTab && todo.id.startsWith('q-');
+
+                  return (
+                    <div 
+                      key={todo.id} 
+                      draggable
+                      onDragStart={() => handleDragStart(todo.id)}
+                      onDragOver={handleDragOver}
+                      onDrop={() => handleDrop(todo.id)}
+                      className="group flex items-center justify-between gap-4 rounded-3xl border px-4 py-3 transition cursor-grab active:cursor-grabbing"
+                    style={{
+                      backgroundColor: 
+                        isQuotidienTab 
+                          ? (isQuotidienSelected ? '#FFE4E6' : '#FFFFFF') // Blanc si non sélectionné, rouge clair si sélectionné
+                          : (isQuotidienInTodo ? '#FFE4E6' : (todo.category === 'bien-etre' ? 'rgba(139, 71, 255, 0.15)' : todo.category === 'sport' ? '#CEFFFD' : todo.category === 'nutrition' ? '#FFE8F7' : 'transparent')),
+                      borderColor: 
+                        (isQuotidienTab || isQuotidienInTodo) ? '#FDA4AF' : '#E5E7EB'
+                    }}
                     >
-                      <Trash2 className="h-5 w-5" />
-                    </button>
-                  </div>
-                ))
+                      <div className="flex items-center gap-3 flex-1">
+                        <img 
+                          src="/image_icone/DragHandle.svg" 
+                          alt="Déplacer" 
+                          className="w-4 h-4 object-contain cursor-grab active:cursor-grabbing opacity-30 group-hover:opacity-100 transition-opacity shrink-0" 
+                          title="Maintenir pour déplacer"
+                        />
+                        {isQuotidienTab ? (
+                          // Bouton d'ajout "+" cliquable à la place de la case à cocher dans Quotidien
+                          <button
+                            type="button"
+                            onClick={() => toggleQuotidienSelection(todo)}
+                            className="flex h-5 w-5 shrink-0 items-center justify-center rounded-[6px] border border-[#FDA4AF] bg-white text-[#9F1239] hover:bg-[#FFE4E6] transition cursor-pointer"
+                            title={isQuotidienSelected ? "Retirer de la Todo-List" : "Ajouter à la Todo-List"}
+                          >
+                            <span className="text-xs font-bold leading-none">{isQuotidienSelected ? "✓" : "+"}</span>
+                          </button>
+                        ) : (
+                          <span
+                            className={`relative flex h-5 w-5 shrink-0 items-center justify-center rounded-[6px] border transition ${
+                              todo.completed ? "border-emerald-500 bg-emerald-500" : "border-gray-300 bg-white"
+                            }`}
+                          >
+                            <input
+                              type="checkbox"
+                              checked={todo.completed}
+                              onChange={() => toggleTodo(todo.id)}
+                              className="absolute inset-0 h-full w-full opacity-0 cursor-pointer"
+                            />
+                            {todo.completed && (
+                              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="h-3.5 w-3.5 text-white">
+                                <path d="M5 13l4 4L19 7" />
+                              </svg>
+                            )}
+                          </span>
+                        )}
+
+                        <span 
+                          className={`text-sm ${todo.completed ? "text-gray-400 line-through" : ""}`}
+                          style={{
+                            color: todo.completed 
+                              ? "#9CA3AF" 
+                              : (isQuotidienTab || isQuotidienInTodo)
+                              ? "#9F1239" // Texte rouge foncé pour les tâches quotidiennes
+                              : "#111827"
+                          }}
+                        >
+                          {todo.text}
+                        </span>
+                      </div>
+                      <button
+                        onClick={() => deleteTodo(todo.id)}
+                        className="flex h-11 w-11 items-center justify-center rounded-full text-gray-400 transition hover:text-red-600 cursor-pointer"
+                      >
+                        <Trash2 className="h-5 w-5" />
+                      </button>
+                    </div>
+                  );
+                })
               ) : (
                 <p className="rounded-3xl border border-dashed border-gray-300 bg-white px-4 py-6 text-center text-sm text-gray-500">
                   {todoModalTab === 'todo' 
