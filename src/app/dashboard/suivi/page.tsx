@@ -8,6 +8,7 @@ export default function SuiviPage() {
   const [summaries, setSummaries] = useState<Array<{ id: string; date: string; time: string; phase?: string; icon?: string }>>([]);
   const [activeTab, setActiveTab] = useState<"Liste" | "Par date">("Liste");
   const [profile, setProfile] = useState<{ cycleLength: number; periodLength: number; lastPeriodStartDate: string | null } | null>(null);
+  const [currentMonthIndex, setCurrentMonthIndex] = useState(0);
 
   // Charger le profil menstruel pour déterminer la phase de chaque synthèse
   useEffect(() => {
@@ -325,7 +326,7 @@ export default function SuiviPage() {
         })
       ) : (
         (() => {
-          // Grouper les synthèses par mois et année (ex: "Novembre 2026") en respectant les dates réelles
+          // Grouper les synthèses par mois et année (ex: "Novembre 2026")
           const grouped: Record<string, { timestamp: number; items: Array<{ id: string; date: string; time: string }> }> = {};
           
           summaries.forEach((item) => {
@@ -337,9 +338,6 @@ export default function SuiviPage() {
               const d = new Date(year, monthIndex, day);
               const monthYearStr = d.toLocaleDateString("fr-FR", { month: 'long', year: 'numeric' });
               const capitalized = monthYearStr.charAt(0).toUpperCase() + monthYearStr.slice(1);
-              
-              // Clé de tri basée sur l'année et le mois (ex: 2026-10)
-              const sortKey = `${year}-${String(monthIndex + 1).padStart(2, '0')}`;
               
               if (!grouped[capitalized]) {
                 grouped[capitalized] = { timestamp: new Date(year, monthIndex, 1).getTime(), items: [] };
@@ -353,13 +351,59 @@ export default function SuiviPage() {
             }
           });
 
-          // Trier les groupes par date (du plus récent au plus ancien ou inversement selon "Croissant")
-          const sortedEntries = Object.entries(grouped).sort((a, b) => a[1].timestamp - b[1].timestamp);
+          const sortedEntries = Object.entries(grouped).sort((a, b) => b[1].timestamp - a[1].timestamp);
 
-          return sortedEntries.map(([monthYear, groupData]) => (
-            <div key={monthYear} className="space-y-4 mb-8">
-              <h2 className="text-2xl font-bold text-[#8B47FF] pt-2">{monthYear}</h2>
-              {groupData.items.map((item) => {
+          if (sortedEntries.length === 0) {
+            return (
+              <div className="text-center py-8 text-gray-500">
+                Aucune synthèse enregistrée.
+              </div>
+            );
+          }
+
+          // Ajuster l'index s'il dépasse le nombre total de mois
+          const safeIndex = Math.min(Math.max(currentMonthIndex, 0), sortedEntries.length - 1);
+          const [currentMonthYear, currentGroupData] = sortedEntries[safeIndex];
+
+          return (
+            <div className="space-y-6">
+              {/* En-tête avec titre du mois à gauche et flèches de navigation à droite */}
+              <div className="flex items-center justify-between pt-2">
+                <h2 className="text-2xl font-bold text-[#8B47FF]">{currentMonthYear}</h2>
+                
+                <div className="flex items-center gap-4">
+                  <button
+                    type="button"
+                    onClick={() => setCurrentMonthIndex((prev) => Math.min(prev + 1, sortedEntries.length - 1))}
+                    disabled={safeIndex >= sortedEntries.length - 1}
+                    className="p-1 transition-all cursor-pointer disabled:opacity-50 hover:scale-110"
+                    title="Mois précédent"
+                  >
+                    <img 
+                      src="/image_icone/FlècheCarrousel.svg" 
+                      alt="Précédent" 
+                      className={`w-6 h-6 object-contain transition-opacity ${safeIndex >= sortedEntries.length - 1 ? 'opacity-30' : 'opacity-100'}`} 
+                    />
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setCurrentMonthIndex((prev) => Math.max(prev - 1, 0))}
+                    disabled={safeIndex === 0}
+                    className="p-1 transition-all cursor-pointer disabled:opacity-50 hover:scale-110"
+                    title="Mois suivant"
+                  >
+                    <img 
+                      src="/image_icone/FlècheCarrousel.svg" 
+                      alt="Suivant" 
+                      className={`w-6 h-6 object-contain rotate-180 transition-opacity ${safeIndex === 0 ? 'opacity-30' : 'opacity-100'}`} 
+                    />
+                  </button>
+                </div>
+              </div>
+
+              {/* Liste des cartes de synthèses pour le mois sélectionné */}
+              {currentGroupData.items.map((item) => {
                 const phaseInfo = getPhaseInfo(item.date);
                 return (
                   <div key={item.id} className="w-full bg-white rounded-xl border-2 border-[#8B47FF] p-6 shadow-sm flex flex-col gap-4 transition-all animate-in fade-in duration-300 mb-4">
@@ -384,8 +428,8 @@ export default function SuiviPage() {
                     </div>
 
                     <div className="flex items-center gap-3 py-1">
-                      <img src={getPhaseInfo(item.date).icon} alt={getPhaseInfo(item.date).name} className="w-6 h-6 object-contain" />
-                      <span className="text-sm font-bold text-gray-900">{getPhaseInfo(item.date).name}</span>
+                      <img src={phaseInfo.icon} alt={phaseInfo.name} className="w-6 h-6 object-contain" />
+                      <span className="text-sm font-bold text-gray-900">{phaseInfo.name}</span>
                     </div>
 
                     <div className="pt-3 border-t border-gray-100 text-[11px] text-gray-500 italic text-center">
@@ -395,7 +439,7 @@ export default function SuiviPage() {
                 );
               })}
             </div>
-          ));
+          );
         })()
       )}
 
