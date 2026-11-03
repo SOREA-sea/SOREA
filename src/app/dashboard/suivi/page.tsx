@@ -9,6 +9,7 @@ export default function SuiviPage() {
   const [activeTab, setActiveTab] = useState<"Liste" | "Par date">("Liste");
   const [profile, setProfile] = useState<{ cycleLength: number; periodLength: number; lastPeriodStartDate: string | null } | null>(null);
   const [currentMonthIndex, setCurrentMonthIndex] = useState(0);
+  const [sortOrder, setSortOrder] = useState<"Croissant" | "Décroissant">("Croissant");
 
   // Charger le profil menstruel pour déterminer la phase de chaque synthèse
   useEffect(() => {
@@ -273,8 +274,9 @@ export default function SuiviPage() {
 
             <button
               type="button"
+              onClick={() => setSortOrder(prev => prev === "Croissant" ? "Décroissant" : "Croissant")}
               className="w-12 h-12 bg-white border border-[#8B47FF] rounded-full hover:bg-[#F4EBFF] transition-all shadow-xs cursor-pointer flex items-center justify-center shrink-0"
-              title="Filtrer"
+              title="Changer le sens de tri"
             >
               <img 
                 src="/image_icone/Filter.svg" 
@@ -283,7 +285,7 @@ export default function SuiviPage() {
               />
             </button>
           </div>
-          <span className="text-sm font-medium text-gray-700 pr-2">Croissant</span>
+          <span className="text-sm font-medium text-gray-700 pr-2">{sortOrder}</span>
         </div>
       </header>
 
@@ -351,6 +353,7 @@ export default function SuiviPage() {
             }
           });
 
+          // Trier les mois de manière stable (les mois restent fixes dans le carrousel)
           const sortedEntries = Object.entries(grouped).sort((a, b) => b[1].timestamp - a[1].timestamp);
 
           if (sortedEntries.length === 0) {
@@ -364,6 +367,15 @@ export default function SuiviPage() {
           // Ajuster l'index s'il dépasse le nombre total de mois
           const safeIndex = Math.min(Math.max(currentMonthIndex, 0), sortedEntries.length - 1);
           const [currentMonthYear, currentGroupData] = sortedEntries[safeIndex];
+
+          // Trier les cartes du mois sélectionné par date calendaire (sans tenir compte de l'heure)
+          const sortedItems = [...currentGroupData.items].sort((a, b) => {
+            const partsA = a.date.split('/');
+            const partsB = b.date.split('/');
+            const dateA = partsA.length === 3 ? new Date(parseInt(partsA[2], 10), parseInt(partsA[1], 10) - 1, parseInt(partsA[0], 10)).getTime() : 0;
+            const dateB = partsB.length === 3 ? new Date(parseInt(partsB[2], 10), parseInt(partsB[1], 10) - 1, parseInt(partsB[0], 10)).getTime() : 0;
+            return sortOrder === "Croissant" ? dateB - dateA : dateA - dateB;
+          });
 
           return (
             <div className="space-y-6">
@@ -403,7 +415,7 @@ export default function SuiviPage() {
               </div>
 
               {/* Liste des cartes de synthèses pour le mois sélectionné */}
-              {currentGroupData.items.map((item) => {
+              {sortedItems.map((item) => {
                 const phaseInfo = getPhaseInfo(item.date);
                 return (
                   <div key={item.id} className="w-full bg-white rounded-xl border-2 border-[#8B47FF] p-6 shadow-sm flex flex-col gap-4 transition-all animate-in fade-in duration-300 mb-4">
@@ -422,7 +434,7 @@ export default function SuiviPage() {
                           <Download className="w-6 h-6" />
                         </button>
                         <span className="text-xs text-gray-500">
-                          {item.date} à {item.time}
+                          {item.date}
                         </span>
                       </div>
                     </div>
