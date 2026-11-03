@@ -110,7 +110,7 @@ export default function MenstrualCalendar() {
   const [selectedQuotidienIds, setSelectedQuotidienIds] = useState<Record<string, string[]>>({}); // Suivi des tâches quotidiennes sélectionnées par date
   const [draggedTodoId, setDraggedTodoId] = useState<string | null>(null);
   const [todosByDate, setTodosByDate] = useState<Record<string, TodoItem[]>>({});
-  const [quotidienTodosByDate, setQuotidienTodosByDate] = useState<Record<string, TodoItem[]>>({});
+  const [quotidienTodos, setQuotidienTodos] = useState<TodoItem[]>([]); // Liste globale partagée pour le Quotidien
   const [loggedUser, setLoggedUser] = useState<{ id: string; email: string } | null>(null);
   const [phaseFilters, setPhaseFilters] = useState<string[]>([]);
   const [activeTab, setActiveTab] = useState<'calendar' | 'todo'>('calendar'); // État pour pour basculer entre 'calendar' et 'todo'
@@ -150,8 +150,8 @@ const active = localStorage.getItem('sorea_has_notification') === 'true' || loca
   useEffect(() => {
     if (!loggedUser) return;
     localStorage.setItem(`sorea_todos_${loggedUser.id}`, JSON.stringify(todosByDate));
-    localStorage.setItem(`sorea_quotidien_todos_${loggedUser.id}`, JSON.stringify(quotidienTodosByDate));
-  }, [todosByDate, quotidienTodosByDate, loggedUser]);
+    localStorage.setItem(`sorea_quotidien_todos_${loggedUser.id}`, JSON.stringify(quotidienTodos));
+  }, [todosByDate, quotidienTodos, loggedUser]);
 
   const fetchLoggedUser = async () => {
     try {
@@ -167,7 +167,7 @@ const active = localStorage.getItem('sorea_has_notification') === 'true' || loca
         }
         const storedQuotidien = localStorage.getItem(`sorea_quotidien_todos_${user.id}`);
         if (storedQuotidien) {
-          setQuotidienTodosByDate(JSON.parse(storedQuotidien));
+          setQuotidienTodos(JSON.parse(storedQuotidien));
         }
       }
     } catch (e) {
@@ -395,22 +395,14 @@ const active = localStorage.getItem('sorea_has_notification') === 'true' || loca
   };
 
   const addQuotidienTodo = () => {
-    if (!selectedTodoDate) return;
     const trimmed = quotidienInput.trim();
     if (!trimmed) return;
-    const newId = `q-${selectedTodoDate}-${Date.now()}`;
+    const newId = `q-${Date.now()}`;
     
-    // Ajout dans le Quotidien uniquement à la création
-    setQuotidienTodosByDate((prev) => {
-      const current = prev[selectedTodoDate] || [];
-      return {
-        ...prev,
-        [selectedTodoDate]: [
-          ...current,
-          { id: newId, text: trimmed, completed: false },
-        ],
-      };
-    });
+    setQuotidienTodos((prev) => [
+      ...prev,
+      { id: newId, text: trimmed, completed: false },
+    ]);
 
     setQuotidienInput("");
   };
@@ -423,7 +415,7 @@ const active = localStorage.getItem('sorea_has_notification') === 'true' || loca
 
     let updatedSelected;
     if (isAlreadySelected) {
-      // Retirer de la Todo-List
+      // Retirer de la Todo-List pour cette date
       updatedSelected = currentSelected.filter(id => id !== todo.id);
       setTodosByDate((prev) => {
         const current = prev[selectedTodoDate] || [];
@@ -437,11 +429,10 @@ const active = localStorage.getItem('sorea_has_notification') === 'true' || loca
         return copy;
       });
     } else {
-      // Ajouter dans la Todo-List
+      // Ajouter dans la Todo-List pour cette date
       updatedSelected = [...currentSelected, todo.id];
       setTodosByDate((prev) => {
         const current = prev[selectedTodoDate] || [];
-        // Éviter les doublons
         if (current.some(t => t.id === todo.id)) return prev;
         return {
           ...prev,
@@ -457,61 +448,57 @@ const active = localStorage.getItem('sorea_has_notification') === 'true' || loca
   };
 
   const toggleTodo = (todoId: string) => {
-    if (!selectedTodoDate) return;
     const isQuotidien = todoModalTab === 'quotidien';
-    const setTarget = isQuotidien ? setQuotidienTodosByDate : setTodosByDate;
-    setTarget((prev) => {
-      const current = prev[selectedTodoDate] || [];
-      return {
-        ...prev,
-        [selectedTodoDate]: current.map((todo) =>
+    if (isQuotidien) {
+      setQuotidienTodos((prev) =>
+        prev.map((todo) =>
           todo.id === todoId ? { ...todo, completed: !todo.completed } : todo
-        ),
-      };
-    });
+        )
+      );
+    } else {
+      if (!selectedTodoDate) return;
+      setTodosByDate((prev) => {
+        const current = prev[selectedTodoDate] || [];
+        return {
+          ...prev,
+          [selectedTodoDate]: current.map((todo) =>
+            todo.id === todoId ? { ...todo, completed: !todo.completed } : todo
+          ),
+        };
+      });
+    }
   };
 
   const deleteTodo = (todoId: string) => {
-    if (!selectedTodoDate) return;
     const isQuotidien = todoModalTab === 'quotidien';
 
     if (isQuotidien) {
-      // 1. Si on supprime depuis l'onglet Quotidien : on la supprime du Quotidien, 
-      // on retire son ID des sélections, et on supprime son double de la Todo-List si elle y était.
-      setQuotidienTodosByDate((prev) => {
-        const current = prev[selectedTodoDate] || [];
-        const next = current.filter((todo) => todo.id !== todoId);
-        const copy = { ...prev };
-        if (next.length) {
-          copy[selectedTodoDate] = next;
-        } else {
-          delete copy[selectedTodoDate];
-        }
-        return copy;
-      });
+      // Supprimer de la liste globale du Quotidien
+      setQuotidienTodos((prev) => prev.filter((todo) => todo.id !== todoId));
 
+      // Retirer des sélections et de la Todo-List pour toutes les dates où elle était active
       setSelectedQuotidienIds((prev) => {
-        const currentSelected = prev[selectedTodoDate] || [];
-        return {
-          ...prev,
-          [selectedTodoDate]: currentSelected.filter(id => id !== todoId)
-        };
+        const updated = { ...prev };
+        Object.keys(updated).forEach((dateKey) => {
+          updated[dateKey] = updated[dateKey].filter(id => id !== todoId);
+        });
+        return updated;
       });
 
       setTodosByDate((prev) => {
-        const current = prev[selectedTodoDate] || [];
-        const next = current.filter((todo) => todo.id !== todoId);
-        const copy = { ...prev };
-        if (next.length) {
-          copy[selectedTodoDate] = next;
-        } else {
-          delete copy[selectedTodoDate];
-        }
-        return copy;
+        const updated = { ...prev };
+        Object.keys(updated).forEach((dateKey) => {
+          const filtered = updated[dateKey].filter(todo => todo.id !== todoId);
+          if (filtered.length > 0) {
+            updated[dateKey] = filtered;
+          } else {
+            delete updated[dateKey];
+          }
+        });
+        return updated;
       });
     } else {
-      // 2. Si on supprime depuis l'onglet Todo-List : 
-      // Si c'est une tâche quotidienne (commençant par 'q-'), on la désélectionne aussi dans le Quotidien.
+      if (!selectedTodoDate) return;
       setTodosByDate((prev) => {
         const current = prev[selectedTodoDate] || [];
         const next = current.filter((todo) => todo.id !== todoId);
@@ -1036,8 +1023,8 @@ return (
             </div>
 
             <div className="space-y-3 max-h-[360px] overflow-y-auto pr-2 custom-scrollbar">
-              {((todoModalTab === 'todo' ? todosByDate[selectedTodoDate] : quotidienTodosByDate[selectedTodoDate]) ?? []).length > 0 ? (
-                ((todoModalTab === 'todo' ? todosByDate[selectedTodoDate] : quotidienTodosByDate[selectedTodoDate]) ?? []).map((todo) => {
+              {((todoModalTab === 'todo' ? todosByDate[selectedTodoDate] : quotidienTodos) ?? []).length > 0 ? (
+                ((todoModalTab === 'todo' ? todosByDate[selectedTodoDate] : quotidienTodos) ?? []).map((todo) => {
                   const isQuotidienTab = todoModalTab === 'quotidien';
                   const isQuotidienSelected = isQuotidienTab && (selectedQuotidienIds[selectedTodoDate] || []).includes(todo.id);
                   const isQuotidienInTodo = !isQuotidienTab && todo.id.startsWith('q-');
@@ -1122,7 +1109,7 @@ return (
                 <p className="rounded-3xl border border-dashed border-gray-300 bg-white px-4 py-6 text-center text-sm text-gray-500">
                   {todoModalTab === 'todo' 
                     ? "Aucune tâche pour ce jour. Ajoutez-en une via le champ ci-dessus."
-                    : "Aucune tâche quotidienne pour ce jour. Ajoutez-en une via le champ ci-dessus."}
+                    : "Aucune tâche quotidienne enregistrée. Ajoutez-en une via le champ ci-dessus."}
                 </p>
               )}
             </div>
