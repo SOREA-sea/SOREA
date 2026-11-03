@@ -168,7 +168,7 @@ export default function SuiviPage() {
           .date-info {
             text-align: right;
             font-size: 12px;
-            color: #666;
+            color: #B9ADB4;
           }
           .content-box {
             border: 1px solid #E2DBEF;
@@ -182,15 +182,6 @@ export default function SuiviPage() {
             font-weight: bold;
             color: #8B47FF;
             margin-bottom: 10px;
-          }
-          .footer-disclaimer {
-            margin-top: 40px;
-            padding-top: 15px;
-            border-top: 1px dashed #CCC;
-            font-size: 11px;
-            color: #666;
-            text-align: center;
-            font-style: italic;
           }
         </style>
       </head>
@@ -219,10 +210,6 @@ export default function SuiviPage() {
         <div class="content-box">
           <div class="section-title">Résumé du Journal</div>
           <p>Symptômes et observations enregistrés avec succès dans le calendrier menstruel SOREA.</p>
-        </div>
-
-        <div class="footer-disclaimer">
-          Ces informations sont fournies à titre purement indicatif. Pour obtenir un diagnostic ou un avis médical, consultez un professionnel.
         </div>
 
         <script>
@@ -320,9 +307,6 @@ export default function SuiviPage() {
                 <span className="text-sm font-bold text-gray-900">{getPhaseInfo(item.date).name}</span>
               </div>
 
-              <div className="pt-3 border-t border-gray-100 text-[11px] text-gray-500 italic text-center">
-                Ces informations sont fournies à titre purement indicatif. Pour obtenir un diagnostic ou un avis médical, consultez un professionnel.
-              </div>
             </div>
           );
         })

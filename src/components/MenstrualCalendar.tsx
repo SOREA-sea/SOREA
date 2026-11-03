@@ -903,6 +903,9 @@ return (
 
       {selectedDate && activeTab === 'calendar' && (() => {
         const currentSelectedPhase = getPhaseForDate(selectedDate);
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const isFutureDate = selectedDate > today;
 
         return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
@@ -934,20 +937,29 @@ return (
                 ...(currentSelectedPhase === 'Hiver' ? [{ id: 'flux', label: 'Flux' }] : []),
                 { id: 'resultat', label: 'Résultat' },
                 { id: 'rectifier', label: 'Paramètre' },
-              ].map((tab) => (
-                <button
-                  key={tab.id}
-                  type="button"
-                  onClick={() => setSymptomTab(tab.id as any)}
-                  className={`flex-1 py-3 px-4 text-sm font-semibold rounded-xl transition-all cursor-pointer whitespace-nowrap text-center ${
-                    symptomTab === tab.id
-                      ? 'bg-[#C4B5FD] text-purple-950 shadow-sm font-bold'
-                      : 'text-gray-600 hover:bg-purple-50'
-                  }`}
-                >
-                  {tab.label}
-                </button>
-              ))}
+              ].map((tab) => {
+                const isRestricted = isFutureDate && tab.id !== 'rectifier';
+                return (
+                  <button
+                    key={tab.id}
+                    type="button"
+                    disabled={isRestricted}
+                    onClick={() => {
+                      if (!isRestricted) setSymptomTab(tab.id as any);
+                    }}
+                    title={isRestricted ? "Vous ne pouvez pas prévoir vos humeurs, \nsymptômes et flux à l'avance." : undefined}
+                    className={`flex-1 py-3 px-4 text-sm font-semibold rounded-xl transition-all whitespace-nowrap text-center ${
+                      isRestricted
+                        ? 'text-gray-300 bg-gray-50 cursor select-none'
+                        : symptomTab === tab.id
+                        ? 'bg-[#C4B5FD] text-purple-950 shadow-sm font-bold cursor-pointer'
+                        : 'text-gray-600 hover:bg-purple-50 cursor-pointer'
+                    }`}
+                  >
+                    {tab.label}
+                  </button>
+                );
+              })}
             </div>
 
             {/* Contenu des onglets */}
