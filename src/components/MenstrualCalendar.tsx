@@ -56,8 +56,19 @@ export default function MenstrualCalendar() {
   const [cycleInfo, setCycleInfo] = useState<CycleInfo | null>(null);
   const [loading, setLoading] = useState(true);
   const [showSettings, setShowSettings] = useState(false);
-const [isSnowflakeMode, setIsSnowflakeMode] = useState(false);
-const [showCalendarHelpModal, setShowCalendarHelpModal] = useState(false);
+  const [isSnowflakeMode, setIsSnowflakeMode] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('sorea_snowflake_mode') === 'true';
+    }
+    return false;
+  });
+  const [showCalendarHelpModal, setShowCalendarHelpModal] = useState(false);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('sorea_snowflake_mode', String(isSnowflakeMode));
+    }
+  }, [isSnowflakeMode]);
 
   const [isActiveForm, setIsActiveForm] = useState(false);
   const [cycleLengthForm, setCycleLengthForm] = useState(28);
@@ -1534,26 +1545,28 @@ return (
 
                         // Enregistrer directement la synthèse dans le localStorage persistant des synthèses
                         if (typeof window !== 'undefined' && selectedDate) {
-                          const localDate = new Date(selectedDate.getTime() - selectedDate.getTimezoneOffset() * 60000);
-                          const dateStr = localDate.toLocaleDateString("fr-FR");
+                          const year = selectedDate.getFullYear();
+                          const month = String(selectedDate.getMonth() + 1).padStart(2, '0');
+                          const day = String(selectedDate.getDate()).padStart(2, '0');
+                          const dateStr = `${day}/${month}/${year}`;
                           const timeStr = new Date().toLocaleTimeString("fr-FR", { hour: '2-digit', minute: '2-digit' });
                           
                           const phaseName = getPhaseForDate(selectedDate);
-                          let calculatedPhaseName = "Phase Menstruelle [Hiver]";
+                          let calculatedPhaseName = isSnowflakeMode ? "Hiver" : "Phase Menstruelle";
                           let calculatedIcon = "/image_Design-SOREA/Hiver.svg";
 
                           if (phaseName === "Printemps") {
-                            calculatedPhaseName = "Phase Folliculaire [Printemps]";
+                            calculatedPhaseName = isSnowflakeMode ? "Printemps" : "Phase Folliculaire";
                             calculatedIcon = "/image_icone/Printemps.svg";
                           } else if (phaseName === "Été") {
-                            calculatedPhaseName = "Phase Ovulatoire [Été]";
+                            calculatedPhaseName = isSnowflakeMode ? "Été" : "Phase Ovulatoire";
                             calculatedIcon = "/image_icone/Été.svg";
                           } else if (phaseName === "Automne") {
-                            calculatedPhaseName = "Phase Lutéale [Automne]";
+                            calculatedPhaseName = isSnowflakeMode ? "Automne" : "Phase Lutéale";
                             calculatedIcon = "/image_icone/Automne.svg";
                           } else if (phaseName === "Hiver") {
-                            calculatedPhaseName = "Phase Menstruelle [Hiver]";
-                            calculatedIcon = isSnowflakeMode ? "/image_icone/Flocon.svg" : "/image_Design-SOREA/Hiver.svg";
+                            calculatedPhaseName = isSnowflakeMode ? "Hiver" : "Phase Menstruelle";
+                            calculatedIcon = isSnowflakeMode ? "/image_Design-SOREA/Hiver.svg" : "/image_icone/Flocon.svg";
                           }
 
                           const newItem = { 

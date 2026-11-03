@@ -26,15 +26,22 @@ export default function SuiviPage() {
   }, []);
 
   const getPhaseInfo = (dateStr: string) => {
+    const isDiscret = typeof window !== 'undefined' && localStorage.getItem('sorea_snowflake_mode') === 'true';
     const parts = dateStr.split('/');
-    if (parts.length !== 3) return { name: "Phase Menstruelle [Hiver]", icon: "/image_Design-SOREA/Hiver.svg" };
+    if (parts.length !== 3) {
+      return isDiscret 
+        ? { name: "Hiver", icon: "/image_icone/Flocon.svg" }
+        : { name: "Phase Menstruelle", icon: "/image_Design-SOREA/Hiver.svg" };
+    }
     const day = parseInt(parts[0], 10);
     const monthIndex = parseInt(parts[1], 10) - 1;
     const year = parseInt(parts[2], 10);
     const date = new Date(year, monthIndex, day);
 
     if (!profile || !profile.lastPeriodStartDate) {
-      return { name: "Phase Menstruelle [Hiver]", icon: "/image_Design-SOREA/Hiver.svg" };
+      return isDiscret 
+        ? { name: "Hiver", icon: "/image_icone/Flocon.svg" }
+        : { name: "Phase Menstruelle", icon: "/image_Design-SOREA/Hiver.svg" };
     }
 
     const cLength = profile.cycleLength || 28;
@@ -48,17 +55,25 @@ export default function SuiviPage() {
     const currentDay = (((diffDays % cLength) + cLength) % cLength) + 1;
 
     if (currentDay <= pLength) {
-      return { name: "Phase Menstruelle [Hiver]", icon: "/image_Design-SOREA/Hiver.svg" };
+      return isDiscret
+        ? { name: "Hiver", icon: "/image_icone/Flocon.svg" }
+        : { name: "Phase Menstruelle", icon: "/image_Design-SOREA/Hiver.svg" };
     }
     const ovStart = cLength - 14;
     const ovEnd = cLength - 12;
     if (currentDay < ovStart) {
-      return { name: "Phase Folliculaire [Printemps]", icon: "/image_icone/Printemps.svg" };
+      return isDiscret
+        ? { name: "Printemps", icon: "/image_icone/Printemps.svg" }
+        : { name: "Phase Folliculaire", icon: "/image_icone/Printemps.svg" };
     }
     if (currentDay >= ovStart && currentDay <= ovEnd) {
-      return { name: "Phase Ovulatoire [Été]", icon: "/image_icone/Été.svg" };
+      return isDiscret
+        ? { name: "Été", icon: "/image_icone/Été.svg" }
+        : { name: "Phase Ovulatoire", icon: "/image_icone/Été.svg" };
     }
-    return { name: "Phase Lutéale [Automne]", icon: "/image_icone/Automne.svg" };
+    return isDiscret
+      ? { name: "Automne", icon: "/image_icone/Automne.svg" }
+      : { name: "Phase Lutéale", icon: "/image_icone/Automne.svg" };
   };
 
   // Charger les synthèses sauvegardées au démarrage de la page
@@ -190,12 +205,11 @@ export default function SuiviPage() {
         </div>
 
         ${(() => {
-          const phaseName = (item as any).phase || getPhaseInfo(item.date).name;
-          const phaseIcon = (item as any).icon || getPhaseInfo(item.date).icon;
+          const phaseInfo = getPhaseInfo(item.date);
           return `
             <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 25px; font-size: 16px; font-weight: bold;">
-              <img src="${phaseIcon}" alt="Icône phase" width="24" height="24" style="object-fit: contain;" />
-              <span>${phaseName}</span>
+              <img src="${phaseInfo.icon}" alt="Icône phase" width="24" height="24" style="object-fit: contain;" />
+              <span>${phaseInfo.name}</span>
             </div>
           `;
         })()}
@@ -299,8 +313,8 @@ export default function SuiviPage() {
               </div>
 
               <div className="flex items-center gap-3 py-1">
-                      <img src={(item as any).icon || getPhaseInfo(item.date).icon} alt={(item as any).phase || getPhaseInfo(item.date).name} className="w-6 h-6 object-contain" />
-                      <span className="text-sm font-bold text-gray-900">{(item as any).phase || getPhaseInfo(item.date).name}</span>
+                <img src={getPhaseInfo(item.date).icon} alt={getPhaseInfo(item.date).name} className="w-6 h-6 object-contain" />
+                <span className="text-sm font-bold text-gray-900">{getPhaseInfo(item.date).name}</span>
               </div>
 
               <div className="pt-3 border-t border-gray-100 text-[11px] text-gray-500 italic text-center">
@@ -370,8 +384,8 @@ export default function SuiviPage() {
                     </div>
 
                     <div className="flex items-center gap-3 py-1">
-                      <img src={(item as any).icon || getPhaseInfo(item.date).icon} alt={(item as any).phase || getPhaseInfo(item.date).name} className="w-6 h-6 object-contain" />
-                      <span className="text-sm font-bold text-gray-900">{(item as any).phase || getPhaseInfo(item.date).name}</span>
+                      <img src={getPhaseInfo(item.date).icon} alt={getPhaseInfo(item.date).name} className="w-6 h-6 object-contain" />
+                      <span className="text-sm font-bold text-gray-900">{getPhaseInfo(item.date).name}</span>
                     </div>
 
                     <div className="pt-3 border-t border-gray-100 text-[11px] text-gray-500 italic text-center">
