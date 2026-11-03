@@ -632,7 +632,10 @@ const active = localStorage.getItem('sorea_has_notification') === 'true' || loca
       
       //Masquer les indicateurs de tâche quand on est sur l'onglet Calendrier Menstruel
       const showCheckmark = activeTab === 'todo' && allTodosCompleted;
-      const showPurpleDot = activeTab === 'todo' && dayTodos.length > 0 && !allTodosCompleted;
+      // On ne compte que les tâches normales (qui ne proviennent pas du Quotidien) pour la pastille violette
+      const normalDayTodos = dayTodos.filter(todo => !todo.id.startsWith('q-'));
+      const allNormalTodosCompleted = normalDayTodos.length > 0 && normalDayTodos.every(todo => todo.completed);
+      const showPurpleDot = activeTab === 'todo' && normalDayTodos.length > 0 && !allNormalTodosCompleted;
       
 
 const isTodayWithNotification = isToday && hasNotif;
@@ -663,7 +666,14 @@ const isTodayWithNotification = isToday && hasNotif;
     )}
 
           {showPurpleDot && <span className="absolute left-2 top-2 h-2.5 w-2.5 rounded-full bg-[#8B47FF] shadow-sm" />}
-          <span className="text-sm font-semibold">{day}</span>
+          <span 
+            className="text-sm font-semibold"
+            style={{
+              color: (selectedQuotidienIds[dateKey] || []).length > 0 ? "#9F1239" : undefined
+            }}
+          >
+            {day}
+          </span>
           {iconVisible}
         </div>
       );
