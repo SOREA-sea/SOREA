@@ -1621,16 +1621,19 @@ return (
 
       {showSettings && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-3xl p-8 shadow-2xl w-full max-w-md relative border-2 border-[#8B47FF]">
-            <button onClick={() => setShowSettings(false)} className="absolute top-4 right-4 p-2 text-gray-400 hover:text-black transition-colors">
+          <div className="bg-white rounded-3xl p-8 shadow-2xl w-full max-w-lg relative border-2 border-[#8B47FF]">
+            <button onClick={() => setShowSettings(false)} className="absolute top-4 right-4 p-2 text-gray-400 hover:text-black transition-colors cursor-pointer">
               <X className="w-6 h-6" />
             </button>
-            <h3 className="text-2xl font-bold mb-6 text-black underline">Paramètres</h3>
-            <div className="space-y-6">
+            
+            <div className="space-y-8 my-2">
               {isActiveForm && (
-                <div className="space-y-4 animate-in fade-in slide-in-from-top-4 duration-300">
-                  <div className="p-4 bg-gray-50 rounded-xl border border-gray-200">
-                    <label className="block text-sm font-bold text-black mb-2 text-center">Combien de jours durent vos règles ?</label>
+                <div className="space-y-6 animate-in fade-in slide-in-from-top-4 duration-300">
+                  {/* Titre et Input nombre de jours avec flèches */}
+                  <div className="space-y-4">
+                    <label className="block text-lg font-bold text-[#7F4DC5] text-center font-boska">
+                      Combien de jour durent vos règles ?
+                    </label>
                     <div className="flex items-center justify-center">
                       <input
                         type="number"
@@ -1638,30 +1641,66 @@ return (
                         max="15"
                         value={periodLengthForm}
                         onChange={(e) => setPeriodLengthForm(parseInt(e.target.value) || 5)}
-                        className="w-20 px-3 py-2 border-2 border-gray-200 rounded-xl bg-white text-black text-center font-bold focus:border-[#8B47FF] outline-none"
+                        className="w-16 h-12 border border-gray-400 rounded-lg bg-white text-black text-center font-bold text-base focus:border-[#8B47FF] outline-none shadow-sm"
+                      />
+                    </div>
+
+                    {/* Boutons "Je ne sais pas" et "C'est variable" */}
+                    <div className="flex items-center justify-center gap-4 pt-2">
+                      <button
+                        type="button"
+                        onClick={() => setPeriodLengthForm(5)} // Valeur par défaut indicative
+                        className="px-5 py-2.5 rounded-xl border border-[#E256B3] text-[#7F4DC5] text-xs font-semibold bg-white hover:bg-pink-50 transition-all cursor-pointer shadow-sm"
+                      >
+                        Je ne sais pas
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setPeriodLengthForm(5)} // Valeur par défaut indicative
+                        className="px-5 py-2.5 rounded-xl border border-[#E256B3] text-[#7F4DC5] text-xs font-semibold bg-white hover:bg-pink-50 transition-all cursor-pointer shadow-sm"
+                      >
+                        C’est variable
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Début des dernières règles */}
+                  <div className="space-y-2 pt-2">
+                    <label className="block text-lg font-bold text-[#7F4DC5] text-center font-boska">
+                      Début des dernières règles
+                    </label>
+                    <div className="relative">
+                      <input
+                        type="date"
+                        value={lastPeriodStartForm}
+                        onChange={(e) => setLastPeriodStartForm(e.target.value)}
+                        className="w-full px-4 py-3 border border-gray-300 rounded-2xl bg-white text-black focus:border-[#8B47FF] outline-none transition-all shadow-sm"
                       />
                     </div>
                   </div>
-                  <div>
-                    <label className="block text-sm font-bold text-black mb-2">Début des dernières règles</label>
-                    <input
-                      type="date"
-                      value={lastPeriodStartForm}
-                      onChange={(e) => setLastPeriodStartForm(e.target.value)}
-                      className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl bg-white text-black focus:border-[#8B47FF] outline-none transition-all"
-                    />
-                    <p className="text-xs text-gray-500 mt-2 italic">
-                      <span className="underline">Le site applique par défaut un cycle standard théorique de 28 jours avec un ajustement dynamique.</span>
-                    </p>
-                  </div>
                 </div>
               )}
+
               <button
                 onClick={saveSettings}
-                className="w-full py-4 mt-6 bg-white border-2 border-[#8B47FF] text-[#8B47FF] rounded-2xl font-bold shadow-md hover:scale-105 hover:bg-[#F4EBFF] transition-all active:scale-95 text-lg"
+                className="w-full py-4 bg-white border-2 border-[#8B47FF] text-[#8B47FF] rounded-2xl font-bold shadow-md hover:bg-[#F4EBFF] transition-all text-base cursor-pointer"
               >
                 Enregistrer
               </button>
+
+              {/* Ligne du bas : Bouton Précédent à gauche et indicateur 2/3 à droite */}
+              <div className="flex items-center justify-between pt-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowSettings(false);
+                    setShowSurveyModal(true);
+                  }}
+                  className="text-xs font-semibold text-gray-500 hover:text-[#7F4DC5] hover:underline transition-all cursor-pointer"
+                >
+                  ← Précédent
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -1711,10 +1750,6 @@ return (
               >
                 Autres
               </button>
-            </div>
-
-            <div className="text-right text-xs text-gray-500 font-semibold">
-              1/3
             </div>
           </div>
         </div>
