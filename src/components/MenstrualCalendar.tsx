@@ -817,22 +817,48 @@ return (
 
       {loggedUser && showTodoModal && selectedTodoDate && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-          <div className="w-full max-w-2xl rounded-3xl border border-[#8B47FF] bg-white p-6 shadow-2xl">
-            <div className="flex items-center justify-between gap-4 mb-6">
+          <div className="w-full max-w-2xl rounded-3xl border border-[#8B47FF] bg-white p-6 shadow-2xl relative">
+            {/* Bouton croix sans bordure (stroke), hover bg-[#C0ACFF] et icône blanche */}
+            <button
+              onClick={closeTodoModal}
+              className="absolute top-4 right-4 rounded-full p-2 text-gray-600 bg-transparent hover:bg-[#C0ACFF] hover:text-white transition-all cursor-pointer"
+            >
+              <X className="h-5 w-5" />
+            </button>
+
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6 pr-12">
               <div>
-                <p className="text-sm font-semibold text-[#5B3ABC]">
+                <p className="text-xs font-semibold text-[#8B47FF]">
                   Tâches du {selectedTodoDate.split('-').reverse().join('/')}
                 </p>
-                <p className="text-2xl font-bold text-black">
+                <p className="text-2xl font-bold text-black font-boska">
                   {new Date(selectedTodoDate).toLocaleDateString("fr-FR", { weekday: "long", day: "numeric", month: "long" })}
                 </p>
               </div>
-              <button
-                onClick={closeTodoModal}
-                className="rounded-full border border-gray-200 bg-white p-2 text-gray-600 transition hover:border-[#8B47FF] hover:text-black"
-              >
-                <X className="h-5 w-5" />
-              </button>
+
+              {/* Navbar déplacée plus à droite avec ml-auto */}
+              <div className="flex rounded-2xl border border-purple-200 p-1 bg-white shadow-sm w-fit shrink-0 mr-8">
+                <button
+                  type="button"
+                  className="px-5 py-2 rounded-xl text-xs font-bold bg-[#C4B5FD] text-purple-950 shadow-sm cursor-pointer"
+                >
+                  Todo-List
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    closeTodoModal();
+                    // Ouvre directement le suivi quotidien de la date sélectionnée
+                    const [year, month, day] = selectedTodoDate.split('-').map(Number);
+                    const date = new Date(year, month - 1, day);
+                    setSelectedDate(date);
+                    fetchSymptom(date);
+                  }}
+                  className="px-5 py-2 rounded-xl text-xs font-semibold text-gray-600 hover:bg-purple-50 transition-all cursor-pointer"
+                >
+                  Quotidien
+                </button>
+              </div>
             </div>
 
             <div className="flex flex-col sm:flex-row gap-3 mb-4">
