@@ -474,18 +474,66 @@ const active = localStorage.getItem('sorea_has_notification') === 'true' || loca
   const deleteTodo = (todoId: string) => {
     if (!selectedTodoDate) return;
     const isQuotidien = todoModalTab === 'quotidien';
-    const setTarget = isQuotidien ? setQuotidienTodosByDate : setTodosByDate;
-    setTarget((prev) => {
-      const current = prev[selectedTodoDate] || [];
-      const next = current.filter((todo) => todo.id !== todoId);
-      const copy = { ...prev };
-      if (next.length) {
-        copy[selectedTodoDate] = next;
-      } else {
-        delete copy[selectedTodoDate];
+
+    if (isQuotidien) {
+      // 1. Si on supprime depuis l'onglet Quotidien : on la supprime du Quotidien, 
+      // on retire son ID des sélections, et on supprime son double de la Todo-List si elle y était.
+      setQuotidienTodosByDate((prev) => {
+        const current = prev[selectedTodoDate] || [];
+        const next = current.filter((todo) => todo.id !== todoId);
+        const copy = { ...prev };
+        if (next.length) {
+          copy[selectedTodoDate] = next;
+        } else {
+          delete copy[selectedTodoDate];
+        }
+        return copy;
+      });
+
+      setSelectedQuotidienIds((prev) => {
+        const currentSelected = prev[selectedTodoDate] || [];
+        return {
+          ...prev,
+          [selectedTodoDate]: currentSelected.filter(id => id !== todoId)
+        };
+      });
+
+      setTodosByDate((prev) => {
+        const current = prev[selectedTodoDate] || [];
+        const next = current.filter((todo) => todo.id !== todoId);
+        const copy = { ...prev };
+        if (next.length) {
+          copy[selectedTodoDate] = next;
+        } else {
+          delete copy[selectedTodoDate];
+        }
+        return copy;
+      });
+    } else {
+      // 2. Si on supprime depuis l'onglet Todo-List : 
+      // Si c'est une tâche quotidienne (commençant par 'q-'), on la désélectionne aussi dans le Quotidien.
+      setTodosByDate((prev) => {
+        const current = prev[selectedTodoDate] || [];
+        const next = current.filter((todo) => todo.id !== todoId);
+        const copy = { ...prev };
+        if (next.length) {
+          copy[selectedTodoDate] = next;
+        } else {
+          delete copy[selectedTodoDate];
+        }
+        return copy;
+      });
+
+      if (todoId.startsWith('q-')) {
+        setSelectedQuotidienIds((prev) => {
+          const currentSelected = prev[selectedTodoDate] || [];
+          return {
+            ...prev,
+            [selectedTodoDate]: currentSelected.filter(id => id !== todoId)
+          };
+        });
       }
-      return copy;
-    });
+    }
   };
 
   const handleSymptomChange = (field: keyof SymptomLog, value: string) => {
