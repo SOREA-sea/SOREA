@@ -104,9 +104,12 @@ export default function MenstrualCalendar() {
 
   const [selectedTodoDate, setSelectedTodoDate] = useState<string | null>(null);
   const [showTodoModal, setShowTodoModal] = useState(false);
+  const [todoModalTab, setTodoModalTab] = useState<'todo' | 'quotidien'>('todo');
   const [todoInput, setTodoInput] = useState("");
+  const [quotidienInput, setQuotidienInput] = useState("");
   const [draggedTodoId, setDraggedTodoId] = useState<string | null>(null);
   const [todosByDate, setTodosByDate] = useState<Record<string, TodoItem[]>>({});
+  const [quotidienTodosByDate, setQuotidienTodosByDate] = useState<Record<string, TodoItem[]>>({});
   const [loggedUser, setLoggedUser] = useState<{ id: string; email: string } | null>(null);
   const [phaseFilters, setPhaseFilters] = useState<string[]>([]);
   const [activeTab, setActiveTab] = useState<'calendar' | 'todo'>('calendar'); // État pour pour basculer entre 'calendar' et 'todo'
@@ -146,7 +149,8 @@ const active = localStorage.getItem('sorea_has_notification') === 'true' || loca
   useEffect(() => {
     if (!loggedUser) return;
     localStorage.setItem(`sorea_todos_${loggedUser.id}`, JSON.stringify(todosByDate));
-  }, [todosByDate, loggedUser]);
+    localStorage.setItem(`sorea_quotidien_todos_${loggedUser.id}`, JSON.stringify(quotidienTodosByDate));
+  }, [todosByDate, quotidienTodosByDate, loggedUser]);
 
   const fetchLoggedUser = async () => {
     try {
@@ -159,6 +163,10 @@ const active = localStorage.getItem('sorea_has_notification') === 'true' || loca
         const stored = localStorage.getItem(`sorea_todos_${user.id}`);
         if (stored) {
           setTodosByDate(JSON.parse(stored));
+        }
+        const storedQuotidien = localStorage.getItem(`sorea_quotidien_todos_${user.id}`);
+        if (storedQuotidien) {
+          setQuotidienTodosByDate(JSON.parse(storedQuotidien));
         }
       }
     } catch (e) {
@@ -385,9 +393,44 @@ const active = localStorage.getItem('sorea_has_notification') === 'true' || loca
     setTodoInput("");
   };
 
+  const addQuotidienTodo = () => {
+    if (!selectedTodoDate) return;
+    const trimmed = quotidienInput.trim();
+    if (!trimmed) return;
+    const newId = `q-${selectedTodoDate}-${Date.now()}`;
+    
+    // Ajout dans le Quotidien
+    setQuotidienTodosByDate((prev) => {
+      const current = prev[selectedTodoDate] || [];
+      return {
+        ...prev,
+        [selectedTodoDate]: [
+          ...current,
+          { id: newId, text: trimmed, completed: false },
+        ],
+      };
+    });
+
+    // Ajout automatique et synchrone dans la Todo-List principale
+    setTodosByDate((prev) => {
+      const current = prev[selectedTodoDate] || [];
+      return {
+        ...prev,
+        [selectedTodoDate]: [
+          ...current,
+          { id: newId, text: trimmed, completed: false },
+        ],
+      };
+    });
+
+    setQuotidienInput("");
+  };
+
   const toggleTodo = (todoId: string) => {
     if (!selectedTodoDate) return;
-    setTodosByDate((prev) => {
+    const isQuotidien = todoModalTab === 'quotidien';
+    const setTarget = isQuotidien ? setQuotidienTodosByDate : setTodosByDate;
+    setTarget((prev) => {
       const current = prev[selectedTodoDate] || [];
       return {
         ...prev,
@@ -400,7 +443,9 @@ const active = localStorage.getItem('sorea_has_notification') === 'true' || loca
 
   const deleteTodo = (todoId: string) => {
     if (!selectedTodoDate) return;
-    setTodosByDate((prev) => {
+    const isQuotidien = todoModalTab === 'quotidien';
+    const setTarget = isQuotidien ? setQuotidienTodosByDate : setTodosByDate;
+    setTarget((prev) => {
       const current = prev[selectedTodoDate] || [];
       const next = current.filter((todo) => todo.id !== todoId);
       const copy = { ...prev };
@@ -867,21 +912,23 @@ return (
               <div className="flex rounded-2xl border border-purple-200 p-1 bg-white shadow-sm w-fit shrink-0 mr-8">
                 <button
                   type="button"
-                  className="px-5 py-2 rounded-xl text-xs font-bold bg-[#C4B5FD] text-purple-950 shadow-sm cursor-pointer"
+                  onClick={() => setTodoModalTab('todo')}
+                  className={`px-5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                    todoModalTab === 'todo'
+                      ? 'bg-[#C4B5FD] text-purple-950 shadow-sm'
+                      : 'text-gray-600 hover:bg-purple-50 font-semibold'
+                  }`}
                 >
                   Todo-List
                 </button>
                 <button
                   type="button"
-                  onClick={() => {
-                    closeTodoModal();
-                    // Ouvre directement le suivi quotidien de la date sélectionnée
-                    const [year, month, day] = selectedTodoDate.split('-').map(Number);
-                    const date = new Date(year, month - 1, day);
-                    setSelectedDate(date);
-                    fetchSymptom(date);
-                  }}
-                  className="px-5 py-2 rounded-xl text-xs font-semibold text-gray-600 hover:bg-purple-50 transition-all cursor-pointer"
+                  onClick={() => setTodoModalTab('quotidien')}
+                  className={`px-5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                    todoModalTab === 'quotidien'
+                      ? 'bg-[#C4B5FD] text-purple-950 shadow-sm'
+                      : 'text-gray-600 hover:bg-purple-50 font-semibold'
+                  }`}
                 >
                   Quotidien
                 </button>
@@ -891,19 +938,19 @@ return (
             <div className="flex flex-col sm:flex-row gap-3 mb-4">
               <input
                 type="text"
-                value={todoInput}
-                onChange={(e) => setTodoInput(e.target.value)}
+                value={todoModalTab === 'todo' ? todoInput : quotidienInput}
+                onChange={(e) => todoModalTab === 'todo' ? setTodoInput(e.target.value) : setQuotidienInput(e.target.value)}
                 onKeyDown={(e) => {
                   if (e.key === 'Enter') {
                     e.preventDefault();
-                    addTodo();
+                    todoModalTab === 'todo' ? addTodo() : addQuotidienTodo();
                   }
                 }}
-                placeholder="Ajouter une tâche..."
+                placeholder={todoModalTab === 'todo' ? "Ajouter une tâche..." : "Ajouter une tâche quotidienne..."}
                 className="flex-1 min-w-0 rounded-2xl border border-gray-200 bg-white px-4 py-3 text-sm text-black outline-none transition-all"
               />
               <button
-                onClick={addTodo}
+                onClick={todoModalTab === 'todo' ? addTodo : addQuotidienTodo}
                 className="rounded-2xl bg-[#8B47FF] px-6 py-3 text-sm font-bold text-white transition hover:bg-[#6f37e6] cursor-pointer"
               >
                 Ajouter
@@ -911,21 +958,25 @@ return (
             </div>
 
             <div className="space-y-3 max-h-[360px] overflow-y-auto pr-2 custom-scrollbar">
-              {(todosByDate[selectedTodoDate] ?? []).length > 0 ? (
-                (todosByDate[selectedTodoDate] ?? []).map((todo) => (
+              {((todoModalTab === 'todo' ? todosByDate[selectedTodoDate] : quotidienTodosByDate[selectedTodoDate]) ?? []).length > 0 ? (
+                ((todoModalTab === 'todo' ? todosByDate[selectedTodoDate] : quotidienTodosByDate[selectedTodoDate]) ?? []).map((todo) => (
                   <div 
                     key={todo.id} 
                     draggable
                     onDragStart={() => handleDragStart(todo.id)}
                     onDragOver={handleDragOver}
                     onDrop={() => handleDrop(todo.id)}
-                    className="group flex items-center justify-between gap-4 rounded-3xl border border-gray-200 bg-white px-4 py-3 transition cursor-grab active:cursor-grabbing"
+                    className="group flex items-center justify-between gap-4 rounded-3xl border px-4 py-3 transition cursor-grab active:cursor-grabbing"
                   style={{
     backgroundColor: 
+      todoModalTab === 'quotidien' ? '#FFE4E6' : // Rouge clair pour le Quotidien
       todo.category === 'bien-etre' ? 'rgba(139, 71, 255, 0.15)' : // Violet léger
       todo.category === 'sport' ? '#CEFFFD' :       // Bleu léger
       todo.category === 'nutrition' ? '#FFE8F7' :   // Rose léger
-      'transparent'
+      'transparent',
+    borderColor: 
+      todoModalTab === 'quotidien' ? '#FDA4AF' : // Rouge clair plus foncé pour la bordure
+      '#E5E7EB' // Bordure grise par défaut
   }}
   >
                     <div className="flex items-center gap-3 flex-1">
@@ -954,9 +1005,20 @@ return (
                           </svg>
                         )}
                       </span>
-                      <span className={`text-sm ${todo.completed ? "text-gray-500 line-through" : "text-gray-900"}`}>{todo.text}</span>
+                      <span 
+                        className={`text-sm ${todo.completed ? "text-gray-400 line-through" : ""}`}
+                        style={{
+                          color: todo.completed 
+                            ? "#9CA3AF" 
+                            : todoModalTab === 'quotidien' 
+                            ? "#9F1239" // Rouge foncé forcé en style en ligne
+                            : "#111827"  // Noir par défaut pour la Todo-List
+                        }}
+                      >
+                        {todo.text}
+                      </span>
                     </label>
-                    </div> {/* <-- AJOUT DE CETTE BALISE DIV MANQUANTE */}
+                    </div>
                     <button
                       onClick={() => deleteTodo(todo.id)}
                       className="flex h-11 w-11 items-center justify-center rounded-full text-gray-400 transition hover:text-red-600"
@@ -967,7 +1029,9 @@ return (
                 ))
               ) : (
                 <p className="rounded-3xl border border-dashed border-gray-300 bg-white px-4 py-6 text-center text-sm text-gray-500">
-                  Aucune tâche pour ce jour. Ajoutez-en une via le champ ci-dessus.
+                  {todoModalTab === 'todo' 
+                    ? "Aucune tâche pour ce jour. Ajoutez-en une via le champ ci-dessus."
+                    : "Aucune tâche quotidienne pour ce jour. Ajoutez-en une via le champ ci-dessus."}
                 </p>
               )}
             </div>
