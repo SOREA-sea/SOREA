@@ -105,6 +105,7 @@ export default function MenstrualCalendar() {
   const [selectedTodoDate, setSelectedTodoDate] = useState<string | null>(null);
   const [showTodoModal, setShowTodoModal] = useState(false);
   const [todoInput, setTodoInput] = useState("");
+  const [draggedTodoId, setDraggedTodoId] = useState<string | null>(null);
   const [todosByDate, setTodosByDate] = useState<Record<string, TodoItem[]>>({});
   const [loggedUser, setLoggedUser] = useState<{ id: string; email: string } | null>(null);
   const [phaseFilters, setPhaseFilters] = useState<string[]>([]);
@@ -339,6 +340,32 @@ const active = localStorage.getItem('sorea_has_notification') === 'true' || loca
 
   const togglePhaseFilter = (phase: string) => {
     setPhaseFilters((prev) => (prev.includes(phase) ? prev.filter((item) => item !== phase) : [...prev, phase]));
+  };
+
+  const handleDragStart = (id: string) => {
+    setDraggedTodoId(id);
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+  };
+
+  const handleDrop = (targetId: string) => {
+    if (!draggedTodoId || draggedTodoId === targetId || !selectedTodoDate) return;
+    const currentList = todosByDate[selectedTodoDate] || [];
+    const draggedIndex = currentList.findIndex(t => t.id === draggedTodoId);
+    const targetIndex = currentList.findIndex(t => t.id === targetId);
+    if (draggedIndex === -1 || targetIndex === -1) return;
+
+    const updated = [...currentList];
+    const [removed] = updated.splice(draggedIndex, 1);
+    updated.splice(targetIndex, 0, removed);
+
+    setTodosByDate(prev => ({
+      ...prev,
+      [selectedTodoDate]: updated
+    }));
+    setDraggedTodoId(null);
   };
 
   const addTodo = () => {
@@ -866,12 +893,18 @@ return (
                 type="text"
                 value={todoInput}
                 onChange={(e) => setTodoInput(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault();
+                    addTodo();
+                  }
+                }}
                 placeholder="Ajouter une tâche..."
                 className="flex-1 min-w-0 rounded-2xl border border-gray-200 bg-white px-4 py-3 text-sm text-black outline-none transition-all"
               />
               <button
                 onClick={addTodo}
-                className="rounded-2xl bg-[#8B47FF] px-6 py-3 text-sm font-bold text-white transition hover:bg-[#6f37e6]"
+                className="rounded-2xl bg-[#8B47FF] px-6 py-3 text-sm font-bold text-white transition hover:bg-[#6f37e6] cursor-pointer"
               >
                 Ajouter
               </button>
@@ -880,7 +913,13 @@ return (
             <div className="space-y-3 max-h-[360px] overflow-y-auto pr-2 custom-scrollbar">
               {(todosByDate[selectedTodoDate] ?? []).length > 0 ? (
                 (todosByDate[selectedTodoDate] ?? []).map((todo) => (
-                  <div key={todo.id} className="group flex items-center justify-between gap-4 rounded-3xl border border-gray-200 bg-white px-4 py-3 transition"
+                  <div 
+                    key={todo.id} 
+                    draggable
+                    onDragStart={() => handleDragStart(todo.id)}
+                    onDragOver={handleDragOver}
+                    onDrop={() => handleDrop(todo.id)}
+                    className="group flex items-center justify-between gap-4 rounded-3xl border border-gray-200 bg-white px-4 py-3 transition cursor-grab active:cursor-grabbing"
                   style={{
     backgroundColor: 
       todo.category === 'bien-etre' ? 'rgba(139, 71, 255, 0.15)' : // Violet léger
@@ -889,7 +928,15 @@ return (
       'transparent'
   }}
   >
-                    <label className="flex items-center gap-3 flex-1 cursor-pointer">
+                    <div className="flex items-center gap-3 flex-1">
+                      {/* Drag Handle : clair par défaut (opacity-30) et couleur de base au survol (opacity-100) */}
+                      <img 
+                        src="/image_icone/DragHandle.svg" 
+                        alt="Déplacer" 
+                        className="w-4 h-4 object-contain cursor-grab active:cursor-grabbing opacity-30 group-hover:opacity-100 transition-opacity shrink-0" 
+                        title="Maintenir pour déplacer"
+                      />
+                      <label className="flex items-center gap-3 flex-1 cursor-pointer">
                       <span
                         className={`relative flex h-5 w-5 shrink-0 items-center justify-center rounded-[6px] border transition ${
                           todo.completed ? "border-emerald-500 bg-emerald-500" : "border-gray-300 bg-white"
@@ -909,6 +956,7 @@ return (
                       </span>
                       <span className={`text-sm ${todo.completed ? "text-gray-500 line-through" : "text-gray-900"}`}>{todo.text}</span>
                     </label>
+                    </div> {/* <-- AJOUT DE CETTE BALISE DIV MANQUANTE */}
                     <button
                       onClick={() => deleteTodo(todo.id)}
                       className="flex h-11 w-11 items-center justify-center rounded-full text-gray-400 transition hover:text-red-600"
