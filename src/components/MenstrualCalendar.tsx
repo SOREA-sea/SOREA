@@ -317,8 +317,12 @@ const active = localStorage.getItem('sorea_has_notification') === 'true' || loca
 
   const handleDayClick = (day: number) => {
     const date = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), day);
-    setSelectedDate(date);
-    fetchSymptom(date);
+    if (activeTab === 'calendar') {
+      setSelectedDate(date);
+      fetchSymptom(date);
+    } else {
+      setSelectedDate(null);
+    }
     const localDate = new Date(date.getTime() - date.getTimezoneOffset() * 60000);
     const dateKey = localDate.toISOString().split("T")[0];
     setSelectedTodoDate(dateKey);
@@ -360,21 +364,36 @@ const active = localStorage.getItem('sorea_has_notification') === 'true' || loca
   };
 
   const handleDrop = (targetId: string) => {
-    if (!draggedTodoId || draggedTodoId === targetId || !selectedTodoDate) return;
-    const currentList = todosByDate[selectedTodoDate] || [];
-    const draggedIndex = currentList.findIndex(t => t.id === draggedTodoId);
-    const targetIndex = currentList.findIndex(t => t.id === targetId);
-    if (draggedIndex === -1 || targetIndex === -1) return;
+    if (!draggedTodoId || draggedTodoId === targetId) return;
 
-    const updated = [...currentList];
-    const [removed] = updated.splice(draggedIndex, 1);
-    updated.splice(targetIndex, 0, removed);
+    if (todoModalTab === 'quotidien') {
+      const draggedIndex = quotidienTodos.findIndex(t => t.id === draggedTodoId);
+      const targetIndex = quotidienTodos.findIndex(t => t.id === targetId);
+      if (draggedIndex === -1 || targetIndex === -1) return;
 
-    setTodosByDate(prev => ({
-      ...prev,
-      [selectedTodoDate]: updated
-    }));
-    setDraggedTodoId(null);
+      const updated = [...quotidienTodos];
+      const [removed] = updated.splice(draggedIndex, 1);
+      updated.splice(targetIndex, 0, removed);
+
+      setQuotidienTodos(updated);
+      setDraggedTodoId(null);
+    } else {
+      if (!selectedTodoDate) return;
+      const currentList = todosByDate[selectedTodoDate] || [];
+      const draggedIndex = currentList.findIndex(t => t.id === draggedTodoId);
+      const targetIndex = currentList.findIndex(t => t.id === targetId);
+      if (draggedIndex === -1 || targetIndex === -1) return;
+
+      const updated = [...currentList];
+      const [removed] = updated.splice(draggedIndex, 1);
+      updated.splice(targetIndex, 0, removed);
+
+      setTodosByDate(prev => ({
+        ...prev,
+        [selectedTodoDate]: updated
+      }));
+      setDraggedTodoId(null);
+    }
   };
 
   const addTodo = () => {
@@ -644,7 +663,7 @@ const isTodayWithNotification = isToday && hasNotif;
         phaseColor = "bg-[#E8D9FF] text-[#8B47FF]";
       }
       if (isSelected) {
-        phaseColor = "bg-[#E8D9FF] text-[#8B47FF] ring-2 ring-[#8B47FF]";
+        phaseColor = "ring-2 ring-[#8B47FF] z-10";
       }
       days.push(
         <div
@@ -667,9 +686,19 @@ const isTodayWithNotification = isToday && hasNotif;
 
           {showPurpleDot && <span className="absolute left-2 top-2 h-2.5 w-2.5 rounded-full bg-[#8B47FF] shadow-sm" />}
           <span 
-            className="text-sm font-semibold"
+            className="text-sm font-semibold text-[#8B47FF]"
             style={{
-              color: (selectedQuotidienIds[dateKey] || []).length > 0 ? "#9F1239" : undefined
+              color: (() => {
+                if (activeTab !== 'todo') return undefined;
+                const quotIds = selectedQuotidienIds[dateKey] || [];
+                if (quotIds.length === 0) return undefined;
+                // Vérifier si toutes les tâches quotidiennes sélectionnées pour cette date sont cochées
+                const dayTodos = todosByDate[dateKey] || [];
+                const selectedQuotidienTasks = dayTodos.filter(t => quotIds.includes(t.id));
+                const allSelectedCompleted = selectedQuotidienTasks.length > 0 && selectedQuotidienTasks.every(t => t.completed);
+                // Si tout est coché, on ne met pas en rouge (#9F1239), sinon on met en rouge
+                return allSelectedCompleted ? undefined : "#9F1239";
+              })()
             }}
           >
             {day}
@@ -1071,7 +1100,7 @@ return (
                             className="flex h-5 w-5 shrink-0 items-center justify-center rounded-[6px] border border-[#FDA4AF] bg-white text-[#9F1239] hover:bg-[#FFE4E6] transition cursor-pointer"
                             title={isQuotidienSelected ? "Retirer de la Todo-List" : "Ajouter à la Todo-List"}
                           >
-                            <span className="text-xs font-bold leading-none">{isQuotidienSelected ? "✓" : "+"}</span>
+                            <span className="text-xs font-bold leading-none">{isQuotidienSelected ? "-" : "+"}</span>
                           </button>
                         ) : (
                           <span
