@@ -760,9 +760,9 @@ return (
           </h1>
           {activeTab === 'calendar' ? (
             profile?.isActive ? (
-              <p className="text-black font-medium mt-1">Suivi activé</p>
+              <p className="text-black font-medium mt-1">Suivi menstruel activé</p>
             ) : (
-              <p className="text-black font-medium mt-1">Suivi inactif</p>
+              <p className="text-black font-medium mt-1">Suivi menstruel désactivé</p>
             )
           ) : (
             <p className="text-black font-medium mt-1">Gérez vos tâches par date</p>
@@ -879,7 +879,7 @@ return (
               <div className="w-6 h-6 shrink-0 flex items-center justify-center">
                 <img src={phaseIcons["Printemps"]} alt="Printemps" className="w-full h-full object-contain" />
               </div>
-              <span className="font-semibold">Phase Folliculaire</span>
+              <span className="font-semibold">{isSnowflakeMode ? "Printemps" : "Phase Folliculaire"}</span>
             </button>
 
             {/* Phase Prémenstruelle (Automne) */}
@@ -895,7 +895,7 @@ return (
               <div className="w-6 h-6 shrink-0 flex items-center justify-center">
                 <img src={phaseIcons["Automne"]} alt="Automne" className="w-full h-full object-contain" />
               </div>
-              <span className="font-semibold">Phase Lutéale</span>
+              <span className="font-semibold">{isSnowflakeMode ? "Automne" : "Phase Lutéale"}</span>
             </button>
 
             {/* Phase Ovulatoire (Été) */}
@@ -911,7 +911,7 @@ return (
               <div className="w-6 h-6 shrink-0 flex items-center justify-center">
                 <img src={phaseIcons["Été"]} alt="Été" className="w-full h-full object-contain" />
               </div>
-              <span className="font-semibold">Phase Ovulatoire</span>
+              <span className="font-semibold">{isSnowflakeMode ? "Été" : "Phase Ovulatoire"}</span>
             </button>
 
             {/* Phase Menstruelle (Hiver) */}
@@ -931,7 +931,7 @@ return (
                   className="w-full h-full object-contain" 
                 />
               </div>
-              <span className="font-semibold">Phase Menstruelle</span>
+              <span className="font-semibold">{isSnowflakeMode ? "Hiver" : "Phase Menstruelle"}</span>
             </button>
 
           </div>
