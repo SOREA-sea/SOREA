@@ -432,38 +432,54 @@ const active = localStorage.getItem('sorea_has_notification') === 'true' || loca
     const currentSelected = selectedQuotidienIds[selectedTodoDate] || [];
     const isAlreadySelected = currentSelected.includes(todo.id);
 
-    let updatedSelected;
-    if (isAlreadySelected) {
-      // Retirer de la Todo-List pour cette date
-      updatedSelected = currentSelected.filter(id => id !== todo.id);
-      setTodosByDate((prev) => {
-        const current = prev[selectedTodoDate] || [];
-        const next = current.filter(t => t.id !== todo.id);
-        const copy = { ...prev };
-        if (next.length) {
-          copy[selectedTodoDate] = next;
-        } else {
-          delete copy[selectedTodoDate];
-        }
-        return copy;
-      });
-    } else {
-      // Ajouter dans la Todo-List pour cette date
-      updatedSelected = [...currentSelected, todo.id];
-      setTodosByDate((prev) => {
-        const current = prev[selectedTodoDate] || [];
-        if (current.some(t => t.id === todo.id)) return prev;
-        return {
-          ...prev,
-          [selectedTodoDate]: [...current, { ...todo, completed: false }]
-        };
-      });
-    }
+    // Générer toutes les clés de date à partir de selectedTodoDate (ou aujourd'hui) sur une large période (ex: 2 ans futurs)
+    const startDate = new Date(selectedTodoDate);
+    startDate.setHours(0, 0, 0, 0);
 
-    setSelectedQuotidienIds(prev => ({
-      ...prev,
-      [selectedTodoDate]: updatedSelected
-    }));
+    setSelectedQuotidienIds((prev) => {
+      const copy = { ...prev };
+      // On parcourt les 730 prochains jours (2 ans) pour propager ou retirer la tâche
+      for (let i = 0; i < 730; i++) {
+        const d = new Date(startDate);
+        d.setDate(startDate.getDate() + i);
+        const dKey = new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().split('T')[0];
+        
+        const daySelected = copy[dKey] || [];
+        if (isAlreadySelected) {
+          copy[dKey] = daySelected.filter(id => id !== todo.id);
+          if (copy[dKey].length === 0) delete copy[dKey];
+        } else {
+          if (!daySelected.includes(todo.id)) {
+            copy[dKey] = [...daySelected, todo.id];
+          }
+        }
+      }
+      return copy;
+    });
+
+    setTodosByDate((prev) => {
+      const copy = { ...prev };
+      for (let i = 0; i < 730; i++) {
+        const d = new Date(startDate);
+        d.setDate(startDate.getDate() + i);
+        const dKey = new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().split('T')[0];
+        
+        const currentList = copy[dKey] || [];
+        if (isAlreadySelected) {
+          const next = currentList.filter(t => t.id !== todo.id);
+          if (next.length) {
+            copy[dKey] = next;
+          } else {
+            delete copy[dKey];
+          }
+        } else {
+          if (!currentList.some(t => t.id === todo.id)) {
+            copy[dKey] = [...currentList, { ...todo, completed: false }];
+          }
+        }
+      }
+      return copy;
+    });
   };
 
   const toggleTodo = (todoId: string) => {
@@ -1062,8 +1078,39 @@ return (
             </div>
 
             <div className="space-y-3 max-h-[360px] overflow-y-auto pr-2 custom-scrollbar">
-              {((todoModalTab === 'todo' ? todosByDate[selectedTodoDate] : quotidienTodos) ?? []).length > 0 ? (
-                ((todoModalTab === 'todo' ? todosByDate[selectedTodoDate] : quotidienTodos) ?? []).map((todo) => {
+              {(() => {
+                let currentItems = [];
+                if (todoModalTab === 'todo') {
+                  const manualTodos = (todosByDate[selectedTodoDate] || []).filter(t => !t.id.startsWith('q-'));
+                  const activeQuotIds = selectedQuotidienIds[selectedTodoDate] || [];
+                  const quotTodosForDate = quotidienTodos.filter(q => activeQuotIds.includes(q.id));
+                  // Synchroniser l'état 'completed' des tâches quotidiennes depuis quotidienTodos global
+                  const syncedQuotTodos = quotTodosForDate.map(q => {
+                    const foundInDate = (todosByDate[selectedTodoDate] || []).find(t => t.id === q.id);
+                    return foundInDate ? { ...q, completed: foundInDate.completed } : q;
+                  });
+                  currentItems = [...manualTodos, ...syncedQuotTodos];
+                } else {
+                  currentItems = quotidienTodos;
+                }
+                return currentItems;
+              })().length > 0 ? (
+                (() => {
+                  let currentItems = [];
+                  if (todoModalTab === 'todo') {
+                    const manualTodos = (todosByDate[selectedTodoDate] || []).filter(t => !t.id.startsWith('q-'));
+                    const activeQuotIds = selectedQuotidienIds[selectedTodoDate] || [];
+                    const quotTodosForDate = quotidienTodos.filter(q => activeQuotIds.includes(q.id));
+                    const syncedQuotTodos = quotTodosForDate.map(q => {
+                      const foundInDate = (todosByDate[selectedTodoDate] || []).find(t => t.id === q.id);
+                      return foundInDate ? { ...q, completed: foundInDate.completed } : q;
+                    });
+                    currentItems = [...manualTodos, ...syncedQuotTodos];
+                  } else {
+                    currentItems = quotidienTodos;
+                  }
+                  return currentItems;
+                })().map((todo) => {
                   const isQuotidienTab = todoModalTab === 'quotidien';
                   const isQuotidienSelected = isQuotidienTab && (selectedQuotidienIds[selectedTodoDate] || []).includes(todo.id);
                   const isQuotidienInTodo = !isQuotidienTab && todo.id.startsWith('q-');
