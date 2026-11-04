@@ -586,16 +586,16 @@ const active = localStorage.getItem('sorea_has_notification') === 'true' || loca
   };
 
   const getPhaseForDate = (date: Date) => {
-    if (!profile) return null;
+    // Si aucun profil n'est chargé, on se base par défaut sur un cycle standard de 28 jours et 5 jours de règles
+    const cLength = profile?.cycleLength || 28;
+    const pLength = profile?.periodLength || 5;
     
-    let cLength = profile.cycleLength || 28;
-    const pLength = profile.periodLength || 5;
-    
-    let refDateStr = profile.lastPeriodStartDate;
+    let refDateStr = profile?.lastPeriodStartDate;
     if (!refDateStr && cycleInfo?.refDate) {
       refDateStr = cycleInfo.refDate;
     }
 
+    // Si aucune date de référence n'est disponible, on utilise la date du jour ou une référence par défaut
     if (!refDateStr) return null;
 
     const ref = new Date(refDateStr);
@@ -606,14 +606,27 @@ const active = localStorage.getItem('sorea_has_notification') === 'true' || loca
     const diffTime = target.getTime() - ref.getTime();
     const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
 
-    // Calcul modulo gérant correctement les dates antérieures et postérieures à la référence
+    // Calcul modulo dynamique s'appuyant sur la longueur réelle du cycle (28j par défaut)
     const currentDay = (((diffDays % cLength) + cLength) % cLength) + 1;
 
+    // 1. Phase Menstruelle (Hiver) : basée sur la durée des règles
     if (currentDay <= pLength) return "Hiver";
-    const ovStart = cLength - 14;
-    const ovEnd = cLength - 12;
-    if (currentDay < ovStart) return "Printemps";
-    if (currentDay >= ovStart && currentDay <= ovEnd) return "Été";
+
+    // 2. Phase Ovulatoire (Été) : fixée autour de l'ovulation (généralement 14 jours avant la fin du cycle)
+    const ovulationDay = cLength - 14;
+    const ovStart = Math.max(pLength + 1, ovulationDay - 1);
+    const ovEnd = Math.min(cLength - 2, ovulationDay + 1);
+
+    if (currentDay >= ovStart && currentDay <= ovEnd) {
+      return "Été";
+    }
+
+    // 3. Phase Pré-Ovulatoire / Folliculaire (Printemps) : entre la fin des règles et l'ovulation
+    if (currentDay < ovStart) {
+      return "Printemps";
+    }
+
+    // 4. Phase Prémenstruelle / Lutéale (Automne) : après l'ovulation jusqu'à la fin du cycle
     return "Automne";
   };
 
@@ -866,7 +879,7 @@ return (
               <div className="w-6 h-6 shrink-0 flex items-center justify-center">
                 <img src={phaseIcons["Printemps"]} alt="Printemps" className="w-full h-full object-contain" />
               </div>
-              <span className="font-semibold">Phase Pré-Ovulatoire</span>
+              <span className="font-semibold">Phase Folliculaire</span>
             </button>
 
             {/* Phase Prémenstruelle (Automne) */}
@@ -882,7 +895,7 @@ return (
               <div className="w-6 h-6 shrink-0 flex items-center justify-center">
                 <img src={phaseIcons["Automne"]} alt="Automne" className="w-full h-full object-contain" />
               </div>
-              <span className="font-semibold">Phase Prémenstruelle</span>
+              <span className="font-semibold">Phase Lutéale</span>
             </button>
 
             {/* Phase Ovulatoire (Été) */}
@@ -1636,10 +1649,26 @@ return (
               {/* ONGLET 3 : À RECTIFIER ! */}
               {symptomTab === 'rectifier' && (
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <button type="button" className="p-4 rounded-2xl border border-gray-300 bg-white hover:border-[#8B47FF] text-sm font-semibold text-gray-800 transition-all cursor-pointer shadow-sm text-center">
+                  <button 
+                    type="button" 
+                    disabled={currentSelectedPhase === 'Hiver'}
+                    className={`p-4 rounded-2xl border text-sm font-semibold transition-all text-center shadow-sm ${
+                      currentSelectedPhase === 'Hiver' 
+                        ? 'border-gray-200 bg-gray-50 text-gray-300 cursor select-none' 
+                        : 'border-gray-300 bg-white hover:border-[#8B47FF] text-gray-800 cursor-pointer'
+                    }`}
+                  >
                     J'ai mes règles !
                   </button>
-                  <button type="button" className="p-4 rounded-2xl border border-gray-300 bg-white hover:border-[#8B47FF] text-sm font-semibold text-gray-800 transition-all cursor-pointer shadow-sm text-center">
+                  <button 
+                    type="button" 
+                    disabled={currentSelectedPhase === 'Hiver'}
+                    className={`p-4 rounded-2xl border text-sm font-semibold transition-all text-center shadow-sm ${
+                      currentSelectedPhase === 'Hiver' 
+                        ? 'border-gray-200 bg-gray-50 text-gray-300 cursor select-none' 
+                        : 'border-gray-300 bg-white hover:border-[#8B47FF] text-gray-800 cursor-pointer'
+                    }`}
+                  >
                     Mes règles continuent
                   </button>
                   <button type="button" className="p-4 rounded-2xl border border-gray-300 bg-white hover:border-[#8B47FF] text-sm font-semibold text-gray-800 transition-all cursor-pointer shadow-sm text-center">
@@ -1937,14 +1966,9 @@ return (
                       Combien de jour durent vos règles ?
                     </label>
                     <div className="flex items-center justify-center">
-                      <input
-                        type="number"
-                        min="1"
-                        max="15"
-                        value={periodLengthForm}
-                        onChange={(e) => setPeriodLengthForm(parseInt(e.target.value) || 5)}
-                        className="w-16 h-12 border border-gray-400 rounded-lg bg-white text-black text-center font-bold text-base focus:border-[#8B47FF] outline-none shadow-sm"
-                      />
+                      <div className="w-16 h-12 border border-gray-400 rounded-lg bg-white text-black flex items-center justify-center font-bold text-base shadow-sm select-none pointer-events-none">
+                        {periodLengthForm}
+                      </div>
                     </div>
 
                     {/* Boutons "Je ne sais pas" et "C'est variable" */}
