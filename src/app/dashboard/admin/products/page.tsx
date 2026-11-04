@@ -218,16 +218,18 @@ export default function AdminProductsPage() {
             })}
           </div>
 
-          {/* Bouton d'action existant Nouveau produit */}
-          <button
-            onClick={() => { resetForm(); setShowForm(!showForm); }}
-            className="btn-primary flex items-center gap-2 shrink-0 cursor-pointer"
-          >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={showForm ? "M6 18L18 6M6 6l12 12" : "M12 4v16m8-8H4"} />
-            </svg>
-            {showForm ? "Fermer" : "Nouveau produit"}
-          </button>
+          {/* Le bouton Nouveau produit s'affiche uniquement sur l'onglet Shop */}
+          {activeTab === "Shop" && (
+            <button
+              onClick={() => { resetForm(); setShowForm(!showForm); }}
+              className="btn-primary flex items-center gap-2 shrink-0 cursor-pointer"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={showForm ? "M6 18L18 6M6 6l12 12" : "M12 4v16m8-8H4"} />
+              </svg>
+              {showForm ? "Fermer" : "Nouveau produit"}
+            </button>
+          )}
         </div>
       </header>
 
@@ -241,8 +243,48 @@ export default function AdminProductsPage() {
         </div>
       )}
 
-      {/* Create / Edit form */}
-      {showForm && (
+      {/* CONTENU CONDITIONNEL SELON L'ONGLET ACTIF */}
+      {activeTab === "Jeux" && (
+        <div className="flex items-center justify-center gap-[50px] py-16">
+          {/* Appareil photo SVG */}
+          <div className="w-40 h-40 flex items-center justify-center transition-transform hover:scale-105 duration-300">
+            <img
+              src="/image_Design-SOREA/Appareil_photo.svg"
+              alt="Appareil photo"
+              className="w-full h-full object-contain filter drop-shadow-sm"
+            />
+          </div>
+
+          {/* Miroir 3D SVG */}
+          <div className="w-50 h-50 flex items-center justify-center transition-transform hover:scale-105 duration-300">
+            <img
+              src="/image_Design-SOREA/miroir.svg"
+              alt="Miroir"
+              className="w-full h-full object-contain filter drop-shadow-sm"
+            />
+          </div>
+
+          {/* Fleur de Nénuphar PNG (Design Respiration) */}
+          <div className="w-52 h-52 flex items-center justify-center transition-transform hover:scale-105 duration-300">
+            <img
+              src="/image_Design-SOREA/Design_Respiration.png"
+              alt="Fleur de nénuphar respiration"
+              className="w-full h-full object-contain filter drop-shadow-sm"
+            />
+          </div>
+        </div>
+      )}
+
+      {activeTab === "Coaching" && (
+        <div className="glass-panel rounded-3xl p-12 text-center text-foreground/60 font-medium">
+          Section Coaching en cours de construction...
+        </div>
+      )}
+
+      {activeTab === "Shop" && (
+        <>
+          {/* Create / Edit form */}
+          {showForm && (
         <form onSubmit={handleSubmit} className="glass-panel rounded-3xl p-8 space-y-5">
           <h2 className="text-xl font-bold">
             {editingProduct ? `Modifier « ${editingProduct.name} »` : "Nouveau produit"}
@@ -428,6 +470,8 @@ export default function AdminProductsPage() {
             Ajouter le premier produit
           </button>
         </div>
+      )}
+        </>
       )}
     </div>
   );
