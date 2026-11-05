@@ -45,10 +45,32 @@ export default function AffirmationGallery({
     return [];
   });
 
+  const [boutiqueCards, setBoutiqueCards] = React.useState<AffirmationCard[]>(() => {
+    if (typeof window !== "undefined") {
+      const saved = localStorage.getItem("sorea_affirmations_boutique");
+      if (saved) return JSON.parse(saved);
+    }
+    return [];
+  });
+
   React.useEffect(() => {
     localStorage.setItem("sorea_affirmations", JSON.stringify(affirmations));
     localStorage.setItem("sorea_affirmations_trash", JSON.stringify(trash));
-  }, [affirmations, trash]);
+    localStorage.setItem("sorea_affirmations_boutique", JSON.stringify(boutiqueCards));
+  }, [affirmations, trash, boutiqueCards]);
+
+  React.useEffect(() => {
+    const handleStorageChange = () => {
+      const saved = localStorage.getItem("sorea_affirmations_boutique");
+      if (saved) setBoutiqueCards(JSON.parse(saved));
+    };
+    window.addEventListener("storage", handleStorageChange);
+    window.addEventListener("affirmationSentToBoutique", handleStorageChange);
+    return () => {
+      window.removeEventListener("storage", handleStorageChange);
+      window.removeEventListener("affirmationSentToBoutique", handleStorageChange);
+    };
+  }, []);
 
   const [internalIsOpen, setInternalIsOpen] = useState(false);
 
@@ -224,10 +246,17 @@ export default function AffirmationGallery({
                   </button>
                 </>
               ) : previewTab === "boutique" ? (
-                /* 🌟 POINT DE REPÈRE 3 : Contenu de l'aperçu Boutique */
-                <div className="col-span-2 py-6 text-center text-xs text-gray-400 italic">
-                  Aucun article dans la boutique pour le moment.
-                </div>
+                boutiqueCards.length === 0 ? (
+                  <div className="col-span-2 py-6 text-center text-xs text-gray-400 italic">
+                    Aucun article dans la boutique.
+                  </div>
+                ) : (
+                  boutiqueCards.slice(0, 4).map((card) => (
+                    <div key={card.id} className="aspect-square rounded-2xl overflow-hidden shadow-sm border border-purple-100 bg-purple-50 flex flex-col items-center justify-center p-3 text-center">
+                      <span className="text-xs font-bold text-purple-900">{card.title}</span>
+                    </div>
+                  ))
+                )
               ) : (
                 trash.length === 0 ? (
                   <p className="col-span-2 text-gray-400 text-xs py-4 italic text-center justify-center">La corbeille est vide.</p>
@@ -413,10 +442,18 @@ export default function AffirmationGallery({
                   </button>
                 </>
               ) : activeTab === "boutique" ? (
-                /* 🌟 POINT DE REPÈRE 5 : Contenu de la modale Boutique */
-                <div className="col-span-full py-12 text-center text-gray-500 text-sm italic">
-                  La boutique d'affirmations sera bientôt disponible.
-                </div>
+                boutiqueCards.length === 0 ? (
+                  <p className="text-gray-400 text-sm py-8 italic w-full text-center">La boutique est vide.</p>
+                ) : (
+                  boutiqueCards.map((card) => (
+                    <div key={card.id} className="w-48 h-48 rounded-2xl bg-purple-50 border border-purple-200 p-4 flex flex-col items-center justify-center text-center shadow-sm relative gap-2 mx-auto">
+                      <span className="text-sm font-bold text-purple-950">{card.title}</span>
+                      <span className="text-xs font-medium text-purple-800 italic line-clamp-3 whitespace-pre-line text-left w-full px-2">
+                        &quot;{card.text}&quot;
+                      </span>
+                    </div>
+                  ))
+                )
               ) : (
                 trash.length === 0 ? (
                   <p className="text-gray-400 text-sm py-8 italic w-full text-center">La corbeille est vide.</p>
