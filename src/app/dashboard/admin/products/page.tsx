@@ -535,12 +535,20 @@ export default function AdminProductsPage() {
                     <div key={card.id} className="relative">
                       <div 
                         onClick={() => setActiveMenuId(activeMenuId === card.id ? null : card.id)}
-                        className="w-48 h-48 rounded-2xl bg-purple-50 border border-purple-200 p-4 flex flex-col items-center justify-center text-center shadow-sm cursor-pointer hover:bg-purple-100 transition-all relative gap-2 mx-auto"
+                        className="w-48 h-48 rounded-2xl bg-purple-50 border border-purple-200 p-4 flex flex-col items-center justify-between text-center shadow-sm cursor-pointer hover:bg-purple-100 transition-all relative mx-auto"
                       >
-                        <span className="text-sm font-bold text-purple-950">{card.title}</span>
-                        <span className="text-xs font-medium text-purple-800 italic line-clamp-3 whitespace-pre-line text-left w-full px-2">
-                          &quot;{card.text}&quot;
-                        </span>
+                        <div className="w-full"></div>
+                        <div className="flex flex-col items-center justify-center gap-1">
+                          <span className="text-sm font-bold text-purple-950">{card.title}</span>
+                          <span className="text-xs font-medium text-purple-800 italic line-clamp-3 whitespace-pre-line text-left w-full px-2">
+                            &quot;{card.text}&quot;
+                          </span>
+                        </div>
+                        <div className="w-full flex justify-end">
+                          <span className="text-xs font-semibold" style={{ color: "#7F6674" }}>
+                            {card.price ? card.price.toFixed(2) : "0.95"}€
+                          </span>
+                        </div>
                       </div>
 
                       {activeMenuId === card.id && (
