@@ -46,6 +46,19 @@ export default function AdminProductsPage() {
     return [];
   });
 
+  // États pour la corbeille de produits du Shop
+  const [productTrash, setProductTrash] = useState<ProductData[]>(() => {
+    if (typeof window !== "undefined") {
+      const saved = localStorage.getItem("sorea_admin_product_trash");
+      if (saved) return JSON.parse(saved);
+    }
+    return [];
+  });
+
+  useEffect(() => {
+    localStorage.setItem("sorea_admin_product_trash", JSON.stringify(productTrash));
+  }, [productTrash]);
+
   useEffect(() => {
     localStorage.setItem("sorea_admin_vente_affirmations", JSON.stringify(affirmations));
     localStorage.setItem("sorea_admin_vente_trash", JSON.stringify(trash));
@@ -171,7 +184,26 @@ export default function AdminProductsPage() {
     if (cardToDelete) {
       setTrash([...trash, cardToDelete]);
       setAffirmations(affirmations.filter(card => card.id !== id));
+
+      const existingBoutique = JSON.parse(localStorage.getItem("sorea_affirmations_boutique") || "[]");
+      const updatedBoutique = existingBoutique.filter((item: AffirmationCard) => item.id !== id);
+      localStorage.setItem("sorea_affirmations_boutique", JSON.stringify(updatedBoutique));
+      window.dispatchEvent(new Event("affirmationSentToBoutique"));
     }
+    setActiveMenuId(null);
+  };
+
+  const restoreAffirmationCard = (id: string) => {
+    const cardToRestore = trash.find(card => card.id === id);
+    if (cardToRestore) {
+      setAffirmations([...affirmations, cardToRestore]);
+      setTrash(trash.filter(card => card.id !== id));
+    }
+    setActiveMenuId(null);
+  };
+
+  const permanentDeleteAffirmationCard = (id: string) => {
+    setTrash(trash.filter(card => card.id !== id));
     setActiveMenuId(null);
   };
 
@@ -262,6 +294,26 @@ export default function AdminProductsPage() {
   };
 
   const deleteProduct = async (productId: number, productName: string) => {
+    const productToTrash = products.find(p => p.id === productId);
+    if (productToTrash) {
+      setProductTrash([...productTrash, productToTrash]);
+      setProducts((prev) => prev.filter((p) => p.id !== productId));
+      setMessage({ type: "success", text: `"${productName}" a été déplacé dans la corbeille` });
+      setTimeout(() => setMessage(null), 3000);
+    }
+  };
+
+  const restoreProduct = (productId: number) => {
+    const productToRestore = productTrash.find(p => p.id === productId);
+    if (productToRestore) {
+      setProducts([...products, productToRestore]);
+      setProductTrash(productTrash.filter(p => p.id !== productId));
+      setMessage({ type: "success", text: "Produit restauré avec succès" });
+      setTimeout(() => setMessage(null), 3000);
+    }
+  };
+
+  const permanentDeleteProduct = async (productId: number, productName: string) => {
     if (!confirm(`Supprimer définitivement "${productName}" ?`)) return;
 
     setActionLoading(productId);
@@ -270,8 +322,8 @@ export default function AdminProductsPage() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
 
-      setProducts((prev) => prev.filter((p) => p.id !== productId));
-      setMessage({ type: "success", text: "Produit supprimé" });
+      setProductTrash((prev) => prev.filter((p) => p.id !== productId));
+      setMessage({ type: "success", text: "Produit supprimé définitivement" });
       setTimeout(() => setMessage(null), 3000);
     } catch (err: any) {
       setMessage({ type: "error", text: err.message });
@@ -532,8 +584,33 @@ export default function AdminProductsPage() {
                   <p className="text-gray-400 text-sm py-8 italic col-span-full text-center">La corbeille est vide.</p>
                 ) : (
                   trash.map((card) => (
-                    <div key={card.id} className="w-48 h-48 mx-auto rounded-2xl bg-gray-50 border border-gray-200 p-4 flex items-center justify-center text-center text-sm font-medium text-gray-600 shadow-sm">
-                      &quot;{card.text}&quot;
+                    <div key={card.id} className="relative">
+                      <div 
+                        onClick={() => setActiveMenuId(activeMenuId === card.id ? null : card.id)}
+                        className="w-48 h-48 mx-auto rounded-2xl bg-gray-50 border border-gray-200 p-4 flex items-center justify-center text-center text-sm font-medium text-gray-600 shadow-sm cursor-pointer hover:bg-gray-100 transition-all relative"
+                      >
+                        &quot;{card.text}&quot;
+                      </div>
+
+                      {activeMenuId === card.id && (
+                        <div 
+                          onClick={(e) => e.stopPropagation()}
+                          className="absolute top-2 right-2 bg-white rounded-xl shadow-xl border border-gray-200 p-2 flex flex-col gap-1 z-20 w-40"
+                        >
+                          <button 
+                            onClick={() => restoreAffirmationCard(card.id)}
+                            className="flex items-center gap-2 text-xs font-semibold text-purple-700 hover:bg-purple-50 p-2 rounded-lg transition-colors text-left cursor-pointer"
+                          >
+                            Restaurer
+                          </button>
+                          <button 
+                            onClick={() => permanentDeleteAffirmationCard(card.id)}
+                            className="flex items-center gap-2 text-xs font-semibold text-red-600 hover:bg-red-50 p-2 rounded-lg transition-colors text-left cursor-pointer"
+                          >
+                            🗑️ Supprimer définitivement
+                          </button>
+                        </div>
+                      )}
                     </div>
                   ))
                 )
@@ -552,6 +629,25 @@ export default function AdminProductsPage() {
 
       {activeTab === "Shop" && (
         <>
+          <div className="flex gap-6 text-sm border-b border-purple-100 pb-2 mb-6">
+            <button 
+              type="button"
+              onClick={() => setActiveAffirmationTab("galerie")}
+              className={`font-bold pb-1 cursor-pointer transition-colors ${activeAffirmationTab === "galerie" ? "text-[#8B47FF] border-b-2 border-[#8B47FF]" : "text-gray-400 hover:text-gray-600"}`}
+            >
+              Catalogue ({products.length})
+            </button>
+            <button 
+              type="button"
+              onClick={() => setActiveAffirmationTab("corbeille")}
+              className={`font-bold pb-1 cursor-pointer transition-colors ${activeAffirmationTab === "corbeille" ? "text-[#8B47FF] border-b-2 border-[#8B47FF]" : "text-gray-400 hover:text-gray-600"}`}
+            >
+              Corbeille ({productTrash.length})
+            </button>
+          </div>
+
+          {activeAffirmationTab === "galerie" ? (
+            <>
           {showForm && (
             <form onSubmit={handleSubmit} className="glass-panel rounded-3xl p-8 space-y-5">
               <h2 className="text-xl font-bold">
@@ -737,6 +833,60 @@ export default function AdminProductsPage() {
               >
                 Ajouter le premier produit
               </button>
+            </div>
+          )}
+            </>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {productTrash.length === 0 ? (
+                <p className="text-gray-400 text-sm py-8 italic col-span-full text-center">La corbeille de la boutique est vide.</p>
+              ) : (
+                productTrash.map((product) => (
+                  <div
+                    key={product.id}
+                    className="glass-panel rounded-2xl p-5 transition-all opacity-75 border border-gray-200"
+                  >
+                    <div className="flex gap-4">
+                      <div className="w-20 h-20 rounded-xl overflow-hidden bg-white/60 shrink-0">
+                        <img
+                          src={product.imageUrl || "/images/product_1.webp"}
+                          alt={product.name}
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-start justify-between gap-2">
+                          <div>
+                            <p className="font-bold text-foreground truncate">{product.name}</p>
+                            <p className="text-purple-600 font-bold text-sm">{product.price} €</p>
+                          </div>
+                          <span className="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider shrink-0 bg-red-100 text-red-700">
+                            Supprimé
+                          </span>
+                        </div>
+                        <p className="text-foreground/50 text-xs mt-1 line-clamp-1">{product.description}</p>
+                      </div>
+                    </div>
+
+                    {/* Actions Corbeille */}
+                    <div className="flex items-center justify-end gap-3 mt-4 pt-3 border-t border-white/20">
+                      <button
+                        onClick={() => restoreProduct(product.id)}
+                        className="text-xs font-semibold text-purple-700 hover:bg-purple-50 px-3 py-1.5 rounded-lg transition-colors cursor-pointer"
+                      >
+                        Restaurer
+                      </button>
+                      <button
+                        onClick={() => permanentDeleteProduct(product.id, product.name)}
+                        disabled={actionLoading === product.id}
+                        className="text-xs font-semibold text-red-600 hover:bg-red-50 px-3 py-1.5 rounded-lg transition-colors cursor-pointer"
+                      >
+                        Supprimer définitivement
+                      </button>
+                    </div>
+                  </div>
+                ))
+              )}
             </div>
           )}
         </>
