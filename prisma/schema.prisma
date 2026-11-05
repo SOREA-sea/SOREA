@@ -44,8 +44,9 @@ model User {
   sessionReviews   SessionReview[]
   coachComments    CoachComment[]
   sessionComments  SessionComment[]
-  favoriteProducts FavoriteProduct[]
-  favoriteCoaches  FavoriteCoach[]
+  favoriteProducts     FavoriteProduct[]
+  gameFavoriteProducts GameFavoriteProduct[]
+  favoriteCoaches      FavoriteCoach[]
   favoriteSessions FavoriteSession[]
   menstrualProfile MenstrualProfile?
 
@@ -159,6 +160,21 @@ model ShopProduct {
   supplier         Supplier?         @relation(fields: [supplierId], references: [id], onDelete: Cascade)
 }
 
+model GameProduct {
+  id          Int      @id @default(autoincrement())
+  title       String   
+  text        String   
+  price       Float    @default(0.50)
+  type        String   
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  cartItems        GameCartItem[]
+  favoriteProducts GameFavoriteProduct[]
+  orderItems       GameOrderItem[]
+}
+
 model Supplier {
   id              Int      @id @default(autoincrement())
   userId          Int      @unique
@@ -267,8 +283,9 @@ model Cart {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  user  User       @relation(fields: [userId], references: [id], onDelete: Cascade)
-  items CartItem[]
+  user       User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  items      CartItem[]
+  gameItems  GameCartItem[]
 }
 
 model CartItem {
@@ -359,10 +376,11 @@ model Order {
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 
-  user     User        @relation(fields: [userId], references: [id], onDelete: Cascade)
-  supplier Supplier    @relation(fields: [supplierId], references: [id], onDelete: Cascade)
-  items    OrderItem[]
-  payment  Payment?
+  user       User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  supplier   Supplier        @relation(fields: [supplierId], references: [id], onDelete: Cascade)
+  items      OrderItem[]
+  gameItems  GameOrderItem[]
+  payment    Payment?
 }
 
 model OrderItem {
@@ -529,4 +547,38 @@ model HobbyItem {
   createdAt  DateTime @default(now())
 
   category HobbyCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+}
+
+model GameCartItem {
+  id        Int      @id @default(autoincrement())
+  cartId    Int
+  productId Int
+  quantity  Int      @default(1)
+  unitPrice Float
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  cart    Cart        @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  product GameProduct @relation(fields: [productId], references: [id], onDelete: Cascade)
+}
+
+model GameFavoriteProduct {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  productId Int
+  createdAt DateTime @default(now())
+
+  user    User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  product GameProduct @relation(fields: [productId], references: [id], onDelete: Cascade)
+}
+
+model GameOrderItem {
+  id        Int   @id @default(autoincrement())
+  orderId   Int
+  productId Int
+  quantity  Int
+  unitPrice Float
+
+  order   Order       @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product GameProduct @relation(fields: [productId], references: [id], onDelete: Cascade)
 }

@@ -21,6 +21,7 @@ interface AffirmationCard {
   id: string;
   title: string;
   text: string;
+  price?: number;
 }
 
 export default function AdminProductsPage() {
@@ -55,6 +56,7 @@ export default function AdminProductsPage() {
   const [isAddingAffirmation, setIsAddingAffirmation] = useState(false);
   const [currentAffirmationTitle, setCurrentAffirmationTitle] = useState("");
   const [currentAffirmationText, setCurrentAffirmationText] = useState("");
+  const [currentAffirmationPrice, setCurrentAffirmationPrice] = useState("0.95");
   const [editingAffirmationId, setEditingAffirmationId] = useState<string | null>(null);
   const [activeMenuId, setActiveMenuId] = useState<string | null>(null);
   
@@ -101,15 +103,22 @@ export default function AdminProductsPage() {
     e.preventDefault();
     if (!currentAffirmationTitle.trim() || !currentAffirmationText.trim()) return;
 
+    const priceNum = parseFloat(currentAffirmationPrice);
+    if (isNaN(priceNum) || priceNum < 0.50) {
+      alert("Le prix minimum est de 0,50 €");
+      return;
+    }
+
     if (editingAffirmationId) {
-      setAffirmations(affirmations.map(item => item.id === editingAffirmationId ? { ...item, title: currentAffirmationTitle, text: currentAffirmationText } : item));
+      setAffirmations(affirmations.map(item => item.id === editingAffirmationId ? { ...item, title: currentAffirmationTitle, text: currentAffirmationText, price: priceNum } : item));
       setEditingAffirmationId(null);
     } else {
-      setAffirmations([...affirmations, { id: Date.now().toString(), title: currentAffirmationTitle, text: currentAffirmationText }]);
+      setAffirmations([...affirmations, { id: Date.now().toString(), title: currentAffirmationTitle, text: currentAffirmationText, price: priceNum }]);
     }
 
     setCurrentAffirmationTitle("");
     setCurrentAffirmationText("");
+    setCurrentAffirmationPrice("0.95");
     setIsAddingAffirmation(false);
   };
 
@@ -117,6 +126,7 @@ export default function AdminProductsPage() {
     setEditingAffirmationId(card.id);
     setCurrentAffirmationTitle(card.title || "");
     setCurrentAffirmationText(card.text);
+    setCurrentAffirmationPrice(card.price ? card.price.toString() : "0.95");
     setIsAddingAffirmation(true);
     setActiveMenuId(null);
   };
@@ -130,7 +140,7 @@ export default function AdminProductsPage() {
         body: JSON.stringify({
           name: card.title,
           description: card.text,
-          price: 19.99,
+          price: card.price || 0.50,
           stockQuantity: 10,
           imageUrl: "/images/product_1.webp"
         }),
@@ -413,17 +423,35 @@ export default function AdminProductsPage() {
 
             {isAddingAffirmation && (
               <form onSubmit={handleSaveAffirmation} className="bg-purple-50/80 p-6 rounded-2xl border border-purple-200 flex flex-col gap-4">
-                <h3 className="text-lg font-bold text-purple-950">
-                  {editingAffirmationId ? "Modifier ton affirmation" : "Créer ta nouvelle affirmation"}
-                </h3>
-                <input 
-                  type="text"
-                  value={currentAffirmationTitle}
-                  onChange={(e) => setCurrentAffirmationTitle(e.target.value)}
-                  placeholder="Titre de l'affirmation (ex: Mon abondance)..."
-                  className="w-full bg-white border border-purple-200 rounded-xl px-4 py-3 text-gray-800 focus:outline-none focus:ring-2 focus:ring-[#8B47FF]"
-                  autoFocus
-                />
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="flex flex-col gap-1.5">
+                    <label className="text-sm font-bold text-gray-900">Créer ta nouvelle affirmation</label>
+                    <input 
+                      type="text"
+                      value={currentAffirmationTitle}
+                      onChange={(e) => setCurrentAffirmationTitle(e.target.value)}
+                      placeholder="Titre de l'affirmaton (ex: Mon abondance)..."
+                      className="w-full bg-white border border-purple-200 rounded-xl px-4 py-3 text-gray-800 focus:outline-none focus:ring-2 focus:ring-[#8B47FF]"
+                      autoFocus
+                    />
+                  </div>
+                  <div className="flex flex-col gap-1.5">
+                    <label className="text-sm font-bold text-gray-900">Donne un prix (€)</label>
+                    <div className="relative flex items-center">
+                      <input 
+                        type="number"
+                        step="0.01"
+                        min="0.50"
+                        required
+                        value={currentAffirmationPrice}
+                        onChange={(e) => setCurrentAffirmationPrice(e.target.value)}
+                        placeholder="Prix de l'affirmation (ex: 0.95)"
+                        className="w-full bg-white border border-purple-200 rounded-xl px-4 py-3 pr-10 text-gray-800 focus:outline-none focus:ring-2 focus:ring-[#8B47FF]"
+                      />
+                    </div>
+                  </div>
+                </div>
+
                 <textarea 
                   value={currentAffirmationText}
                   onChange={(e) => setCurrentAffirmationText(e.target.value)}
