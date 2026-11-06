@@ -69,6 +69,14 @@ export default function VisualisationGallery({
     ];
   });
 
+  const [favoriteIds, setFavoriteIds] = useState<string[]>(() => {
+    if (typeof window !== "undefined") {
+      const saved = localStorage.getItem("sorea_visualisation_favorites");
+      if (saved) return JSON.parse(saved);
+    }
+    return [];
+  });
+
   const [trash, setTrash] = useState<VisualisationCard[]>(() => {
     if (typeof window !== "undefined") {
       const saved = localStorage.getItem("sorea_visualisation_trash");
@@ -76,6 +84,17 @@ export default function VisualisationGallery({
     }
     return [];
   });
+
+  const toggleFavorite = (id: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setFavoriteIds((prev) => {
+      const updated = prev.includes(id)
+        ? prev.filter((favId) => favId !== id)
+        : [...prev, id];
+      localStorage.setItem("sorea_visualisation_favorites", JSON.stringify(updated));
+      return updated;
+    });
+  };
 
   useEffect(() => {
     localStorage.setItem("sorea_visualisation_pellicules", JSON.stringify(pellicules));
@@ -272,11 +291,32 @@ export default function VisualisationGallery({
                     <div
                       key={card.id}
                       onClick={() => setIsOpen(true)}
-                      className="relative w-full h-40 flex flex-col items-center justify-start cursor-pointer hover:scale-105 transition-transform"
+                      className="relative w-full h-40 flex flex-col items-center justify-start cursor-pointer hover:scale-105 transition-transform group"
                     >
-                      <span className="text-xs font-bold text-purple-950 mb-1 text-center">
-                        {card.title}
-                      </span>
+                      <div className="flex items-center justify-center gap-1 mb-1">
+                        <span className="text-xs font-bold text-purple-950 text-center">
+                          {card.title}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={(e) => toggleFavorite(card.id, e)}
+                          className={`transition-opacity cursor-pointer ${
+                            favoriteIds.includes(card.id)
+                              ? "opacity-100"
+                              : "opacity-0 group-hover:opacity-100"
+                          }`}
+                        >
+                          <img
+                            src={
+                              favoriteIds.includes(card.id)
+                                ? "/image_icone/FavoritesYes.svg"
+                                : "/image_icone/FavoritesNo.svg"
+                            }
+                            alt="Favori"
+                            className="w-4 h-4 object-contain"
+                          />
+                        </button>
+                      </div>
 
                       {/* Illustration Pellicule.svg avec aperçu des images */}
                       <div className="relative w-full h-32 flex items-center justify-center">
@@ -678,10 +718,31 @@ export default function VisualisationGallery({
                         }
                         className="relative w-48 h-56 flex flex-col items-center justify-start cursor-pointer hover:scale-105 transition-transform group"
                       >
-                        {/* Titre au-dessus de la pellicule */}
-                        <span className="text-sm font-bold text-purple-950 mb-2 text-center z-10">
-                          {card.title}
-                        </span>
+                        {/* Titre au-dessus de la pellicule avec Icône Favori au survol */}
+                        <div className="flex items-center justify-center gap-1.5 mb-2 z-10">
+                          <span className="text-sm font-bold text-purple-950 text-center">
+                            {card.title}
+                          </span>
+                          <button
+                            type="button"
+                            onClick={(e) => toggleFavorite(card.id, e)}
+                            className={`transition-opacity cursor-pointer ${
+                              favoriteIds.includes(card.id)
+                                ? "opacity-100"
+                                : "opacity-0 group-hover:opacity-100"
+                            }`}
+                          >
+                            <img
+                              src={
+                                favoriteIds.includes(card.id)
+                                  ? "/image_icone/FavoritesYes.svg"
+                                  : "/image_icone/FavoritesNo.svg"
+                              }
+                              alt="Favori"
+                              className="w-5 h-5 object-contain"
+                            />
+                          </button>
+                        </div>
 
                         {/* Conteneur de la Pellicule SVG */}
                         <div className="relative w-full h-44 flex items-center justify-center">
