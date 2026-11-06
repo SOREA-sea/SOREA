@@ -46,6 +46,22 @@ export default function AdminProductsPage() {
     return [];
   });
 
+  // États pour la gestion des visualisations de la section Vente (Appareil photo)
+  const [visualisationCards, setVisualisationCards] = useState<any[]>(() => {
+    if (typeof window !== "undefined") {
+      const saved = localStorage.getItem("sorea_admin_vente_visualisations");
+      if (saved) return JSON.parse(saved);
+    }
+    return [];
+  });
+  const [visualisationTrash, setVisualisationTrash] = useState<any[]>(() => {
+    if (typeof window !== "undefined") {
+      const saved = localStorage.getItem("sorea_admin_vente_visualisation_trash");
+      if (saved) return JSON.parse(saved);
+    }
+    return [];
+  });
+
   // États pour la corbeille de produits du Shop
   const [productTrash, setProductTrash] = useState<ProductData[]>(() => {
     if (typeof window !== "undefined") {
@@ -62,16 +78,108 @@ export default function AdminProductsPage() {
   useEffect(() => {
     localStorage.setItem("sorea_admin_vente_affirmations", JSON.stringify(affirmations));
     localStorage.setItem("sorea_admin_vente_trash", JSON.stringify(trash));
-  }, [affirmations, trash]);
+    localStorage.setItem("sorea_admin_vente_visualisations", JSON.stringify(visualisationCards));
+    localStorage.setItem("sorea_admin_vente_visualisation_trash", JSON.stringify(visualisationTrash));
+  }, [affirmations, trash, visualisationCards, visualisationTrash]);
 
-  const [isAffirmationModalOpen, setIsAffirmationModalOpen] = useState(false);
-  const [activeAffirmationTab, setActiveAffirmationTab] = useState<"galerie" | "corbeille">("galerie");
-  const [isAddingAffirmation, setIsAddingAffirmation] = useState(false);
-  const [currentAffirmationTitle, setCurrentAffirmationTitle] = useState("");
-  const [currentAffirmationText, setCurrentAffirmationText] = useState("");
-  const [currentAffirmationPrice, setCurrentAffirmationPrice] = useState("0.95");
-  const [editingAffirmationId, setEditingAffirmationId] = useState<string | null>(null);
-  const [activeMenuId, setActiveMenuId] = useState<string | null>(null);
+  const [isVisualisationModalOpen, setIsVisualisationModalOpen] = useState(false);
+  const [activeVisualisationTab, setActiveVisualisationTab] = useState<"galerie" | "corbeille">("galerie");
+  const [isAddingVisualisation, setIsAddingVisualisation] = useState(false);
+  const [currentVisTitle, setCurrentVisTitle] = useState("");
+  const [currentVisImages, setCurrentVisImages] = useState<any[]>([]);
+  const [currentVisPrice, setCurrentVisPrice] = useState("0.95");
+  const [editingVisId, setEditingVisId] = useState<string | null>(null);
+  const [activeVisMenuId, setActiveVisMenuId] = useState<string | null>(null);
+
+  const handleSaveVisualisation = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!currentVisTitle.trim()) return;
+
+    const priceNum = parseFloat(currentVisPrice);
+    if (isNaN(priceNum) || priceNum < 0.50) {
+      alert("Le prix minimum est de 0,50 €");
+      return;
+    }
+
+    if (editingVisId) {
+      setVisualisationCards(
+        visualisationCards.map((item) =>
+          item.id === editingVisId
+            ? { ...item, title: currentVisTitle, price: priceNum }
+            : item
+        )
+      );
+      setEditingVisId(null);
+    } else {
+      setVisualisationCards([
+        ...visualisationCards,
+        {
+          id: Date.now().toString(),
+          title: currentVisTitle,
+          images: [{ url: "/image_photo/PelliculeAmitié.svg" }],
+          price: priceNum,
+        },
+      ]);
+    }
+
+    setCurrentVisTitle("");
+    setCurrentVisPrice("0.95");
+    setIsAddingVisualisation(false);
+  };
+
+  const startEditVisualisation = (card: any) => {
+    setEditingVisId(card.id);
+    setCurrentVisTitle(card.title || "");
+    setCurrentVisPrice(card.price ? card.price.toString() : "0.95");
+    setIsAddingVisualisation(true);
+    setActiveVisMenuId(null);
+  };
+
+  const sendVisualisationToShop = (card: any) => {
+    setActiveVisMenuId(null);
+    try {
+      const existingBoutique = JSON.parse(localStorage.getItem("sorea_visualisation_boutique") || "[]");
+      if (!existingBoutique.some((item: any) => item.id === card.id)) {
+        const updatedBoutique = [...existingBoutique, card];
+        localStorage.setItem("sorea_visualisation_boutique", JSON.stringify(updatedBoutique));
+        window.dispatchEvent(new Event("visualisationSentToBoutique"));
+      }
+
+      setIsVisualisationModalOpen(false);
+      setMessage({ type: "success", text: `"${card.title}" a été envoyé avec succès !` });
+      setTimeout(() => setMessage(null), 3000);
+    } catch (err: any) {
+      setMessage({ type: "error", text: err.message || "Erreur lors de l'envoi" });
+    }
+  };
+
+  const deleteVisualisationCard = (id: string) => {
+    const cardToDelete = visualisationCards.find(card => card.id === id);
+    if (cardToDelete) {
+      setVisualisationTrash([...visualisationTrash, cardToDelete]);
+      setVisualisationCards(visualisationCards.filter(card => card.id !== id));
+
+      const existingBoutique = JSON.parse(localStorage.getItem("sorea_visualisation_boutique") || "[]");
+      const updatedBoutique = existingBoutique.filter((item: any) => item.id !== id);
+      localStorage.setItem("sorea_visualisation_boutique", JSON.stringify(updatedBoutique));
+      window.dispatchEvent(new Event("visualisationSentToBoutique"));
+    }
+    setActiveVisMenuId(null);
+  };
+
+  const restoreVisualisationCard = (id: string) => {
+    const cardToRestore = visualisationTrash.find(card => card.id === id);
+    if (cardToRestore) {
+      setVisualisationCards([...visualisationCards, cardToRestore]);
+      setVisualisationTrash(visualisationTrash.filter(card => card.id !== id));
+    }
+    setActiveVisMenuId(null);
+  };
+
+  const permanentDeleteVisualisationCard = (id: string) => {
+    setVisualisationTrash(visualisationTrash.filter(card => card.id !== id));
+    setActiveVisMenuId(null);
+  };
   
   const [actionLoading, setActionLoading] = useState<number | null>(null);
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
@@ -111,6 +219,15 @@ export default function AdminProductsPage() {
     setEditingProduct(null);
     setShowForm(false);
   };
+
+  const [isAffirmationModalOpen, setIsAffirmationModalOpen] = useState(false);
+  const [activeAffirmationTab, setActiveAffirmationTab] = useState<"galerie" | "corbeille">("galerie");
+  const [isAddingAffirmation, setIsAddingAffirmation] = useState(false);
+  const [currentAffirmationTitle, setCurrentAffirmationTitle] = useState("");
+  const [currentAffirmationText, setCurrentAffirmationText] = useState("");
+  const [currentAffirmationPrice, setCurrentAffirmationPrice] = useState("0.95");
+  const [editingAffirmationId, setEditingAffirmationId] = useState<string | null>(null);
+  const [activeMenuId, setActiveMenuId] = useState<string | null>(null);
 
   const handleSaveAffirmation = (e: React.FormEvent) => {
     e.preventDefault();
@@ -178,7 +295,6 @@ export default function AdminProductsPage() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Erreur lors de l'envoi");
 
-      // Sauvegarde locale pour l'onglet Boutique de la galerie d'affirmations
       const existingBoutique = JSON.parse(localStorage.getItem("sorea_affirmations_boutique") || "[]");
       if (!existingBoutique.some((item: AffirmationCard) => item.id === card.id)) {
         const updatedBoutique = [...existingBoutique, card];
@@ -422,8 +538,12 @@ export default function AdminProductsPage() {
       {/* CONTENU CONDITIONNEL SELON L'ONGLET ACTIF */}
       {activeTab === "Jeux" && (
         <div className="flex items-center justify-center gap-[50px] py-16">
-          {/* Appareil photo SVG */}
-          <div className="w-40 h-40 flex items-center justify-center transition-transform hover:scale-105 duration-300">
+          {/* Appareil photo SVG cliquable */}
+          <div 
+            onClick={() => setIsVisualisationModalOpen(true)}
+            className="w-40 h-40 flex items-center justify-center transition-transform hover:scale-105 duration-300 cursor-pointer"
+            title="Personnaliser les visualisations"
+          >
             <img
               src="/image_Design-SOREA/Appareil_photo.svg"
               alt="Appareil photo"
@@ -632,6 +752,204 @@ export default function AdminProductsPage() {
                           </button>
                           <button 
                             onClick={() => permanentDeleteAffirmationCard(card.id)}
+                            className="flex items-center gap-2 text-xs font-semibold text-red-600 hover:bg-red-50 p-2 rounded-lg transition-colors text-left cursor-pointer"
+                          >
+                            🗑️ Supprimer définitivement
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  ))
+                )
+              )}
+            </div>
+
+          </div>
+        </div>
+      )}
+
+      {/* MODALE DE GESTION DES VISUALISATIONS (S'ouvre au clic sur l'appareil photo) */}
+      {isVisualisationModalOpen && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+          <div className="bg-white w-full max-w-4xl shadow-2xl border border-purple-100 flex flex-col gap-6 relative max-h-[90vh] overflow-y-auto rounded-3xl p-8">
+            
+            <div className="flex items-center justify-between border-b border-purple-100 pb-4">
+              <div>
+                <h2 className="text-2xl font-bold text-gray-900">Personnalise tes Pellicules de Visualisation</h2>
+                <p className="text-xs text-foreground/60 mt-1">Clique sur une pellicule pour l'envoyer dans la Boutique ou la modifier.</p>
+              </div>
+              <button 
+                onClick={() => setIsVisualisationModalOpen(false)}
+                className="p-2 rounded-full hover:bg-gray-100 transition-colors text-gray-500 hover:text-gray-900 cursor-pointer"
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className="flex gap-6 text-sm border-b border-purple-100 pb-2">
+              <button 
+                type="button"
+                onClick={() => setActiveVisualisationTab("galerie")}
+                className={`font-bold pb-1 cursor-pointer transition-colors ${activeVisualisationTab === "galerie" ? "text-[#8B47FF] border-b-2 border-[#8B47FF]" : "text-gray-400 hover:text-gray-600"}`}
+              >
+                Vente
+              </button>
+              <button 
+                type="button"
+                onClick={() => setActiveVisualisationTab("corbeille")}
+                className={`font-bold pb-1 cursor-pointer transition-colors ${activeVisualisationTab === "corbeille" ? "text-[#8B47FF] border-b-2 border-[#8B47FF]" : "text-gray-400 hover:text-gray-600"}`}
+              >
+                Corbeille
+              </button>
+            </div>
+
+            {isAddingVisualisation && (
+              <form onSubmit={handleSaveVisualisation} className="bg-purple-50/80 p-6 rounded-2xl border border-purple-200 flex flex-col gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="flex flex-col gap-1.5">
+                    <label className="text-sm font-bold text-gray-900">Titre de la pellicule</label>
+                    <input 
+                      type="text"
+                      value={currentVisTitle}
+                      onChange={(e) => setCurrentVisTitle(e.target.value)}
+                      placeholder="Titre de la pellicule (ex: Voyage de rêve)..."
+                      className="w-full bg-white border border-purple-200 rounded-xl px-4 py-3 text-gray-800 focus:outline-none focus:ring-2 focus:ring-[#8B47FF]"
+                      autoFocus
+                    />
+                  </div>
+                  <div className="flex flex-col gap-1.5">
+                    <label className="text-sm font-bold text-gray-900">Donne un prix (€)</label>
+                    <input 
+                      type="number"
+                      step="0.01"
+                      min="0.50"
+                      required
+                      value={currentVisPrice}
+                      onChange={(e) => setCurrentVisPrice(e.target.value)}
+                      placeholder="Prix (ex: 0.95)"
+                      className="w-full bg-white border border-purple-200 rounded-xl px-4 py-3 text-gray-800 focus:outline-none focus:ring-2 focus:ring-[#8B47FF]"
+                    />
+                  </div>
+                </div>
+                <div className="flex justify-end gap-3">
+                  <button 
+                    type="button" 
+                    onClick={() => setIsAddingVisualisation(false)}
+                    className="px-5 py-2 rounded-xl text-gray-600 hover:bg-gray-200 font-semibold transition-colors cursor-pointer"
+                  >
+                    Annuler
+                  </button>
+                  <button 
+                    type="submit"
+                    className="bg-[#8B47FF] text-white px-6 py-2 rounded-xl font-bold shadow-md hover:bg-[#7535e6] transition-colors cursor-pointer"
+                  >
+                    {editingVisId ? "Mettre à jour" : "Ajouter"}
+                  </button>
+                </div>
+              </form>
+            )}
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 w-full">
+              {activeVisualisationTab === "galerie" ? (
+                <>
+                  {visualisationCards.map((card) => (
+                    <div key={card.id} className="relative">
+                      <div 
+                        onClick={() => setActiveVisMenuId(activeVisMenuId === card.id ? null : card.id)}
+                        className="relative w-48 h-56 flex flex-col items-center justify-start cursor-pointer hover:scale-105 transition-transform group mx-auto"
+                      >
+                        <span className="text-sm font-bold text-purple-950 mb-2 text-center z-10">
+                          {card.title}
+                        </span>
+                        <div className="relative w-full h-44 flex items-center justify-center">
+                          <img
+                            src="/image_Design-SOREA/Pellicule.svg"
+                            alt="Pellicule support"
+                            className="absolute inset-0 w-full h-full object-contain z-10 drop-shadow-md"
+                          />
+                          <div className="relative z-20 w-[60%] h-[68%] overflow-hidden flex items-center justify-center">
+                            {card.images && card.images.length > 0 ? (
+                              <img
+                                src={typeof card.images[0] === "string" ? card.images[0] : card.images[0].url}
+                                alt={card.title}
+                                className="w-full h-full object-contain"
+                              />
+                            ) : (
+                              <div className="w-full h-full bg-purple-100/60 flex items-center justify-center text-[10px] text-purple-400 font-semibold">
+                                Vide
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                        <div className="w-full flex justify-end mt-1 px-2">
+                          <span className="text-xs font-semibold" style={{ color: "#7F6674" }}>
+                            {card.price ? card.price.toFixed(2) : "0.95"}€
+                          </span>
+                        </div>
+                      </div>
+
+                      {activeVisMenuId === card.id && (
+                        <div 
+                          onClick={(e) => e.stopPropagation()}
+                          className="absolute top-2 right-2 bg-white rounded-xl shadow-xl border border-purple-100 p-2 flex flex-col gap-1 z-20 w-40"
+                        >
+                          <button 
+                            onClick={() => sendVisualisationToShop(card)}
+                            className="flex items-center gap-2 text-xs font-semibold text-[#8B47FF] hover:bg-purple-50 p-2 rounded-lg transition-colors text-left cursor-pointer"
+                          >
+                            📤 Envoyer
+                          </button>
+                          <button 
+                            onClick={() => startEditVisualisation(card)}
+                            className="flex items-center gap-2 text-xs font-semibold text-gray-700 hover:text-[#8B47FF] hover:bg-purple-50 p-2 rounded-lg transition-colors text-left cursor-pointer"
+                          >
+                            ✏️ Modifier
+                          </button>
+                          <button 
+                            onClick={() => deleteVisualisationCard(card.id)}
+                            className="flex items-center gap-2 text-xs font-semibold text-red-600 hover:bg-red-50 p-2 rounded-lg transition-colors text-left cursor-pointer"
+                          >
+                            🗑️ Supprimer
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+
+                  <button 
+                    onClick={() => { setIsAddingVisualisation(true); setEditingVisId(null); setCurrentVisTitle(""); setCurrentVisPrice("0.95"); }}
+                    className="w-48 h-48 mx-auto rounded-2xl border-2 border-dashed border-purple-300 bg-[#FAF5FF] hover:bg-purple-50 transition-colors flex flex-col items-center justify-center text-purple-400 gap-2 cursor-pointer shadow-sm"
+                  >
+                    <span className="text-3xl">+</span>
+                    <span className="text-xs font-bold">Ajouter</span>
+                  </button>
+                </>
+              ) : (
+                visualisationTrash.length === 0 ? (
+                  <p className="text-gray-400 text-sm py-8 italic col-span-full text-center">La corbeille est vide.</p>
+                ) : (
+                  visualisationTrash.map((card) => (
+                    <div key={card.id} className="relative">
+                      <div 
+                        onClick={() => setActiveVisMenuId(activeVisMenuId === card.id ? null : card.id)}
+                        className="w-48 h-48 mx-auto rounded-2xl bg-gray-50 border border-gray-200 p-4 flex items-center justify-center text-center text-sm font-medium text-gray-600 shadow-sm cursor-pointer hover:bg-gray-100 transition-all relative"
+                      >
+                        {card.title}
+                      </div>
+
+                      {activeVisMenuId === card.id && (
+                        <div 
+                          onClick={(e) => e.stopPropagation()}
+                          className="absolute top-2 right-2 bg-white rounded-xl shadow-xl border border-gray-200 p-2 flex flex-col gap-1 z-20 w-40"
+                        >
+                          <button 
+                            onClick={() => restoreVisualisationCard(card.id)}
+                            className="flex items-center gap-2 text-xs font-semibold text-purple-700 hover:bg-purple-50 p-2 rounded-lg transition-colors text-left cursor-pointer"
+                          >
+                            Restaurer
+                          </button>
+                          <button 
+                            onClick={() => permanentDeleteVisualisationCard(card.id)}
                             className="flex items-center gap-2 text-xs font-semibold text-red-600 hover:bg-red-50 p-2 rounded-lg transition-colors text-left cursor-pointer"
                           >
                             🗑️ Supprimer définitivement

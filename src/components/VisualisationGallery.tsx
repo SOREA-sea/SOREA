@@ -85,6 +85,31 @@ export default function VisualisationGallery({
     return [];
   });
 
+  const [boutiqueCards, setBoutiqueCards] = useState<any[]>(() => {
+    if (typeof window !== "undefined") {
+      const saved = localStorage.getItem("sorea_visualisation_boutique");
+      if (saved) return JSON.parse(saved);
+    }
+    return [];
+  });
+
+  useEffect(() => {
+    localStorage.setItem("sorea_visualisation_boutique", JSON.stringify(boutiqueCards));
+  }, [boutiqueCards]);
+
+  useEffect(() => {
+    const handleStorageChange = () => {
+      const saved = localStorage.getItem("sorea_visualisation_boutique");
+      if (saved) setBoutiqueCards(JSON.parse(saved));
+    };
+    window.addEventListener("storage", handleStorageChange);
+    window.addEventListener("visualisationSentToBoutique", handleStorageChange);
+    return () => {
+      window.removeEventListener("storage", handleStorageChange);
+      window.removeEventListener("visualisationSentToBoutique", handleStorageChange);
+    };
+  }, []);
+
   const toggleFavorite = (id: string, e: React.MouseEvent) => {
     e.stopPropagation();
     setFavoriteIds((prev) => {
@@ -355,9 +380,17 @@ export default function VisualisationGallery({
                   </button>
                 </>
               ) : previewTab === "boutique" ? (
-                <div className="col-span-2 py-6 text-center text-xs text-gray-400 italic">
-                  Aucun thème dans la boutique pour le moment.
-                </div>
+                boutiqueCards.length === 0 ? (
+                  <div className="col-span-2 py-6 text-center text-xs text-gray-400 italic">
+                    Aucun thème dans la boutique pour le moment.
+                  </div>
+                ) : (
+                  boutiqueCards.slice(0, 4).map((card) => (
+                    <div key={card.id} className="aspect-square rounded-2xl overflow-hidden shadow-sm border border-purple-100 bg-purple-50 flex flex-col items-center justify-center p-3 text-center">
+                      <span className="text-xs font-bold text-purple-900">{card.title}</span>
+                    </div>
+                  ))
+                )
               ) : trash.length === 0 ? (
                 <p className="col-span-2 text-gray-400 text-xs py-4 italic text-center justify-center">
                   La corbeille est vide.
@@ -821,9 +854,23 @@ export default function VisualisationGallery({
                   </button>
                 </>
               ) : activeTab === "boutique" ? (
-                <div className="col-span-full py-12 text-center text-gray-500 text-sm italic">
-                  La boutique des visualisations sera bientôt disponible.
-                </div>
+                boutiqueCards.length === 0 ? (
+                  <div className="col-span-full py-12 text-center text-gray-500 text-sm italic">
+                    La boutique des visualisations sera bientôt disponible.
+                  </div>
+                ) : (
+                  boutiqueCards.map((card: any) => (
+                    <div key={card.id} className="w-48 h-48 rounded-2xl bg-purple-50 border border-purple-200 p-4 flex flex-col items-center justify-between text-center shadow-sm relative mx-auto">
+                      <div className="w-full"></div>
+                      <span className="text-sm font-bold text-purple-950">{card.title}</span>
+                      <div className="w-full flex justify-end">
+                        <span className="text-xs font-semibold" style={{ color: "#7F6674" }}>
+                          {card.price ? card.price.toFixed(2) : "0.95"}€
+                        </span>
+                      </div>
+                    </div>
+                  ))
+                )
               ) : trash.length === 0 ? (
                 <p className="col-span-full py-12 text-center txt-gray-500 text-sm italic">
                   La corbeille est vide.
