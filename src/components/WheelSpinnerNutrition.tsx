@@ -587,6 +587,9 @@ export default function WheelSpinnerNutrition({ mode = "default" }: WheelSpinner
   const handleToggleFavori = () => {
     setFavoriWheel("nutrition" as WheelCategory);
     setIsFavori(true);
+    if (typeof window !== "undefined") {
+      window.dispatchEvent(new Event("favoriChange"));
+    }
   };
 
   const basculerTheme = () => {

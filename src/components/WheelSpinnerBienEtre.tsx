@@ -585,6 +585,9 @@ export default function WheelSpinnerBienEtre({ mode = "default" }: WheelSpinnerB
   const handleToggleFavori = () => {
     setFavoriWheel("bien-etre" as WheelCategory);
     setIsFavori(true);
+    if (typeof window !== "undefined") {
+      window.dispatchEvent(new Event("favoriChange"));
+    }
   };
 
   const basculerTheme = () => {

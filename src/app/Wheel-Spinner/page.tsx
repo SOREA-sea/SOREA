@@ -5,6 +5,7 @@ import Link from "next/link";
 import Navbar from '@/components/Navbar';
 import Footer from "@/components/Footer";
 import DailyEncouragement from "@/components/DailyEncouragement";
+import { getFavoriWheel, WheelCategory } from "@/lib/favorites-store";
 
 export default function RouteDesDefis() {
   const [showInstructions, setShowInstructions] = useState(true);
@@ -12,10 +13,13 @@ export default function RouteDesDefis() {
   const [themeBienEtre, setThemeBienEtre] = useState<'clair' | 'vibrant'>('clair');
   const [themeSport, setThemeSport] = useState<'clair' | 'vibrant'>('clair');
   const [themeNutrition, setThemeNutrition] = useState<'clair' | 'vibrant'>('clair');
+  const [favoriWheel, setFavoriWheelState] = useState<WheelCategory | null>(null);
 
   useEffect(() => {
-    // Charger le thème initial au montage de la page
     if (typeof window !== 'undefined') {
+      // Charger le favori au démarrage
+      setFavoriWheelState(getFavoriWheel());
+
       const savedBienEtre = localStorage.getItem('soreaThemeActif_BienEtre') as 'clair' | 'vibrant';
       if (savedBienEtre) setThemeBienEtre(savedBienEtre);
 
@@ -41,14 +45,22 @@ export default function RouteDesDefis() {
         if (updated) setThemeNutrition(updated);
       };
 
+      const handleFavoriChange = () => {
+        setFavoriWheelState(getFavoriWheel());
+      };
+
       window.addEventListener('themeChange_BienEtre', handleThemeChangeBienEtre);
       window.addEventListener('themeChange_Sport', handleThemeChangeSport);
       window.addEventListener('themeChange_Nutrition', handleThemeChangeNutrition);
+      window.addEventListener('favoriChange', handleFavoriChange);
+      window.addEventListener('storage', handleFavoriChange);
       
       return () => {
         window.removeEventListener('themeChange_BienEtre', handleThemeChangeBienEtre);
         window.removeEventListener('themeChange_Sport', handleThemeChangeSport);
         window.removeEventListener('themeChange_Nutrition', handleThemeChangeNutrition);
+        window.removeEventListener('favoriChange', handleFavoriChange);
+        window.removeEventListener('storage', handleFavoriChange);
       };
     }
   }, []);
@@ -110,8 +122,15 @@ export default function RouteDesDefis() {
           {/* SPORT */}
                <Link 
                   href="/Wheel-Spinner/Sport"
-                  className="flex flex-col items-center justify-center p-8 w-[300px] h-[260px] cursor-pointer hover:-translate-y-1 transition-all duration-300 bg-[#B7F8F5]"
+                  className="relative flex flex-col items-center justify-center p-8 w-[300px] h-[260px] cursor-pointer hover:-translate-y-1 transition-all duration-300 bg-[#B7F8F5]"
                 >
+                  {favoriWheel === "sport" && (
+                    <img 
+                      src="/image_icone/favorites.svg" 
+                      alt="Favori" 
+                      className="absolute top-4 right-4 w-6 h-6 object-contain" 
+                    />
+                  )}
                   <h2 className="text-3xl font-bold text-center text-[#5A37AC] pb-5">Sport</h2>
                   <img src={themeSport === 'vibrant' ? "/image_Design-SOREA/image_Wheel-Spinner/WS_Sport2.svg" : "/image_Design-SOREA/image_Wheel-Spinner/WS_Sport1.svg"} alt="Wheel-Spinner Sport" className="mb-4 transition-all duration-300" />
                   <span className="text-sm text-gray-500 text-center">Bouge et dépense-toi</span>
@@ -120,8 +139,15 @@ export default function RouteDesDefis() {
          {/* BIEN-ÊTRE */}
                 <Link 
                   href="/Wheel-Spinner/BienEtre"
-                  className="flex flex-col items-center justify-center p-8 w-[300px] h-[260px] cursor-pointer hover:-translate-y-1 transition-all duration-300 bg-[#C0ACFF]"
+                  className="relative flex flex-col items-center justify-center p-8 w-[300px] h-[260px] cursor-pointer hover:-translate-y-1 transition-all duration-300 bg-[#C0ACFF]"
                 >
+                  {favoriWheel === "bien-etre" && (
+                    <img 
+                      src="/image_icone/favorites.svg" 
+                      alt="Favori" 
+                      className="absolute top-4 right-4 w-6 h-6 object-contain" 
+                    />
+                  )}
                   <h2 className="text-3xl font-bold text-center text-[#5A37AC] pb-5">Bien-être</h2>
                   <img src={themeBienEtre === 'vibrant' ? "/image_Design-SOREA/image_Wheel-Spinner/WS_Bien-être2.svg" : "/image_Design-SOREA/image_Wheel-Spinner/WS_Bien-être1.svg"} 
                     alt="Wheel-Spinner Bien-être" 
@@ -133,8 +159,15 @@ export default function RouteDesDefis() {
           {/* NUTRITION */}
                 <Link 
                   href="/Wheel-Spinner/Nutrition"
-                  className="flex flex-col items-center justify-center p-8 w-[300px] h-[260px] cursor-pointer hover:-translate-y-1 transition-all duration-300 bg-[#F4C4E4]"
+                  className="relative flex flex-col items-center justify-center p-8 w-[300px] h-[260px] cursor-pointer hover:-translate-y-1 transition-all duration-300 bg-[#F4C4E4]"
                 >
+                  {favoriWheel === "nutrition" && (
+                    <img 
+                      src="/image_icone/favorites.svg" 
+                      alt="Favori" 
+                      className="absolute top-4 right-4 w-6 h-6 object-contain" 
+                    />
+                  )}
                   <h2 className="text-3xl font-bold text-center text-[#5A37AC] pb-5">Nutrition</h2>
                   <img src={themeNutrition === 'vibrant' ? "/image_Design-SOREA/image_Wheel-Spinner/WS_Nutrition2.svg" : "/image_Design-SOREA/image_Wheel-Spinner/WS_Nutrition1.svg"} alt="Wheel-Spinner Nutrition" className="mb-4 transition-all duration-300" />
                   <span className="text-sm text-gray-500 text-center">Défis sains et gourmands</span>

@@ -588,6 +588,9 @@ export default function WheelSpinnerSport({ mode = "default" }: WheelSpinnerSpor
   const handleToggleFavori = () => {
     setFavoriWheel("sport" as WheelCategory);
     setIsFavori(true);
+    if (typeof window !== "undefined") {
+      window.dispatchEvent(new Event("favoriChange"));
+    }
   };
 
   const basculerTheme = () => {
