@@ -144,6 +144,23 @@ export default function AdminProductsPage() {
     setActiveMenuId(null);
   };
 
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      const target = e.currentTarget;
+      const start = target.selectionStart;
+      const end = target.selectionEnd;
+      
+      const newValue = currentAffirmationText.substring(0, start) + "\n✓ " + currentAffirmationText.substring(end);
+      setCurrentAffirmationText(newValue);
+
+      setTimeout(() => {
+        target.selectionStart = target.selectionEnd = start + 3;
+        target.scrollTop = target.scrollHeight;
+      }, 0);
+    }
+  };
+
   const sendToShop = async (card: AffirmationCard) => {
     setActiveMenuId(null);
     try {
@@ -506,9 +523,11 @@ export default function AdminProductsPage() {
 
                 <textarea 
                   value={currentAffirmationText}
+                  onFocus={() => { if (!currentAffirmationText) setCurrentAffirmationText("✓ "); }}
+                  onKeyDown={handleKeyDown}
                   onChange={(e) => setCurrentAffirmationText(e.target.value)}
-                  placeholder="Entrez vos affirmations..."
-                  className="w-full bg-white border border-purple-200 rounded-xl px-4 py-3 text-gray-800 focus:outline-none focus:ring-2 focus:ring-[#8B47FF] h-28 resize-none whitespace-pre-line"
+                  placeholder="Entrez vos affirmations... (Appuyez sur Entrée pour passer à la ligne)"
+                  className="w-full bg-white border border-purple-200 rounded-xl px-4 py-3 text-gray-800 focus:outline-none focus:ring-2 focus:ring-[#8B47FF] h-28 resize-none whitespace-pre-line overflow-y-auto"
                 />
                 <div className="flex justify-end gap-3">
                   <button 

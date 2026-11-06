@@ -7,6 +7,7 @@ interface AffirmationCard {
   id: string;
   title: string;
   text: string;
+  price?: number;
 }
 
 interface AffirmationGalleryProps {
@@ -445,12 +446,20 @@ export default function AffirmationGallery({
                 boutiqueCards.length === 0 ? (
                   <p className="text-gray-400 text-sm py-8 italic w-full text-center">La boutique est vide.</p>
                 ) : (
-                  boutiqueCards.map((card) => (
-                    <div key={card.id} className="w-48 h-48 rounded-2xl bg-purple-50 border border-purple-200 p-4 flex flex-col items-center justify-center text-center shadow-sm relative gap-2 mx-auto">
-                      <span className="text-sm font-bold text-purple-950">{card.title}</span>
-                      <span className="text-xs font-medium text-purple-800 italic line-clamp-3 whitespace-pre-line text-left w-full px-2">
-                        &quot;{card.text}&quot;
-                      </span>
+                  boutiqueCards.map((card: any) => (
+                    <div key={card.id} className="w-48 h-48 rounded-2xl bg-purple-50 border border-purple-200 p-4 flex flex-col items-center justify-between text-center shadow-sm relative mx-auto">
+                      <div className="w-full"></div>
+                      <div className="flex flex-col items-center justify-center gap-1">
+                        <span className="text-sm font-bold text-purple-950">{card.title}</span>
+                        <span className="text-xs font-medium text-purple-800 italic line-clamp-3 whitespace-pre-line text-left w-full px-2">
+                          &quot;{card.text}&quot;
+                        </span>
+                      </div>
+                      <div className="w-full flex justify-end">
+                        <span className="text-xs font-semibold" style={{ color: "#7F6674" }}>
+                          {card.price ? card.price.toFixed(2) : "0.95"}€
+                        </span>
+                      </div>
                     </div>
                   ))
                 )

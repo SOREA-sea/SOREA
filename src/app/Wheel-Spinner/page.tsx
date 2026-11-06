@@ -71,7 +71,7 @@ export default function RouteDesDefis() {
       <main className="flex-1 w-full flex flex-col items-center py-10 ">
         <div className="w-full max-w-[1440px] mx-auto flex flex-col items-center">
 
-          <h1 className="text-4xl font-bold text-center mb-30 mt-5">
+          <h1 className="text-4xl font-bold text-center mb-16 mt-5">
             Relève tes défis bien-être avec SOREA
           </h1>
 
@@ -105,39 +105,39 @@ export default function RouteDesDefis() {
 
           {/* MENU DE SÉLECTION OU AFFICHAGE DE LA ROUE */}
           <div className="relative z-10 w-full flex flex-col items-center">
-              <div className="flex gap-15 mt-5 w-full max-w-[1228px] justify-center">
+              <div className="flex gap-15 w-full max-w-[1228px] justify-center">
           
           {/* SPORT */}
                <Link 
                   href="/Wheel-Spinner/Sport"
-                  className="flex flex-col items-center justify-center p-8 rounded-3xl w-[300px] h-[250px] cursor-pointer hover:-translate-y-1 transition-all duration-300"
+                  className="flex flex-col items-center justify-center p-8 w-[300px] h-[260px] cursor-pointer hover:-translate-y-1 transition-all duration-300 bg-[#B7F8F5]"
                 >
                   <h2 className="text-3xl font-bold text-center text-[#5A37AC] pb-5">Sport</h2>
                   <img src={themeSport === 'vibrant' ? "/image_Design-SOREA/image_Wheel-Spinner/WS_Sport2.svg" : "/image_Design-SOREA/image_Wheel-Spinner/WS_Sport1.svg"} alt="Wheel-Spinner Sport" className="mb-4 transition-all duration-300" />
-                  <span className="text-sm text-gray-500 mt-2 text-center">Bouge et dépense-toi</span>
+                  <span className="text-sm text-gray-500 text-center">Bouge et dépense-toi</span>
                 </Link>
 
          {/* BIEN-ÊTRE */}
                 <Link 
                   href="/Wheel-Spinner/BienEtre"
-                  className="flex flex-col items-center justify-center p-8 w-[300px] h-[250px] cursor-pointer hover:-translate-y-1 transition-all duration-300"
+                  className="flex flex-col items-center justify-center p-8 w-[300px] h-[260px] cursor-pointer hover:-translate-y-1 transition-all duration-300 bg-[#C0ACFF]"
                 >
                   <h2 className="text-3xl font-bold text-center text-[#5A37AC] pb-5">Bien-être</h2>
                   <img src={themeBienEtre === 'vibrant' ? "/image_Design-SOREA/image_Wheel-Spinner/WS_Bien-être2.svg" : "/image_Design-SOREA/image_Wheel-Spinner/WS_Bien-être1.svg"} 
                     alt="Wheel-Spinner Bien-être" 
                     className="mb-4 transition-all duration-300" 
                   />
-                  <span className="text-sm text-gray-500 mt-2 text-center">Recentrage et positivité</span>
+                  <span className="text-sm text-gray-500 text-center">Recentrage et positivité</span>
                 </Link>
 
           {/* NUTRITION */}
                 <Link 
                   href="/Wheel-Spinner/Nutrition"
-                  className="flex flex-col items-center justify-center p-8 rounded-3xl w-[300px] h-[250px] cursor-pointer hover:-translate-y-1 transition-all duration-300"
+                  className="flex flex-col items-center justify-center p-8 w-[300px] h-[260px] cursor-pointer hover:-translate-y-1 transition-all duration-300 bg-[#F4C4E4]"
                 >
                   <h2 className="text-3xl font-bold text-center text-[#5A37AC] pb-5">Nutrition</h2>
                   <img src={themeNutrition === 'vibrant' ? "/image_Design-SOREA/image_Wheel-Spinner/WS_Nutrition2.svg" : "/image_Design-SOREA/image_Wheel-Spinner/WS_Nutrition1.svg"} alt="Wheel-Spinner Nutrition" className="mb-4 transition-all duration-300" />
-                  <span className="text-sm text-gray-500 mt-2 text-center">Défis sains et gourmands</span>
+                  <span className="text-sm text-gray-500 text-center">Défis sains et gourmands</span>
                 </Link>
 
               </div>

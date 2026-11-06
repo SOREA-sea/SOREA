@@ -7,19 +7,19 @@ import Footer from "@/components/Footer";
 import DailyEncouragement from "@/components/DailyEncouragement";
 import WheelSpinnerNutrition from "@/components/WheelSpinnerNutrition";
 
-// 🌟 1. Ajout des imports pour la gestion de la phase
+// 1. Ajout des imports pour la gestion de la phase
 import { fetchCurrentPhase } from "@/lib/cyclePhase";
 import { Phase } from "@/lib/affirmations";
 
 export default function PageNutrition() {
  const [showInstruction, setShowInstructionsNutrition] = useState(true);
- // 🌟 1. Ajout de l'état pour le mode actif
+ // 1. Ajout de l'état pour le mode actif
  const [activeMode, setActiveMode] = useState<"default" | "cycle">("default");
 
-// 🌟 2. Ajout de l'état pour stocker la phase actuelle du cycle
+// 2. Ajout de l'état pour stocker la phase actuelle du cycle
  const [currentPhase, setCurrentPhase] = useState<Phase>("Printemps");
 
- // 🌟 3. Récupération de la phase au chargement de la page
+ // 3. Récupération de la phase au chargement de la page
  useEffect(() => {
    fetchCurrentPhase().then(setCurrentPhase);
  }, []);
@@ -93,7 +93,7 @@ const hideInstructionsNutrition = () => {
                             <h1 className="text-3xl md:text-5xl font-serif font-light text-[#212121] tracking-wider whitespace-nowrap leading-tight">
                               Défis<br />Nutrition
                             </h1>
-                            {/* 🌟 4. Affichage dynamique de la phase si le mode "cycle" est actif */}
+                            {/* 4. Affichage dynamique de la phase si le mode "cycle" est actif */}
                             {activeMode === "cycle" && (
                               <h2 className="text-4xl font-semibold text-[#7F4DC5] italic">
                                 {currentPhase}
@@ -125,7 +125,7 @@ const hideInstructionsNutrition = () => {
                           </div>
                         </div>
 
-                        {/* 🌟 Transmission du mode à la roue nutritionnelle */}
+                        {/* Transmission du mode à la roue nutritionnelle */}
                         <WheelSpinnerNutrition mode={activeMode} />
                       </div>
           </div>
