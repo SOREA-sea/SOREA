@@ -21,8 +21,10 @@ export default function NouvellePage() {
   // État du mode d'affirmation sélectionné ('default' par défaut)
   const [activeMode, setActiveMode] = useState<"default" | "cycle" | "custom">("default");
 
+  
   const [activeCustomCard, setActiveCustomCard] = useState<any>(null);
   const [customIndex, setCustomIndex] = useState<number>(0);
+  const [profile, setProfile] = useState<any>(null);
 
   // État pour gérer la lecture / pause du bouton central
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
@@ -117,7 +119,7 @@ export default function NouvellePage() {
     }
   };
 
-  // Charger le compteur du jour + la liste des affirmations déjà vues aujourd'hui
+  // Charger le profil menstruel et les données du jour
   useEffect(() => {
     const today = new Date().toISOString().split("T")[0];
     const storedCount = localStorage.getItem(`sorea_affirmations_${today}`);
@@ -130,6 +132,19 @@ export default function NouvellePage() {
     }
     // Détermine la phase réelle du cycle (remplace la phase codée en dur)
     fetchCurrentPhase().then(setCurrentPhase);
+
+    // Chargement du profil pour connaître son statut actif/inactif
+    const fetchProfile = async () => {
+      try {
+        const res = await fetch("/api/menstrual-profile");
+        if (!res.ok) return;
+        const data = await res.json();
+        setProfile(data.profile);
+      } catch (e) {
+        console.error("Erreur lors du chargement du profil menstruel", e);
+      }
+    };
+    fetchProfile();
   }, []);
 
   useEffect(() => {
@@ -181,7 +196,7 @@ export default function NouvellePage() {
       let chosenText = "";
       let chosenId = "";
 
-      if (activeMode === "default") {
+      if (activeMode === "default" || (activeMode === "cycle" && !profile?.isActive)) {
         const chosen = pickDefaultAffirmation(usedAffirmationIds);
         chosenText = chosen.text;
         chosenId = chosen.id;
@@ -431,7 +446,7 @@ export default function NouvellePage() {
         setCustomIndex(0);
         setIsPlaying(false);
       }}
-      className={`flex-1 h-full flex items-center justify-center text-xs font-medium transition-colors border-r border-[#9b6fd9] cursor-pointer text-center px-1 ${
+      className={`flex-1 h-full flex items-center justify-center text-xs font-medium transition-colors border-r border-[#9b6fd9] cursor-pointer text-center px-1 bg-white ${
         activeMode === "cycle" ? "bg-purple-100 text-[#7F4DC5] font-bold" : "text-gray-800 hover:bg-purple-50"
       }`}
     >
