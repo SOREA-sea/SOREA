@@ -46,6 +46,25 @@ export default function AffirmationGallery({
     return [];
   });
 
+  const [favoriteIds, setFavoriteIds] = useState<string[]>(() => {
+    if (typeof window !== "undefined") {
+      const saved = localStorage.getItem("sorea_affirmations_favorites");
+      if (saved) return JSON.parse(saved);
+    }
+    return [];
+  });
+
+  const toggleFavorite = (id: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setFavoriteIds((prev) => {
+      const updated = prev.includes(id)
+        ? prev.filter((favId) => favId !== id)
+        : [...prev, id];
+      localStorage.setItem("sorea_affirmations_favorites", JSON.stringify(updated));
+      return updated;
+    });
+  };
+
   const [boutiqueCards, setBoutiqueCards] = React.useState<AffirmationCard[]>(() => {
     if (typeof window !== "undefined") {
       const saved = localStorage.getItem("sorea_affirmations_boutique");
@@ -232,9 +251,30 @@ export default function AffirmationGallery({
                     return (
                       <div 
                         key={card.id} 
-                        className="aspect-square rounded-2xl overflow-hidden shadow-sm border border-purple-100 bg-purple-50 flex flex-col items-center justify-center p-3 text-center"
+                        className="aspect-square rounded-2xl overflow-hidden shadow-sm border border-purple-100 bg-purple-50 flex flex-col items-center justify-center p-3 text-center relative group"
                       >
-                        <span className="text-xs font-bold text-purple-900">{card.title}</span>
+                        <div className="flex items-center justify-center gap-1">
+                          <span className="text-xs font-bold text-purple-900">{card.title}</span>
+                          <button
+                            type="button"
+                            onClick={(e) => toggleFavorite(card.id, e)}
+                            className={`transition-opacity cursor-pointer ${
+                              favoriteIds.includes(card.id)
+                                ? "opacity-100"
+                                : "opacity-0 group-hover:opacity-100"
+                            }`}
+                          >
+                            <img
+                              src={
+                                favoriteIds.includes(card.id)
+                                  ? "/image_icone/FavoritesYes.svg"
+                                  : "/image_icone/FavoritesNo.svg"
+                              }
+                              alt="Favori"
+                              className="w-4 h-4 object-contain"
+                            />
+                          </button>
+                        </div>
                       </div>
                     );
                   })}
@@ -397,9 +437,30 @@ export default function AffirmationGallery({
                     >
                       <div 
                         onClick={() => setActiveMenuId(activeMenuId === card.id ? null : card.id)}
-                        className="w-48 h-48 rounded-2xl bg-purple-50 border border-purple-200 p-4 flex flex-col items-center justify-center text-center shadow-sm cursor-grab active:cursor-grabbing hover:bg-purple-100 transition-all relative gap-2"
+                        className="w-48 h-48 rounded-2xl bg-purple-50 border border-purple-200 p-4 flex flex-col items-center justify-center text-center shadow-sm cursor-grab active:cursor-grabbing hover:bg-purple-100 transition-all relative gap-2 group"
                       >
-                        <span className="text-sm font-bold text-purple-950">{card.title}</span>
+                        <div className="flex items-center justify-center gap-1.5">
+                          <span className="text-sm font-bold text-purple-950">{card.title}</span>
+                          <button
+                            type="button"
+                            onClick={(e) => toggleFavorite(card.id, e)}
+                            className={`transition-opacity cursor-pointer ${
+                              favoriteIds.includes(card.id)
+                                ? "opacity-100"
+                                : "opacity-0 group-hover:opacity-100"
+                            }`}
+                          >
+                            <img
+                              src={
+                                favoriteIds.includes(card.id)
+                                  ? "/image_icone/FavoritesYes.svg"
+                                  : "/image_icone/FavoritesNo.svg"
+                              }
+                              alt="Favori"
+                              className="w-5 h-5 object-contain"
+                            />
+                          </button>
+                        </div>
                         <span className="text-xs font-medium text-purple-800 italic line-clamp-3 whitespace-pre-line text-left w-full px-2">
                           &quot;{card.text}&quot;
                         </span>
@@ -447,10 +508,31 @@ export default function AffirmationGallery({
                   <p className="text-gray-400 text-sm py-8 italic w-full text-center">La boutique est vide.</p>
                 ) : (
                   boutiqueCards.map((card: any) => (
-                    <div key={card.id} className="w-48 h-48 rounded-2xl bg-purple-50 border border-purple-200 p-4 flex flex-col items-center justify-between text-center shadow-sm relative mx-auto">
+                    <div key={card.id} className="w-48 h-48 rounded-2xl bg-purple-50 border border-purple-200 p-4 flex flex-col items-center justify-between text-center shadow-sm relative mx-auto group">
                       <div className="w-full"></div>
-                      <div className="flex flex-col items-center justify-center gap-1">
-                        <span className="text-sm font-bold text-purple-950">{card.title}</span>
+                      <div className="flex flex-col items-center justify-center gap-1 w-full">
+                        <div className="flex items-center justify-center gap-1.5">
+                          <span className="text-sm font-bold text-purple-950">{card.title}</span>
+                          <button
+                            type="button"
+                            onClick={(e) => toggleFavorite(card.id, e)}
+                            className={`transition-opacity cursor-pointer ${
+                              favoriteIds.includes(card.id)
+                                ? "opacity-100"
+                                : "opacity-0 group-hover:opacity-100"
+                            }`}
+                          >
+                            <img
+                              src={
+                                favoriteIds.includes(card.id)
+                                  ? "/image_icone/FavoritesYes.svg"
+                                  : "/image_icone/FavoritesNo.svg"
+                              }
+                              alt="Favori"
+                              className="w-5 h-5 object-contain"
+                            />
+                          </button>
+                        </div>
                         <span className="text-xs font-medium text-purple-800 italic line-clamp-3 whitespace-pre-line text-left w-full px-2">
                           &quot;{card.text}&quot;
                         </span>
