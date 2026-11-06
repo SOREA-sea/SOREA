@@ -46,21 +46,25 @@ export default function AffirmationGallery({
     return [];
   });
 
-  const [favoriteIds, setFavoriteIds] = useState<string[]>(() => {
+  const [favoriteId, setFavoriteId] = useState<string | null>(() => {
     if (typeof window !== "undefined") {
       const saved = localStorage.getItem("sorea_affirmations_favorites");
-      if (saved) return JSON.parse(saved);
+      if (saved) {
+        // Compatibilité si l'ancien format était un tableau
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed)) return parsed[0] || null;
+        return parsed;
+      }
     }
-    return [];
+    return null;
   });
 
   const toggleFavorite = (id: string, e: React.MouseEvent) => {
     e.stopPropagation();
-    setFavoriteIds((prev) => {
-      const updated = prev.includes(id)
-        ? prev.filter((favId) => favId !== id)
-        : [...prev, id];
-      localStorage.setItem("sorea_affirmations_favorites", JSON.stringify(updated));
+    setFavoriteId((prev) => {
+      // Si on clique sur la carte déjà en favori, on l'enlève (null). Sinon, on met le nouvel ID (remplaçant l'ancien).
+      const updated = prev === id ? null : id;
+      localStorage.setItem("sorea_affirmations_favorites", JSON.stringify(updated ? [updated] : []));
       return updated;
     });
   };
@@ -259,19 +263,19 @@ export default function AffirmationGallery({
                             type="button"
                             onClick={(e) => toggleFavorite(card.id, e)}
                             className={`transition-opacity cursor-pointer ${
-                              favoriteIds.includes(card.id)
+                              favoriteId === card.id
                                 ? "opacity-100"
                                 : "opacity-0 group-hover:opacity-100"
                             }`}
                           >
                             <img
                               src={
-                                favoriteIds.includes(card.id)
+                                favoriteId === card.id
                                   ? "/image_icone/FavoritesYes.svg"
                                   : "/image_icone/FavoritesNo.svg"
                               }
                               alt="Favori"
-                              className="w-4 h-4 object-contain"
+                              className="w-5 h-5 object-contain"
                             />
                           </button>
                         </div>
@@ -445,14 +449,14 @@ export default function AffirmationGallery({
                             type="button"
                             onClick={(e) => toggleFavorite(card.id, e)}
                             className={`transition-opacity cursor-pointer ${
-                              favoriteIds.includes(card.id)
+                              favoriteId === card.id
                                 ? "opacity-100"
                                 : "opacity-0 group-hover:opacity-100"
                             }`}
                           >
                             <img
                               src={
-                                favoriteIds.includes(card.id)
+                                favoriteId === card.id
                                   ? "/image_icone/FavoritesYes.svg"
                                   : "/image_icone/FavoritesNo.svg"
                               }
@@ -517,14 +521,14 @@ export default function AffirmationGallery({
                             type="button"
                             onClick={(e) => toggleFavorite(card.id, e)}
                             className={`transition-opacity cursor-pointer ${
-                              favoriteIds.includes(card.id)
+                              favoriteId === card.id
                                 ? "opacity-100"
                                 : "opacity-0 group-hover:opacity-100"
                             }`}
                           >
                             <img
                               src={
-                                favoriteIds.includes(card.id)
+                                favoriteId === card.id
                                   ? "/image_icone/FavoritesYes.svg"
                                   : "/image_icone/FavoritesNo.svg"
                               }

@@ -21,7 +21,8 @@ export default function NouvellePage() {
   // État du mode d'affirmation sélectionné ('default' par défaut)
   const [activeMode, setActiveMode] = useState<"default" | "cycle" | "custom">("default");
 
-  
+  const [activeFavoriteCard, setActiveFavoriteCard] = useState<any>(null);
+  const [favoriteIndex, setFavoriteIndex] = useState<number>(0);
   const [activeCustomCard, setActiveCustomCard] = useState<any>(null);
   const [customIndex, setCustomIndex] = useState<number>(0);
   const [profile, setProfile] = useState<any>(null);
@@ -197,9 +198,40 @@ export default function NouvellePage() {
       let chosenId = "";
 
       if (activeMode === "default" || (activeMode === "cycle" && !profile?.isActive)) {
-        const chosen = pickDefaultAffirmation(usedAffirmationIds);
-        chosenText = chosen.text;
-        chosenId = chosen.id;
+        // Mode Favoris : récupérer les cartes en favoris depuis localStorage
+        const favIds: string[] = JSON.parse(localStorage.getItem("sorea_affirmations_favorites") || "[]");
+        const allCards: any[] = JSON.parse(localStorage.getItem("sorea_affirmations") || "[]");
+        const boutiqueCards: any[] = JSON.parse(localStorage.getItem("sorea_affirmations_boutique") || "[]");
+        
+        // Regrouper toutes les cartes (Galerie + Boutique)
+        const combined = [...allCards, ...boutiqueCards];
+        const favoriteCards = combined.filter((c) => favIds.includes(c.id));
+
+        if (favoriteCards.length > 0) {
+          const currentFavCard = favoriteCards[favoriteIndex % favoriteCards.length];
+          setActiveFavoriteCard(currentFavCard);
+          const lines = currentFavCard.text
+            .split("\n")
+            .map((l: string) => l.trim())
+            .filter((l: string) => l.length > 0);
+
+          const lineIdx = customIndex % lines.length;
+          chosenText = lines[lineIdx];
+          chosenId = `${currentFavCard.id}_${lineIdx}`;
+
+          // Si on arrive à la fin du texte de la carte courante, passer à la carte favorite suivante
+          if (lineIdx === lines.length - 1) {
+            setFavoriteIndex((prev) => prev + 1);
+            setCustomIndex(0);
+          } else {
+            setCustomIndex((prev) => prev + 1);
+          }
+        } else {
+          // Si aucun favori n'est sélectionné, repli sur l'affirmation par défaut
+          const chosen = pickDefaultAffirmation(usedAffirmationIds);
+          chosenText = chosen.text;
+          chosenId = chosen.id;
+        }
       } else if (activeMode === "custom" && activeCustomCard) {
         const lines = activeCustomCard.text
           .split("\n")
@@ -411,6 +443,11 @@ export default function NouvellePage() {
     <h1 className="text-3xl md:text-4xl font-serif font-light text-[#212121] tracking-wider whitespace-nowrap">
       Affirmation
     </h1>
+    {activeMode === "default" && activeFavoriteCard && (
+      <h2 className="text-4xl font-semibold text-[#7F4DC5] italic">
+        {activeFavoriteCard.title}
+      </h2>
+    )}
     {activeMode === "custom" && activeCustomCard && (
       <h2 className="text-4xl font-semibold text-[#7F4DC5] italic">
         {activeCustomCard.title}
@@ -430,13 +467,15 @@ export default function NouvellePage() {
         setActiveMode("default");
         setAffirmation("");
         setCustomIndex(0);
+        setFavoriteIndex(0);
+        setActiveFavoriteCard(null);
         setIsPlaying(false);
       }}
       className={`flex-1 h-full flex items-center justify-center text-xs font-medium transition-colors border-r border-[#9b6fd9] cursor-pointer text-center px-1 ${
         activeMode === "default" ? "bg-purple-100 text-[#7F4DC5] font-bold" : "text-gray-800 hover:bg-purple-50"
       }`}
     >
-      Par défaut
+      Favoris
     </button>
 
     <button 
