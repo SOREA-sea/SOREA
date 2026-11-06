@@ -492,7 +492,7 @@ const raisonsIndisponibilite = [
 // THÈMES DE COULEURS — couleurs Figma exactes
 // ============================================================================
 const THEMES = {
-  clair: {
+  pastel: {
     bgCarte: "var(--color-Blanc-Rose)",
     borderCarte: "var(--color-SOREA-R1)", //LED Rose
     bgBulle: "var(--color-Blanc-Rose)", // Cercle indicatif
@@ -508,7 +508,7 @@ const THEMES = {
     btnPrimary: "#725D6E",
     btnPrimaryHover: "#5d4b5a",
   },
-  vibrant: {
+  pop: {
     bgCarte: "var(--color-Blanc-Rose)",
     borderCarte: "var(--color-SOREA-R1)", //LED Rose
     bgBulle: "var(--color-Blanc-Rose)", // Cercle indicatif
@@ -540,11 +540,11 @@ export default function WheelSpinnerNutrition({ mode = "default" }: WheelSpinner
     fetchCurrentPhase().then(setCurrentPhase);
   }, []);
   
-    const [themeActif, setThemeActif] = useState<'clair' | 'vibrant'>(() => {
+    const [themeActif, setThemeActif] = useState<'pastel' | 'pop'>(() => {
       if (typeof window !== 'undefined') {
-        return localStorage.getItem('soreaThemeActif_Nutrition') as 'clair' | 'vibrant' || 'clair';
+        return localStorage.getItem('soreaThemeActif_Nutrition') as 'pastel' | 'pop' || 'pastel';
       }
-      return 'clair';
+      return 'pastel';
     });
 
 
@@ -593,7 +593,7 @@ export default function WheelSpinnerNutrition({ mode = "default" }: WheelSpinner
 
   const basculerTheme = () => {
     setThemeActif((prev) => {
-      const nouveauTheme = prev === 'clair' ? 'vibrant' : 'clair';
+      const nouveauTheme = prev === 'pastel' ? 'pop' : 'pastel';
 
       if (typeof window !== 'undefined') {
         localStorage.setItem('soreaThemeActif_Nutrition', nouveauTheme);
@@ -725,7 +725,9 @@ export default function WheelSpinnerNutrition({ mode = "default" }: WheelSpinner
                     alt="Palette de style" 
                     className="w-7 h-7 object-contain" 
                   />
-                  <span className="text-sm font-bold text-[#592592]">Style</span>
+                  <span className="text-sm font-bold text-[#592592]">
+                    {themeActif === 'pop' ? 'Pastel' : 'Pop'}
+                  </span>
                 </button>
 
               </div>

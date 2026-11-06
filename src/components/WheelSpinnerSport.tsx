@@ -728,7 +728,9 @@ return (
                     alt="Palette de style" 
                     className="w-7 h-7 object-contain" 
                   />
-                  <span className="text-sm font-bold text-[#592592]">Style</span>
+                  <span className="text-sm font-bold text-[#592592]">
+                    {themeActif === 'pop' ? 'Pastel' : 'Pop'}
+                  </span>
                 </button>
 
               </div>
