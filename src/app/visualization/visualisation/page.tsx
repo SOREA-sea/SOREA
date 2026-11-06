@@ -207,7 +207,7 @@ return (
                     : "text-gray-800 hover:bg-purple-50"
                 }`}
               >
-                Galerie
+               Album
               </button>
             </div>
           </div>

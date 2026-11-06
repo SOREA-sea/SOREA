@@ -464,6 +464,19 @@ export default function NouvellePage() {
   <div className="flex w-[350px] h-[55px] bg-white border border-[#9b6fd9] rounded-[10px] overflow-hidden shadow-sm">
     <button 
       onClick={() => {
+        setActiveMode("cycle");
+        setAffirmation("");
+        setCustomIndex(0);
+        setIsPlaying(false);
+      }}
+      className={`flex-1 h-full flex items-center justify-center text-xs font-medium transition-colors border-r border-[#9b6fd9] cursor-pointer text-center px-1 bg-white ${
+        activeMode === "cycle" ? "bg-purple-100 text-[#7F4DC5] font-bold" : "text-gray-800 hover:bg-purple-50"
+      }`}
+    >
+      {profile?.isActive ? "Cycles menstruels" : "Par défaut"}
+    </button>
+<button 
+      onClick={() => {
         setActiveMode("default");
         setAffirmation("");
         setCustomIndex(0);
@@ -477,21 +490,6 @@ export default function NouvellePage() {
     >
       Favoris
     </button>
-
-    <button 
-      onClick={() => {
-        setActiveMode("cycle");
-        setAffirmation("");
-        setCustomIndex(0);
-        setIsPlaying(false);
-      }}
-      className={`flex-1 h-full flex items-center justify-center text-xs font-medium transition-colors border-r border-[#9b6fd9] cursor-pointer text-center px-1 bg-white ${
-        activeMode === "cycle" ? "bg-purple-100 text-[#7F4DC5] font-bold" : "text-gray-800 hover:bg-purple-50"
-      }`}
-    >
-      {profile?.isActive ? "Cycles menstruels" : "Par défaut"}
-    </button>
-
     <button 
       onClick={() => {
         setActiveMode("custom");
@@ -504,7 +502,7 @@ export default function NouvellePage() {
         activeMode === "custom" ? "bg-purple-100 text-[#7F4DC5] font-bold" : "text-gray-800 hover:bg-purple-50"
       }`}
     >
-      Personnalisées
+      Galerie
     </button>
   </div>
 
