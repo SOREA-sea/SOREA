@@ -35,7 +35,17 @@ export default function DailyEncouragement() {
       className="relative w-full max-w-[1228px] h-[110px] mx-auto rounded-2xl overflow-hidden px-6 text-center bg-cover bg-center shadow-md transition-all duration-500 flex items-center justify-center"
       style={{ backgroundImage: `url('${currentItem.image}')` }}
     >
-      <p className={`relative z-10 text-xl font-bold text-white drop-shadow-sm ${currentItem.image.includes("Encouragement8.png") ? "bg-black/35 px-4 py-0 backdrop-blur-sm" : ""}`}>
+      <p 
+        className={`relative z-10 text-xl font-bold text-white drop-shadow-sm px-6 py-2 ${currentItem.image.includes("Encouragement8.png") || currentItem.image.includes("Encouragement11.png") ? "bg-black/40 backdrop-blur-sm" : ""}`}
+        style={
+          currentItem.image.includes("Encouragement8.png") || currentItem.image.includes("Encouragement11.png")
+            ? {
+                WebkitMaskImage: "linear-gradient(to right, rgba(0,0,0,0) 0%, rgba(0,0,0,1) 15%, rgba(0,0,0,1) 85%, rgba(0,0,0,0) 100%)",
+                maskImage: "linear-gradient(to right, rgba(0,0,0,0) 0%, rgba(0,0,0,1) 15%, rgba(0,0,0,1) 85%, rgba(0,0,0,0) 100%)",
+              }
+            : undefined
+        }
+      >
         {currentItem.message}
       </p>
     </section>

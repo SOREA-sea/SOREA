@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useRef, useState, useEffect } from "react";
-import { Star } from "lucide-react";
 import { getFavoriWheel, setFavoriWheel, WheelCategory } from "../lib/favorites-store";
 import { fetchCurrentPhase } from "../lib/cyclePhase";
 import { getCycleSportThemesForPhase } from "../lib/WheelCycleSport";
@@ -493,7 +492,7 @@ const raisonsIndisponibilite = [
 // THÈMES DE COULEURS — couleurs Figma exactes
 // ============================================================================
 const THEMES = {
-  clair: {
+  pastel: {
     bgCarte: "var(--color-Blanc-Violet)",
     borderCarte: "var(--color-SOREA-B1)", //LED 
     bgBulle: "var(--color-Blanc-Violet)", // Cercle indicatif
@@ -509,7 +508,7 @@ const THEMES = {
     btnPrimary: "var(--color-Gris1-SOREA)",
     btnPrimaryHover: "#5d4b5a",
   },
-  vibrant: {
+  pop: {
     bgCarte: "var(--color-Blanc-Violet)",
     borderCarte: "var(--color-SOREA-B1)", //LED
     bgBulle: "var(--color-Blanc-Violet)", // Cercle indicatif
@@ -536,18 +535,18 @@ export default function WheelSpinnerSport({ mode = "default" }: WheelSpinnerSpor
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   
-  // 🌟 État de la phase du cycle
+  // État de la phase du cycle
   const [currentPhase, setCurrentPhase] = useState<Phase>("Printemps");
 
   useEffect(() => {
     fetchCurrentPhase().then(setCurrentPhase);
   }, []);
 
-    const [themeActif, setThemeActif] = useState<'clair' | 'vibrant'>(() => {
+    const [themeActif, setThemeActif] = useState<'pastel' | 'pop'>(() => {
       if (typeof window !== 'undefined') {
-        return localStorage.getItem('soreaThemeActif_Sport') as 'clair' | 'vibrant' || 'clair';
+        return localStorage.getItem('soreaThemeActif_Sport') as 'pastel' | 'pop' || 'pastel';
       }
-      return 'clair';
+      return 'pastel';
     });
 
 
@@ -595,7 +594,7 @@ export default function WheelSpinnerSport({ mode = "default" }: WheelSpinnerSpor
 
   const basculerTheme = () => {
     setThemeActif((prev) => {
-      const nouveauTheme = prev === 'clair' ? 'vibrant' : 'clair';
+      const nouveauTheme = prev === 'pastel' ? 'pop' : 'pastel';
 
       if (typeof window !== 'undefined') {
         localStorage.setItem('soreaThemeActif_Sport', nouveauTheme);
@@ -707,7 +706,11 @@ return (
                   }}
                   className="flex items-center gap-3 w-full px-3.5 py-2.5 rounded-xl hover:bg-purple-50 transition-colors text-left cursor-pointer"
                 >
-                  <Star size={30} className={isFavori ? "fill-[#8B47FF] text-[#8B47FF]" : "text-purple-300"} />
+                  <img 
+                    src={isFavori ? "/image_icone/FavoritesYes.svg" : "/image_icone/FavoritesNo.svg"} 
+                    alt="Favori" 
+                    className="w-7 h-7 object-contain" 
+                  />
                   <span className="text-sm font-bold text-[#592592]">
                     {isFavori ? "Roue Favorite" : "Mettre en favori"}
                   </span>

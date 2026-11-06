@@ -126,7 +126,7 @@ export default function RouteDesDefis() {
                 >
                   {favoriWheel === "sport" && (
                     <img 
-                      src="/image_icone/favorites.svg" 
+                      src="/image_icone/FavoritesYes.svg" 
                       alt="Favori" 
                       className="absolute top-4 right-4 w-6 h-6 object-contain" 
                     />
@@ -143,7 +143,7 @@ export default function RouteDesDefis() {
                 >
                   {favoriWheel === "bien-etre" && (
                     <img 
-                      src="/image_icone/favorites.svg" 
+                      src="/image_icone/FavoritesYes.svg" 
                       alt="Favori" 
                       className="absolute top-4 right-4 w-6 h-6 object-contain" 
                     />
@@ -163,7 +163,7 @@ export default function RouteDesDefis() {
                 >
                   {favoriWheel === "nutrition" && (
                     <img 
-                      src="/image_icone/favorites.svg" 
+                      src="/image_icone/FavoritesYes.svg" 
                       alt="Favori" 
                       className="absolute top-4 right-4 w-6 h-6 object-contain" 
                     />

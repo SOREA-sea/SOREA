@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useRef, useState, useEffect } from "react";
-import { Star } from "lucide-react";
 import { getFavoriWheel, setFavoriWheel, WheelCategory } from "../lib/favorites-store";
 import { fetchCurrentPhase } from "../lib/cyclePhase";
 import { getCycleThemesForPhase } from "../lib/WheelCycleBienEtre";
@@ -702,7 +701,11 @@ export default function WheelSpinnerBienEtre({ mode = "default" }: WheelSpinnerB
                   }}
                   className="flex items-center gap-3 w-full px-3.5 py-2.5 rounded-xl hover:bg-purple-50 transition-colors text-left cursor-pointer"
                 >
-                  <Star size={30} className={isFavori ? "fill-[#8B47FF] text-[#8B47FF]" : "text-purple-300"} />
+                  <img 
+                    src={isFavori ? "/image_icone/FavoritesYes.svg" : "/image_icone/FavoritesNo.svg"} 
+                    alt="Favori" 
+                    className="w-7 h-7 object-contain" 
+                  />
                   <span className="text-sm font-bold text-[#592592]">
                     {isFavori ? "Roue Favorite" : "Mettre en favori"}
                   </span>
