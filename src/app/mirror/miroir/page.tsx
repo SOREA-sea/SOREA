@@ -416,7 +416,7 @@ export default function NouvellePage() {
         {activeCustomCard.title}
       </h2>
     )}
-    {activeMode === "cycle" && (
+    {activeMode === "cycle" && profile?.isActive && (
       <h2 className="text-4xl font-semibold text-[#7F4DC5] italic">
         {currentPhase}
       </h2>
@@ -450,7 +450,7 @@ export default function NouvellePage() {
         activeMode === "cycle" ? "bg-purple-100 text-[#7F4DC5] font-bold" : "text-gray-800 hover:bg-purple-50"
       }`}
     >
-      Cycles menstruels
+      {profile?.isActive ? "Cycles menstruels" : "Par défaut"}
     </button>
 
     <button 
