@@ -871,9 +871,14 @@ export default function AdminProductsPage() {
                         onClick={() => setActiveVisMenuId(activeVisMenuId === card.id ? null : card.id)}
                         className="relative w-48 h-56 flex flex-col items-center justify-start cursor-pointer hover:scale-105 transition-transform group mx-auto"
                       >
-                        <span className="text-sm font-bold text-purple-950 mb-2 text-center z-10">
-                          {card.title}
-                        </span>
+                        {/* Titre au-dessus de la pellicule */}
+                        <div className="flex items-center justify-center gap-1.5 mb-2 z-10">
+                          <span className="text-sm font-bold text-purple-950 text-center">
+                            {card.title}
+                          </span>
+                        </div>
+
+                        {/* Conteneur avec l'image SVG de Pellicule et l'aperçu */}
                         <div className="relative w-full h-44 flex items-center justify-center">
                           <img
                             src="/image_Design-SOREA/Pellicule.svg"
@@ -886,6 +891,13 @@ export default function AdminProductsPage() {
                                 src={typeof card.images[0] === "string" ? card.images[0] : card.images[0].url}
                                 alt={card.title}
                                 className="w-full h-full object-contain"
+                                style={
+                                  typeof card.images[0] !== "string" && card.images[0]?.transform
+                                    ? {
+                                        transform: `translate(${card.images[0].transform.x}px, ${card.images[0].transform.y}px) scale(${card.images[0].transform.scale})`,
+                                      }
+                                    : undefined
+                                }
                               />
                             ) : (
                               <div className="w-full h-full bg-purple-100/60 flex items-center justify-center text-[10px] text-purple-400 font-semibold">

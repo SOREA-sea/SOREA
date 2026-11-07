@@ -69,12 +69,16 @@ export default function VisualisationGallery({
     ];
   });
 
-  const [favoriteIds, setFavoriteIds] = useState<string[]>(() => {
+  const [favoriteId, setFavoriteId] = useState<string | null>(() => {
     if (typeof window !== "undefined") {
       const saved = localStorage.getItem("sorea_visualisation_favorites");
-      if (saved) return JSON.parse(saved);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed)) return parsed[0] || null;
+        return parsed;
+      }
     }
-    return [];
+    return null;
   });
 
   const [trash, setTrash] = useState<VisualisationCard[]>(() => {
@@ -112,10 +116,8 @@ export default function VisualisationGallery({
 
   const toggleFavorite = (id: string, e: React.MouseEvent) => {
     e.stopPropagation();
-    setFavoriteIds((prev) => {
-      const updated = prev.includes(id)
-        ? prev.filter((favId) => favId !== id)
-        : [...prev, id];
+    setFavoriteId((prev) => {
+      const updated = prev === id ? null : id;
       localStorage.setItem("sorea_visualisation_favorites", JSON.stringify(updated));
       return updated;
     });
@@ -326,14 +328,14 @@ export default function VisualisationGallery({
                           type="button"
                           onClick={(e) => toggleFavorite(card.id, e)}
                           className={`transition-opacity cursor-pointer ${
-                            favoriteIds.includes(card.id)
+                            favoriteId === card.id
                               ? "opacity-100"
                               : "opacity-0 group-hover:opacity-100"
                           }`}
                         >
                           <img
                             src={
-                              favoriteIds.includes(card.id)
+                              favoriteId === card.id
                                 ? "/image_icone/FavoritesYes.svg"
                                 : "/image_icone/FavoritesNo.svg"
                             }
@@ -760,14 +762,14 @@ export default function VisualisationGallery({
                             type="button"
                             onClick={(e) => toggleFavorite(card.id, e)}
                             className={`transition-opacity cursor-pointer ${
-                              favoriteIds.includes(card.id)
+                              favoriteId === card.id
                                 ? "opacity-100"
                                 : "opacity-0 group-hover:opacity-100"
                             }`}
                           >
                             <img
                               src={
-                                favoriteIds.includes(card.id)
+                                favoriteId === card.id
                                   ? "/image_icone/FavoritesYes.svg"
                                   : "/image_icone/FavoritesNo.svg"
                               }
@@ -860,10 +862,67 @@ export default function VisualisationGallery({
                   </div>
                 ) : (
                   boutiqueCards.map((card: any) => (
-                    <div key={card.id} className="w-48 h-48 rounded-2xl bg-purple-50 border border-purple-200 p-4 flex flex-col items-center justify-between text-center shadow-sm relative mx-auto">
-                      <div className="w-full"></div>
-                      <span className="text-sm font-bold text-purple-950">{card.title}</span>
-                      <div className="w-full flex justify-end">
+                    <div
+                      key={card.id}
+                      className="relative w-48 h-56 flex flex-col items-center justify-start cursor-pointer hover:scale-105 transition-transform group mx-auto"
+                    >
+                      {/* Titre au-dessus de la pellicule avec Icône Favori au survol */}
+                      <div className="flex items-center justify-center gap-1.5 mb-2 z-10">
+                        <span className="text-sm font-bold text-purple-950 text-center">
+                          {card.title}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={(e) => toggleFavorite(card.id, e)}
+                          className={`transition-opacity cursor-pointer ${
+                            favoriteId === card.id
+                                ? "opacity-100"
+                                : "opacity-0 group-hover:opacity-100"
+                          }`}
+                        >
+                          <img
+                            src={
+                              favoriteId === card.id
+                                ? "/image_icone/FavoritesYes.svg"
+                                : "/image_icone/FavoritesNo.svg"
+                            }
+                            alt="Favori"
+                            className="w-5 h-5 object-contain"
+                          />
+                        </button>
+                      </div>
+
+                      {/* Conteneur de la Pellicule SVG */}
+                      <div className="relative w-full h-44 flex items-center justify-center">
+                        <img
+                          src="/image_Design-SOREA/Pellicule.svg"
+                          alt="Pellicule support"
+                          className="absolute inset-0 w-full h-full object-contain z-10 drop-shadow-md"
+                        />
+                        <div className="relative z-20 w-[60%] h-[68%] overflow-hidden flex items-center justify-center">
+                          {card.images && card.images.length > 0 ? (
+                            <img
+                              src={typeof card.images[0] === "string" ? card.images[0] : card.images[0].url}
+                              alt={card.title}
+                              className="w-full h-full object-contain"
+                              style={
+                                typeof card.images[0] !== "string" && card.images[0]?.transform
+                                  ? {
+                                      transform: `translate(${card.images[0].transform.x}px, ${card.images[0].transform.y}px) scale(${card.images[0].transform.scale})`,
+                                    }
+                                  : undefined
+                              }
+                            />
+                          ) : (
+                            <div className="w-full h-full bg-purple-100/60 flex items-center justify-center text-[10px] text-purple-400 font-semibold">
+                              Vide
+                            </div>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Prix en bas à droite */}
+                      <div className="w-full flex justify-end mt-1 px-2">
                         <span className="text-xs font-semibold" style={{ color: "#7F6674" }}>
                           {card.price ? card.price.toFixed(2) : "0.95"}€
                         </span>
