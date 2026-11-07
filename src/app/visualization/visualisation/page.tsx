@@ -33,17 +33,29 @@ export default function Page() {
   const [favoriteImages, setFavoriteImages] = useState<(string | VisualisationImage)[]>([]);
   const [isGalleryModalOpen, setIsGalleryModalOpen] = useState(false);
 
-  // Fonction pour récupérer les images favorites de la galerie
+  const [activeFavoriteCard, setActiveFavoriteCard] = useState<VisualisationCard | null>(null);
+
+  // Fonction pour récupérer les images favorites de la galerie ET de la boutique
   const loadFavoriteImages = () => {
     if (typeof window !== "undefined") {
       const savedGallery = localStorage.getItem("sorea_visualisation_pellicules");
+      const savedBoutique = localStorage.getItem("sorea_visualisation_boutique");
       const savedFavs = localStorage.getItem("sorea_visualisation_favorites");
-      if (savedGallery && savedFavs) {
+      
+      if (savedFavs) {
         try {
-          const gallery: VisualisationCard[] = JSON.parse(savedGallery);
+          const gallery: VisualisationCard[] = savedGallery ? JSON.parse(savedGallery) : [];
+          const boutique: VisualisationCard[] = savedBoutique ? JSON.parse(savedBoutique) : [];
+          const combined = [...gallery, ...boutique];
           const favIds: string[] = JSON.parse(savedFavs);
-          // Récupère uniquement les images des pellicules dont l'ID est dans les favoris
-          const favCards = gallery.filter((p) => favIds.includes(p.id));
+          
+          const favCards = combined.filter((p) => favIds.includes(p.id));
+          if (favCards.length > 0) {
+            setActiveFavoriteCard(favCards[0]);
+          } else {
+            setActiveFavoriteCard(null);
+          }
+
           const allFavImages = favCards.flatMap((p) => p.images || []);
           setFavoriteImages(allFavImages);
           setCurrentIndex(allFavImages.length);
@@ -52,6 +64,7 @@ export default function Page() {
         }
       } else {
         setFavoriteImages([]);
+        setActiveFavoriteCard(null);
       }
     }
   };
@@ -203,6 +216,11 @@ return (
                   {activePellicule.title}
                 </h2>
               )}
+              {activeMode === "favoris" && activeFavoriteCard && (
+                <h2 className="text-2xl font-semibold text-[#7F4DC5] italic">
+                  {activeFavoriteCard.title}
+                </h2>
+              )}
             </div>
 
             {/* Les 3 boutons de sélection */}
@@ -280,7 +298,7 @@ return (
               ) : (
                 <div className="w-full h-full bg-purple-50/90 flex items-center justify-center p-6 text-center">
                   <span className="text-purple-900 font-medium text-sm md:text-base leading-snug">
-                    Intègre des images dans ta galerie pour visualiser
+                    Intègre des images dans <br/>ta galerie pour visualiser
                   </span>
                 </div>
               )}
@@ -370,9 +388,9 @@ return (
         alt="Cadre Pellicule Vide"
         className="absolute inset-0 w-full h-full object-contain z-10 pointer-events-none"
       />
-      <div className="relative z-20 w-[72%] h-[72%] bg-white/90 flex items-center justify-center p-6 text-center rounded-lg">
+      <div className="relative z-20 w-[60%] h-[72%] bg-purple-100/60 flex items-center justify-center p-6 text-center">
         <span className="text-purple-900 font-medium text-base md:text-lg leading-snug">
-          Intègre des images dans ta galerie pour visualiser
+          Intègre des images dans <br/> ta galerie pour visualiser
         </span>
       </div>
     </div>

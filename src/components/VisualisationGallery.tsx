@@ -118,7 +118,7 @@ export default function VisualisationGallery({
     e.stopPropagation();
     setFavoriteId((prev) => {
       const updated = prev === id ? null : id;
-      localStorage.setItem("sorea_visualisation_favorites", JSON.stringify(updated));
+      localStorage.setItem("sorea_visualisation_favorites", JSON.stringify(updated ? [updated] : []));
       return updated;
     });
   };

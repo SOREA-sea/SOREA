@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
+import { Plus, X } from "lucide-react";
 
 interface ProductData {
   id: number;
@@ -91,6 +92,33 @@ export default function AdminProductsPage() {
   const [editingVisId, setEditingVisId] = useState<string | null>(null);
   const [activeVisMenuId, setActiveVisMenuId] = useState<string | null>(null);
 
+  // États pour l'ajustement / rognage des images
+  const [isAdjustMode, setIsAdjustMode] = useState(false);
+  const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(null);
+  const [cropScale, setCropScale] = useState(1);
+  const [cropPos, setCropPos] = useState({ x: 0, y: 0 });
+  const [isDraggingImage, setIsDraggingImage] = useState(false);
+  const [dragStartPos, setDragStartPos] = useState({ x: 0, y: 0 });
+  const [draggedImageIndex, setDraggedImageIndex] = useState<number | null>(null);
+  const [dragOverImageIndex, setDragOverImageIndex] = useState<number | null>(null);
+
+  const visFileInputRef = useRef<HTMLInputElement>(null);
+
+  // Fonction d'importation d'images
+  const handleVisFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 0) {
+      const newImages = Array.from(e.target.files).map((file) => ({
+        url: URL.createObjectURL(file),
+      }));
+      setCurrentVisImages((prev) => [...prev, ...newImages]);
+      e.target.value = "";
+    }
+  };
+
+  const removeImageFromVisPellicule = (index: number) => {
+    setCurrentVisImages(currentVisImages.filter((_, i) => i !== index));
+  };
+
   const handleSaveVisualisation = (e: React.FormEvent) => {
     e.preventDefault();
     if (!currentVisTitle.trim()) return;
@@ -101,11 +129,13 @@ export default function AdminProductsPage() {
       return;
     }
 
+    const finalImages = currentVisImages;
+
     if (editingVisId) {
       setVisualisationCards(
         visualisationCards.map((item) =>
           item.id === editingVisId
-            ? { ...item, title: currentVisTitle, price: priceNum }
+            ? { ...item, title: currentVisTitle, images: finalImages, price: priceNum }
             : item
         )
       );
@@ -116,13 +146,14 @@ export default function AdminProductsPage() {
         {
           id: Date.now().toString(),
           title: currentVisTitle,
-          images: [{ url: "/image_photo/PelliculeAmitié.svg" }],
+          images: finalImages,
           price: priceNum,
         },
       ]);
     }
 
     setCurrentVisTitle("");
+    setCurrentVisImages([]);
     setCurrentVisPrice("0.95");
     setIsAddingVisualisation(false);
   };
@@ -130,6 +161,7 @@ export default function AdminProductsPage() {
   const startEditVisualisation = (card: any) => {
     setEditingVisId(card.id);
     setCurrentVisTitle(card.title || "");
+    setCurrentVisImages(card.images || []);
     setCurrentVisPrice(card.price ? card.price.toString() : "0.95");
     setIsAddingVisualisation(true);
     setActiveVisMenuId(null);
@@ -146,7 +178,7 @@ export default function AdminProductsPage() {
       }
 
       setIsVisualisationModalOpen(false);
-      setMessage({ type: "success", text: `"${card.title}" a été envoyé avec succès !` });
+      setMessage({ type: "success", text: `"${card.title}" a été enregistré avec succès !` });
       setTimeout(() => setMessage(null), 3000);
     } catch (err: any) {
       setMessage({ type: "error", text: err.message || "Erreur lors de l'envoi" });
@@ -222,6 +254,7 @@ export default function AdminProductsPage() {
 
   const [isAffirmationModalOpen, setIsAffirmationModalOpen] = useState(false);
   const [activeAffirmationTab, setActiveAffirmationTab] = useState<"galerie" | "corbeille">("galerie");
+  const [activeShopTab, setActiveShopTab] = useState<"galerie" | "corbeille">("galerie");
   const [isAddingAffirmation, setIsAddingAffirmation] = useState(false);
   const [currentAffirmationTitle, setCurrentAffirmationTitle] = useState("");
   const [currentAffirmationText, setCurrentAffirmationText] = useState("");
@@ -817,49 +850,256 @@ export default function AdminProductsPage() {
             </div>
 
             {isAddingVisualisation && (
-              <form onSubmit={handleSaveVisualisation} className="bg-purple-50/80 p-6 rounded-2xl border border-purple-200 flex flex-col gap-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="flex flex-col gap-1.5">
-                    <label className="text-sm font-bold text-gray-900">Titre de la pellicule</label>
-                    <input 
-                      type="text"
-                      value={currentVisTitle}
-                      onChange={(e) => setCurrentVisTitle(e.target.value)}
-                      placeholder="Titre de la pellicule (ex: Voyage de rêve)..."
-                      className="w-full bg-white border border-purple-200 rounded-xl px-4 py-3 text-gray-800 focus:outline-none focus:ring-2 focus:ring-[#8B47FF]"
-                      autoFocus
-                    />
+              <div className="px-8 mt-2">
+                <input
+                  type="file"
+                  ref={visFileInputRef}
+                  onChange={handleVisFileUpload}
+                  accept="image/*"
+                  multiple
+                  className="hidden"
+                />
+
+                <form onSubmit={handleSaveVisualisation} className="bg-purple-50/80 p-6 rounded-2xl border border-purple-200 flex flex-col gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="flex flex-col gap-1.5">
+                      <label className="text-sm font-bold text-gray-900">Titre de la pellicule</label>
+                      <input 
+                        type="text"
+                        value={currentVisTitle}
+                        onChange={(e) => setCurrentVisTitle(e.target.value)}
+                        placeholder="Titre de la pellicule (ex: Voyage de rêve)..."
+                        className="w-full bg-white border border-purple-200 rounded-xl px-4 py-3 text-gray-800 focus:outline-none focus:ring-2 focus:ring-[#8B47FF]"
+                        autoFocus
+                      />
+                    </div>
+                    <div className="flex flex-col gap-1.5">
+                      <label className="text-sm font-bold text-gray-900">Donne un prix (€)</label>
+                      <input 
+                        type="number"
+                        step="0.01"
+                        min="0.50"
+                        required
+                        value={currentVisPrice}
+                        onChange={(e) => setCurrentVisPrice(e.target.value)}
+                        placeholder="Prix (ex: 0.95)"
+                        className="w-full bg-white border border-purple-200 rounded-xl px-4 py-3 text-gray-800 focus:outline-none focus:ring-2 focus:ring-[#8B47FF]"
+                      />
+                    </div>
                   </div>
-                  <div className="flex flex-col gap-1.5">
-                    <label className="text-sm font-bold text-gray-900">Donne un prix (€)</label>
-                    <input 
-                      type="number"
-                      step="0.01"
-                      min="0.50"
-                      required
-                      value={currentVisPrice}
-                      onChange={(e) => setCurrentVisPrice(e.target.value)}
-                      placeholder="Prix (ex: 0.95)"
-                      className="w-full bg-white border border-purple-200 rounded-xl px-4 py-3 text-gray-800 focus:outline-none focus:ring-2 focus:ring-[#8B47FF]"
-                    />
+
+                  {/* Boutons Insérer et Ajuster */}
+                  <div className={`flex items-center gap-3 ${isAdjustMode ? "z-40" : ""}`}>
+                    <button
+                      type="button"
+                      onClick={() => visFileInputRef.current?.click()}
+                      className="flex items-center gap-2 bg-white border border-purple-300 text-purple-900 font-semibold px-4 py-2.5 rounded-xl hover:bg-purple-100/50 transition-colors cursor-pointer text-sm"
+                    >
+                      <Plus size={18} />
+                      Insérer une image
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setIsAdjustMode(!isAdjustMode);
+                        setSelectedImageIndex(null);
+                        setCropScale(1);
+                      }}
+                      className={`flex items-center gap-2 border font-semibold px-4 py-2.5 rounded-xl transition-colors cursor-pointer text-sm ${
+                        isAdjustMode
+                          ? "bg-[#8B47FF] text-white border-[#8B47FF]"
+                          : "bg-white border-purple-300 text-purple-900 hover:bg-purple-100/50"
+                      }`}
+                    >
+                      Ajuster
+                    </button>
                   </div>
-                </div>
-                <div className="flex justify-end gap-3">
-                  <button 
-                    type="button" 
-                    onClick={() => setIsAddingVisualisation(false)}
-                    className="px-5 py-2 rounded-xl text-gray-600 hover:bg-gray-200 font-semibold transition-colors cursor-pointer"
-                  >
-                    Annuler
-                  </button>
-                  <button 
-                    type="submit"
-                    className="bg-[#8B47FF] text-white px-6 py-2 rounded-xl font-bold shadow-md hover:bg-[#7535e6] transition-colors cursor-pointer"
-                  >
-                    {editingVisId ? "Mettre à jour" : "Ajouter"}
-                  </button>
-                </div>
-              </form>
+
+                  {/* Aperçu des images avec gestion du mode ajustement */}
+                  {currentVisImages.length > 0 && (
+                    <div className="relative">
+                      {isAdjustMode && (
+                        <div className="absolute inset-[-12px] bg-gray-900/30 backdrop-blur-[1px] z-30 rounded-2xl pointer-events-none transition-all" />
+                      )}
+
+                      <div className={`flex gap-3 overflow-x-auto py-2 relative ${isAdjustMode ? "z-40" : ""}`}>
+                        {currentVisImages.map((img, idx) => (
+                          <div
+                            key={idx}
+                            draggable={!isAdjustMode}
+                            onClick={() => {
+                              if (isAdjustMode) {
+                                setSelectedImageIndex(idx);
+                                setCropScale(1);
+                              }
+                            }}
+                            onDragStart={() => setDraggedImageIndex(idx)}
+                            onDragOver={(e) => {
+                              e.preventDefault();
+                              setDragOverImageIndex(idx);
+                            }}
+                            onDrop={() => {
+                              if (draggedImageIndex === null || draggedImageIndex === idx) return;
+                              const updatedImages = [...currentVisImages];
+                              const [movedImage] = updatedImages.splice(draggedImageIndex, 1);
+                              updatedImages.splice(idx, 0, movedImage);
+                              setCurrentVisImages(updatedImages);
+                              setDraggedImageIndex(null);
+                              setDragOverImageIndex(null);
+                            }}
+                            onDragEnd={() => {
+                              setDraggedImageIndex(null);
+                              setDragOverImageIndex(null);
+                            }}
+                            className={`relative flex items-center shrink-0 ${isAdjustMode ? "cursor-pointer ring-2 ring-[#8B47FF] rounded-xl" : ""}`}
+                          >
+                            {!isAdjustMode && dragOverImageIndex === idx && (
+                              <div className="w-1 h-20 bg-[#7F4DC5] rounded-full mr-2 transition-all animate-pulse" />
+                            )}
+
+                            <div className="relative w-24 h-24 rounded-xl overflow-hidden border border-purple-200 cursor-grab active:cursor-grabbing group bg-purple-50/50 flex items-center justify-center">
+                              <img
+                                src={typeof img === "string" ? img : img.url}
+                                alt="Aperçu"
+                                className="w-full h-full object-contain pointer-events-none"
+                                style={
+                                  typeof img !== "string" && img.transform
+                                    ? {
+                                        transform: `translate(${img.transform.x}px, ${img.transform.y}px) scale(${img.transform.scale})`,
+                                      }
+                                    : undefined
+                                }
+                              />
+                              {!isAdjustMode && (
+                                <button
+                                  type="button"
+                                  onClick={() => removeImageFromVisPellicule(idx)}
+                                  className="absolute top-1 right-1 bg-black/60 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600 cursor-pointer"
+                                >
+                                  <X size={12} />
+                                </button>
+                              )}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Modale plein écran de rognage */}
+                  {selectedImageIndex !== null && currentVisImages[selectedImageIndex] && (
+                    <div className="fixed inset-0 z-[200000] bg-[#212121] backdrop-blur-md flex items-center justify-center animate-fade-in select-none">
+                      <h3 className="absolute top-[3vh] left-[3vw] text-white text-lg font-medium tracking-wide z-[100000]">
+                        Rognage & Ajustement (Format Plein Écran)
+                      </h3>
+
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setSelectedImageIndex(null);
+                          setCropScale(1);
+                          setCropPos({ x: 0, y: 0 });
+                        }}
+                        className="absolute top-[3vh] right-[3vw] text-white hover:text-purple-300 p-[1.2vh] rounded-full bg-black/20 hover:bg-black/40 transition-all cursor-pointer z-[100000] flex items-center justify-center"
+                        title="Quitter (Échap)"
+                      >
+                        <X className="w-[4vh] h-[4vh]" />
+                      </button>
+
+                      <div className="flex items-center justify-center w-full h-full px-6">
+                        <div className="w-[115vw] h-[105vh] max-w-[125vh] max-h-[110vw] overflow-hidden relative drop-shadow-2xl flex items-center justify-center">  
+                          <div className="w-full h-full relative flex items-center justify-center z-20">
+                            <img
+                              src="/image_Design-SOREA/Pellicule.svg"
+                              alt="Cadre Pellicule Plein Écran"
+                              className="absolute inset-0 w-full h-full object-contain z-10 pointer-events-none"
+                            />
+                            <div className="relative z-20 w-[62%] h-[75%] border-2 border-dashed border-white/80 overflow-hidden flex items-center justify-center bg-black/20">
+                              <img
+                                src={typeof currentVisImages[selectedImageIndex] === "string" ? currentVisImages[selectedImageIndex] : currentVisImages[selectedImageIndex].url}
+                                alt="Ajustement"
+                                draggable={false}
+                                onMouseDown={(e) => {
+                                  setIsDraggingImage(true);
+                                  setDragStartPos({ x: e.clientX - cropPos.x, y: e.clientY - cropPos.y });
+                                }}
+                                onMouseMove={(e) => {
+                                  if (!isDraggingImage) return;
+                                  setCropPos({
+                                    x: e.clientX - dragStartPos.x,
+                                    y: e.clientY - dragStartPos.y,
+                                  });
+                                }}
+                                onMouseUp={() => setIsDraggingImage(false)}
+                                onMouseLeave={() => setIsDraggingImage(false)}
+                                className="w-full h-full object-contain transition-transform select-none cursor-grab active:cursor-grabbing"
+                                style={{
+                                  transform: `translate(${cropPos.x}px, ${cropPos.y}px) scale(${cropScale})`,
+                                }}
+                              />
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="absolute bottom-[4vh] w-full max-w-3xl bg-white/10 backdrop-blur-md border border-white/20 p-4 rounded-2xl flex items-center gap-6 shadow-2xl z-[100000]">
+                        <span className="text-sm font-medium text-white whitespace-nowrap">
+                          Échelle (Zoom) :
+                        </span>
+                        <input
+                          type="range"
+                          min="1"
+                          max="3"
+                          step="0.05"
+                          value={cropScale}
+                          onChange={(e) => setCropScale(parseFloat(e.target.value))}
+                          className="flex-1 accent-[#8B47FF] cursor-pointer h-2 bg-white/20 rounded-lg appearance-none"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => {
+                            if (selectedImageIndex !== null) {
+                              const updated = [...currentVisImages];
+                              const currentImgObj = updated[selectedImageIndex];
+                              const urlStr = typeof currentImgObj === "string" ? currentImgObj : currentImgObj.url;
+                              
+                              updated[selectedImageIndex] = {
+                                url: urlStr,
+                                transform: { scale: cropScale, x: cropPos.x, y: cropPos.y },
+                              };
+                              setCurrentVisImages(updated);
+                            }
+                            setSelectedImageIndex(null);
+                            setIsAdjustMode(false);
+                            setCropScale(1);
+                            setCropPos({ x: 0, y: 0 });
+                          }}
+                          className="bg-[#8B47FF] text-white font-bold px-8 py-3 rounded-xl shadow-lg hover:bg-[#7535e6] transition-all cursor-pointer text-sm"
+                        >
+                          Valider
+                        </button>
+                      </div>
+                    </div>
+                  )}
+
+                  <div className="flex justify-end gap-3 mt-2">
+                    <button 
+                      type="button" 
+                      onClick={() => setIsAddingVisualisation(false)}
+                      className="px-5 py-2 rounded-xl text-gray-600 hover:bg-gray-200 font-semibold transition-colors cursor-pointer"
+                    >
+                      Annuler
+                    </button>
+                    <button 
+                      type="submit"
+                      className="bg-[#8B47FF] text-white px-6 py-2 rounded-xl font-bold shadow-md hover:bg-[#7535e6] transition-colors cursor-pointer"
+                    >
+                      {editingVisId ? "Mettre à jour" : "Ajouter"}
+                    </button>
+                  </div>
+                </form>
+              </div>
             )}
 
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 w-full">
@@ -1002,24 +1242,24 @@ export default function AdminProductsPage() {
           <div className="flex gap-6 text-sm border-b border-purple-100 pb-2 mb-6">
             <button 
               type="button"
-              onClick={() => setActiveAffirmationTab("galerie")}
-              className={`font-bold pb-1 cursor-pointer transition-colors ${activeAffirmationTab === "galerie" ? "text-[#8B47FF] border-b-2 border-[#8B47FF]" : "text-gray-400 hover:text-gray-600"}`}
+              onClick={() => setActiveShopTab("galerie")}
+              className={`font-bold pb-1 cursor-pointer transition-colors ${activeShopTab === "galerie" ? "text-[#8B47FF] border-b-2 border-[#8B47FF]" : "text-gray-400 hover:text-gray-600"}`}
             >
               Catalogue ({products.length})
             </button>
             <button 
               type="button"
-              onClick={() => setActiveAffirmationTab("corbeille")}
-              className={`font-bold pb-1 cursor-pointer transition-colors ${activeAffirmationTab === "corbeille" ? "text-[#8B47FF] border-b-2 border-[#8B47FF]" : "text-gray-400 hover:text-gray-600"}`}
+              onClick={() => setActiveShopTab("corbeille")}
+              className={`font-bold pb-1 cursor-pointer transition-colors ${activeShopTab === "corbeille" ? "text-[#8B47FF] border-b-2 border-[#8B47FF]" : "text-gray-400 hover:text-gray-600"}`}
             >
               Corbeille ({productTrash.length})
             </button>
           </div>
 
-          {activeAffirmationTab === "galerie" ? (
-            <>
-          {showForm && (
-            <form onSubmit={handleSubmit} className="glass-panel rounded-3xl p-8 space-y-5">
+          {activeShopTab === "galerie" ? (
+            <div className="space-y-6">
+              {showForm && (
+                <form onSubmit={handleSubmit} className="glass-panel rounded-3xl p-8 space-y-5">
               <h2 className="text-xl font-bold">
                 {editingProduct ? `Modifier « ${editingProduct.name} »` : "Nouveau produit"}
               </h2>
@@ -1205,7 +1445,7 @@ export default function AdminProductsPage() {
               </button>
             </div>
           )}
-            </>
+            </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {productTrash.length === 0 ? (
