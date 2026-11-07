@@ -89,6 +89,7 @@ export default function AdminProductsPage() {
   const [currentVisTitle, setCurrentVisTitle] = useState("");
   const [currentVisImages, setCurrentVisImages] = useState<any[]>([]);
   const [currentVisPrice, setCurrentVisPrice] = useState("0.95");
+  const [currentVisDescription, setCurrentVisDescription] = useState("");
   const [editingVisId, setEditingVisId] = useState<string | null>(null);
   const [activeVisMenuId, setActiveVisMenuId] = useState<string | null>(null);
 
@@ -135,7 +136,7 @@ export default function AdminProductsPage() {
       setVisualisationCards(
         visualisationCards.map((item) =>
           item.id === editingVisId
-            ? { ...item, title: currentVisTitle, images: finalImages, price: priceNum }
+            ? { ...item, title: currentVisTitle, images: finalImages, price: priceNum, description: currentVisDescription }
             : item
         )
       );
@@ -148,6 +149,7 @@ export default function AdminProductsPage() {
           title: currentVisTitle,
           images: finalImages,
           price: priceNum,
+          description: currentVisDescription,
         },
       ]);
     }
@@ -155,6 +157,7 @@ export default function AdminProductsPage() {
     setCurrentVisTitle("");
     setCurrentVisImages([]);
     setCurrentVisPrice("0.95");
+    setCurrentVisDescription("");
     setIsAddingVisualisation(false);
   };
 
@@ -163,6 +166,7 @@ export default function AdminProductsPage() {
     setCurrentVisTitle(card.title || "");
     setCurrentVisImages(card.images || []);
     setCurrentVisPrice(card.price ? card.price.toString() : "0.95");
+    setCurrentVisDescription(card.description || "");
     setIsAddingVisualisation(true);
     setActiveVisMenuId(null);
   };
@@ -914,6 +918,17 @@ export default function AdminProductsPage() {
                     >
                       Ajuster
                     </button>
+                  </div>
+
+                  {/* Zone de description inspirée des affirmations */}
+                  <div className="flex flex-col gap-1.5 mt-2">
+                    <label className="text-sm font-bold text-gray-900">Entrez une description</label>
+                    <textarea 
+                      value={currentVisDescription}
+                      onChange={(e) => setCurrentVisDescription(e.target.value)}
+                      placeholder="Adopte un meilleur enthousiasme pour ton quotidien..."
+                      className="w-full bg-white border border-purple-200 rounded-xl px-4 py-3 text-gray-800 focus:outline-none focus:ring-2 focus:ring-[#8B47FF] h-28 resize-none whitespace-pre-line overflow-y-auto"
+                    />
                   </div>
 
                   {/* Aperçu des images avec gestion du mode ajustement */}
