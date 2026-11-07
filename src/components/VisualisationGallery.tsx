@@ -15,6 +15,7 @@ import {
   Link as LinkIcon, 
   ChevronDown 
 } from "lucide-react";
+import VisualisationPayment from "@/components/VisualisationPayment";
 
 interface CropTransform {
   scale: number;
@@ -161,6 +162,7 @@ export default function VisualisationGallery({
   const [previewTab, setPreviewTab] = useState<"album" | "boutique" | "corbeille">("album");
   const [activeTab, setActiveTab] = useState<"album" | "boutique" | "corbeille">("album");
 
+  const [selectedBoutiqueCard, setSelectedBoutiqueCard] = useState<any | null>(null);
   const [isAdding, setIsAdding] = useState(false);
   const [currentTitle, setCurrentTitle] = useState("");
   const [currentImages, setCurrentImages] = useState<(string | VisualisationImage)[]>([]);
@@ -388,7 +390,14 @@ export default function VisualisationGallery({
                   </div>
                 ) : (
                   boutiqueCards.slice(0, 4).map((card) => (
-                    <div key={card.id} className="aspect-square rounded-2xl overflow-hidden shadow-sm border border-purple-100 bg-purple-50 flex flex-col items-center justify-center p-3 text-center">
+                    <div 
+                      key={card.id} 
+                      onClick={() => {
+                        setSelectedBoutiqueCard(card);
+                        setIsOpen(false);
+                      }}
+                      className="aspect-square rounded-2xl overflow-hidden shadow-sm border border-purple-100 bg-purple-50 flex flex-col items-center justify-center p-3 text-center cursor-pointer hover:scale-105 transition-transform"
+                    >
                       <span className="text-xs font-bold text-purple-900">{card.title}</span>
                     </div>
                   ))
@@ -864,6 +873,10 @@ export default function VisualisationGallery({
                   boutiqueCards.map((card: any) => (
                     <div
                       key={card.id}
+                      onClick={() => {
+                        setSelectedBoutiqueCard(card);
+                        setIsOpen(false);
+                      }}
                       className="relative w-48 h-56 flex flex-col items-center justify-start cursor-pointer hover:scale-105 transition-transform group mx-auto"
                     >
                       {/* Titre au-dessus de la pellicule avec Icône Favori au survol */}
@@ -968,6 +981,26 @@ export default function VisualisationGallery({
             </div>
           </div>
         </div>
+      )}
+
+      {/* MODALE DE PAIEMENT DE LA BOUTIQUE VISUALISATION */}
+      {selectedBoutiqueCard && (
+        <VisualisationPayment
+          isOpen={!!selectedBoutiqueCard}
+          onClose={() => setSelectedBoutiqueCard(null)}
+          onPaymentSuccess={() => {
+            alert(`Paiement réussi pour la pellicule "${selectedBoutiqueCard.title}" !`);
+            setSelectedBoutiqueCard(null);
+          }}
+          data={{
+            id: selectedBoutiqueCard.id,
+            title: selectedBoutiqueCard.title,
+            imagesCount: selectedBoutiqueCard.images ? selectedBoutiqueCard.images.length : 3,
+            description: selectedBoutiqueCard.description || "Une parenthèse en images pour conserver les instants qui vous font du bien et célébrer votre équilibre au quotidien.",
+            price: selectedBoutiqueCard.price || 0.95,
+            imageUrl: selectedBoutiqueCard.imageUrl || (selectedBoutiqueCard.images?.[0] ? (typeof selectedBoutiqueCard.images[0] === 'string' ? selectedBoutiqueCard.images[0] : selectedBoutiqueCard.images[0].url) : "/image_Design-SOREA/PelliculeTest.svg"),
+          }}
+        />
       )}
     </>
   );
