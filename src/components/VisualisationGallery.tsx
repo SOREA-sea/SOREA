@@ -158,8 +158,8 @@ export default function VisualisationGallery({
     setInternalIsOpen(resolvedVal);
   };
 
-  const [previewTab, setPreviewTab] = useState<"galerie" | "boutique" | "corbeille">("galerie");
-  const [activeTab, setActiveTab] = useState<"galerie" | "boutique" | "corbeille">("galerie");
+  const [previewTab, setPreviewTab] = useState<"album" | "boutique" | "corbeille">("album");
+  const [activeTab, setActiveTab] = useState<"album" | "boutique" | "corbeille">("album");
 
   const [isAdding, setIsAdding] = useState(false);
   const [currentTitle, setCurrentTitle] = useState("");
@@ -278,14 +278,14 @@ export default function VisualisationGallery({
             <div className="flex gap-6 border-b border-purple-100 pb-3 text-sm">
               <button
                 type="button"
-                onClick={() => setPreviewTab("galerie")}
+                onClick={() => setPreviewTab("album")}
                 className={`font-bold pb-2 -mb-[13px] cursor-pointer transition-colors ${
-                  previewTab === "galerie"
+                  previewTab === "album"
                     ? "text-[#8B47FF] border-b-2 border-[#8B47FF]"
                     : "text-gray-400 hover:text-gray-600"
                 }`}
               >
-                Galerie
+                Album
               </button>
               <button
                 type="button"
@@ -312,7 +312,7 @@ export default function VisualisationGallery({
             </div>
 
             <div className="grid grid-cols-2 gap-4">
-              {previewTab === "galerie" ? (
+              {previewTab === "album" ? (
                 <>
                   {pellicules.slice(0, 3).map((card) => (
                     <div
@@ -432,14 +432,14 @@ export default function VisualisationGallery({
               <div className="flex gap-6 text-sm z-10 relative">
                 <button
                   type="button"
-                  onClick={() => setActiveTab("galerie")}
+                  onClick={() => setActiveTab("album")}
                   className={`font-bold pb-1 cursor-pointer transition-colors ${
-                    activeTab === "galerie"
+                    activeTab === "album"
                       ? "text-[#8B47FF] border-b-2 border-[#8B47FF]"
                       : "text-gray-400 hover:text-gray-600"
                   }`}
                 >
-                  Galerie
+                  Album
                 </button>
                 <button
                   type="button"
@@ -718,7 +718,7 @@ export default function VisualisationGallery({
 
             {/* GRILLE DES PELLICULES */}
 {/* GRILLE DES PELLICULES */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 p-8 pt-4 w-full">              {activeTab === "galerie" ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 p-8 pt-4 w-full">              {activeTab === "album" ? (
                 <>
                   {pellicules.map((card, index) => (
                     <div

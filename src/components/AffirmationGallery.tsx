@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import { X, Plus, Edit2, Trash2 } from "lucide-react";
+import AffirmationPayment from "@/components/AffirmationPayment";
 
 interface AffirmationCard {
   id: string;
@@ -110,6 +111,7 @@ export default function AffirmationGallery({
   const [previewTab, setPreviewTab] = useState<"galerie" | "boutique" | "corbeille">("galerie");
   const [activeTab, setActiveTab] = useState<"galerie" | "boutique" | "corbeille">("galerie");
   
+  const [selectedBoutiqueCard, setSelectedBoutiqueCard] = useState<any | null>(null);
   const [isAdding, setIsAdding] = useState(false);
   const [currentTitle, setCurrentTitle] = useState("");
   const [currentText, setCurrentText] = useState("");
@@ -297,7 +299,14 @@ export default function AffirmationGallery({
                   </div>
                 ) : (
                   boutiqueCards.slice(0, 4).map((card) => (
-                    <div key={card.id} className="aspect-square rounded-2xl overflow-hidden shadow-sm border border-purple-100 bg-purple-50 flex flex-col items-center justify-center p-3 text-center">
+                    <div 
+                      key={card.id} 
+                      onClick={() => {
+                        setSelectedBoutiqueCard(card);
+                        setIsOpen(false);
+                      }}
+                      className="aspect-square rounded-2xl overflow-hidden shadow-sm border border-purple-100 bg-purple-50 flex flex-col items-center justify-center p-3 text-center cursor-pointer hover:scale-105 transition-transform"
+                    >
                       <span className="text-xs font-bold text-purple-900">{card.title}</span>
                     </div>
                   ))
@@ -512,7 +521,14 @@ export default function AffirmationGallery({
                   <p className="text-gray-400 text-sm py-8 italic w-full text-center">La boutique est vide.</p>
                 ) : (
                   boutiqueCards.map((card: any) => (
-                    <div key={card.id} className="w-48 h-48 rounded-2xl bg-purple-50 border border-purple-200 p-4 flex flex-col items-center justify-between text-center shadow-sm relative mx-auto group">
+                    <div 
+                      key={card.id} 
+                      onClick={() => {
+                        setSelectedBoutiqueCard(card);
+                        setIsOpen(false);
+                      }}
+                      className="w-48 h-48 rounded-2xl bg-purple-50 border border-purple-200 p-4 flex flex-col items-center justify-between text-center shadow-sm relative group mx-auto cursor-pointer hover:scale-105 transition-transform"
+                    >
                       <div className="w-full"></div>
                       <div className="flex flex-col items-center justify-center gap-1 w-full">
                         <div className="flex items-center justify-center gap-1.5">
@@ -586,6 +602,27 @@ export default function AffirmationGallery({
 
           </div>
         </div>
+      )}
+
+      {/* MODALE DE PAIEMENT DE LA BOUTIQUE */}
+      {selectedBoutiqueCard && (
+        <AffirmationPayment
+          isOpen={!!selectedBoutiqueCard}
+          onClose={() => setSelectedBoutiqueCard(null)}
+          onPaymentSuccess={() => {
+            alert(`Paiement réussi pour "${selectedBoutiqueCard.title}" !`);
+            setSelectedBoutiqueCard(null);
+          }}
+          data={{
+            id: selectedBoutiqueCard.id,
+            title: selectedBoutiqueCard.title,
+            quotes: selectedBoutiqueCard.text ? selectedBoutiqueCard.text.split("\n").filter((l: string) => l.trim().length > 0).slice(0, 2) : [],
+            totalQuotesCount: selectedBoutiqueCard.text ? selectedBoutiqueCard.text.split("\n").filter((l: string) => l.trim().length > 0).length : 1,
+            description: selectedBoutiqueCard.description || "Un ensemble d'affirmations puissantes pour votre quotidien.",
+            price: selectedBoutiqueCard.price || 0.95,
+            imageUrl: selectedBoutiqueCard.imageUrl || "/image_Design-SOREA/PaiementAffirmation.svg",
+          }}
+        />
       )}
     </>
   );

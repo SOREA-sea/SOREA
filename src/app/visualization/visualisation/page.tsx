@@ -28,14 +28,14 @@ interface VisualisationCard {
 export default function Page() {
   const [activePellicule, setActivePellicule] = useState<VisualisationCard | null>(null);
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [activeMode, setActiveMode] = useState<"aleatoire" | "favoris" | "galerie">("galerie");
+  const [activeMode, setActiveMode] = useState<"aleatoire" | "favoris" | "album">("album");
   const [randomImages, setRandomImages] = useState<(string | VisualisationImage)[]>([]);
   const [favoriteImages, setFavoriteImages] = useState<(string | VisualisationImage)[]>([]);
   const [isGalleryModalOpen, setIsGalleryModalOpen] = useState(false);
 
   const [activeFavoriteCard, setActiveFavoriteCard] = useState<VisualisationCard | null>(null);
 
-  // Fonction pour récupérer les images favorites de la galerie ET de la boutique
+  // Fonction pour récupérer les images favorites de la album ET de la boutique
   const loadFavoriteImages = () => {
     if (typeof window !== "undefined") {
       const savedGallery = localStorage.getItem("sorea_visualisation_pellicules");
@@ -72,14 +72,14 @@ export default function Page() {
   // État pour le plein écran
   const [isFullscreen, setIsFullscreen] = useState(false);
 
-  // Fonction pour récupérer toutes les images de la galerie et les mélanger
+  // Fonction pour récupérer toutes les images de la album et les mélanger
   const loadRandomImages = () => {
     if (typeof window !== "undefined") {
       const savedGallery = localStorage.getItem("sorea_visualisation_pellicules");
       if (savedGallery) {
         try {
           const gallery: VisualisationCard[] = JSON.parse(savedGallery);
-          // Récupère toutes les images uniques de toutes les pellicules de la galerie
+          // Récupère toutes les images uniques de toutes les pellicules de la album
           const allImages = gallery.flatMap((p) => p.images || []);
           // Mélange aléatoire des images existantes
           const shuffled = [...allImages].sort(() => Math.random() - 0.5);
@@ -107,7 +107,7 @@ export default function Page() {
         }
       }
 
-      // Si aucune pellicule active n'est sélectionnée, prendre la première de la galerie
+      // Si aucune pellicule active n'est sélectionnée, prendre la première de la album
       const savedGallery = localStorage.getItem("sorea_visualisation_pellicules");
       if (savedGallery) {
         try {
@@ -117,7 +117,7 @@ export default function Page() {
             setCurrentIndex(gallery[0].images?.length || 0);
           }
         } catch (e) {
-          console.error("Erreur de lecture de la galerie", e);
+          console.error("Erreur de lecture de la album", e);
         }
       }
     }
@@ -150,7 +150,7 @@ export default function Page() {
 
 const [noTransition, setNoTransition] = useState(false);
 
-  const rawImages = activeMode === "galerie" 
+  const rawImages = activeMode === "album" 
     ? (activePellicule?.images || []) 
     : activeMode === "favoris" 
     ? favoriteImages 
@@ -211,7 +211,7 @@ return (
               <h1 className="text-3xl md:text-4xl font-serif font-light text-[#212121] tracking-wider whitespace-nowrap">
                 Visualisation
               </h1>
-              {activeMode === "galerie" && activePellicule && (
+              {activeMode === "album" && activePellicule && (
                 <h2 className="text-2xl font-semibold text-[#7F4DC5] italic">
                   {activePellicule.title}
                 </h2>
@@ -258,12 +258,12 @@ return (
               <button
                 type="button"
                 onClick={() => {
-                  setActiveMode("galerie");
+                  setActiveMode("album");
                   loadActivePellicule();
                   setIsGalleryModalOpen(true);
                 }}
                 className={`flex-1 h-full flex items-center justify-center text-xs font-medium transition-colors cursor-pointer text-center px-2 ${
-                  activeMode === "galerie"
+                  activeMode === "album"
                     ? "bg-purple-100 text-[#7F4DC5] font-bold"
                     : "text-gray-800 hover:bg-purple-50"
                 }`}
@@ -298,7 +298,7 @@ return (
               ) : (
                 <div className="w-full h-full bg-purple-50/90 flex items-center justify-center p-6 text-center">
                   <span className="text-purple-900 font-medium text-sm md:text-base leading-snug">
-                    Intègre des images dans <br/>ta galerie pour visualiser
+                    Intègre des images dans <br/>ton album pour visualiser
                   </span>
                 </div>
               )}
@@ -390,7 +390,7 @@ return (
       />
       <div className="relative z-20 w-[60%] h-[72%] bg-purple-100/60 flex items-center justify-center p-6 text-center">
         <span className="text-purple-900 font-medium text-base md:text-lg leading-snug">
-          Intègre des images dans <br/> ta galerie pour visualiser
+          Intègre des images dans <br/> ton album pour visualiser
         </span>
       </div>
     </div>
@@ -431,7 +431,7 @@ return (
         document.body
       )}
 
-      {/* Modale de la Galerie */}
+      {/* Modale de l'Album */}
       <VisualisationGallery
         externalIsOpen={isGalleryModalOpen}
         setExternalIsOpen={setIsGalleryModalOpen}
