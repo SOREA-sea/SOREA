@@ -625,7 +625,7 @@ export default function AdminProductsPage() {
                     />
                   </div>
                   <div className="flex flex-col gap-1.5">
-                    <label className="text-sm font-bold text-gray-900">Donne un prix (€)</label>
+                    <label className="text-sm font-bold text-gray-900">Donne un prix</label>
                     <div className="relative flex items-center">
                       <input 
                         type="number"
@@ -641,14 +641,27 @@ export default function AdminProductsPage() {
                   </div>
                 </div>
 
-                <textarea 
-                  value={currentAffirmationText}
-                  onFocus={() => { if (!currentAffirmationText) setCurrentAffirmationText("✓ "); }}
-                  onKeyDown={handleKeyDown}
-                  onChange={(e) => setCurrentAffirmationText(e.target.value)}
-                  placeholder="Entrez vos affirmations... (Appuyez sur Entrée pour passer à la ligne)"
-                  className="w-full bg-white border border-purple-200 rounded-xl px-4 py-3 text-gray-800 focus:outline-none focus:ring-2 focus:ring-[#8B47FF] h-28 resize-none whitespace-pre-line overflow-y-auto"
-                />
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="flex flex-col gap-1.5">
+                    <label className="text-sm font-bold text-gray-900">Entrez vos affirmations</label>
+                    <textarea 
+                      value={currentAffirmationText}
+                      onFocus={() => { if (!currentAffirmationText) setCurrentAffirmationText("✓ "); }}
+                      onKeyDown={handleKeyDown}
+                      onChange={(e) => setCurrentAffirmationText(e.target.value)}
+                      placeholder="J'avance vers ce qui me tiens à coeur..."
+                      className="w-full bg-white border border-purple-200 rounded-xl px-4 py-3 text-gray-800 focus:outline-none focus:ring-2 focus:ring-[#8B47FF] h-28 resize-none whitespace-pre-line overflow-y-auto"
+                    />
+                  </div>
+                  <div className="flex flex-col gap-1.5">
+                    <label className="text-sm font-bold text-gray-900">Entrez une description</label>
+                    <textarea 
+                      placeholder="Adopte un meilleur enthousiasme pour ton quotidien..."
+                      className="w-full bg-white border border-purple-200 rounded-xl px-4 py-3 text-gray-800 focus:outline-none focus:ring-2 focus:ring-[#8B47FF] h-28 resize-none whitespace-pre-line overflow-y-auto"
+                    />
+                  </div>
+                </div>
+
                 <div className="flex justify-end gap-3">
                   <button 
                     type="button" 

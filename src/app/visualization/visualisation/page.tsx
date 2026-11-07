@@ -28,9 +28,33 @@ interface VisualisationCard {
 export default function Page() {
   const [activePellicule, setActivePellicule] = useState<VisualisationCard | null>(null);
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [activeMode, setActiveMode] = useState<"aleatoire" | "galerie">("galerie");
+  const [activeMode, setActiveMode] = useState<"aleatoire" | "favoris" | "galerie">("galerie");
   const [randomImages, setRandomImages] = useState<(string | VisualisationImage)[]>([]);
+  const [favoriteImages, setFavoriteImages] = useState<(string | VisualisationImage)[]>([]);
   const [isGalleryModalOpen, setIsGalleryModalOpen] = useState(false);
+
+  // Fonction pour récupérer les images favorites de la galerie
+  const loadFavoriteImages = () => {
+    if (typeof window !== "undefined") {
+      const savedGallery = localStorage.getItem("sorea_visualisation_pellicules");
+      const savedFavs = localStorage.getItem("sorea_visualisation_favorites");
+      if (savedGallery && savedFavs) {
+        try {
+          const gallery: VisualisationCard[] = JSON.parse(savedGallery);
+          const favIds: string[] = JSON.parse(savedFavs);
+          // Récupère uniquement les images des pellicules dont l'ID est dans les favoris
+          const favCards = gallery.filter((p) => favIds.includes(p.id));
+          const allFavImages = favCards.flatMap((p) => p.images || []);
+          setFavoriteImages(allFavImages);
+          setCurrentIndex(allFavImages.length);
+        } catch (e) {
+          console.error("Erreur de chargement des favoris de visualisation", e);
+        }
+      } else {
+        setFavoriteImages([]);
+      }
+    }
+  };
 
   // État pour le plein écran
   const [isFullscreen, setIsFullscreen] = useState(false);
@@ -113,7 +137,11 @@ export default function Page() {
 
 const [noTransition, setNoTransition] = useState(false);
 
-  const rawImages = activeMode === "galerie" ? (activePellicule?.images || []) : randomImages;
+  const rawImages = activeMode === "galerie" 
+    ? (activePellicule?.images || []) 
+    : activeMode === "favoris" 
+    ? favoriteImages 
+    : randomImages;
   const totalReal = rawImages.length;
   // On répète la liste 3 fois pour permettre une boucle infinie et fluide indéfiniment à chaque clic
   const images = totalReal > 0 ? [...rawImages, ...rawImages, ...rawImages] : [];
@@ -177,13 +205,13 @@ return (
               )}
             </div>
 
-            {/* Les 2 boutons de sélection */}
-            <div className="flex w-[260px] h-[50px] bg-white border border-[#9b6fd9] overflow-hidden shadow-sm">
+            {/* Les 3 boutons de sélection */}
+            <div className="flex w-[350px] h-[55px] bg-white border border-[#9b6fd9] rounded-[10px] overflow-hidden shadow-sm">
               <button
                 type="button"
                 onClick={() => {
                   setActiveMode("aleatoire");
-                  loadRandomImages(); // Génère un mix aléatoire de toutes les images de la galerie
+                  loadRandomImages();
                 }}
                 className={`flex-1 h-full flex items-center justify-center text-xs font-medium transition-colors border-r border-[#9b6fd9] cursor-pointer text-center px-2 ${
                   activeMode === "aleatoire"
@@ -192,6 +220,21 @@ return (
                 }`}
               >
                 Aléatoire
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  setActiveMode("favoris");
+                  loadFavoriteImages();
+                }}
+                className={`flex-1 h-full flex items-center justify-center text-xs font-medium transition-colors border-r border-[#9b6fd9] cursor-pointer text-center px-2 ${
+                  activeMode === "favoris"
+                    ? "bg-purple-100 text-[#7F4DC5] font-bold"
+                    : "text-gray-800 hover:bg-purple-50"
+                }`}
+              >
+                Favoris
               </button>
 
               <button
@@ -345,10 +388,10 @@ return (
     title="Image précédente"
   >
     <img
-  src="/image_icone/Flèche_carré_haute.svg"
-  alt="Haut"
-  className="w-[8vh] h-[8vh]"
-/>
+      src="/image_icone/ArrowCarousel.svg"
+      alt="Précédent"
+      className="w-[8vh] h-[8vh] rotate-180"
+    />
   </button>
 
   <button
@@ -358,9 +401,9 @@ return (
     title="Image suivante"
   >
     <img
-      src="/image_icone/Flèche_carré_basse.svg"
-      alt="Bas"
-      className="w-[8vh] h-[8vh]"
+      src="/image_icone/ArrowCarousel.svg"
+      alt="Suivant"
+      className="w-[8vh] h-[8vh] rotate-0"
     />
   </button>
 </div>

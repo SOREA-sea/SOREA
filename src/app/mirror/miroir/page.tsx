@@ -469,7 +469,7 @@ export default function NouvellePage() {
         setCustomIndex(0);
         setIsPlaying(false);
       }}
-      className={`flex-1 h-full flex items-center justify-center text-xs font-medium transition-colors border-r border-[#9b6fd9] cursor-pointer text-center px-1 bg-white ${
+      className={`flex-1 h-full flex items-center justify-center text-xs font-medium transition-colors border-r border-[#9b6fd9] cursor-pointer text-center px-1 ${
         activeMode === "cycle" ? "bg-purple-100 text-[#7F4DC5] font-bold" : "text-gray-800 hover:bg-purple-50"
       }`}
     >
@@ -498,7 +498,7 @@ export default function NouvellePage() {
         setIsPlaying(false);
         setIsCustomModalOpen(true);
       }}
-      className={`flex-1 h-full flex items-center justify-center text-xs font-medium transition-colors cursor-pointer text-center px-1 ${
+      className={`flex-1 h-full flex items-center justify-center text-xs font-medium transition-colors border-r border-[#9b6fd9] cursor-pointer text-center px-1 ${
         activeMode === "custom" ? "bg-purple-100 text-[#7F4DC5] font-bold" : "text-gray-800 hover:bg-purple-50"
       }`}
     >
@@ -660,12 +660,6 @@ export default function NouvellePage() {
                   ({affirmationCount} utilisé{affirmationCount > 1 ? 's' : ''} aujourd'hui — phase {currentPhase})
                 </span>
               </div>
-            )}
-
-            {!affirmation && (
-              <p className="text-gray-500 text-sm italic font-medium max-w-[300px] text-center">
-                Cliquez sur le bouton de lecture pour voir votre premier reflet...
-              </p>
             )}
 
           </div>

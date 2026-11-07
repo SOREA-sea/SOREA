@@ -102,7 +102,7 @@ const hideInstructionsNutrition = () => {
                           </div>
             
                           {/* Les 2 boutons (Par défaut et Cycles menstruels) */}
-                          <div className="flex w-[350px] h-[55px] bg-white border border-[#9b6fd9] rounded-[10px] overflow-hidden shadow-sm pointer-events-auto">
+                          <div className="flex w-[350px] h-[55px] bg-white border border-[#9b6fd9] rounded-[10px] overflow-hidden shadow-sm">
                             <button 
                               type="button"
                               onClick={() => setActiveMode("default")}
