@@ -55,13 +55,13 @@ export default function AffirmationGallery({
         if (Array.isArray(parsed) && parsed[0]) return parsed[0];
         if (parsed) return parsed;
       }
-      // Par défaut, sélectionne le premier élément de la galerie pour qu'il y ait toujours au moins un favori
-      const defaultCards = [
-        { id: "1" }
-      ];
-      return defaultCards[0].id;
+      // S'il n'y a pas de favori sauvegardé, on regarde dans la galerie ou dans la boutique
+      const savedAff = JSON.parse(localStorage.getItem("sorea_affirmations") || "[]");
+      const savedBout = JSON.parse(localStorage.getItem("sorea_affirmations_boutique") || "[]");
+      if (savedAff.length > 0) return savedAff[0].id;
+      if (savedBout.length > 0) return savedBout[0].id;
     }
-    return "1";
+    return null;
   });
 
   const toggleFavorite = (id: string, e: React.MouseEvent) => {
@@ -90,7 +90,18 @@ export default function AffirmationGallery({
     localStorage.setItem("sorea_affirmations", JSON.stringify(affirmations));
     localStorage.setItem("sorea_affirmations_trash", JSON.stringify(trash));
     localStorage.setItem("sorea_affirmations_boutique", JSON.stringify(boutiqueCards));
-  }, [affirmations, trash, boutiqueCards]);
+
+    // Si aucun favori n'est défini mais qu'il y a des cartes (galerie ou boutique), on met la première en favori
+    if (!favoriteId) {
+      if (affirmations.length > 0) {
+        setFavoriteId(affirmations[0].id);
+        localStorage.setItem("sorea_affirmations_favorites", JSON.stringify([affirmations[0].id]));
+      } else if (boutiqueCards.length > 0) {
+        setFavoriteId(boutiqueCards[0].id);
+        localStorage.setItem("sorea_affirmations_favorites", JSON.stringify([boutiqueCards[0].id]));
+      }
+    }
+  }, [affirmations, trash, boutiqueCards, favoriteId]);
 
   React.useEffect(() => {
     const handleStorageChange = () => {

@@ -78,10 +78,13 @@ export default function VisualisationGallery({
         if (Array.isArray(parsed) && parsed[0]) return parsed[0];
         if (parsed) return parsed;
       }
-      // Par défaut, sélectionne le premier élément pour qu'il y ait toujours au moins un favori
-      return "1";
+      // S'il n'y a pas de favori sauvegardé, on regarde dans l'album ou dans la boutique
+      const savedPell = JSON.parse(localStorage.getItem("sorea_visualisation_pellicules") || "[]");
+      const savedBout = JSON.parse(localStorage.getItem("sorea_visualisation_boutique") || "[]");
+      if (savedPell.length > 0) return savedPell[0].id;
+      if (savedBout.length > 0) return savedBout[0].id;
     }
-    return "1";
+    return null;
   });
 
   const [trash, setTrash] = useState<VisualisationCard[]>(() => {
@@ -134,7 +137,18 @@ export default function VisualisationGallery({
   useEffect(() => {
     localStorage.setItem("sorea_visualisation_pellicules", JSON.stringify(pellicules));
     localStorage.setItem("sorea_visualisation_trash", JSON.stringify(trash));
-  }, [pellicules, trash]);
+
+    // Si aucun favori n'est défini mais qu'il y a des pellicules (album ou boutique), on met la première en favori
+    if (!favoriteId) {
+      if (pellicules.length > 0) {
+        setFavoriteId(pellicules[0].id);
+        localStorage.setItem("sorea_visualisation_favorites", JSON.stringify([pellicules[0].id]));
+      } else if (boutiqueCards.length > 0) {
+        setFavoriteId(boutiqueCards[0].id);
+        localStorage.setItem("sorea_visualisation_favorites", JSON.stringify([boutiqueCards[0].id]));
+      }
+    }
+  }, [pellicules, trash, boutiqueCards, favoriteId]);
 
   const [isAdjustMode, setIsAdjustMode] = useState(false);
   const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(null);
