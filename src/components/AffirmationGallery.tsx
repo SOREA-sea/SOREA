@@ -624,9 +624,9 @@ export default function AffirmationGallery({
                     <div key={card.id} className="relative">
                       <div 
                         onClick={() => setActiveMenuId(activeMenuId === card.id ? null : card.id)}
-                        className="w-48 h-48 rounded-2xl bg-gray-50 border border-gray-200 p-4 flex items-center justify-center text-center text-sm font-medium text-gray-600 shadow-sm cursor-pointer hover:bg-gray-100 transition-all relative"
+                        className="w-48 h-48 rounded-2xl bg-purple-50/50 border border-gray-200 p-4 flex flex-col items-center justify-center text-center shadow-sm cursor-pointer hover:bg-gray-100 transition-all relative"
                       >
-                        &quot;{card.text}&quot;
+                        <span className="text-sm font-bold text-gray-700">{card.title}</span>
                       </div>
 
                       {activeMenuId === card.id && (
