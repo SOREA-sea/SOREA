@@ -305,9 +305,41 @@ export default function AffirmationGallery({
                         setSelectedBoutiqueCard(card);
                         setIsOpen(false);
                       }}
-                      className="aspect-square rounded-2xl overflow-hidden shadow-sm border border-purple-100 bg-purple-50 flex flex-col items-center justify-center p-3 text-center cursor-pointer hover:scale-105 transition-transform"
+                      className="aspect-square rounded-2xl bg-purple-50 border border-purple-200 p-4 flex flex-col items-center justify-between text-center shadow-sm relative group cursor-pointer hover:scale-105 transition-transform"
                     >
-                      <span className="text-xs font-bold text-purple-900">{card.title}</span>
+                      <div className="w-full"></div>
+                      <div className="flex flex-col items-center justify-center gap-1 w-full">
+                        <div className="flex items-center justify-center gap-1.5">
+                          <span className="text-xs font-bold text-purple-950">{card.title}</span>
+                          <button
+                            type="button"
+                            onClick={(e) => toggleFavorite(card.id, e)}
+                            className={`transition-opacity cursor-pointer ${
+                              favoriteId === card.id
+                                ? "opacity-100"
+                                : "opacity-0 group-hover:opacity-100"
+                            }`}
+                          >
+                            <img
+                              src={
+                                favoriteId === card.id
+                                  ? "/image_icone/FavoritesYes.svg"
+                                  : "/image_icone/FavoritesNo.svg"
+                              }
+                              alt="Favori"
+                              className="w-4 h-4 object-contain"
+                            />
+                          </button>
+                        </div>
+                        <span className="text-[10px] font-medium text-purple-800 italic line-clamp-3 whitespace-pre-line text-left w-full px-1">
+                          &quot;{card.text}&quot;
+                        </span>
+                      </div>
+                      <div className="w-full flex justify-end">
+                        <span className="text-[10px] font-semibold" style={{ color: "#7F6674" }}>
+                          {card.price ? card.price.toFixed(2) : "0.95"}€
+                        </span>
+                      </div>
                     </div>
                   ))
                 )

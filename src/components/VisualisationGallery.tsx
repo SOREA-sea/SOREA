@@ -390,15 +390,70 @@ export default function VisualisationGallery({
                   </div>
                 ) : (
                   boutiqueCards.slice(0, 4).map((card) => (
-                    <div 
-                      key={card.id} 
+                    <div
+                      key={card.id}
                       onClick={() => {
                         setSelectedBoutiqueCard(card);
                         setIsOpen(false);
                       }}
-                      className="aspect-square rounded-2xl overflow-hidden shadow-sm border border-purple-100 bg-purple-50 flex flex-col items-center justify-center p-3 text-center cursor-pointer hover:scale-105 transition-transform"
+                      className="relative w-full h-40 flex flex-col items-center justify-start cursor-pointer hover:scale-105 transition-transform group"
                     >
-                      <span className="text-xs font-bold text-purple-900">{card.title}</span>
+                      {/* Titre au-dessus de la pellicule avec Icône Favori au survol */}
+                      <div className="flex items-center justify-center gap-1 mb-1">
+                        <span className="text-xs font-bold text-purple-950 text-center">
+                          {card.title}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={(e) => toggleFavorite(card.id, e)}
+                          className={`transition-opacity cursor-pointer ${
+                            favoriteId === card.id
+                              ? "opacity-100"
+                              : "opacity-0 group-hover:opacity-100"
+                          }`}
+                        >
+                          <img
+                            src={
+                              favoriteId === card.id
+                                ? "/image_icone/FavoritesYes.svg"
+                                : "/image_icone/FavoritesNo.svg"
+                            }
+                            alt="Favori"
+                            className="w-4 h-4 object-contain"
+                          />
+                        </button>
+                      </div>
+
+                      {/* Illustration Pellicule.svg avec aperçu de la photo */}
+                      <div className="relative w-full h-32 flex items-center justify-center">
+                        {/* Support Pellicule en dessous (z-10) */}
+                        <img
+                          src="/image_Design-SOREA/Pellicule.svg"
+                          alt="Pellicule"
+                          className="absolute inset-0 w-full h-full object-contain z-10"
+                        />
+                        {/* Photo au-dessus (z-20) */}
+                        <div className="relative z-20 w-[68%] h-[68%] overflow-hidden flex items-center justify-center">
+                          {card.images && card.images.length > 0 ? (
+                            <img
+                              src={typeof card.images[0] === "string" ? card.images[0] : card.images[0].url}
+                              alt={card.title}
+                              className="w-full h-full object-contain"
+                              style={
+                                typeof card.images[0] !== "string" && card.images[0]?.transform
+                                  ? {
+                                      transform: `translate(${card.images[0].transform.x}px, ${card.images[0].transform.y}px) scale(${card.images[0].transform.scale})`,
+                                    }
+                                  : undefined
+                              }
+                            />
+                          ) : (
+                            <div className="w-full h-full bg-purple-100/60 flex items-center justify-center text-[10px] text-purple-400 font-semibold">
+                              Vide
+                            </div>
+                          )}
+                        </div>
+                      </div>
                     </div>
                   ))
                 )
