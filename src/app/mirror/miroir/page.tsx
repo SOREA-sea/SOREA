@@ -5,6 +5,7 @@ import Link from "next/link";
 import Navbar from '@/components/Navbar';
 import Footer from "@/components/Footer";
 import AffirmationGallery from "@/components/AffirmationGallery";
+import AffirmationPayment from "@/components/AffirmationPayment";
 import { pickAffirmation, Phase } from "@/lib/affirmations";
 import { pickDefaultAffirmation } from "@/lib/defaultAffirmations";
 import { fetchCurrentPhase } from "@/lib/cyclePhase";
@@ -26,6 +27,9 @@ export default function NouvellePage() {
   const [activeCustomCard, setActiveCustomCard] = useState<any>(null);
   const [customIndex, setCustomIndex] = useState<number>(0);
   const [profile, setProfile] = useState<any>(null);
+
+  // État pour gérer la modale de paiement de la boutique
+  const [selectedBoutiqueCard, setSelectedBoutiqueCard] = useState<any | null>(null);
 
   // État pour gérer la lecture / pause du bouton central
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
@@ -81,6 +85,20 @@ export default function NouvellePage() {
 
   const togglePlayPause = () => {
     if (!isPlaying) {
+      // Si on est en mode "default" (Favoris), on vérifie si le favori actif est un article de la boutique
+      if (activeMode === "default") {
+        const favIds: string[] = JSON.parse(localStorage.getItem("sorea_affirmations_favorites") || "[]");
+        const boutiqueCards: any[] = JSON.parse(localStorage.getItem("sorea_affirmations_boutique") || "[]");
+        const currentFavId = favIds[0]; // Le favori actif principal
+        const foundBoutiqueCard = boutiqueCards.find((c) => c.id === currentFavId);
+
+        if (foundBoutiqueCard) {
+          // Si c'est un article de la boutique, on ouvre la modale de paiement et on arrête
+          setSelectedBoutiqueCard(foundBoutiqueCard);
+          return;
+        }
+      }
+
       setIsPlaying(true);
       if (!affirmation) {
         genererAffirmationMiroir();
@@ -673,7 +691,30 @@ export default function NouvellePage() {
       {/* FOOTER */}
       <Footer />
       {/* Composant pour afficher la modale au clic sur "Personnalisées" */}
-<AffirmationGallery externalIsOpen={isCustomModalOpen} setExternalIsOpen={setIsCustomModalOpen} />
+      <AffirmationGallery externalIsOpen={isCustomModalOpen} setExternalIsOpen={setIsCustomModalOpen} />
+
+      {/* MODALE DE PAIEMENT DE LA BOUTIQUE SI UN FAVORI BOUTIQUE EST LANCÉ */}
+      {selectedBoutiqueCard && (
+        <AffirmationPayment
+          isOpen={!!selectedBoutiqueCard}
+          onClose={() => setSelectedBoutiqueCard(null)}
+          onPaymentSuccess={() => {
+            alert(`Paiement réussi pour "${selectedBoutiqueCard.title}" !`);
+            setSelectedBoutiqueCard(null);
+            setIsPlaying(true);
+            genererAffirmationMiroir();
+          }}
+          data={{
+            id: selectedBoutiqueCard.id,
+            title: selectedBoutiqueCard.title,
+            quotes: selectedBoutiqueCard.text ? selectedBoutiqueCard.text.split("\n").filter((l: string) => l.trim().length > 0).slice(0, 2) : [],
+            totalQuotesCount: selectedBoutiqueCard.text ? selectedBoutiqueCard.text.split("\n").filter((l: string) => l.trim().length > 0).length : 1,
+            description: selectedBoutiqueCard.description || "Un ensemble d'affirmations puissantes pour votre quotidien.",
+            price: selectedBoutiqueCard.price || 0.95,
+            imageUrl: selectedBoutiqueCard.imageUrl || "/image_Design-SOREA/PaiementAffirmation.svg",
+          }}
+        />
+      )}
 
 {/* MODALE DE CONSIGNES DU MIROIR */}
       {showInstruction && (

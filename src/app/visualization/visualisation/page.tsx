@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import VisualisationGallery from "@/components/VisualisationGallery";
+import VisualisationPayment from "@/components/VisualisationPayment";
 import { createPortal } from "react-dom";
 import { X } from "lucide-react";
 
@@ -34,6 +35,7 @@ export default function Page() {
   const [isGalleryModalOpen, setIsGalleryModalOpen] = useState(false);
 
   const [activeFavoriteCard, setActiveFavoriteCard] = useState<VisualisationCard | null>(null);
+  const [selectedBoutiqueCard, setSelectedBoutiqueCard] = useState<any | null>(null);
 
   // Fonction pour récupérer les images favorites de la album ET de la boutique
   const loadFavoriteImages = () => {
@@ -308,7 +310,17 @@ return (
           {/* Bouton Play unique sans state (changement au survol CSS) */}
           <div className="flex items-center justify-center z-20">
             <button
-              onClick={() => setIsFullscreen(true)}
+              onClick={() => {
+                if (activeMode === "favoris" && activeFavoriteCard) {
+                  const boutiqueCards = JSON.parse(localStorage.getItem("sorea_visualisation_boutique") || "[]");
+                  const foundBoutique = boutiqueCards.find((c: any) => c.id === activeFavoriteCard.id);
+                  if (foundBoutique) {
+                    setSelectedBoutiqueCard(foundBoutique);
+                    return;
+                  }
+                }
+                setIsFullscreen(true);
+              }}
               className="group hover:scale-105 active:scale-95 transition-transform cursor-pointer relative w-16 h-16 sm:w-20 sm:h-20 flex items-center justify-center"
               title="Lancer la projection en plein écran"
             >
@@ -436,6 +448,27 @@ return (
         externalIsOpen={isGalleryModalOpen}
         setExternalIsOpen={setIsGalleryModalOpen}
       />
+
+      {/* MODALE DE PAIEMENT DE LA BOUTIQUE VISUALISATION */}
+      {selectedBoutiqueCard && (
+        <VisualisationPayment
+          isOpen={!!selectedBoutiqueCard}
+          onClose={() => setSelectedBoutiqueCard(null)}
+          onPaymentSuccess={() => {
+            alert(`Paiement réussi pour la pellicule "${selectedBoutiqueCard.title}" !`);
+            setSelectedBoutiqueCard(null);
+            setIsFullscreen(true);
+          }}
+          data={{
+            id: selectedBoutiqueCard.id,
+            title: selectedBoutiqueCard.title,
+            imagesCount: selectedBoutiqueCard.images ? selectedBoutiqueCard.images.length : 3,
+            description: selectedBoutiqueCard.description || "Une parenthèse en images pour conserver les instants qui vous font du bien et célébrer votre équilibre au quotidien.",
+            price: selectedBoutiqueCard.price || 0.95,
+            imageUrl: selectedBoutiqueCard.imageUrl || (selectedBoutiqueCard.images?.[0] ? (typeof selectedBoutiqueCard.images[0] === 'string' ? selectedBoutiqueCard.images[0] : selectedBoutiqueCard.images[0].url) : "/image_Design-SOREA/PelliculeTest.svg"),
+          }}
+        />
+      )}
     </div>
   );
 }
