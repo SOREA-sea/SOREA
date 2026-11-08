@@ -75,11 +75,13 @@ export default function VisualisationGallery({
       const saved = localStorage.getItem("sorea_visualisation_favorites");
       if (saved) {
         const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed)) return parsed[0] || null;
-        return parsed;
+        if (Array.isArray(parsed) && parsed[0]) return parsed[0];
+        if (parsed) return parsed;
       }
+      // Par défaut, sélectionne le premier élément pour qu'il y ait toujours au moins un favori
+      return "1";
     }
-    return null;
+    return "1";
   });
 
   const [trash, setTrash] = useState<VisualisationCard[]>(() => {
@@ -118,8 +120,13 @@ export default function VisualisationGallery({
   const toggleFavorite = (id: string, e: React.MouseEvent) => {
     e.stopPropagation();
     setFavoriteId((prev) => {
-      const updated = prev === id ? null : id;
-      localStorage.setItem("sorea_visualisation_favorites", JSON.stringify(updated ? [updated] : []));
+      // Si la pellicule cliquée est déjà en favori, on ne fait rien (on garde le favori actif obligatoirement)
+      if (prev === id) {
+        return prev;
+      }
+      // Sinon, on remplace par le nouvel ID sélectionné
+      const updated = id;
+      localStorage.setItem("sorea_visualisation_favorites", JSON.stringify([updated]));
       return updated;
     });
   };

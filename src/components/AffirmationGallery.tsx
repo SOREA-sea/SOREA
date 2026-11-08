@@ -51,21 +51,29 @@ export default function AffirmationGallery({
     if (typeof window !== "undefined") {
       const saved = localStorage.getItem("sorea_affirmations_favorites");
       if (saved) {
-        // Compatibilité si l'ancien format était un tableau
         const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed)) return parsed[0] || null;
-        return parsed;
+        if (Array.isArray(parsed) && parsed[0]) return parsed[0];
+        if (parsed) return parsed;
       }
+      // Par défaut, sélectionne le premier élément de la galerie pour qu'il y ait toujours au moins un favori
+      const defaultCards = [
+        { id: "1" }
+      ];
+      return defaultCards[0].id;
     }
-    return null;
+    return "1";
   });
 
   const toggleFavorite = (id: string, e: React.MouseEvent) => {
     e.stopPropagation();
     setFavoriteId((prev) => {
-      // Si on clique sur la carte déjà en favori, on l'enlève (null). Sinon, on met le nouvel ID (remplaçant l'ancien).
-      const updated = prev === id ? null : id;
-      localStorage.setItem("sorea_affirmations_favorites", JSON.stringify(updated ? [updated] : []));
+      // Si la carte cliquée est déjà en favori, on ne fait rien (on garde le favori actif obligatoirement)
+      if (prev === id) {
+        return prev;
+      }
+      // Sinon, on remplace par le nouvel ID sélectionné
+      const updated = id;
+      localStorage.setItem("sorea_affirmations_favorites", JSON.stringify([updated]));
       return updated;
     });
   };

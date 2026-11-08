@@ -197,8 +197,8 @@ export default function NouvellePage() {
       let chosenText = "";
       let chosenId = "";
 
-      if (activeMode === "default" || (activeMode === "cycle" && !profile?.isActive)) {
-        // Mode Favoris : récupérer les cartes en favoris depuis localStorage
+      if (activeMode === "default") {
+        // Mode Favoris : utilise exclusivement le système de favoris de AffirmationGallery
         const favIds: string[] = JSON.parse(localStorage.getItem("sorea_affirmations_favorites") || "[]");
         const allCards: any[] = JSON.parse(localStorage.getItem("sorea_affirmations") || "[]");
         const boutiqueCards: any[] = JSON.parse(localStorage.getItem("sorea_affirmations_boutique") || "[]");
@@ -227,11 +227,14 @@ export default function NouvellePage() {
             setCustomIndex((prev) => prev + 1);
           }
         } else {
-          // Si aucun favori n'est sélectionné, repli sur l'affirmation par défaut
-          const chosen = pickDefaultAffirmation(usedAffirmationIds);
-          chosenText = chosen.text;
-          chosenId = chosen.id;
+          chosenText = "Veuillez sélectionner au moins un favori dans votre galerie.";
+          chosenId = "empty_fav";
         }
+      } else if (activeMode === "cycle" && !profile?.isActive) {
+        // Mode Par défaut : utilise exclusivement le fichier defaultAffirmations.ts
+        const chosen = pickDefaultAffirmation(usedAffirmationIds);
+        chosenText = chosen.text;
+        chosenId = chosen.id;
       } else if (activeMode === "custom" && activeCustomCard) {
         const lines = activeCustomCard.text
           .split("\n")
