@@ -34,18 +34,43 @@ export default function VisualisationPayment({
 }: VisualisationPaymentProps) {
   if (!isOpen) return null;
 
+  const handleCheckout = async () => {
+    try {
+      const response = await fetch("/api/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          id: data.id,
+          title: data.title,
+          price: data.price,
+          type: "visualisation",
+        }),
+      });
+
+      const { url, error } = await response.json();
+      if (error) {
+        alert("Erreur : " + error);
+        return;
+      }
+
+      if (url) {
+        window.location.href = url;
+      }
+    } catch (err) {
+      console.error("Erreur réseau", err);
+    }
+  };
+
   const displayPrice =
     typeof data.price === "number"
       ? data.price.toFixed(2)
       : data.price || "0.95";
-  const imageSrc =
-    data.imageUrl || "/image_Design-SOREA/PelliculeTest.svg";
+  const imageSrc = data.imageUrl || "/image_Design-SOREA/PelliculeTest.svg";
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4 animate-fade-in">
       {/* Conteneur principal de la modale */}
       <div className="relative w-full max-w-[480px] bg-[#FAF5FF] rounded-[32px] shadow-2xl border border-purple-100 p-8 flex flex-col items-center">
-        
         {/* En-tête : Marque SOREA & Bouton Fermer */}
         <div className="w-full flex items-center justify-between mb-4">
           <span className="text-sm font-semibold tracking-[0.3em] text-[#333333] uppercase">
@@ -83,7 +108,13 @@ export default function VisualisationPayment({
 
         {/* Badge N+1 images */}
         <div className="px-4 py-1 rounded-full bg-white border border-purple-100 shadow-xs text-xs font-bold text-[#8B47FF] mb-4">
-          N+{data.imagesCount && data.imagesCount > 0 ? data.imagesCount - 2 > 0 ? data.imagesCount - 2 : 1 : 1} images
+          N+
+          {data.imagesCount && data.imagesCount > 0
+            ? data.imagesCount - 2 > 0
+              ? data.imagesCount - 2
+              : 1
+            : 1}{" "}
+          images
         </div>
 
         {/* Description du produit */}
@@ -113,7 +144,7 @@ export default function VisualisationPayment({
 
         {/* Bouton d'action / Paiement */}
         <button
-          onClick={onPaymentSuccess}
+          onClick={handleCheckout}
           type="button"
           className="w-full py-4 px-6 rounded-2xl bg-[#E256B3] hover:bg-[#d647a5] active:scale-[0.99] transition-all shadow-md hover:shadow-lg text-white font-bold text-sm flex items-center justify-center gap-2 cursor-pointer"
         >
@@ -125,7 +156,6 @@ export default function VisualisationPayment({
         <span className="mt-4 text-[11px] text-gray-400 font-medium tracking-wide">
           Paiement sécurisé
         </span>
-
       </div>
     </div>
   );

@@ -36,6 +36,33 @@ export default function AffirmationPayment({
 }: AffirmationPaymentProps) {
   if (!isOpen) return null;
 
+  const handleCheckout = async () => {
+    try {
+      const response = await fetch("/api/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          id: data.id,
+          title: data.title,
+          price: data.price,
+          type: "affirmation",
+        }),
+      });
+
+      const { url, error } = await response.json();
+      if (error) {
+        alert("Erreur : " + error);
+        return;
+      }
+
+      if (url) {
+        window.location.href = url;
+      }
+    } catch (err) {
+      console.error("Erreur réseau", err);
+    }
+  };
+
   const quotesList = data.quotes || ["Citation 1", "Citation 2..."];
   const displayPrice = typeof data.price === "number" ? data.price.toFixed(2) : data.price || "0.95";
   const imageSrc = data.imageUrl || "/image_Design-SOREA/PaiementAffirmation.svg";
@@ -128,7 +155,7 @@ export default function AffirmationPayment({
 
         {/* Bouton d'action / Paiement */}
         <button
-          onClick={onPaymentSuccess}
+          onClick={handleCheckout}
           type="button"
           className="w-full py-4 px-6 rounded-2xl bg-gradient-to-r bg-[#E256B3] hover:opacity-95 active:scale-[0.99] transition-all shadow-md hover:shadow-lg text-white font-bold text-sm flex items-center justify-center gap-2 cursor-pointer"
         >
