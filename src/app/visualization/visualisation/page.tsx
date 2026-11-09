@@ -125,6 +125,23 @@ export default function Page() {
     }
   };
 
+  // Gérer le retour de paiement réussi Stripe pour la visualisation
+  useEffect(() => {
+    const query = new URLSearchParams(window.location.search);
+    if (query.get("success") === "true") {
+      const itemId = query.get("itemId");
+      if (itemId) {
+        const purchased = JSON.parse(localStorage.getItem("sorea_purchased_items") || "[]");
+        if (!purchased.includes(itemId)) {
+          purchased.push(itemId);
+          localStorage.setItem("sorea_purchased_items", JSON.stringify(purchased));
+        }
+      }
+      alert("Paiement réussi ! Ta pellicule est maintenant débloquée.");
+      window.history.replaceState({}, "", window.location.pathname);
+    }
+  }, []);
+
   useEffect(() => {
     loadActivePellicule();
 

@@ -138,6 +138,23 @@ export default function NouvellePage() {
     }
   };
 
+  // Gérer le retour de paiement réussi Stripe
+  useEffect(() => {
+    const query = new URLSearchParams(window.location.search);
+    if (query.get("success") === "true") {
+      const itemId = query.get("itemId");
+      if (itemId) {
+        const purchased = JSON.parse(localStorage.getItem("sorea_purchased_items") || "[]");
+        if (!purchased.includes(itemId)) {
+          purchased.push(itemId);
+          localStorage.setItem("sorea_purchased_items", JSON.stringify(purchased));
+        }
+      }
+      alert("Paiement réussi ! Ton article est maintenant débloqué.");
+      window.history.replaceState({}, "", window.location.pathname);
+    }
+  }, []);
+
   // Charger le profil menstruel et les données du jour
   useEffect(() => {
     const today = new Date().toISOString().split("T")[0];
