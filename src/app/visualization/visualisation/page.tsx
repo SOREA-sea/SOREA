@@ -129,15 +129,27 @@ export default function Page() {
   useEffect(() => {
     const query = new URLSearchParams(window.location.search);
     if (query.get("success") === "true") {
-      const itemId = query.get("itemId");
+      const itemId = query.get("itemId") || query.get("id");
       if (itemId) {
         const purchased = JSON.parse(localStorage.getItem("sorea_purchased_items") || "[]");
         if (!purchased.includes(itemId)) {
           purchased.push(itemId);
           localStorage.setItem("sorea_purchased_items", JSON.stringify(purchased));
         }
+
+        // Transfert automatique de la boutique vers l'album de visualisation
+        const savedBoutique = JSON.parse(localStorage.getItem("sorea_visualisation_boutique") || "[]");
+        const savedPellicules = JSON.parse(localStorage.getItem("sorea_visualisation_pellicules") || "[]");
+        const itemToMove = savedBoutique.find((item: any) => item.id === itemId);
+        if (itemToMove) {
+          const updatedBoutique = savedBoutique.filter((item: any) => item.id !== itemId);
+          const updatedPellicules = [...savedPellicules, itemToMove];
+          localStorage.setItem("sorea_visualisation_boutique", JSON.stringify(updatedBoutique));
+          localStorage.setItem("sorea_visualisation_pellicules", JSON.stringify(updatedPellicules));
+          window.dispatchEvent(new Event("storage"));
+        }
       }
-      alert("Paiement réussi ! Ta pellicule est maintenant débloquée.");
+      alert("Paiement réussi ! Ta pellicule a été transférée dans ton album.");
       window.history.replaceState({}, "", window.location.pathname);
     }
   }, []);

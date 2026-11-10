@@ -109,16 +109,22 @@ export default function VisualisationGallery({
 
   useEffect(() => {
     const handleStorageChange = () => {
-      const saved = localStorage.getItem("sorea_visualisation_boutique");
-      if (saved) setBoutiqueCards(JSON.parse(saved));
+      const savedBoutique = localStorage.getItem("sorea_visualisation_boutique");
+      if (savedBoutique) setBoutiqueCards(JSON.parse(savedBoutique));
+      const savedPell = localStorage.getItem("sorea_visualisation_pellicules");
+      if (savedPell) setPellicules(JSON.parse(savedPell));
     };
+
+    // Chargement initial au montage ou à l'ouverture de la modale
+    handleStorageChange();
+
     window.addEventListener("storage", handleStorageChange);
     window.addEventListener("visualisationSentToBoutique", handleStorageChange);
     return () => {
       window.removeEventListener("storage", handleStorageChange);
       window.removeEventListener("visualisationSentToBoutique", handleStorageChange);
     };
-  }, []);
+  }, [externalIsOpen]);
 
   const toggleFavorite = (id: string, e: React.MouseEvent) => {
     e.stopPropagation();
@@ -1065,7 +1071,6 @@ export default function VisualisationGallery({
           isOpen={!!selectedBoutiqueCard}
           onClose={() => setSelectedBoutiqueCard(null)}
           onPaymentSuccess={() => {
-            alert(`Paiement réussi pour la pellicule "${selectedBoutiqueCard.title}" !`);
             setSelectedBoutiqueCard(null);
           }}
           data={{

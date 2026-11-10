@@ -315,23 +315,9 @@ export default function AdminProductsPage() {
     }
   };
 
-  const sendToShop = async (card: AffirmationCard) => {
+  const sendToShop = (card: AffirmationCard) => {
     setActiveMenuId(null);
     try {
-      const res = await fetch("/api/admin/products", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name: card.title,
-          description: card.text,
-          price: card.price || 0.50,
-          stockQuantity: 10,
-          imageUrl: "/images/product_1.webp"
-        }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Erreur lors de l'envoi");
-
       const existingBoutique = JSON.parse(localStorage.getItem("sorea_affirmations_boutique") || "[]");
       if (!existingBoutique.some((item: AffirmationCard) => item.id === card.id)) {
         const updatedBoutique = [...existingBoutique, card];
@@ -339,10 +325,8 @@ export default function AdminProductsPage() {
         window.dispatchEvent(new Event("affirmationSentToBoutique"));
       }
 
-      await fetchProducts();
       setIsAffirmationModalOpen(false);
-      setActiveTab("Shop");
-      setMessage({ type: "success", text: `"${card.title}" a été envoyé avec succès dans la Boutique !` });
+      setMessage({ type: "success", text: `"${card.title}" a été enregistré avec succès !` });
       setTimeout(() => setMessage(null), 3000);
     } catch (err: any) {
       setMessage({ type: "error", text: err.message || "Erreur lors de l'envoi" });

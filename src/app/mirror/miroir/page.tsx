@@ -142,15 +142,27 @@ export default function NouvellePage() {
   useEffect(() => {
     const query = new URLSearchParams(window.location.search);
     if (query.get("success") === "true") {
-      const itemId = query.get("itemId");
+      const itemId = query.get("itemId") || query.get("id");
       if (itemId) {
         const purchased = JSON.parse(localStorage.getItem("sorea_purchased_items") || "[]");
         if (!purchased.includes(itemId)) {
           purchased.push(itemId);
           localStorage.setItem("sorea_purchased_items", JSON.stringify(purchased));
         }
+
+        // Transfert automatique de la boutique vers la galerie
+        const savedBoutique = JSON.parse(localStorage.getItem("sorea_affirmations_boutique") || "[]");
+        const savedAff = JSON.parse(localStorage.getItem("sorea_affirmations") || "[]");
+        const itemToMove = savedBoutique.find((item: any) => item.id === itemId);
+        if (itemToMove) {
+          const updatedBoutique = savedBoutique.filter((item: any) => item.id !== itemId);
+          const updatedAff = [...savedAff, itemToMove];
+          localStorage.setItem("sorea_affirmations_boutique", JSON.stringify(updatedBoutique));
+          localStorage.setItem("sorea_affirmations", JSON.stringify(updatedAff));
+          window.dispatchEvent(new Event("storage"));
+        }
       }
-      alert("Paiement réussi ! Ton article est maintenant débloqué.");
+      alert("Paiement réussi ! Ton article a été transféré dans ta galerie.");
       window.history.replaceState({}, "", window.location.pathname);
     }
   }, []);

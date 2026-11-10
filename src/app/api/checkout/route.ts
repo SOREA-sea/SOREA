@@ -29,8 +29,8 @@ export async function POST(request: Request) {
         },
       ],
       mode: "payment",
-      success_url: `${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/${type === "visualisation" ? "visualisation/visualisation" : "mirror/miroir"}?success=true&itemId=${id}`,
-      cancel_url: `${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/${type === "visualisation" ? "visualisation/visualisation" : "mirror/miroir"}?canceled=true`,
+      success_url: `${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/${type === "visualisation" ? "visualization/visualisation" : "mirror/miroir"}?success=true&itemId=${id}`,
+      cancel_url: `${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/${type === "visualisation" ? "visualization/visualisation" : "mirror/miroir"}?canceled=true`,
     });
 
     return NextResponse.json({ url: session.url });

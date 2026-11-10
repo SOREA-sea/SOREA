@@ -105,16 +105,22 @@ export default function AffirmationGallery({
 
   React.useEffect(() => {
     const handleStorageChange = () => {
-      const saved = localStorage.getItem("sorea_affirmations_boutique");
-      if (saved) setBoutiqueCards(JSON.parse(saved));
+      const savedBoutique = localStorage.getItem("sorea_affirmations_boutique");
+      if (savedBoutique) setBoutiqueCards(JSON.parse(savedBoutique));
+      const savedAff = localStorage.getItem("sorea_affirmations");
+      if (savedAff) setAffirmations(JSON.parse(savedAff));
     };
+
+    // Chargement initial au montage ou à l'ouverture de la modale
+    handleStorageChange();
+
     window.addEventListener("storage", handleStorageChange);
     window.addEventListener("affirmationSentToBoutique", handleStorageChange);
     return () => {
       window.removeEventListener("storage", handleStorageChange);
       window.removeEventListener("affirmationSentToBoutique", handleStorageChange);
     };
-  }, []);
+  }, [externalIsOpen]);
 
   const [internalIsOpen, setInternalIsOpen] = useState(false);
 
@@ -661,7 +667,6 @@ export default function AffirmationGallery({
           isOpen={!!selectedBoutiqueCard}
           onClose={() => setSelectedBoutiqueCard(null)}
           onPaymentSuccess={() => {
-            alert(`Paiement réussi pour "${selectedBoutiqueCard.title}" !`);
             setSelectedBoutiqueCard(null);
           }}
           data={{
