@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { Plus, X } from "lucide-react";
+import { createAffirmationAction, createVisualisationAction } from "./actions";
 
 interface ProductData {
   id: number;
@@ -171,18 +172,30 @@ export default function AdminProductsPage() {
     setActiveVisMenuId(null);
   };
 
-  const sendVisualisationToShop = (card: any) => {
+  const sendVisualisationToShop = async (card: any) => {
     setActiveVisMenuId(null);
     try {
+      const result = await createVisualisationAction({
+        title: card.title,
+        description: card.description || "",
+        price: card.price || 0.95,
+      });
+
+      if (!result.success) {
+        throw new Error(result.error || "Erreur lors de l'enregistrement en base");
+      }
+
       const existingBoutique = JSON.parse(localStorage.getItem("sorea_visualisation_boutique") || "[]");
-      if (!existingBoutique.some((item: any) => item.id === card.id)) {
-        const updatedBoutique = [...existingBoutique, card];
+      const productWithDbId = { ...card, id: String(result.product.id) };
+
+      if (!existingBoutique.some((item: any) => item.id === productWithDbId.id)) {
+        const updatedBoutique = [...existingBoutique, productWithDbId];
         localStorage.setItem("sorea_visualisation_boutique", JSON.stringify(updatedBoutique));
         window.dispatchEvent(new Event("visualisationSentToBoutique"));
       }
 
       setIsVisualisationModalOpen(false);
-      setMessage({ type: "success", text: `"${card.title}" a été enregistré avec succès !` });
+      setMessage({ type: "success", text: `"${card.title}" a été envoyé et enregistré dans GameProduct avec succès !` });
       setTimeout(() => setMessage(null), 3000);
     } catch (err: any) {
       setMessage({ type: "error", text: err.message || "Erreur lors de l'envoi" });
@@ -315,18 +328,32 @@ export default function AdminProductsPage() {
     }
   };
 
-  const sendToShop = (card: AffirmationCard) => {
+  const sendToShop = async (card: AffirmationCard) => {
     setActiveMenuId(null);
     try {
+      // 1. Enregistrement en base de données dans la table GameProduct
+      const result = await createAffirmationAction({
+        title: card.title,
+        text: card.text,
+        price: card.price || 0.95,
+      });
+
+      if (!result.success) {
+        throw new Error(result.error || "Erreur lors de l'enregistrement en base");
+      }
+
+      // 2. Synchronisation avec l'ID réel de la base de données dans le localStorage
       const existingBoutique = JSON.parse(localStorage.getItem("sorea_affirmations_boutique") || "[]");
-      if (!existingBoutique.some((item: AffirmationCard) => item.id === card.id)) {
-        const updatedBoutique = [...existingBoutique, card];
+      const productWithDbId = { ...card, id: String(result.product.id) };
+
+      if (!existingBoutique.some((item: AffirmationCard) => item.id === productWithDbId.id)) {
+        const updatedBoutique = [...existingBoutique, productWithDbId];
         localStorage.setItem("sorea_affirmations_boutique", JSON.stringify(updatedBoutique));
         window.dispatchEvent(new Event("affirmationSentToBoutique"));
       }
 
       setIsAffirmationModalOpen(false);
-      setMessage({ type: "success", text: `"${card.title}" a été enregistré avec succès !` });
+      setMessage({ type: "success", text: `"${card.title}" a été envoyé et enregistré dans GameProduct avec succès !` });
       setTimeout(() => setMessage(null), 3000);
     } catch (err: any) {
       setMessage({ type: "error", text: err.message || "Erreur lors de l'envoi" });
@@ -733,7 +760,7 @@ export default function AdminProductsPage() {
                             onClick={() => sendToShop(card)}
                             className="flex items-center gap-2 text-xs font-semibold text-[#8B47FF] hover:bg-purple-50 p-2 rounded-lg transition-colors text-left cursor-pointer"
                           >
-                            📤 Envoyer
+                            📤 Envoyer (Bdd)
                           </button>
                           <button 
                             onClick={() => startEditAffirmation(card)}

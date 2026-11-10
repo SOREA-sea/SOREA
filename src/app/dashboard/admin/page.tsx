@@ -34,11 +34,22 @@ export default async function AdminOverviewPage() {
     prisma.coachReview.count(),
   ]);
 
-  // Revenus estimés
-  const bookingsWithPrice = await prisma.sessionBooking.findMany({
-    include: { session: { select: { price: true } } },
-  });
-  const totalRevenue = bookingsWithPrice.reduce((sum, b) => sum + b.session.price, 0);
+  // Revenus estimés (Séances + Produits de jeux achetés uniquement)
+  const [bookingsWithPrice, gameProducts] = await Promise.all([
+    prisma.sessionBooking.findMany({
+      include: { session: { select: { price: true } } },
+    }),
+    (prisma.gameProduct as any).findMany({
+      where: { isPurchased: true },
+      select: { price: true },
+    }),
+  ]);
+
+  const sessionsRevenue = bookingsWithPrice.reduce((sum, b) => sum + b.session.price, 0);
+  const gameProductsRevenue = gameProducts.reduce((sum, p) => sum + p.price, 0);
+  
+  const totalRevenue = sessionsRevenue + gameProductsRevenue;
+  const totalTransactionsCount = totalBookings + gameProducts.length;
 
   const recentBookings = await prisma.sessionBooking.findMany({
     orderBy: { bookedAt: "desc" },
@@ -123,8 +134,8 @@ export default async function AdminOverviewPage() {
     },
     {
       label: "Revenus",
-      value: `${totalRevenue.toFixed(0)} €`,
-      sub: `${totalBookings} transactions`,
+      value: `${totalRevenue.toFixed(2)} €`,
+      sub: `${totalTransactionsCount} transactions`,
       color: "bg-amber-100 text-amber-600",
       icon: (
         <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -135,7 +146,7 @@ export default async function AdminOverviewPage() {
   ];
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 mt-20">
       {/* Header */}
       <header>
         <div className="flex items-center gap-3 mb-1">

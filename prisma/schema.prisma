@@ -167,6 +167,7 @@ model GameProduct {
   price       Float    @default(0.50)
   type        String   
   isActive    Boolean  @default(true)
+  isPurchased Boolean  @default(false)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
