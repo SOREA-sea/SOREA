@@ -162,9 +162,9 @@ export default function AdminProductsPage() {
     setIsAddingVisualisation(false);
   };
 
-  const startEditVisualisation = (card: any) => {
-    setEditingVisId(card.id);
-    setCurrentVisTitle(card.title || "");
+  const startDuplicateVisualisation = (card: any) => {
+    setEditingVisId(null); // Force la création d'un nouvel élément
+    setCurrentVisTitle(`${card.title || ""} (Copie)`);
     setCurrentVisImages(card.images || []);
     setCurrentVisPrice(card.price ? card.price.toString() : "0.95");
     setCurrentVisDescription(card.description || "");
@@ -302,9 +302,9 @@ export default function AdminProductsPage() {
     setIsAddingAffirmation(false);
   };
 
-  const startEditAffirmation = (card: AffirmationCard) => {
-    setEditingAffirmationId(card.id);
-    setCurrentAffirmationTitle(card.title || "");
+  const startDuplicateAffirmation = (card: AffirmationCard) => {
+    setEditingAffirmationId(null); // Force la création d'un nouvel élément
+    setCurrentAffirmationTitle(`${card.title || ""} (Copie)`);
     setCurrentAffirmationText(card.text);
     setCurrentAffirmationPrice(card.price ? card.price.toString() : "0.95");
     setIsAddingAffirmation(true);
@@ -760,13 +760,13 @@ export default function AdminProductsPage() {
                             onClick={() => sendToShop(card)}
                             className="flex items-center gap-2 text-xs font-semibold text-[#8B47FF] hover:bg-purple-50 p-2 rounded-lg transition-colors text-left cursor-pointer"
                           >
-                            📤 Envoyer (Bdd)
+                            📤 Envoyer
                           </button>
                           <button 
-                            onClick={() => startEditAffirmation(card)}
+                            onClick={() => startDuplicateAffirmation(card)}
                             className="flex items-center gap-2 text-xs font-semibold text-gray-700 hover:text-[#8B47FF] hover:bg-purple-50 p-2 rounded-lg transition-colors text-left cursor-pointer"
                           >
-                            ✏️ Modifier
+                            📋 Dupliquer
                           </button>
                           <button 
                             onClick={() => deleteAffirmationCard(card.id)}
@@ -1191,10 +1191,10 @@ export default function AdminProductsPage() {
                             📤 Envoyer
                           </button>
                           <button 
-                            onClick={() => startEditVisualisation(card)}
+                            onClick={() => startDuplicateVisualisation(card)}
                             className="flex items-center gap-2 text-xs font-semibold text-gray-700 hover:text-[#8B47FF] hover:bg-purple-50 p-2 rounded-lg transition-colors text-left cursor-pointer"
                           >
-                            ✏️ Modifier
+                            📋 Dupliquer
                           </button>
                           <button 
                             onClick={() => deleteVisualisationCard(card.id)}
