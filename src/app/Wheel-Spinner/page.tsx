@@ -122,7 +122,8 @@ export default function RouteDesDefis() {
           {/* SPORT */}
                <Link 
                   href="/Wheel-Spinner/Sport"
-                  className="relative flex flex-col items-center justify-center p-8 w-[300px] h-[260px] cursor-pointer hover:-translate-y-1 transition-all duration-300 bg-[#B7F8F5]"
+                  className="relative flex flex-col items-center justify-center p-8 w-[300px] h-[260px] cursor-pointer transition-all duration-300"
+                  style={{ background: "linear-gradient(to bottom, #B7F8F5 0%, rgba(183, 248, 245, 0.1) 100%)" }}
                 >
                   {favoriWheel === "sport" && (
                     <img 
@@ -139,7 +140,8 @@ export default function RouteDesDefis() {
          {/* BIEN-ÊTRE */}
                 <Link 
                   href="/Wheel-Spinner/BienEtre"
-                  className="relative flex flex-col items-center justify-center p-8 w-[300px] h-[260px] cursor-pointer hover:-translate-y-1 transition-all duration-300 bg-[#C0ACFF]"
+                  className="relative flex flex-col items-center justify-center p-8 w-[300px] h-[260px] cursor-pointer transition-all duration-300"
+                  style={{ background: "linear-gradient(to bottom, #C0ACFF 0%, rgba(192, 172, 255, 0.1) 100%)" }}
                 >
                   {favoriWheel === "bien-etre" && (
                     <img 
@@ -159,7 +161,8 @@ export default function RouteDesDefis() {
           {/* NUTRITION */}
                 <Link 
                   href="/Wheel-Spinner/Nutrition"
-                  className="relative flex flex-col items-center justify-center p-8 w-[300px] h-[260px] cursor-pointer hover:-translate-y-1 transition-all duration-300 bg-[#F4C4E4]"
+                  className="relative flex flex-col items-center justify-center p-8 w-[300px] h-[260px] cursor-pointer transition-all duration-300"
+                  style={{ background: "linear-gradient(to bottom, #F4C4E4 0%, rgba(244, 196, 228, 0.1) 100%)" }}
                 >
                   {favoriWheel === "nutrition" && (
                     <img 
