@@ -708,8 +708,51 @@ export default function VisualisationGallery({
             <X className="w-[4vh] h-[4vh]" />
           </button>
 
-          <div className="flex items-center justify-center w-full h-full px-6">
+          <div className="flex items-center justify-center w-full h-full px-6 gap-8">
             
+            {/* Curseur de zoom vertical à gauche de la pellicule avec le bouton Valider */}
+            <div className="bg-white/10 backdrop-blur-md border border-white/20 p-5 rounded-2xl flex flex-col items-center gap-4 shadow-2xl z-[100000]">
+              <span className="text-xs font-semibold text-white tracking-wider whitespace-nowrap">
+                Zoom
+              </span>
+              <input
+                type="range"
+                min="1"
+                max="3"
+                step="0.05"
+                value={cropScale}
+                onChange={(e) => setCropScale(parseFloat(e.target.value))}
+                className="h-44 w-2 accent-[#8B47FF] cursor-pointer bg-white/20 rounded-lg appearance-none my-2"
+                style={{ writingMode: "vertical-lr", direction: "rtl" }}
+              />
+              <span className="text-xs font-bold text-purple-300">
+                {cropScale.toFixed(2)}x
+              </span>
+
+              <button
+                type="button"
+                onClick={() => {
+                  if (selectedImageIndex !== null) {
+                    const updated = [...currentImages];
+                    const currentImgObj = updated[selectedImageIndex];
+                    const urlStr = typeof currentImgObj === "string" ? currentImgObj : currentImgObj.url;
+                    
+                    updated[selectedImageIndex] = {
+                      url: urlStr,
+                      transform: { scale: cropScale, x: cropPos.x, y: cropPos.y },
+                    };
+                    setCurrentImages(updated);
+                  }
+                  setSelectedImageIndex(null);
+                  setCropScale(1);
+                  setCropPos({ x: 0, y: 0 });
+                }}
+                className="bg-[#8B47FF] text-white font-bold px-6 py-2.5 rounded-xl shadow-lg hover:bg-[#7535e6] transition-all cursor-pointer text-xs w-full mt-2"
+              >
+                Valider
+              </button>
+            </div>
+
             {/* Conteneur Géant de la Pellicule (identique à page.tsx) */}
             <div className="w-[115vw] h-[105vh] max-w-[125vh] max-h-[110vw] overflow-hidden relative drop-shadow-2xl flex items-center justify-center">  
               <div className="w-full h-full relative flex items-center justify-center z-20">
@@ -748,45 +791,6 @@ export default function VisualisationGallery({
               </div>
             </div>
 
-          </div>
-
-          {/* Barre inférieure : Curseur de Zoom & Bouton Valider */}
-          <div className="absolute bottom-[4vh] w-full max-w-3xl bg-white/10 backdrop-blur-md border border-white/20 p-4 rounded-2xl flex items-center gap-6 shadow-2xl z-[100000]">
-            <span className="text-sm font-medium text-white whitespace-nowrap">
-              Échelle (Zoom) :
-            </span>
-            <input
-              type="range"
-              min="1"
-              max="3"
-              step="0.05"
-              value={cropScale}
-              onChange={(e) => setCropScale(parseFloat(e.target.value))}
-              className="flex-1 accent-[#8B47FF] cursor-pointer h-2 bg-white/20 rounded-lg appearance-none"
-            />
-            <button
-              type="button"
-              onClick={() => {
-                if (selectedImageIndex !== null) {
-                  const updated = [...currentImages];
-                  const currentImgObj = updated[selectedImageIndex];
-                  const urlStr = typeof currentImgObj === "string" ? currentImgObj : currentImgObj.url;
-                  
-                  updated[selectedImageIndex] = {
-                    url: urlStr,
-                    transform: { scale: cropScale, x: cropPos.x, y: cropPos.y },
-                  };
-                  setCurrentImages(updated);
-                }
-                setSelectedImageIndex(null);
-                setIsAdjustMode(false);
-                setCropScale(1);
-                setCropPos({ x: 0, y: 0 });
-              }}
-              className="bg-[#8B47FF] text-white font-bold px-8 py-3 rounded-xl shadow-lg hover:bg-[#7535e6] transition-all cursor-pointer text-sm"
-            >
-              Valider
-            </button>
           </div>
 
         </div>
@@ -914,13 +918,13 @@ export default function VisualisationGallery({
                           onClick={(e) => e.stopPropagation()}
                           className="absolute top-2 right-2 bg-white rounded-xl shadow-xl border border-purple-100 p-2 flex flex-col gap-1 z-20 w-44 animate-scale-up"
                         >
-                         <Link
-                            href="/visualization/visualisation"
+                         <button
+                            type="button"
                             onClick={() => selectForProjection(card)}
-                            className="flex items-center gap-2 text-xs font-semibold text-[#8B47FF] hover:bg-purple-50 p-2 rounded-lg transition-colors text-left cursor-pointer"
+                            className="flex items-center gap-2 text-xs font-semibold text-[#8B47FF] hover:bg-purple-50 p-2 rounded-lg transition-colors text-left cursor-pointer w-full"
                           >
                             🖼️ Projeter
-                          </Link>
+                          </button>
                           <button
                             onClick={() => startEdit(card)}
                             className="flex items-center gap-2 text-xs font-semibold text-gray-700 hover:text-[#8B47FF] hover:bg-purple-50 p-2 rounded-lg transition-colors text-left cursor-pointer"
