@@ -29,7 +29,6 @@ export default function VisualisationPayment({
     description:
       "Une parenthèse en images pour conserver les instants qui vous font du bien et célébrer votre équilibre au quotidien.",
     price: "0.95",
-    imageUrl: "/image_Design-SOREA/PelliculeTest.svg",
   },
 }: VisualisationPaymentProps) {
   if (!isOpen) return null;
@@ -65,7 +64,6 @@ export default function VisualisationPayment({
     typeof data.price === "number"
       ? data.price.toFixed(2)
       : data.price || "0.95";
-  const imageSrc = data.imageUrl || "/image_Design-SOREA/PelliculeTest.svg";
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4 animate-fade-in">
@@ -98,9 +96,9 @@ export default function VisualisationPayment({
         </h2>
 
         {/* Bloc Visuel de la Pellicule (SVG / Image) */}
-        <div className="relative w-full aspect-[16/9] rounded-2xl bg-[#FAF5FF] flex items-center justify-center p-2 mb-4">
+        <div className="relative w-[320px] h-[180px] aspect-[16/9] rounded-2xl bg-[#FAF5FF] flex items-center justify-center p-2 mb-4">
           <img
-            src={imageSrc}
+            src="/image_Design-SOREA/PelliculeTest.svg"
             alt={data.title || "Pellicule de Visualisation"}
             className="w-full h-full object-contain filter drop-shadow-md"
           />
@@ -108,7 +106,6 @@ export default function VisualisationPayment({
 
         {/* Badge N+1 images */}
         <div className="px-4 py-1 rounded-full bg-white border border-purple-100 shadow-xs text-xs font-bold text-[#8B47FF] mb-4">
-          N+
           {data.imagesCount && data.imagesCount > 0
             ? data.imagesCount - 2 > 0
               ? data.imagesCount - 2
@@ -137,7 +134,7 @@ export default function VisualisationPayment({
 
         {/* Prix */}
         <div className="my-4 text-center">
-          <span className="text-3xl font-extrabold text-[#8B47FF]">
+          <span className="text-xl font-semibold text-[#8B47FF]">
             {displayPrice} €
           </span>
         </div>
@@ -148,7 +145,6 @@ export default function VisualisationPayment({
           type="button"
           className="w-full py-4 px-6 rounded-2xl bg-[#E256B3] hover:bg-[#d647a5] active:scale-[0.99] transition-all shadow-md hover:shadow-lg text-white font-bold text-sm flex items-center justify-center gap-2 cursor-pointer"
         >
-          <Lock size={16} className="fill-current" />
           <span>Débloquer ma pellicule</span>
         </button>
 

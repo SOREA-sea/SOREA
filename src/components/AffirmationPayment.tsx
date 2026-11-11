@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { X, Lock, Check } from "lucide-react";
+import { Lock, Check } from "lucide-react";
 
 export interface AffirmationPaymentData {
   id?: string;
@@ -31,7 +31,6 @@ export default function AffirmationPayment({
     description:
       "Un duo d'affirmations puissantes pour renforcer votre confiance en vous et célébrer votre beauté intérieure.",
     price: "0.95",
-    imageUrl: "/image_Design-SOREA/PaiementAffirmation.svg",
   },
 }: AffirmationPaymentProps) {
   if (!isOpen) return null;
@@ -65,25 +64,22 @@ export default function AffirmationPayment({
 
   const quotesList = data.quotes || ["Citation 1", "Citation 2..."];
   const displayPrice = typeof data.price === "number" ? data.price.toFixed(2) : data.price || "0.95";
-  const imageSrc = data.imageUrl || "/image_Design-SOREA/PaiementAffirmation.svg";
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4 animate-fade-in">
       {/* Conteneur principal de la modale */}
-      <div className="relative w-full max-w-[500px] bg-[#FAF5FF] rounded-[32px] shadow-2xl border border-purple-100 p-8 flex flex-col items-center">
+      <div className="relative w-full max-w-[500px] bg-[#FAF5FF] rounded-[64px] shadow-2xl border border-purple-100 p-8 flex flex-col items-center">
         
         {/* En-tête : Marque SOREA & Bouton Fermer */}
         <div className="w-full flex items-center justify-between mb-6">
-          <span className="text-sm font-semibold tracking-[0.3em] text-[#333333] uppercase">
-            S O R E A
-          </span>
+          <img src="/image_Design-SOREA/Logo-SOREAMiniature.svg" alt="SOREA" className="h-6 object-contain" />
           <button
             onClick={onClose}
             type="button"
-            className="p-1 rounded-full text-gray-400 hover:text-gray-700 hover:bg-purple-100/50 transition-colors cursor-pointer"
+            className="p-1 rounded-full text-gray-400 hover:text-gray-700 hover:bg-purple-100/50 transition-colors cursor-pointer flex items-center justify-center"
             aria-label="Fermer"
           >
-            <X size={24} />
+            <img src="/image_icone/Cross.svg" alt="Fermer" className="w-6 h-6 object-contain" />
           </button>
         </div>
 
@@ -92,11 +88,7 @@ export default function AffirmationPayment({
           
           {/* Bloc Visuel Gauche (SVG / Image de l'Affirmation) */}
           <div className="relative w-full aspect-square rounded-2xl bg-[#E8DCF8]/60 overflow-hidden flex items-center justify-center p-2 shadow-inner">
-            <img
-              src={imageSrc}
-              alt={data.title || "Affirmation"}
-              className="w-full h-full object-contain filter drop-shadow-sm"
-            />
+              <img src="/image_photo/MirrorDiamond.svg" alt="Fermer" className="w-full h-full object-contain"/>
           </div>
 
           {/* Bloc Contenu Droit */}
@@ -126,7 +118,8 @@ export default function AffirmationPayment({
             {/* Badge N+1 citations */}
             {data.totalQuotesCount && (
               <div className="self-end px-3 py-1 rounded-full bg-white border border-purple-100 shadow-xs text-[11px] font-bold text-[#8B47FF]">
-                N+{data.totalQuotesCount - quotesList.length > 0 ? data.totalQuotesCount - quotesList.length : 1} citations
+                {data.totalQuotesCount - quotesList.length > 0 ? data.totalQuotesCount - quotesList.length : 1} 
+                citations
               </div>
             )}
 
@@ -137,18 +130,14 @@ export default function AffirmationPayment({
           </div>
         </div>
 
-        {/* Séparateur décoratif Étoile */}
-        <div className="w-full flex items-center justify-center gap-4 my-2">
-          <div className="h-[1px] flex-1 bg-gradient-to-r from-transparent via-purple-200 to-transparent" />
-          <svg className="w-5 h-5 text-[#8B47FF] fill-current" viewBox="0 0 24 24">
-            <path d="M12 0L14.59 9.41L24 12L14.59 14.59L12 24L9.41 14.59L0 12L9.41 9.41L12 0Z" />
-          </svg>
-          <div className="h-[1px] flex-1 bg-gradient-to-r from-transparent via-purple-200 to-transparent" />
+        {/* Séparateur décoratif Ligne */}
+        <div className="w-full flex items-center justify-center my-2">
+          <img src="/image_Design-SOREA/DividingLine.svg" alt="Ligne de séparation" className="w-full object-contain" />
         </div>
 
         {/* Prix */}
         <div className="my-4 text-center">
-          <span className="text-3xl font-extrabold text-[#8B47FF]">
+          <span className="text-xl font-semibold text-[#8B47FF]">
             {displayPrice} €
           </span>
         </div>
@@ -159,14 +148,16 @@ export default function AffirmationPayment({
           type="button"
           className="w-full py-4 px-6 rounded-2xl bg-gradient-to-r bg-[#E256B3] hover:opacity-95 active:scale-[0.99] transition-all shadow-md hover:shadow-lg text-white font-bold text-sm flex items-center justify-center gap-2 cursor-pointer"
         >
-          <Lock size={16} className="fill-current" />
           <span>Accéder à l'affirmation</span>
         </button>
 
         {/* Footer Sécurisé */}
-        <span className="mt-4 text-[11px] text-gray-400 font-medium tracking-wide">
-          Paiement sécurisé
-        </span>
+        <div className="mt-4 flex items-center gap-1.5">
+          <img src="/image_icone/ClosedPadlockG1.svg" alt="Cadenas" className="w-4 h-4 object-contain" />
+          <span className="text-[25px] text-[#7F6674] font-medium tracking-wide">
+            Paiement sécurisé
+          </span>
+        </div>
 
       </div>
     </div>

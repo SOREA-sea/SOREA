@@ -262,14 +262,19 @@ export default function VisualisationGallery({
     setActiveMenuId(null);
   };
 
-  // Gestion de l'importation de plusieurs fichiers à la fois depuis l'ordinateur
+  // Gestion de l'importation de plusieurs fichiers convertis en Base64 pour persister au rafraîchissement
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
-      const newImages = Array.from(e.target.files).map((file) => ({
-        url: URL.createObjectURL(file),
-      }));
-      setCurrentImages((prev) => [...prev, ...newImages]);
-      // Réinitialise l'input file pour permettre de re-sélectionner le même fichier si besoin
+      Array.from(e.target.files).forEach((file) => {
+        const reader = new FileReader();
+        reader.onload = (uploadEvent) => {
+          const base64Url = uploadEvent.target?.result as string;
+          if (base64Url) {
+            setCurrentImages((prev) => [...prev, { url: base64Url }]);
+          }
+        };
+        reader.readAsDataURL(file);
+      });
       e.target.value = "";
     }
   };
@@ -686,7 +691,7 @@ export default function VisualisationGallery({
           
           {/* Titre en haut à gauche */}
           <h3 className="absolute top-[3vh] left-[3vw] text-white text-lg font-medium tracking-wide z-[100000]">
-            Rognage & Ajustement (Format Plein Écran)
+            Zoom et maintien pour ajuster
           </h3>
 
           {/* Bouton Croix pour fermer en haut à droite */}

@@ -24,6 +24,7 @@ interface AffirmationCard {
   title: string;
   text: string;
   price?: number;
+  isSent?: boolean;
 }
 
 export default function AdminProductsPage() {
@@ -78,6 +79,7 @@ export default function AdminProductsPage() {
   }, [productTrash]);
 
   useEffect(() => {
+    // Seuls les éléments ayant explicitement cliqué sur "Envoyer" synchronisent les composants/galeries externes
     localStorage.setItem("sorea_admin_vente_affirmations", JSON.stringify(affirmations));
     localStorage.setItem("sorea_admin_vente_trash", JSON.stringify(trash));
     localStorage.setItem("sorea_admin_vente_visualisations", JSON.stringify(visualisationCards));
@@ -106,13 +108,19 @@ export default function AdminProductsPage() {
 
   const visFileInputRef = useRef<HTMLInputElement>(null);
 
-  // Fonction d'importation d'images
+  // Fonction d'importation d'images converties en Base64
   const handleVisFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
-      const newImages = Array.from(e.target.files).map((file) => ({
-        url: URL.createObjectURL(file),
-      }));
-      setCurrentVisImages((prev) => [...prev, ...newImages]);
+      Array.from(e.target.files).forEach((file) => {
+        const reader = new FileReader();
+        reader.onload = (uploadEvent) => {
+          const base64Url = uploadEvent.target?.result as string;
+          if (base64Url) {
+            setCurrentVisImages((prev) => [...prev, { url: base64Url }]);
+          }
+        };
+        reader.readAsDataURL(file);
+      });
       e.target.value = "";
     }
   };
@@ -163,11 +171,13 @@ export default function AdminProductsPage() {
   };
 
   const startDuplicateVisualisation = (card: any) => {
-    setEditingVisId(null); // Force la création d'un nouvel élément
+    setEditingVisId(null);
     setCurrentVisTitle(`${card.title || ""} (Copie)`);
     setCurrentVisImages(card.images || []);
     setCurrentVisPrice(card.price ? card.price.toString() : "0.95");
     setCurrentVisDescription(card.description || "");
+    // Réinitialise l'état isSent pour que le duplicata puisse être envoyé à son tour si besoin
+    card.isSent = false;
     setIsAddingVisualisation(true);
     setActiveVisMenuId(null);
   };
@@ -193,6 +203,8 @@ export default function AdminProductsPage() {
         localStorage.setItem("sorea_visualisation_boutique", JSON.stringify(updatedBoutique));
         window.dispatchEvent(new Event("visualisationSentToBoutique"));
       }
+
+      setVisualisationCards(visualisationCards.map(item => item.id === card.id ? { ...item, isSent: true } : item));
 
       setIsVisualisationModalOpen(false);
       setMessage({ type: "success", text: `"${card.title}" a été envoyé et enregistré dans GameProduct avec succès !` });
@@ -303,10 +315,11 @@ export default function AdminProductsPage() {
   };
 
   const startDuplicateAffirmation = (card: AffirmationCard) => {
-    setEditingAffirmationId(null); // Force la création d'un nouvel élément
+    setEditingAffirmationId(null);
     setCurrentAffirmationTitle(`${card.title || ""} (Copie)`);
     setCurrentAffirmationText(card.text);
     setCurrentAffirmationPrice(card.price ? card.price.toString() : "0.95");
+    card.isSent = false;
     setIsAddingAffirmation(true);
     setActiveMenuId(null);
   };
@@ -351,6 +364,8 @@ export default function AdminProductsPage() {
         localStorage.setItem("sorea_affirmations_boutique", JSON.stringify(updatedBoutique));
         window.dispatchEvent(new Event("affirmationSentToBoutique"));
       }
+
+      setAffirmations(affirmations.map(item => item.id === card.id ? { ...item, isSent: true } : item));
 
       setIsAffirmationModalOpen(false);
       setMessage({ type: "success", text: `"${card.title}" a été envoyé et enregistré dans GameProduct avec succès !` });
@@ -756,12 +771,14 @@ export default function AdminProductsPage() {
                           onClick={(e) => e.stopPropagation()}
                           className="absolute top-2 right-2 bg-white rounded-xl shadow-xl border border-purple-100 p-2 flex flex-col gap-1 z-20 w-40"
                         >
-                          <button 
-                            onClick={() => sendToShop(card)}
-                            className="flex items-center gap-2 text-xs font-semibold text-[#8B47FF] hover:bg-purple-50 p-2 rounded-lg transition-colors text-left cursor-pointer"
-                          >
-                            📤 Envoyer
-                          </button>
+                          {!card.isSent && (
+                            <button 
+                              onClick={() => sendToShop(card)}
+                              className="flex items-center gap-2 text-xs font-semibold text-[#8B47FF] hover:bg-purple-50 p-2 rounded-lg transition-colors text-left cursor-pointer"
+                            >
+                              📤 Envoyer
+                            </button>
+                          )}
                           <button 
                             onClick={() => startDuplicateAffirmation(card)}
                             className="flex items-center gap-2 text-xs font-semibold text-gray-700 hover:text-[#8B47FF] hover:bg-purple-50 p-2 rounded-lg transition-colors text-left cursor-pointer"
@@ -931,17 +948,6 @@ export default function AdminProductsPage() {
                     </button>
                   </div>
 
-                  {/* Zone de description inspirée des affirmations */}
-                  <div className="flex flex-col gap-1.5 mt-2">
-                    <label className="text-sm font-bold text-gray-900">Entrez une description</label>
-                    <textarea 
-                      value={currentVisDescription}
-                      onChange={(e) => setCurrentVisDescription(e.target.value)}
-                      placeholder="Adopte un meilleur enthousiasme pour ton quotidien..."
-                      className="w-full bg-white border border-purple-200 rounded-xl px-4 py-3 text-gray-800 focus:outline-none focus:ring-2 focus:ring-[#8B47FF] h-28 resize-none whitespace-pre-line overflow-y-auto"
-                    />
-                  </div>
-
                   {/* Aperçu des images avec gestion du mode ajustement */}
                   {currentVisImages.length > 0 && (
                     <div className="relative">
@@ -1013,11 +1019,22 @@ export default function AdminProductsPage() {
                     </div>
                   )}
 
+ {/* Zone de description inspirée des affirmations */}
+                  <div className="flex flex-col gap-1.5 mt-2">
+                    <label className="text-sm font-bold text-gray-900">Entrez une description</label>
+                    <textarea 
+                      value={currentVisDescription}
+                      onChange={(e) => setCurrentVisDescription(e.target.value)}
+                      placeholder="Adopte un meilleur enthousiasme pour ton quotidien..."
+                      className="w-full bg-white border border-purple-200 rounded-xl px-4 py-3 text-gray-800 focus:outline-none focus:ring-2 focus:ring-[#8B47FF] h-28 resize-none whitespace-pre-line overflow-y-auto"
+                    />
+                  </div>
+
                   {/* Modale plein écran de rognage */}
                   {selectedImageIndex !== null && currentVisImages[selectedImageIndex] && (
                     <div className="fixed inset-0 z-[200000] bg-[#212121] backdrop-blur-md flex items-center justify-center animate-fade-in select-none">
                       <h3 className="absolute top-[3vh] left-[3vw] text-white text-lg font-medium tracking-wide z-[100000]">
-                        Rognage & Ajustement (Format Plein Écran)
+                        Zoom et maintien pour ajuster
                       </h3>
 
                       <button
@@ -1184,12 +1201,14 @@ export default function AdminProductsPage() {
                           onClick={(e) => e.stopPropagation()}
                           className="absolute top-2 right-2 bg-white rounded-xl shadow-xl border border-purple-100 p-2 flex flex-col gap-1 z-20 w-40"
                         >
-                          <button 
-                            onClick={() => sendVisualisationToShop(card)}
-                            className="flex items-center gap-2 text-xs font-semibold text-[#8B47FF] hover:bg-purple-50 p-2 rounded-lg transition-colors text-left cursor-pointer"
-                          >
-                            📤 Envoyer
-                          </button>
+                          {!card.isSent && (
+                            <button 
+                              onClick={() => sendVisualisationToShop(card)}
+                              className="flex items-center gap-2 text-xs font-semibold text-[#8B47FF] hover:bg-purple-50 p-2 rounded-lg transition-colors text-left cursor-pointer"
+                            >
+                              📤 Envoyer
+                            </button>
+                          )}
                           <button 
                             onClick={() => startDuplicateVisualisation(card)}
                             className="flex items-center gap-2 text-xs font-semibold text-gray-700 hover:text-[#8B47FF] hover:bg-purple-50 p-2 rounded-lg transition-colors text-left cursor-pointer"
