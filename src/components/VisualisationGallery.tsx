@@ -202,6 +202,7 @@ export default function VisualisationGallery({
   const handleSave = (e: React.FormEvent) => {
     e.preventDefault();
     if (!currentTitle.trim()) return;
+    if (currentTitle.replace(/\s/g, "").length > 30) return;
 
     if (editingId) {
       setPellicules(
@@ -576,7 +577,11 @@ export default function VisualisationGallery({
                   <input
                     type="text"
                     value={currentTitle}
-                    onChange={(e) => setCurrentTitle(e.target.value)}
+                    onChange={(e) => {
+                      if (e.target.value.replace(/\s/g, "").length <= 30) {
+                        setCurrentTitle(e.target.value);
+                      }
+                    }}
                     placeholder="Titre de la pellicule (ex: Voyage de rêve, Projets 2026)..."
                     className="w-full bg-white border border-purple-200 rounded-xl px-4 py-3 text-gray-800 focus:outline-none focus:ring-2 focus:ring-[#8B47FF]"
                     autoFocus

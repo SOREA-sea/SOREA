@@ -899,7 +899,6 @@ export default function WheelSpinnerNutrition({ mode = "default" }: WheelSpinner
             <>
               <button
                 onClick={() => { 
-                  setChoixUtilisateur('oui');
                   if (resultatGagnant?.defiDuJour) {
                     const today = new Date();
                     const localToday = new Date(today.getTime() - today.getTimezoneOffset() * 60000);
@@ -936,6 +935,7 @@ export default function WheelSpinnerNutrition({ mode = "default" }: WheelSpinner
                     localStorage.setItem('sorea_todo_notification', 'true');
                     window.dispatchEvent(new Event('sorea_notification_update'));
                   }
+                  reinitialiserJeu();
                 }}
                 className="p-[16px] text-white rounded-[8px] text-[15px] font-[600] shadow-[0px_4px_10px_rgba(0,0,0,0.05)] transition-all border-none cursor-pointer w-full text-center"
                 style={{ backgroundColor: theme.btnPrimary }}
@@ -951,13 +951,6 @@ export default function WheelSpinnerNutrition({ mode = "default" }: WheelSpinner
                 Je ne peux pas le faire
               </button>
             </>
-          )}
-
-          {choixUtilisateur === 'oui' && (
-            <div className="flex flex-col gap-4 text-center bg-white p-6 rounded-2xl shadow-sm border w-full" style={{ borderColor: theme.borderBulle }}>
-              <p className="font-bold text-lg" style={{ color: theme.textAccent }}>Super ! Bon défi 🎉</p>
-              <button onClick={reinitialiserJeu} className="text-[#4b3b5c] underline font-semibold mt-2 cursor-pointer bg-transparent border-none">Fermer et recommencer</button>
-            </div>
           )}
 
           {choixUtilisateur === 'non' && (

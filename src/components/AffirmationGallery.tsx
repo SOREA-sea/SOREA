@@ -160,6 +160,7 @@ export default function AffirmationGallery({
   const handleSave = (e: React.FormEvent) => {
     e.preventDefault();
     if (!currentTitle.trim() || !currentText.trim()) return;
+    if (currentTitle.replace(/\s/g, "").length > 30) return;
 
     if (editingId) {
       setAffirmations(affirmations.map(item => item.id === editingId ? { ...item, title: currentTitle, text: currentText } : item));
@@ -445,7 +446,11 @@ export default function AffirmationGallery({
                   <input 
                     type="text"
                     value={currentTitle}
-                    onChange={(e) => setCurrentTitle(e.target.value)}
+                    onChange={(e) => {
+                      if (e.target.value.replace(/\s/g, "").length <= 30) {
+                        setCurrentTitle(e.target.value);
+                      }
+                    }}
                     placeholder="Titre de l'affirmation (ex: Confiance en soi)..."
                     className="w-full bg-white border border-purple-200 rounded-xl px-4 py-3 text-gray-800 focus:outline-none focus:ring-2 focus:ring-[#8B47FF]"
                     autoFocus

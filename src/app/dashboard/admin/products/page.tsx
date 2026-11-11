@@ -132,6 +132,7 @@ export default function AdminProductsPage() {
   const handleSaveVisualisation = (e: React.FormEvent) => {
     e.preventDefault();
     if (!currentVisTitle.trim()) return;
+    if (currentVisTitle.replace(/\s/g, "").length > 30) return;
 
     const priceNum = parseFloat(currentVisPrice);
     if (isNaN(priceNum) || priceNum < 0.50) {
@@ -294,6 +295,7 @@ export default function AdminProductsPage() {
   const handleSaveAffirmation = (e: React.FormEvent) => {
     e.preventDefault();
     if (!currentAffirmationTitle.trim() || !currentAffirmationText.trim()) return;
+    if (currentAffirmationTitle.replace(/\s/g, "").length > 30) return;
 
     const priceNum = parseFloat(currentAffirmationPrice);
     if (isNaN(priceNum) || priceNum < 0.50) {
@@ -681,7 +683,11 @@ export default function AdminProductsPage() {
                     <input 
                       type="text"
                       value={currentAffirmationTitle}
-                      onChange={(e) => setCurrentAffirmationTitle(e.target.value)}
+                      onChange={(e) => {
+                        if (e.target.value.replace(/\s/g, "").length <= 30) {
+                          setCurrentAffirmationTitle(e.target.value);
+                        }
+                      }}
                       placeholder="Titre de l'affirmaton (ex: Mon abondance)..."
                       className="w-full bg-white border border-purple-200 rounded-xl px-4 py-3 text-gray-800 focus:outline-none focus:ring-2 focus:ring-[#8B47FF]"
                       autoFocus
@@ -719,6 +725,17 @@ export default function AdminProductsPage() {
                   <div className="flex flex-col gap-1.5">
                     <label className="text-sm font-bold text-gray-900">Entrez une description</label>
                     <textarea 
+                      onChange={(e) => {
+                        if (e.target.value.replace(/\s/g, "").length <= 150) {
+                          // Gestion optionnelle si tu stockes la description dans un état
+                        }
+                      }}
+                      onInput={(e) => {
+                        const target = e.currentTarget;
+                        if (target.value.replace(/\s/g, "").length > 150) {
+                          target.value = target.value.slice(0, -1);
+                        }
+                      }}
                       placeholder="Adopte un meilleur enthousiasme pour ton quotidien..."
                       className="w-full bg-white border border-purple-200 rounded-xl px-4 py-3 text-gray-800 focus:outline-none focus:ring-2 focus:ring-[#8B47FF] h-28 resize-none whitespace-pre-line overflow-y-auto"
                     />
@@ -899,7 +916,11 @@ export default function AdminProductsPage() {
                       <input 
                         type="text"
                         value={currentVisTitle}
-                        onChange={(e) => setCurrentVisTitle(e.target.value)}
+                        onChange={(e) => {
+                          if (e.target.value.replace(/\s/g, "").length <= 30) {
+                            setCurrentVisTitle(e.target.value);
+                          }
+                        }}
                         placeholder="Titre de la pellicule (ex: Voyage de rêve)..."
                         className="w-full bg-white border border-purple-200 rounded-xl px-4 py-3 text-gray-800 focus:outline-none focus:ring-2 focus:ring-[#8B47FF]"
                         autoFocus
@@ -1024,7 +1045,11 @@ export default function AdminProductsPage() {
                     <label className="text-sm font-bold text-gray-900">Entrez une description</label>
                     <textarea 
                       value={currentVisDescription}
-                      onChange={(e) => setCurrentVisDescription(e.target.value)}
+                      onChange={(e) => {
+                        if (e.target.value.replace(/\s/g, "").length <= 150) {
+                          setCurrentVisDescription(e.target.value);
+                        }
+                      }}
                       placeholder="Adopte un meilleur enthousiasme pour ton quotidien..."
                       className="w-full bg-white border border-purple-200 rounded-xl px-4 py-3 text-gray-800 focus:outline-none focus:ring-2 focus:ring-[#8B47FF] h-28 resize-none whitespace-pre-line overflow-y-auto"
                     />
