@@ -443,18 +443,29 @@ export default function AffirmationGallery({
                   <h3 className="text-lg font-bold text-purple-950">
                     {editingId ? "Modifier ton affirmation" : "Créer ta nouvelle affirmation"}
                   </h3>
-                  <input 
-                    type="text"
-                    value={currentTitle}
-                    onChange={(e) => {
-                      if (e.target.value.replace(/\s/g, "").length <= 30) {
-                        setCurrentTitle(e.target.value);
-                      }
-                    }}
-                    placeholder="Titre de l'affirmation (ex: Confiance en soi)..."
-                    className="w-full bg-white border border-purple-200 rounded-xl px-4 py-3 text-gray-800 focus:outline-none focus:ring-2 focus:ring-[#8B47FF]"
-                    autoFocus
-                  />
+                  <div className="flex flex-col gap-1.5">
+                    <div className="flex justify-between items-center">
+                      <label className="text-sm font-bold text-gray-900">Titre de l'affirmation</label>
+                      <span className="text-xs text-gray-500 font-medium">
+                        <span className={currentTitle.replace(/\s/g, "").length >= 20 ? "text-red-500 font-bold" : ""}>
+                          {currentTitle.replace(/\s/g, "").length}
+                        </span>
+                        /30
+                      </span>
+                    </div>
+                    <input 
+                      type="text"
+                      value={currentTitle}
+                      onChange={(e) => {
+                        if (e.target.value.replace(/\s/g, "").length <= 30) {
+                          setCurrentTitle(e.target.value);
+                        }
+                      }}
+                      placeholder="Titre de l'affirmation (ex: Confiance en soi)..."
+                      className="w-full bg-white border border-purple-200 rounded-xl px-4 py-3 text-gray-800 focus:outline-none focus:ring-2 focus:ring-[#8B47FF]"
+                      autoFocus
+                    />
+                  </div>
                   <textarea 
                     value={currentText}
                     onFocus={() => { if (!currentText) setCurrentText("✓ "); }}

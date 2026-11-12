@@ -679,7 +679,15 @@ export default function AdminProductsPage() {
               <form onSubmit={handleSaveAffirmation} className="bg-purple-50/80 p-6 rounded-2xl border border-purple-200 flex flex-col gap-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="flex flex-col gap-1.5">
-                    <label className="text-sm font-bold text-gray-900">Créer ta nouvelle affirmation</label>
+                    <div className="flex justify-between items-center">
+                      <label className="text-sm font-bold text-gray-900">Créer ta nouvelle affirmation</label>
+                      <span className="text-xs text-gray-500 font-medium">
+                        <span className={currentAffirmationTitle.replace(/\s/g, "").length >= 20 ? "text-red-500 font-bold" : ""}>
+                          {currentAffirmationTitle.replace(/\s/g, "").length}
+                        </span>
+                        /30
+                      </span>
+                    </div>
                     <input 
                       type="text"
                       value={currentAffirmationTitle}
@@ -723,11 +731,24 @@ export default function AdminProductsPage() {
                     />
                   </div>
                   <div className="flex flex-col gap-1.5">
-                    <label className="text-sm font-bold text-gray-900">Entrez une description</label>
+                    <div className="flex justify-between items-center">
+                      <label className="text-sm font-bold text-gray-900">Entrez une description</label>
+                      <span className="text-xs text-gray-500 font-medium">
+                        <span id="counter-aff-desc" className="font-medium">0</span>
+                        /150
+                      </span>
+                    </div>
                     <textarea 
                       onChange={(e) => {
-                        if (e.target.value.replace(/\s/g, "").length <= 150) {
-                          // Gestion optionnelle si tu stockes la description dans un état
+                        const len = e.target.value.replace(/\s/g, "").length;
+                        const counterEl = document.getElementById("counter-aff-desc");
+                        if (counterEl) {
+                          counterEl.textContent = len.toString();
+                          if (len >= 140) {
+                            counterEl.className = "text-red-500 font-bold";
+                          } else {
+                            counterEl.className = "font-medium";
+                          }
                         }
                       }}
                       onInput={(e) => {
@@ -912,7 +933,15 @@ export default function AdminProductsPage() {
                 <form onSubmit={handleSaveVisualisation} className="bg-purple-50/80 p-6 rounded-2xl border border-purple-200 flex flex-col gap-4">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="flex flex-col gap-1.5">
-                      <label className="text-sm font-bold text-gray-900">Titre de la pellicule</label>
+                      <div className="flex justify-between items-center">
+                        <label className="text-sm font-bold text-gray-900">Titre de la pellicule</label>
+                        <span className="text-xs text-gray-500 font-medium">
+                          <span className={currentVisTitle.replace(/\s/g, "").length >= 20 ? "text-red-500 font-bold" : ""}>
+                            {currentVisTitle.replace(/\s/g, "").length}
+                          </span>
+                          /30
+                        </span>
+                      </div>
                       <input 
                         type="text"
                         value={currentVisTitle}
@@ -1042,7 +1071,15 @@ export default function AdminProductsPage() {
 
  {/* Zone de description inspirée des affirmations */}
                   <div className="flex flex-col gap-1.5 mt-2">
-                    <label className="text-sm font-bold text-gray-900">Entrez une description</label>
+                    <div className="flex justify-between items-center">
+                      <label className="text-sm font-bold text-gray-900">Entrez une description</label>
+                      <span className="text-xs text-gray-500 font-medium">
+                        <span className={currentVisDescription.replace(/\s/g, "").length >= 140 ? "text-red-500 font-bold" : ""}>
+                          {currentVisDescription.replace(/\s/g, "").length}
+                        </span>
+                        /150
+                      </span>
+                    </div>
                     <textarea 
                       value={currentVisDescription}
                       onChange={(e) => {

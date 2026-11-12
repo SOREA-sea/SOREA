@@ -574,18 +574,29 @@ export default function VisualisationGallery({
                     {editingId ? "Modifier la pellicule" : "Créer une nouvelle pellicule"}
                   </h3>
 
-                  <input
-                    type="text"
-                    value={currentTitle}
-                    onChange={(e) => {
-                      if (e.target.value.replace(/\s/g, "").length <= 30) {
-                        setCurrentTitle(e.target.value);
-                      }
-                    }}
-                    placeholder="Titre de la pellicule (ex: Voyage de rêve, Projets 2026)..."
-                    className="w-full bg-white border border-purple-200 rounded-xl px-4 py-3 text-gray-800 focus:outline-none focus:ring-2 focus:ring-[#8B47FF]"
-                    autoFocus
-                  />
+                  <div className="flex flex-col gap-1.5">
+                    <div className="flex justify-between items-center">
+                      <label className="text-sm font-bold text-gray-900">Titre de la pellicule</label>
+                      <span className="text-xs text-gray-500 font-medium">
+                        <span className={currentTitle.replace(/\s/g, "").length >= 20 ? "text-red-500 font-bold" : ""}>
+                          {currentTitle.replace(/\s/g, "").length}
+                        </span>
+                        /30
+                      </span>
+                    </div>
+                    <input
+                      type="text"
+                      value={currentTitle}
+                      onChange={(e) => {
+                        if (e.target.value.replace(/\s/g, "").length <= 30) {
+                          setCurrentTitle(e.target.value);
+                        }
+                      }}
+                      placeholder="Titre de la pellicule (ex: Voyage de rêve, Projets 2026)..."
+                      className="w-full bg-white border border-purple-200 rounded-xl px-4 py-3 text-gray-800 focus:outline-none focus:ring-2 focus:ring-[#8B47FF]"
+                      autoFocus
+                    />
+                  </div>
 
                   {/* BOUTON D'INSERTION DIRECTE ET BOUTON AJUSTER */}
                   <div className={`flex items-center gap-3 ${isAdjustMode ? "z-40" : ""}`}>
