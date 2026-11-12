@@ -1194,11 +1194,11 @@ return (
                           // Détermination de l'URL de redirection selon la catégorie ou le texte de la tâche
                           let wheelUrl = "";
                           const txt = todo.text.toLowerCase();
-                          if (todo.category === 'bien-etre' || txt.includes('introspection') || txt.includes('gratitude') || txt.includes('pleine conscience') || txt.includes('intelligence émotionnelle') || txt.includes('action') || txt.includes('maîtrise de soi') || txt.includes('inspiration') || txt.includes('reconnexion') || txt.includes('vision') || txt.includes('lâcher-prise')) {
-                            wheelUrl = "/Wheel-Spinner/Bien-Etre";
-                          } else if (todo.category === 'sport' || txt.includes('force intérieure') || txt.includes('équilibre corporel') || txt.includes('fluidité') || txt.includes('énergie') || txt.includes('écoute') || txt.includes('récupération') || txt.includes('bouger') || txt.includes('dépasser') || txt.includes('mouvement') || txt.includes('bien dans son corps')) {
+                          if (todo.category === 'bien-etre' || txt.includes('introspection') || txt.includes('gratitude') || txt.includes('pleine conscience') || txt.includes('intelligence émotionnelle') || txt.includes('action & défis de confiance') || txt.includes('maîtrise de soi') || txt.includes('inspiration') || txt.includes('se retrouver') || txt.includes('vision & projection') || txt.includes('lâcher-prise')) {
+                            wheelUrl = "/Wheel-Spinner/BienEtre";
+                          } else if (todo.category === 'sport' || txt.includes('ma force intérieure') || txt.includes('équilibre corporel') || txt.includes('fluidité du corps') || txt.includes('énergie & motivation') || txt.includes('écoute corporelle') || txt.includes('récupération active') || txt.includes('le plaisir de bouger') || txt.includes('oser se dépasser') || txt.includes('mouvement & régularité') || txt.includes('bien dans son corps')) {
                             wheelUrl = "/Wheel-Spinner/Sport";
-                          } else if (todo.category === 'nutrition' || txt.includes('nourrir') || txt.includes('équilibre') || txt.includes('hydratation') || txt.includes('couleurs') || txt.includes('savourer') || txt.includes('saveurs') || txt.includes('digestion') || txt.includes('assiette') || txt.includes('relation')) {
+                          } else if (todo.category === 'nutrition' || txt.includes('nourrir mon corps') || txt.includes('équilibre & harmonie') || txt.includes('hydratation consciente') || txt.includes('énergie & vitalité') || txt.includes('couleurs dans l assiette') || txt.includes('savourer l instant') || txt.includes('saveurs du monde') || txt.includes('digestion sereine') || txt.includes('mon assiette intelligente') || txt.includes('relation alimentaire')) {
                             wheelUrl = "/Wheel-Spinner/Nutrition";
                           }
 

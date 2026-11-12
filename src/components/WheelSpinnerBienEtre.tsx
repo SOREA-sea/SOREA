@@ -341,7 +341,7 @@ const themesData = [
     ]
   },
   {
-    name: "Reconnexion à soi",
+    name: "Se retrouver",
     iconPath: "/image_Design-SOREA/image_Wheel-Spinner/Reconnexion_à_soi.svg",
     desc: "Prenez du temps pour écouter vos besoins fondamentaux.",
     objectifs: [
