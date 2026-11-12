@@ -17,6 +17,24 @@ export default function NouvellePage() {
   // État pour contrôler l'ouverture de la modale "Personnalisées"
   const [isCustomModalOpen, setIsCustomModalOpen] = useState(false);
 
+  // État pour détecter si le calendrier est en mode Saison (true) ou Phase (false)
+  const [isSnowflakeMode, setIsSnowflakeMode] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('sorea_snowflake_mode') === 'true';
+    }
+    return false;
+  });
+
+  useEffect(() => {
+    const handleStorageChange = () => {
+      if (typeof window !== 'undefined') {
+        setIsSnowflakeMode(localStorage.getItem('sorea_snowflake_mode') === 'true');
+      }
+    };
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
+  }, []);
+
   const audioStreamRef = useRef<MediaStream | null>(null);
   const [microActive, setMicroActive] = useState(false); // Désactivé par défaut pour ne pas bloquer les utilisateurs sans micro
   // État du mode d'affirmation sélectionné ('default' par défaut)
@@ -505,7 +523,12 @@ export default function NouvellePage() {
     )}
     {activeMode === "cycle" && profile?.isActive && (
       <h2 className="text-4xl font-semibold text-[#7F4DC5] italic">
-        {currentPhase}
+        {isSnowflakeMode 
+          ? currentPhase 
+          : (currentPhase === "Printemps" ? "Phase Folliculaire" 
+             : currentPhase === "Été" ? "Phase Ovulatoire" 
+             : currentPhase === "Automne" ? "Phase Lutéale" 
+             : "Phase Menstruelle")}
       </h2>
     )}
   </div>

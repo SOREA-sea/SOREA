@@ -775,7 +775,7 @@ return (
               onClick={() => setIsSnowflakeMode(!isSnowflakeMode)}
               className="px-4 py-3.5 bg-white border border-[#8B47FF] text-[#8B47FF] font-bold rounded-2xl hover:bg-[#F4EBFF] transition-all duration-300 shadow-sm text-sm cursor-pointer"
             >
-              Mode {isSnowflakeMode ? "❄️Discret" : "🩸Menstrue"}
+              Mode{isSnowflakeMode ? "❄️Saison" : "🩸Phase"}
             </button>
           )}
 
