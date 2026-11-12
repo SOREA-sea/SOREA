@@ -1002,7 +1002,7 @@ export default function AdminProductsPage() {
                   {currentVisImages.length > 0 && (
                     <div className="relative">
                       {isAdjustMode && (
-                        <div className="absolute inset-[-12px] bg-gray-900/30 backdrop-blur-[1px] z-30 rounded-2xl pointer-events-none transition-all" />
+                        <div className="absolute inset-[-12px] bg-gray-900/30 backdrop-blur-[1px] z-30 pointer-events-none transition-all" />
                       )}
 
                       <div className={`flex gap-3 overflow-x-auto py-2 relative ${isAdjustMode ? "z-40" : ""}`}>
@@ -1034,13 +1034,13 @@ export default function AdminProductsPage() {
                               setDraggedImageIndex(null);
                               setDragOverImageIndex(null);
                             }}
-                            className={`relative flex items-center shrink-0 ${isAdjustMode ? "cursor-pointer ring-2 ring-[#8B47FF] rounded-xl" : ""}`}
+                            className={`relative flex items-center shrink-0 ${isAdjustMode ? "cursor-pointer ring-2 ring-[#8B47FF] " : ""}`}
                           >
                             {!isAdjustMode && dragOverImageIndex === idx && (
                               <div className="w-1 h-20 bg-[#7F4DC5] rounded-full mr-2 transition-all animate-pulse" />
                             )}
 
-                            <div className="relative w-24 h-24 rounded-xl overflow-hidden border border-purple-200 cursor-grab active:cursor-grabbing group bg-purple-50/50 flex items-center justify-center">
+                            <div className="relative w-24 h-24 overflow-hidden border border-purple-200 cursor-grab active:cursor-grabbing group bg-purple-50/50 flex items-center justify-center">
                               <img
                                 src={typeof img === "string" ? img : img.url}
                                 alt="Aperçu"
@@ -1236,7 +1236,7 @@ export default function AdminProductsPage() {
                             alt="Pellicule support"
                             className="absolute inset-0 w-full h-full object-contain z-10 drop-shadow-md"
                           />
-                          <div className="relative z-20 w-[60%] h-[68%] overflow-hidden flex items-center justify-center">
+                          <div className="relative z-20 w-[62%] h-[75%] overflow-hidden flex items-center justify-center bg-black/10">
                             {card.images && card.images.length > 0 ? (
                               <img
                                 src={typeof card.images[0] === "string" ? card.images[0] : card.images[0].url}
@@ -1245,7 +1245,7 @@ export default function AdminProductsPage() {
                                 style={
                                   typeof card.images[0] !== "string" && card.images[0]?.transform
                                     ? {
-                                        transform: `translate(${card.images[0].transform.x}px, ${card.images[0].transform.y}px) scale(${card.images[0].transform.scale})`,
+                                        transform: `translate(${card.images[0].transform.x * 0.3}px, ${card.images[0].transform.y * 0.3}px) scale(${card.images[0].transform.scale})`,
                                       }
                                     : undefined
                                 }

@@ -389,7 +389,7 @@ export default function VisualisationGallery({
                           className="absolute inset-0 w-full h-full object-contain z-10"
                         />
                         {/* Photo au-dessus (z-20) */}
-                        <div className="relative z-20 w-[68%] h-[68%] overflow-hidden flex items-center justify-center">
+                        <div className="relative z-20 w-[62%] h-[75%] overflow-hidden flex items-center justify-center bg-black/10">
                           {card.images.length > 0 && (
                             <img
                               src={typeof card.images[0] === "string" ? card.images[0] : card.images[0].url}
@@ -398,7 +398,7 @@ export default function VisualisationGallery({
                               style={
                                 typeof card.images[0] !== "string" && card.images[0]?.transform
                                   ? {
-                                      transform: `translate(${card.images[0].transform.x}px, ${card.images[0].transform.y}px) scale(${card.images[0].transform.scale})`,
+                                      transform: `translate(${card.images[0].transform.x * 0.3}px, ${card.images[0].transform.y * 0.3}px) scale(${card.images[0].transform.scale})`,
                                     }
                                   : undefined
                               }
@@ -904,8 +904,8 @@ export default function VisualisationGallery({
                             className="absolute inset-0 w-full h-full object-contain z-10 drop-shadow-md"
                           />
 
-                          {/* 2. L'image miniature affichée PAR-DESSUS la pellicule (z-20) */}
-                          <div className="relative z-20 w-[60%] h-[68%] overflow-hidden flex items-center justify-center">
+                          {/* 2. L'image miniature affichée PAR-DESSUS la pellicule avec prise en compte du scale d'ajustement (z-20) */}
+                          <div className="relative z-20 w-[62%] h-[75%] overflow-hidden flex items-center justify-center bg-black/10">
                             {card.images.length > 0 ? (
                               <img
                                 src={typeof card.images[0] === "string" ? card.images[0] : card.images[0].url}
@@ -914,7 +914,7 @@ export default function VisualisationGallery({
                                 style={
                                   typeof card.images[0] !== "string" && card.images[0]?.transform
                                     ? {
-                                        transform: `translate(${card.images[0].transform.x}px, ${card.images[0].transform.y}px) scale(${card.images[0].transform.scale})`,
+                                        transform: `translate(${card.images[0].transform.x * 0.3}px, ${card.images[0].transform.y * 0.3}px) scale(${card.images[0].transform.scale})`,
                                       }
                                     : undefined
                                 }
@@ -1019,7 +1019,7 @@ export default function VisualisationGallery({
                           alt="Pellicule support"
                           className="absolute inset-0 w-full h-full object-contain z-10 drop-shadow-md"
                         />
-                        <div className="relative z-20 w-[60%] h-[68%] overflow-hidden flex items-center justify-center">
+                        <div className="relative z-20 w-[62%] h-[75%] overflow-hidden flex items-center justify-center">
                           {card.images && card.images.length > 0 ? (
                             <img
                               src={typeof card.images[0] === "string" ? card.images[0] : card.images[0].url}
