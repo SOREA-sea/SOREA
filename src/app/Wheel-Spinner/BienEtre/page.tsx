@@ -5,6 +5,7 @@ import Navbar from '@/components/Navbar';
 import Footer from "@/components/Footer";
 import DailyEncouragement from "@/components/DailyEncouragement";
 import WheelSpinnerBienEtre from "@/components/WheelSpinnerBienEtre";
+import WheelSinnerBienEtrePayment from "@/components/WheelSpinnerBienEtrePayment";
 // 🌟 1. Ajout des imports pour la gestion de la phase
 import { fetchCurrentPhase } from "@/lib/cyclePhase";
 import { Phase } from "@/lib/affirmations";
@@ -15,6 +16,8 @@ export default function PageBienEtre() {
   const [activeMode, setActiveMode] = useState<"default" | "cycle">("default");
   // 🌟 2. Ajout de l'état pour stocker la phase actuelle du cycle
   const [currentPhase, setCurrentPhase] = useState<Phase>("Printemps");
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [wheelKey, setWheelKey] = useState(0);
 
   // 🌟 3. Récupération de la phase au chargement de la page
   useEffect(() => {
@@ -126,13 +129,26 @@ const hideInstructionsWellness = () => {
             </div>
 
             {/* Transmission du mode à la roue */}
-            <WheelSpinnerBienEtre mode={activeMode} />
+            <WheelSpinnerBienEtre 
+              key={wheelKey} 
+              mode={activeMode} 
+              onOpenPayment={() => setShowPaymentModal(true)} 
+            />
           </div>
         </div>
     
   </div>
   
       </main>
+
+      <WheelSinnerBienEtrePayment
+        isOpen={showPaymentModal}
+        onClose={() => setShowPaymentModal(false)}
+        onConfirmPayment={() => {
+          setShowPaymentModal(false);
+          setWheelKey(prev => prev + 1);
+        }}
+      />
      
            {/* FOOTER */}
            <Footer />

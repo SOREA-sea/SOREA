@@ -1,0 +1,111 @@
+"use client";
+
+import React from "react";
+
+interface WheelSinnerBienEtrePaymentProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onConfirmPayment: () => void;
+}
+
+export default function WheelSinnerBienEtrePayment({
+  isOpen,
+  onClose,
+  onConfirmPayment,
+}: WheelSinnerBienEtrePaymentProps) {
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-xs p-4 animate-in fade-in duration-200">
+      <div
+        className="relative w-full max-w-[480px] rounded-[28px] px-8 py-5 shadow-2xl flex flex-col items-center text-center overflow-hidden border border-purple-100"
+        style={{
+          background: "linear-gradient(180deg, #FDF8FC 0%, #F7EFF9 100%)",
+        }}
+      >
+        {/* Barre supérieure : Logo SOREA à gauche et Croix de fermeture à droite */}
+        <div className="w-full flex items-center justify-between mb-6">
+          <img
+            src="/image_Design-SOREA/Logo-SOREAMiniature.svg"
+            alt="SOREA"
+            className="h-6 object-contain"
+          />
+          <button
+            type="button"
+            onClick={onClose}
+            className="p-1.5 rounded-full hover:bg-purple-100/60 transition-colors cursor-pointer"
+            aria-label="Fermer"
+          >
+            <img
+              src="/image_icone/Cross.svg"
+              alt="Fermer"
+              className="w-5 h-5 object-contain"
+            />
+          </button>
+        </div>
+
+        {/* Badge BIEN-ÊTRE */}
+        <div className="bg-[#E9DDF8] text-[#7F4DC5] text-xs font-bold tracking-wider uppercase px-4 py-1.5 rounded-full mb-4">
+          BIEN-ÊTRE
+        </div>
+
+        {/* Titre principal */}
+        <h2 className="text-2xl font-bold text-gray-900 mb-3">
+          Envie de rejouer ?
+        </h2>
+
+        {/* Image centrale de la roue */}
+        <div className="my-1 flex items-center justify-center">
+          <img
+            src="/image_Design-SOREA/image_Wheel-Spinner/WS_BienEtreHead1.svg"
+            alt="Roue Bien-être"
+            className="w-32 h-32 object-contain drop-shadow-md"
+          />
+        </div>
+
+        {/* Texte descriptif */}
+        <div className="bg-white/60 rounded-xl px-4 py-2.5 mt-2 mb-3 border border-purple-100/60">
+          <p className="text-xs sm:text-sm text-gray-600 leading-relaxed font-medium">
+            Relance la roue et découvre un nouveau défi pour poursuivre ton cheminement bien-être.
+          </p>
+        </div>
+
+        {/* Ligne séparatrice avec étoile */}
+        <div className="w-full flex items-center justify-center my-2">
+          <img
+            src="/image_Design-SOREA/DividingLine.svg"
+            alt="Séparateur"
+            className="w-full max-w-[340px] object-contain"
+          />
+        </div>
+
+        {/* Prix fixe */}
+        <div className="text-2xl font-bold text-[#7F4DC5] my-4">
+          0.99 €
+        </div>
+
+        {/* Bouton d'action principal */}
+        <button
+          type="button"
+          onClick={onConfirmPayment}
+          className="w-full max-w-[280px] py-3.5 rounded-full text-white font-bold text-sm shadow-md hover:opacity-95 hover:-translate-y-0.5 transition-all cursor-pointer"
+          style={{
+            background: "linear-gradient(90deg, #E856B8 0%, #D942A6 100%)",
+          }}
+        >
+          Rejouer maintenant
+        </button>
+
+        {/* Mention Paiement sécurisé avec cadenas */}
+        <div className="flex items-center justify-center gap-2 mt-4 text-xs text-gray-500 font-medium">
+          <img
+            src="/image_icone/ClosedPadlockG1.svg"
+            alt="Sécurisé"
+            className="w-3.5 h-3.5 object-contain"
+          />
+          <span>Paiement sécurisé</span>
+        </div>
+      </div>
+    </div>
+  );
+}

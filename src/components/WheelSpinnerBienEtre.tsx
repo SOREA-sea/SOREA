@@ -8,6 +8,7 @@ import { Phase } from "../lib/affirmations";
 
 interface WheelSpinnerBienEtreProps {
   mode?: "default" | "cycle";
+  onOpenPayment?: () => void;
 }
 
 const themesData = [
@@ -529,7 +530,7 @@ const THEMES = {
 // ============================================================================
 // COMPOSANT
 // ============================================================================
-export default function WheelSpinnerBienEtre({ mode = "default" }: WheelSpinnerBienEtreProps) {
+export default function WheelSpinnerBienEtre({ mode = "default", onOpenPayment }: WheelSpinnerBienEtreProps) {
   const [isFavori, setIsFavori] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -956,7 +957,7 @@ export default function WheelSpinnerBienEtre({ mode = "default" }: WheelSpinnerB
 
           {choixUtilisateur === 'oui' && (
             <button
-              onClick={reinitialiserJeu}
+              onClick={onOpenPayment ? onOpenPayment : reinitialiserJeu}
               className="p-[16px] text-white rounded-[8px] text-[15px] font-[600] shadow-[0px_4px_10px_rgba(0,0,0,0.05)] transition-all border-none cursor-pointer w-full text-center"
               style={{ backgroundColor: theme.btnPrimary }}
               onMouseOver={(e) => e.currentTarget.style.backgroundColor = theme.btnPrimaryHover}
