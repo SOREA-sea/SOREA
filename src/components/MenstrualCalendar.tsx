@@ -534,6 +534,14 @@ const active = localStorage.getItem('sorea_has_notification') === 'true' || loca
       });
     } else {
       if (!selectedTodoDate) return;
+      
+      // Empêcher la suppression si c'est une tâche venant d'une roue WS (contient une catégorie ou un séparateur de défi)
+      const currentList = todosByDate[selectedTodoDate] || [];
+      const targetTodo = currentList.find(t => t.id === todoId);
+      if (targetTodo && (targetTodo.category || targetTodo.text.includes(" : "))) {
+        return; // Bloque la suppression
+      }
+
       setTodosByDate((prev) => {
         const current = prev[selectedTodoDate] || [];
         const next = current.filter((todo) => todo.id !== todoId);
@@ -749,7 +757,7 @@ const isTodayWithNotification = isToday && hasNotif;
 
 return (
     <div
-      className="bg-white rounded-3xl p-10 shadow-sm w-full max-w-2xl mx-auto border-2 border-[#8B47FF] relative overflow-hidden"
+      className="bg-white rounded-3xl p-10 shadow-sm w-full max-w-2xl mx-auto border-2 border-[#E256B3] relative overflow-hidden"
       style={{ background: "radial-gradient(ellipse at center, #FEF0F9 0%, #FFFFFF 100%)" }}
     >
       {/* BLOC : En-tête dynamique (change selon l'onglet actif) */}
@@ -1182,25 +1190,51 @@ return (
                           </span>
                         )}
 
-                        <span 
-                          className={`text-sm ${todo.completed ? "text-gray-400 line-through" : ""}`}
-                          style={{
-                            color: todo.completed 
-                              ? "#9CA3AF" 
-                              : (isQuotidienTab || isQuotidienInTodo)
-                              ? "#9F1239" // Texte rouge foncé pour les tâches quotidiennes
-                              : "#111827"
-                          }}
-                        >
-                          {todo.text}
-                        </span>
+                        {(() => {
+                          // Détermination de l'URL de redirection selon la catégorie ou le texte de la tâche
+                          let wheelUrl = "";
+                          const txt = todo.text.toLowerCase();
+                          if (todo.category === 'bien-etre' || txt.includes('introspection') || txt.includes('gratitude') || txt.includes('pleine conscience') || txt.includes('intelligence émotionnelle') || txt.includes('action') || txt.includes('maîtrise de soi') || txt.includes('inspiration') || txt.includes('reconnexion') || txt.includes('vision') || txt.includes('lâcher-prise')) {
+                            wheelUrl = "/Wheel-Spinner/Bien-Etre";
+                          } else if (todo.category === 'sport' || txt.includes('force intérieure') || txt.includes('équilibre corporel') || txt.includes('fluidité') || txt.includes('énergie') || txt.includes('écoute') || txt.includes('récupération') || txt.includes('bouger') || txt.includes('dépasser') || txt.includes('mouvement') || txt.includes('bien dans son corps')) {
+                            wheelUrl = "/Wheel-Spinner/Sport";
+                          } else if (todo.category === 'nutrition' || txt.includes('nourrir') || txt.includes('équilibre') || txt.includes('hydratation') || txt.includes('couleurs') || txt.includes('savourer') || txt.includes('saveurs') || txt.includes('digestion') || txt.includes('assiette') || txt.includes('relation')) {
+                            wheelUrl = "/Wheel-Spinner/Nutrition";
+                          }
+
+                          const content = (
+                            <span 
+                              className={`text-sm ${todo.completed ? "text-gray-400 line-through" : ""}`}
+                              style={{
+                                color: todo.completed 
+                                  ? "#9CA3AF" 
+                                  : (isQuotidienTab || isQuotidienInTodo)
+                                  ? "#9F1239" 
+                                  : "#111827"
+                              }}
+                            >
+                              {todo.text}
+                            </span>
+                          );
+
+                          if (wheelUrl) {
+                            return (
+                              <a href={wheelUrl} className="hover:underline flex-1">
+                                {content}
+                              </a>
+                            );
+                          }
+                          return <div className="flex-1">{content}</div>;
+                        })()}
                       </div>
-                      <button
-                        onClick={() => deleteTodo(todo.id)}
-                        className="flex h-11 w-11 items-center justify-center rounded-full text-gray-400 transition hover:text-red-600 cursor-pointer"
-                      >
-                        <Trash2 className="h-5 w-5" />
-                      </button>
+                      {!(todo.category || todo.text.includes(" : ")) && (
+                        <button
+                          onClick={() => deleteTodo(todo.id)}
+                          className="flex h-11 w-11 items-center justify-center rounded-full text-gray-400 transition hover:text-red-600 cursor-pointer"
+                        >
+                          <Trash2 className="h-5 w-5" />
+                        </button>
+                      )}
                     </div>
                   );
                 })

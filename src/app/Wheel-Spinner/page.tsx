@@ -119,22 +119,22 @@ export default function RouteDesDefis() {
           <div className="relative z-10 w-full flex flex-col items-center">
               <div className="flex gap-15 w-full max-w-[1228px] justify-center">
           
-          {/* SPORT */}
-               <Link 
-                  href="/Wheel-Spinner/Sport"
+          {/* NUTRITION */}
+                <Link 
+                  href="/Wheel-Spinner/Nutrition"
                   className="relative flex flex-col items-center justify-center p-8 w-[300px] h-[260px] cursor-pointer transition-all duration-300"
-                  style={{ background: "linear-gradient(to bottom, #B7F8F5 0%, rgba(183, 248, 245, 0.1) 100%)" }}
+                  style={{ background: "linear-gradient(to bottom, #F4C4E4 0%, rgba(244, 196, 228, 0.1) 100%)" }}
                 >
-                  {favoriWheel === "sport" && (
+                  {favoriWheel === "nutrition" && (
                     <img 
                       src="/image_icone/FavoritesYes.svg" 
                       alt="Favori" 
                       className="absolute top-4 right-4 w-6 h-6 object-contain" 
                     />
                   )}
-                  <h2 className="text-3xl font-bold text-center text-[#5A37AC] pb-5">Sport</h2>
-                  <img src={themeSport === 'pop' ? "/image_Design-SOREA/image_Wheel-Spinner/WS_Sport2.svg" : "/image_Design-SOREA/image_Wheel-Spinner/WS_Sport1.svg"} alt="Wheel-Spinner Sport" className="mb-4 transition-all duration-300" />
-                  <span className="text-sm text-gray-500 text-center">Bouge et dépense-toi</span>
+                  <h2 className="text-3xl font-bold text-center text-[#5A37AC] pb-5">Nutrition</h2>
+                  <img src={themeNutrition === 'pop' ? "/image_Design-SOREA/image_Wheel-Spinner/WS_Nutrition2.svg" : "/image_Design-SOREA/image_Wheel-Spinner/WS_Nutrition1.svg"} alt="Wheel-Spinner Nutrition" className="mb-4 transition-all duration-300" />
+                  <span className="text-sm text-gray-500 text-center">Défis sains et gourmands</span>
                 </Link>
 
          {/* BIEN-ÊTRE */}
@@ -158,22 +158,22 @@ export default function RouteDesDefis() {
                   <span className="text-sm text-gray-500 text-center">Recentrage et positivité</span>
                 </Link>
 
-          {/* NUTRITION */}
-                <Link 
-                  href="/Wheel-Spinner/Nutrition"
+          {/* SPORT */}
+               <Link 
+                  href="/Wheel-Spinner/Sport"
                   className="relative flex flex-col items-center justify-center p-8 w-[300px] h-[260px] cursor-pointer transition-all duration-300"
-                  style={{ background: "linear-gradient(to bottom, #F4C4E4 0%, rgba(244, 196, 228, 0.1) 100%)" }}
+                  style={{ background: "linear-gradient(to bottom, #B7F8F5 0%, rgba(183, 248, 245, 0.1) 100%)" }}
                 >
-                  {favoriWheel === "nutrition" && (
+                  {favoriWheel === "sport" && (
                     <img 
                       src="/image_icone/FavoritesYes.svg" 
                       alt="Favori" 
                       className="absolute top-4 right-4 w-6 h-6 object-contain" 
                     />
                   )}
-                  <h2 className="text-3xl font-bold text-center text-[#5A37AC] pb-5">Nutrition</h2>
-                  <img src={themeNutrition === 'pop' ? "/image_Design-SOREA/image_Wheel-Spinner/WS_Nutrition2.svg" : "/image_Design-SOREA/image_Wheel-Spinner/WS_Nutrition1.svg"} alt="Wheel-Spinner Nutrition" className="mb-4 transition-all duration-300" />
-                  <span className="text-sm text-gray-500 text-center">Défis sains et gourmands</span>
+                  <h2 className="text-3xl font-bold text-center text-[#5A37AC] pb-5">Sport</h2>
+                  <img src={themeSport === 'pop' ? "/image_Design-SOREA/image_Wheel-Spinner/WS_Sport2.svg" : "/image_Design-SOREA/image_Wheel-Spinner/WS_Sport1.svg"} alt="Wheel-Spinner Sport" className="mb-4 transition-all duration-300" />
+                  <span className="text-sm text-gray-500 text-center">Bouge et dépense-toi</span>
                 </Link>
 
               </div>

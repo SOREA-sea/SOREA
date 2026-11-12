@@ -3,11 +3,26 @@
 import React, { useState, useEffect } from "react";
 
 export default function VisualisationSlide() {
-  const [images, setImages] = useState<string[]>([
-    "/image_photo/PelliculeAmitié.svg",
-    "/image_photo/PelliculeVoyage.svg",
-    "/image_photo/PelliculeNourritureSaine.svg",
-  ]);
+  const [images, setImages] = useState<any[]>(() => {
+    if (typeof window !== "undefined") {
+      const saved = localStorage.getItem("sorea_active_visualisation_pellicule");
+      if (saved) {
+        try {
+          const parsed = JSON.parse(saved);
+          if (parsed.images && parsed.images.length > 0) {
+            return parsed.images;
+          }
+        } catch (e) {
+          console.error("Erreur de chargement initial", e);
+        }
+      }
+    }
+    return [
+      "/image_photo/PelliculeAmitié.svg",
+      "/image_photo/PelliculeVoyage.svg",
+      "/image_photo/PelliculeNourritureSaine.svg",
+    ];
+  });
 
   const [currentIndex, setCurrentIndex] = useState(0);
   const [fade, setFade] = useState(true);
@@ -69,11 +84,18 @@ export default function VisualisationSlide() {
       <div className="absolute top-[40%] left-[14.5%] w-[263px] h-[168px] z-20 overflow-hidden rounded-[10px] bg-black/10 flex items-center justify-center">
         {images.length > 0 ? (
           <img
-            src={images[currentIndex]}
+            src={typeof images[currentIndex] === "string" ? images[currentIndex] : images[currentIndex]?.url}
             alt={`Diaporama ${currentIndex + 1}`}
             className={`w-full h-full object-cover transition-opacity duration-1000 ease-in-out ${
               fade ? "opacity-100" : "opacity-0"
             }`}
+            style={
+              typeof images[currentIndex] !== "string" && images[currentIndex]?.transform
+                ? {
+                    transform: `translate(${images[currentIndex].transform.x * 0.3}px, ${images[currentIndex].transform.y * 0.3}px) scale(${images[currentIndex].transform.scale})`,
+                  }
+                : undefined
+            }
           />
         ) : (
           <div className="text-white/60 text-xs text-center px-4">

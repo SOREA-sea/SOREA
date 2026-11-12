@@ -1040,7 +1040,7 @@ export default function AdminProductsPage() {
                               <div className="w-1 h-20 bg-[#7F4DC5] rounded-full mr-2 transition-all animate-pulse" />
                             )}
 
-                            <div className="relative w-24 h-24 overflow-hidden border border-purple-200 cursor-grab active:cursor-grabbing group bg-purple-50/50 flex items-center justify-center">
+                            <div className="relative w-24 h-24 overflow-hidden border border-purple-200 cursor-grab active:cursor-grabbing group bg-purple-50/50 flex items-center justify-center bg-black/10">
                               <img
                                 src={typeof img === "string" ? img : img.url}
                                 alt="Aperçu"
@@ -1048,7 +1048,7 @@ export default function AdminProductsPage() {
                                 style={
                                   typeof img !== "string" && img.transform
                                     ? {
-                                        transform: `translate(${img.transform.x}px, ${img.transform.y}px) scale(${img.transform.scale})`,
+                                        transform: `translate(${img.transform.x * 0.22}px, ${img.transform.y * 0.22}px) scale(${img.transform.scale})`,
                                       }
                                     : undefined
                                 }

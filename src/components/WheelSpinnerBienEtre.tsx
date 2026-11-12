@@ -559,6 +559,7 @@ export default function WheelSpinnerBienEtre({ mode = "default" }: WheelSpinnerB
   const [raisonSelectionnee, setRaisonSelectionnee] = useState("");
   const [raisonPersonnalisee, setRaisonPersonnalisee] = useState("");
 
+
   const wheelGroupRef = useRef<HTMLDivElement>(null);
   const angleActuel = useRef(0);
   const idleRafRef = useRef<number | null>(null);
@@ -935,7 +936,7 @@ export default function WheelSpinnerBienEtre({ mode = "default" }: WheelSpinnerB
                     localStorage.setItem('sorea_todo_notification', 'true');
                     window.dispatchEvent(new Event('sorea_notification_update'));
                   }
-                  reinitialiserJeu();
+                  setChoixUtilisateur('oui');
                 }}
                 className="p-[16px] text-white rounded-[8px] text-[15px] font-[600] shadow-[0px_4px_10px_rgba(0,0,0,0.05)] transition-all border-none cursor-pointer w-full text-center"
                 style={{ backgroundColor: theme.btnPrimary }}
@@ -951,6 +952,18 @@ export default function WheelSpinnerBienEtre({ mode = "default" }: WheelSpinnerB
                 Je ne peux pas le faire
               </button>
             </>
+          )}
+
+          {choixUtilisateur === 'oui' && (
+            <button
+              onClick={reinitialiserJeu}
+              className="p-[16px] text-white rounded-[8px] text-[15px] font-[600] shadow-[0px_4px_10px_rgba(0,0,0,0.05)] transition-all border-none cursor-pointer w-full text-center"
+              style={{ backgroundColor: theme.btnPrimary }}
+              onMouseOver={(e) => e.currentTarget.style.backgroundColor = theme.btnPrimaryHover}
+              onMouseOut={(e) => e.currentTarget.style.backgroundColor = theme.btnPrimary}
+            >
+              Rejouer
+            </button>
           )}
 
           {choixUtilisateur === 'non' && (
