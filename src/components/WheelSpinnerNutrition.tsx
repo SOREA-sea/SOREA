@@ -680,7 +680,7 @@ export default function WheelSpinnerNutrition({ mode = "default" }: WheelSpinner
       <div className="relative w-[340px] h-[460px] flex flex-col items-center justify-center transform scale-[1.35] origin-top">
         
         {/*MENU DÉROULANT EN HAUT À DROITE DE LA ROUE */}
-        <div ref={menuRef} className="absolute top-0 right-[-20px] z-50">
+        <div ref={menuRef} className="absolute top-0 right-[-30px] z-50">
           <div className="relative">
             <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
@@ -701,7 +701,7 @@ export default function WheelSpinnerNutrition({ mode = "default" }: WheelSpinner
                   onClick={() => {
                     handleToggleFavori();
                   }}
-                  className="flex items-center gap-3 w-full px-3.5 py-2.5 rounded-xl hover:bg-purple-50 transition-colors text-left cursor-pointer"
+                  className="flex items-center gap-5 w-full px-3.5 py-2.5 rounded-xl hover:bg-purple-50 transition-colors text-left cursor-pointer"
                 >
                   <img 
                     src={isFavori ? "/image_icone/FavoritesYes.svg" : "/image_icone/FavoritesNo.svg"} 
@@ -718,7 +718,7 @@ export default function WheelSpinnerNutrition({ mode = "default" }: WheelSpinner
                   onClick={() => {
                     basculerTheme();
                   }}
-                  className="flex items-center gap-3 w-full px-3.5 py-2.5 rounded-xl hover:bg-purple-50 transition-colors text-left cursor-pointer"
+                  className="flex items-center gap-5 w-full px-3.5 py-2.5 rounded-xl hover:bg-purple-50 transition-colors text-left cursor-pointer"
                 >
                   <img 
                     src="/image_icone/Palette-peinture_Stroke.svg" 

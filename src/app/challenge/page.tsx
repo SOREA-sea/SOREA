@@ -67,31 +67,31 @@ const wheelDataConfig = {
       img: "/image_Design-SOREA/Appareil_photo.svg",
       alt: "Visualisation de mes possibles",
       imgWidth: "280px",
-      title: "Je visualise, je me projette",
+      title: "Ma projection",
       description: (
         <>
           Ajoute tes images inspirantes et{" "}
-          <span className="text-[#8B47FF] font-semibold">projette-toi dans tes rêves</span> : voyage, carrière, projets, instants de gratitude, paysages...
+          <span className="text-[#8B47FF] font-semibold">projette-toi dans tes rêves</span> : voyage, projets, instants de gratitude...
         </>
       ),
       btnLabel: <>Visualisation<br />de mon idéal</>,
       href: "visualization/welcomevisualization",
     },
-    /*{
+    {
       img: "/image_Design-SOREA/Lotus.svg",
       alt: "Mon souffle, mon équilibre",
       imgWidth: "180px",
       title: "Mon souffle, mon équilibre",
       description: (
         <>
-          Plonge dans une expérience de souffle consciente, inspirée de la méthode Wim Hof et adaptée pour la stabilité hormonale.
-          <span className="text-[#8B47FF] font-semibold"> Reconnecte-toi à ton équilibre intérieur</span>.
+          Plonge dans une expérience de souffle consciente, adaptée pour la stabilité hormonale.
+          <span className="text-[#8B47FF] font-semibold"> Reconnecte-toi à ton équilibre </span>.
         </>
       ),
       btnLabel: <>Je me lance<br />dans ma séance</>,
       href: "/wim-hof",
       locked: true,
-    },*/
+    },
 
     {
       img: "/image_Design-SOREA/Courrier.svg",
@@ -100,7 +100,7 @@ const wheelDataConfig = {
       title: "Au fil de mes mots",
       description: (
         <>
-          Retape une affirmation positive, un mot de gratitude ou une pensée inspirante. Chaque mot que tu écris{" "}
+          Parle à ta nouvelle version, pousse toi à changer et accomplie enfin tes promesses :{" "}
           <span className="text-[#8B47FF] font-semibold">développera ta paix intérieure</span>.
         </>
       ),

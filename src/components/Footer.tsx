@@ -111,7 +111,7 @@ export default function Footer() {
                     <button
                         type="button"
                         onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-                        className="inline-flex h-9 w-14 items-center justify-center rounded-md bg-[#201a2b] text-[10px] font-bold uppercase text-white transition-transform hover:-translate-y-0.5 lg:justify-self-end cursor-pointer"
+                        className="inline-flex h-9 w-14 items-center justify-center rounded-md bg-[#201a2b] text-[10px] font-bold uppercase text-white transition-all duration-300 ease-in-out hover:-translate-y-1 hover:bg-[#3a304a] hover:shadow-lg active:scale-95 lg:justify-self-end cursor-pointer"
                     >
                         CTA
                     </button>
