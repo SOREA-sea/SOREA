@@ -83,51 +83,55 @@ const hideInstructionsNutrition = () => {
           </div>
           </div>
 
-          {/* La roue spécifique affichée ici directement */}
-          <div className="relative z-10 w-full flex flex-col items-center scale-65 origin-top">
-            <div className="relative flex justify-center items-center translate-x-[300px]">
-                        
-                        {/* Groupe "Défis Nutrition" et les 2 boutons placés strictement à gauche (dimensions et positionnement identiques au miroir) */}
-            <div className="absolute left-[-600px] top-[450px] -translate-y-1/2 z-30 flex flex-col items-center gap-28 ">
-                          <div className="flex flex-col items-center text-center gap-10">
-                            <h1 className="text-3xl md:text-5xl font-serif font-light text-[#212121] tracking-wider whitespace-nowrap leading-tight">
-                              Défis<br />Nutrition
-                            </h1>
-                            {/* 4. Affichage dynamique de la phase si le mode "cycle" est actif */}
-                            {activeMode === "cycle" && (
-                              <h2 className="text-4xl font-semibold text-[#7F4DC5] italic">
-                                {currentPhase}
-                              </h2>
-                            )}
-                          </div>
+          {/* Conteneur principal côte à côte (Flexbox) */}
+          <div className="w-full max-w-[1200px] flex flex-row items-center justify-center gap-20 mt-12 z-10 pointer-events-auto">
             
-                          {/* Les 2 boutons (Par défaut et Cycles menstruels) */}
-                          <div className="flex w-[350px] h-[55px] bg-white border border-[#9b6fd9] rounded-[10px] overflow-hidden shadow-sm">
-                            <button 
-                              type="button"
-                              onClick={() => setActiveMode("default")}
-                              className={`flex-1 h-full flex items-center justify-center text-xs font-medium transition-colors border-r border-[#9b6fd9] cursor-pointer text-center px-1 ${
-                                activeMode === "default" ? "bg-purple-100 text-[#7F4DC5] font-bold" : "text-gray-800 hover:bg-purple-50"
-                              }`}
-                            >
-                              Par défaut
-                            </button>
-            
-                            <button 
-                              type="button"
-                              onClick={() => setActiveMode("cycle")}
-                              className={`flex-1 h-full flex items-center justify-center text-xs font-medium transition-colors cursor-pointer text-center px-1 ${
-                                activeMode === "cycle" ? "bg-purple-100 text-[#7F4DC5] font-bold" : "text-gray-800 hover:bg-purple-50"
-                              }`}
-                            >
-                              Cycles menstruels
-                            </button>
-                          </div>
-                        </div>
+            {/* Bloc de gauche : Titre et boutons de sélection */}
+            <div className="relative flex flex-col items-center text-center gap-8 shrink-0">
+              <div className="flex flex-col items-center text-center gap-3">
+                <h1 className="text-3xl md:text-4xl font-serif font-light text-[#212121] tracking-wider whitespace-nowrap translate-x-[80px] -mt-[40px]">
+                  Défis<br />Nutrition
+                </h1>
+                {/* Affichage dynamique de la phase si le mode "cycle" est actif */}
+                {activeMode === "cycle" && (
+                  <h2 className="text-3xl font-semibold text-[#7F4DC5] italic translate-x-[80px] -mt-[40px]">
+                    {currentPhase}
+                  </h2>
+                )}
+              </div>
 
-                        {/* Transmission du mode à la roue nutritionnelle */}
-                        <WheelSpinnerNutrition mode={activeMode} />
-                      </div>
+              {/* Les boutons de sélection de mode (forme pilule) */}
+              <div className="flex w-[350px] h-[55px] bg-white border border-[#9b6fd9] rounded-xl overflow-hidden shadow-sm translate-x-[80px] -mt-[40px]">
+                <button 
+                  type="button"
+                  onClick={() => setActiveMode("default")}
+                  className={`flex-1 h-full flex items-center justify-center text-xs font-medium transition-colors border-r border-[#9b6fd9] cursor-pointer text-center px-1 ${
+                    activeMode === "default" ? "bg-purple-100 text-[#7F4DC5] font-bold" : "text-gray-800 hover:bg-purple-50"
+                  }`}
+                >
+                  Par défaut
+                </button>
+
+                <button 
+                  type="button"
+                  onClick={() => setActiveMode("cycle")}
+                  className={`flex-1 h-full flex items-center justify-center text-xs font-medium transition-colors cursor-pointer text-center px-1 ${
+                    activeMode === "cycle" ? "bg-purple-100 text-[#7F4DC5] font-bold" : "text-gray-800 hover:bg-purple-50"
+                  }`}
+                >
+                  Cycles menstruels
+                </button>
+              </div>
+            </div>
+
+            {/* Bloc de droite : La roue Nutrition avec son échelle */}
+            <div className="relative flex flex-col items-center scale-65 origin-top shrink-0">
+              <div className="relative flex justify-center items-center">
+                {/* Transmission du mode à la roue nutritionnelle */}
+                <WheelSpinnerNutrition mode={activeMode} />
+              </div>
+            </div>
+
           </div>
 
         </div>
