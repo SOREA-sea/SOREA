@@ -8,23 +8,35 @@ import DailyEncouragement from "@/components/DailyEncouragement";
 import WheelSpinnerNutrition from "@/components/WheelSpinnerNutrition";
 import WheelSpinnerNutritionPayment from "@/components/WheelSpinnerNutritionPayment";
 
-// 1. Ajout des imports pour la gestion de la phase
+// Ajout des imports pour la gestion de la phase
 import { fetchCurrentPhase } from "@/lib/cyclePhase";
 import { Phase } from "@/lib/affirmations";
 
 export default function PageNutrition() {
  const [showInstruction, setShowInstructionsNutrition] = useState(true);
- // 1. Ajout de l'état pour le mode actif
+ // Ajout de l'état pour le mode actif
  const [activeMode, setActiveMode] = useState<"default" | "cycle">("default");
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [wheelKey, setWheelKey] = useState(0);
+  // État pour vérifier si le calendrier menstruel est actif (ON/OFF)
+  const [isCalendarActive, setIsCalendarActive] = useState<boolean>(true);
+  // État pour afficher l'infobulle au survol si désactivé
+  const [showTooltip, setShowTooltip] = useState(false);
 
-// 2. Ajout de l'état pour stocker la phase actuelle du cycle
+// Ajout de l'état pour stocker la phase actuelle du cycle
  const [currentPhase, setCurrentPhase] = useState<Phase>("Printemps");
 
- // 3. Récupération de la phase au chargement de la page
+ // Récupération de la phase et du profil menstruel au chargement de la page
  useEffect(() => {
    fetchCurrentPhase().then(setCurrentPhase);
+   fetch("/api/menstrual-profile")
+     .then((res) => res.json())
+     .then((data) => {
+       if (data?.profile) {
+         setIsCalendarActive(data.profile.isActive);
+       }
+     })
+     .catch((err) => console.error("Erreur chargement profil", err));
  }, []);
 
 const hideInstructionsNutrition = () => {
@@ -103,27 +115,49 @@ const hideInstructionsNutrition = () => {
                 )}
               </div>
 
-              {/* Les boutons de sélection de mode (forme pilule) */}
-              <div className="flex w-[350px] h-[55px] bg-white border border-[#9b6fd9] rounded-xl overflow-hidden shadow-sm translate-x-[80px] -mt-[40px]">
-                <button 
-                  type="button"
-                  onClick={() => setActiveMode("default")}
-                  className={`flex-1 h-full flex items-center justify-center text-xs font-medium transition-colors border-r border-[#9b6fd9] cursor-pointer text-center px-1 ${
-                    activeMode === "default" ? "bg-purple-100 text-[#7F4DC5] font-bold" : "text-gray-800 hover:bg-purple-50"
-                  }`}
-                >
-                  Par défaut
-                </button>
+              {/* Conteneur global avec le décalage pour garder l'infobulle libre */}
+              <div className="relative translate-x-[80px] -mt-[40px]">
+                {/* Les boutons de sélection de mode (forme pilule avec bordure/stroke intacte) */}
+                <div className="flex w-[350px] h-[55px] bg-white border border-[#9b6fd9] rounded-xl overflow-hidden shadow-sm">
+                  <button 
+                    type="button"
+                    onClick={() => setActiveMode("default")}
+                    className={`flex-1 h-full flex items-center justify-center text-xs font-medium transition-colors border-r border-[#9b6fd9] cursor-pointer text-center px-1 ${
+                      activeMode === "default" ? "bg-purple-100 text-[#7F4DC5] font-bold" : "text-gray-800 hover:bg-purple-50"
+                    }`}
+                  >
+                    Par défaut
+                  </button>
 
-                <button 
-                  type="button"
-                  onClick={() => setActiveMode("cycle")}
-                  className={`flex-1 h-full flex items-center justify-center text-xs font-medium transition-colors cursor-pointer text-center px-1 ${
-                    activeMode === "cycle" ? "bg-purple-100 text-[#7F4DC5] font-bold" : "text-gray-800 hover:bg-purple-50"
-                  }`}
-                >
-                  Cycles menstruels
-                </button>
+                  <div 
+                    className="flex-1 h-full flex items-center justify-center"
+                    onMouseEnter={() => !isCalendarActive && setShowTooltip(true)}
+                    onMouseLeave={() => setShowTooltip(false)}
+                  >
+                    <button 
+                      type="button"
+                      onClick={() => {
+                        if (isCalendarActive) setActiveMode("cycle");
+                      }}
+                      className={`w-full h-full flex items-center justify-center text-xs font-medium transition-colors text-center px-1 ${
+                        !isCalendarActive 
+                          ? "bg-gray-100 text-gray-400 cursor-pointer" 
+                          : activeMode === "cycle" 
+                          ? "bg-purple-100 text-[#7F4DC5] font-bold cursor-pointer" 
+                          : "text-gray-800 hover:bg-purple-50 cursor-pointer"
+                      }`}
+                    >
+                      Cycles menstruels
+                    </button>
+                  </div>
+                </div>
+
+                {/* Infobulle placée EN BAS et PLUS LARGE (300px) */}
+                {!isCalendarActive && showTooltip && (
+                  <div className="absolute top-full mt-3 right-0 w-[300px] p-3.5 bg-gray-800 text-white text-xs rounded-xl shadow-2xl z-50 pointer-events-none text-center animate-in fade-in duration-200 leading-relaxed">
+                    Veuillez activer le calendrier pour découvrir tes défis selon ton cycle.
+                  </div>
+                )}
               </div>
             </div>
 

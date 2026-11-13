@@ -6,7 +6,7 @@ import Footer from "@/components/Footer";
 import DailyEncouragement from "@/components/DailyEncouragement";
 import WheelSpinnerBienEtre from "@/components/WheelSpinnerBienEtre";
 import WheelSinnerBienEtrePayment from "@/components/WheelSpinnerBienEtrePayment";
-// 🌟 1. Ajout des imports pour la gestion de la phase
+// Ajout des imports pour la gestion de la phase
 import { fetchCurrentPhase } from "@/lib/cyclePhase";
 import { Phase } from "@/lib/affirmations";
 
@@ -14,14 +14,26 @@ export default function PageBienEtre() {
   const [showInstruction, setShowInstructionsWellness] = useState(true);
   // État pour le mode actif des défis
   const [activeMode, setActiveMode] = useState<"default" | "cycle">("default");
-  // 🌟 2. Ajout de l'état pour stocker la phase actuelle du cycle
+  // Ajout de l'état pour stocker la phase actuelle du cycle
   const [currentPhase, setCurrentPhase] = useState<Phase>("Printemps");
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [wheelKey, setWheelKey] = useState(0);
+  // État pour vérifier si le calendrier menstruel est actif (ON/OFF)
+  const [isCalendarActive, setIsCalendarActive] = useState<boolean>(true);
+  // État pour afficher l'infobulle au survol si désactivé
+  const [showTooltip, setShowTooltip] = useState(false);
 
-  // 🌟 3. Récupération de la phase au chargement de la page
+  // Récupération de la phase et du profil menstruel au chargement de la page
   useEffect(() => {
     fetchCurrentPhase().then(setCurrentPhase);
+    fetch("/api/menstrual-profile")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data?.profile) {
+          setIsCalendarActive(data.profile.isActive);
+        }
+      })
+      .catch((err) => console.error("Erreur chargement profil", err));
   }, []);
 const hideInstructionsWellness = () => {
     setShowInstructionsWellness(false);
@@ -91,7 +103,7 @@ const hideInstructionsWellness = () => {
           <div className="w-full max-w-[1200px] flex flex-row items-center justify-center gap-20 mt-12 z-10 pointer-events-auto">
             
             {/* Bloc de gauche : Titre et boutons de sélection */}
-            <div className="relative flex flex-col items-center text-center gap-8 shrink-0">
+             <div className="relative flex flex-col items-center text-center gap-8 shrink-0">
               <div className="flex flex-col items-center text-center gap-3">
                 <h1 className="text-3xl md:text-4xl font-serif font-light text-[#212121] tracking-wider whitespace-nowrap translate-x-[80px] -mt-[40px]">
                   Défis<br />Bien-être
@@ -104,27 +116,49 @@ const hideInstructionsWellness = () => {
                 )}
               </div>
 
-              {/* Les boutons de sélection de mode (forme pilule) */}
-              <div className="flex w-[350px] h-[55px] bg-white border border-[#9b6fd9] rounded-xl overflow-hidden shadow-sm translate-x-[80px] -mt-[40px]">
-                <button 
-                  type="button"
-                  onClick={() => setActiveMode("default")}
-                  className={`flex-1 h-full flex items-center justify-center text-xs font-medium transition-colors border-r border-[#9b6fd9] cursor-pointer text-center px-1 ${
-                    activeMode === "default" ? "bg-purple-100 text-[#7F4DC5] font-bold" : "text-gray-800 hover:bg-purple-50"
-                  }`}
-                >
-                  Par défaut
-                </button>
+              {/* Conteneur global avec le décalage d'origine pour garder l'infobulle libre */}
+              <div className="relative translate-x-[80px] -mt-[40px]">
+                {/* Les boutons de sélection de mode (forme pilule avec bordure/stroke intacte) */}
+                <div className="flex w-[350px] h-[55px] bg-white border border-[#9b6fd9] rounded-xl overflow-hidden shadow-sm">
+                  <button 
+                    type="button"
+                    onClick={() => setActiveMode("default")}
+                    className={`flex-1 h-full flex items-center justify-center text-xs font-medium transition-colors border-r border-[#9b6fd9] cursor-pointer text-center px-1 ${
+                      activeMode === "default" ? "bg-purple-100 text-[#7F4DC5] font-bold" : "text-gray-800 hover:bg-purple-50"
+                    }`}
+                  >
+                    Par défaut
+                  </button>
 
-                <button 
-                  type="button"
-                  onClick={() => setActiveMode("cycle")}
-                  className={`flex-1 h-full flex items-center justify-center text-xs font-medium transition-colors cursor-pointer text-center px-1 ${
-                    activeMode === "cycle" ? "bg-purple-100 text-[#7F4DC5] font-bold" : "text-gray-800 hover:bg-purple-50"
-                  }`}
-                >
-                  Cycles menstruels
-                </button>
+                  <div 
+                    className="flex-1 h-full flex items-center justify-center"
+                    onMouseEnter={() => !isCalendarActive && setShowTooltip(true)}
+                    onMouseLeave={() => setShowTooltip(false)}
+                  >
+                    <button 
+                      type="button"
+                      onClick={() => {
+                        if (isCalendarActive) setActiveMode("cycle");
+                      }}
+                      className={`w-full h-full flex items-center justify-center text-xs font-medium transition-colors text-center px-1 ${
+                        !isCalendarActive 
+                          ? "bg-gray-100 text-gray-400 cursor-pointer" 
+                          : activeMode === "cycle" 
+                          ? "bg-purple-100 text-[#7F4DC5] font-bold cursor-pointer" 
+                          : "text-gray-800 hover:bg-purple-50 cursor-pointer"
+                      }`}
+                    >
+                      Cycles menstruels
+                    </button>
+                  </div>
+                </div>
+
+                {/* Infobulle placée EN BAS et PLUS LARGE (350px comme la pilule) */}
+                {!isCalendarActive && showTooltip && (
+                  <div className="absolute top-full mt-3 right-0 w-[300px] p-3.5 bg-gray-800 text-white text-xs rounded-xl shadow-2xl z-50 pointer-events-none text-center animate-in fade-in duration-200 leading-relaxed">
+                    Veuillez activer le calendrier pour découvrir tes défis selon ton cycle.
+                  </div>
+                )}
               </div>
             </div>
 
