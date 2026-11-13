@@ -678,7 +678,7 @@ export default function WheelSpinnerSport({ mode = "default", onOpenPayment }: W
   };
 
 return (
-    <div className="w-full flex justify-center items-center relative pt-32 pb-0 gap-[100px]" style={{ fontFamily: "'Inter', sans-serif" }}>
+    <div className="w-full flex justify-center items-center relative pt-4 pb-0 gap-[100px]" style={{ fontFamily: "'Inter', sans-serif" }}>
 
       {/* COLONNE CENTRALE : ROUE ET SOCLE GROUPÉS */}
       <div className="relative w-[340px] h-[460px] flex flex-col items-center justify-center transform scale-[1.35] origin-top">

@@ -71,7 +71,7 @@ const hideInstructionsNutrition = () => {
           )}
 
       {/* CONTENU PRINCIPAL - Juste la roue centrée */}
-      <main className="flex-1 w-full flex flex-col items-center py-20">
+      <main className="flex-1 w-full flex flex-col items-center py-3">
         <div className="w-full max-w-[1440px] mx-auto flex flex-col items-center">
           
           {/* Bouton Retour stylé */}
