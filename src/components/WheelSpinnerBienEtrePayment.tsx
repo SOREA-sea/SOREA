@@ -5,15 +5,45 @@ import React from "react";
 interface WheelSinnerBienEtrePaymentProps {
   isOpen: boolean;
   onClose: () => void;
-  onConfirmPayment: () => void;
+  onConfirmPayment?: () => void;
+  itemId?: string | number; // Ajout optionnel de l'ID du produit de roue
 }
 
 export default function WheelSinnerBienEtrePayment({
   isOpen,
   onClose,
   onConfirmPayment,
+  itemId,
 }: WheelSinnerBienEtrePaymentProps) {
   if (!isOpen) return null;
+
+  // Ajout de la fonction de redirection Stripe
+  const handleCheckout = async () => {
+    try {
+      const response = await fetch("/api/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          id: itemId,
+          title: "Défis Bien-être - Rejouer",
+          price: "0.99",
+          type: "bien-etre",
+        }),
+      });
+
+      const { url, error } = await response.json();
+      if (error) {
+        alert("Erreur : " + error);
+        return;
+      }
+
+      if (url) {
+        window.location.href = url;
+      }
+    } catch (err) {
+      console.error("Erreur réseau", err);
+    }
+  };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-xs p-4 animate-in fade-in duration-200">
@@ -87,7 +117,7 @@ export default function WheelSinnerBienEtrePayment({
         {/* Bouton d'action principal */}
         <button
           type="button"
-          onClick={onConfirmPayment}
+          onClick={handleCheckout}
           className="w-full max-w-[497px] py-4 rounded-xl text-white font-bold text-base hover:opacity-95 hover:-translate-y-0.5 transition-all cursor-pointer"
           style={{
             backgroundColor: "var(--color-SOREA-R1, #D942A6)",
