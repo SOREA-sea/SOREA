@@ -560,6 +560,41 @@ export default function WheelSpinnerBienEtre({ mode = "default", onOpenPayment }
   const [raisonSelectionnee, setRaisonSelectionnee] = useState("");
   const [raisonPersonnalisee, setRaisonPersonnalisee] = useState("");
 
+  // Vérification de la persistance du défi sur 24 heures et gestion du retour Stripe success
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get('success') === 'true') {
+        localStorage.removeItem('sorea_ws_bienetre_lock');
+        setAfficherFenetreResultat(false);
+        setResultatGagnant(null);
+        setChoixUtilisateur('attente');
+        // Nettoyer l'URL proprement sans recharger la page
+        window.history.replaceState({}, document.title, window.location.pathname);
+        return;
+      }
+
+      const savedLock = localStorage.getItem('sorea_ws_bienetre_lock');
+      if (savedLock) {
+        try {
+          const parsed = JSON.parse(savedLock);
+          const now = Date.now();
+          const twentyFourHours = 24 * 60 * 60 * 1000;
+
+          if (now - parsed.timestamp < twentyFourHours && parsed.resultat) {
+            setResultatGagnant(parsed.resultat);
+            setAfficherFenetreResultat(true);
+            setChoixUtilisateur('oui');
+          } else {
+            localStorage.removeItem('sorea_ws_bienetre_lock');
+          }
+        } catch (e) {
+          localStorage.removeItem('sorea_ws_bienetre_lock');
+        }
+      }
+    }
+  }, []);
+
 
   const wheelGroupRef = useRef<HTMLDivElement>(null);
   const angleActuel = useRef(0);
@@ -669,6 +704,9 @@ export default function WheelSpinnerBienEtre({ mode = "default", onOpenPayment }
   };
 
   const reinitialiserJeu = () => {
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('sorea_ws_bienetre_lock');
+    }
     setAfficherFenetreResultat(false);
     setResultatGagnant(null);
     setChoixUtilisateur('attente');
@@ -905,37 +943,54 @@ export default function WheelSpinnerBienEtre({ mode = "default", onOpenPayment }
                     const today = new Date();
                     const localToday = new Date(today.getTime() - today.getTimezoneOffset() * 60000);
                     const todayKey = localToday.toISOString().split('T')[0];
-                    
+                    const texteFormaté = `${resultatGagnant.name} : ${resultatGagnant.defiDuJour}`;
+
+                    // Sauvegarde synchronisée avec l'ID utilisateur ou clé par défaut
+                    let targetKey = 'sorea_todos_default';
                     for (let i = 0; i < localStorage.length; i++) {
                       const key = localStorage.key(i);
                       if (key && key.startsWith('sorea_todos_')) {
-                        const stored = localStorage.getItem(key);
-                        let todosObj = stored ? JSON.parse(stored) : {};
-                        const currentTodos = todosObj[todayKey] || [];
-                        const texteFormaté = `${resultatGagnant.name} : ${resultatGagnant.defiDuJour}`;
-                        const exists = currentTodos.some((t: any) => t.text === texteFormaté);
-                        if (!exists) {
-                          todosObj[todayKey] = [
-                            ...currentTodos,
-                            { 
-                              id: `${todayKey}-${Date.now()}`,
-                              themeName: resultatGagnant.name, 
-                              text: texteFormaté, 
-                              completed: false, 
-                              category: 'bien-etre' 
-                            }
-                          ];
-                          localStorage.setItem(key, JSON.stringify(todosObj));
-                          window.dispatchEvent(new Event('storage'));
-                        }
+                        targetKey = key;
                         break;
                       }
+                    }
+
+                    const stored = localStorage.getItem(targetKey);
+                    let todosObj = stored ? JSON.parse(stored) : {};
+                    const currentTodos = todosObj[todayKey] || [];
+                    
+                    const exists = currentTodos.some((t: any) => t.text === texteFormaté);
+                    if (!exists) {
+                      todosObj[todayKey] = [
+                        ...currentTodos,
+                        { 
+                          id: `${todayKey}-${Date.now()}`,
+                          themeName: resultatGagnant.name, 
+                          text: texteFormaté, 
+                          completed: false, 
+                          category: 'bien-etre' 
+                        }
+                      ];
+                      localStorage.setItem(targetKey, JSON.stringify(todosObj));
+                      window.dispatchEvent(new Event('storage'));
+                      window.dispatchEvent(new Event('sorea_notification_update'));
                     }
                   }
                   if (typeof window !== 'undefined') {
                     localStorage.setItem('sorea_has_notification', 'true');
                     localStorage.setItem('sorea_todo_notification', 'true');
                     window.dispatchEvent(new Event('sorea_notification_update'));
+
+                    // Verrouillage de la roue pour 24h00
+                    if (resultatGagnant) {
+                      localStorage.setItem(
+                        'sorea_ws_bienetre_lock',
+                        JSON.stringify({
+                          timestamp: Date.now(),
+                          resultat: resultatGagnant,
+                        })
+                      );
+                    }
                   }
                   setChoixUtilisateur('oui');
                 }}
@@ -957,7 +1012,30 @@ export default function WheelSpinnerBienEtre({ mode = "default", onOpenPayment }
 
           {choixUtilisateur === 'oui' && (
             <button
-              onClick={onOpenPayment ? onOpenPayment : reinitialiserJeu}
+              onClick={async () => {
+                if (onOpenPayment) {
+                  onOpenPayment();
+                  return;
+                }
+                // Appel direct à l'API Stripe si aucune prop onOpenPayment n'est passée
+                try {
+                  const res = await fetch("/api/stripe", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                      title: "Wheel-Spinner Bien-être",
+                      price: "0.95",
+                      type: "bien-etre"
+                    }),
+                  });
+                  const data = await res.json();
+                  if (data.url) {
+                    window.location.href = data.url;
+                  }
+                } catch (e) {
+                  console.error("Erreur de redirection Stripe", e);
+                }
+              }}
               className="p-[16px] text-white rounded-[8px] text-[15px] font-[600] shadow-[0px_4px_10px_rgba(0,0,0,0.05)] transition-all border-none cursor-pointer w-full text-center"
               style={{ backgroundColor: theme.btnPrimary }}
               onMouseOver={(e) => e.currentTarget.style.backgroundColor = theme.btnPrimaryHover}

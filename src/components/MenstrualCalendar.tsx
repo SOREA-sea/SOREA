@@ -161,7 +161,8 @@ const active = localStorage.getItem('sorea_has_notification') === 'true' || loca
       const user = data.user;
       if (user?.id) {
         setLoggedUser({ id: user.id, email: user.email });
-        const stored = localStorage.getItem(`sorea_todos_${user.id}`);
+        const userKey = `sorea_todos_${user.id}`;
+        const stored = localStorage.getItem(userKey) || localStorage.getItem('sorea_todos_default');
         if (stored) {
           setTodosByDate(JSON.parse(stored));
         }
@@ -208,7 +209,8 @@ const active = localStorage.getItem('sorea_has_notification') === 'true' || loca
 
     const handleStorageChange = () => {
       if (loggedUser) {
-        const stored = localStorage.getItem(`sorea_todos_${loggedUser.id}`);
+        const userKey = `sorea_todos_${loggedUser.id}`;
+        const stored = localStorage.getItem(userKey) || localStorage.getItem('sorea_todos_default');
         if (stored) {
           setTodosByDate(JSON.parse(stored));
         }
