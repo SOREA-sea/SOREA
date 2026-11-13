@@ -563,6 +563,74 @@ export default function WheelSpinnerSport({ mode = "default", onOpenPayment }: W
   const [raisonSelectionnee, setRaisonSelectionnee] = useState("");
   const [raisonPersonnalisee, setRaisonPersonnalisee] = useState("");
 
+  // Vérification de la persistance du défi sur 24 heures et gestion du retour Stripe success
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get('success') === 'true') {
+        localStorage.removeItem('sorea_ws_sport_lock');
+        setAfficherFenetreResultat(false);
+        setResultatGagnant(null);
+        setChoixUtilisateur('attente');
+        window.history.replaceState({}, document.title, window.location.pathname);
+        return;
+      }
+
+      const savedLock = localStorage.getItem('sorea_ws_sport_lock');
+      if (savedLock) {
+        try {
+          const parsed = JSON.parse(savedLock);
+          const now = Date.now();
+          const twentyFourHours = 24 * 60 * 60 * 1000;
+
+          if (now - parsed.timestamp < twentyFourHours && parsed.resultat) {
+            setResultatGagnant(parsed.resultat);
+            setAfficherFenetreResultat(true);
+            setChoixUtilisateur('oui');
+          } else {
+            localStorage.removeItem('sorea_ws_sport_lock');
+          }
+        } catch (e) {
+          localStorage.removeItem('sorea_ws_sport_lock');
+        }
+      }
+    }
+  }, []);
+
+  // Vérification de la persistance du défi sur 24 heures et gestion du retour Stripe success
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get('success') === 'true') {
+        localStorage.removeItem('sorea_ws_sport_lock');
+        setAfficherFenetreResultat(false);
+        setResultatGagnant(null);
+        setChoixUtilisateur('attente');
+        window.history.replaceState({}, document.title, window.location.pathname);
+        return;
+      }
+
+      const savedLock = localStorage.getItem('sorea_ws_sport_lock');
+      if (savedLock) {
+        try {
+          const parsed = JSON.parse(savedLock);
+          const now = Date.now();
+          const twentyFourHours = 24 * 60 * 60 * 1000;
+
+          if (now - parsed.timestamp < twentyFourHours && parsed.resultat) {
+            setResultatGagnant(parsed.resultat);
+            setAfficherFenetreResultat(true);
+            setChoixUtilisateur('oui');
+          } else {
+            localStorage.removeItem('sorea_ws_sport_lock');
+          }
+        } catch (e) {
+          localStorage.removeItem('sorea_ws_sport_lock');
+        }
+      }
+    }
+  }, []);
+
   const wheelGroupRef = useRef<HTMLDivElement>(null);
   const angleActuel = useRef(0);
   const idleRafRef = useRef<number | null>(null);
@@ -672,6 +740,9 @@ export default function WheelSpinnerSport({ mode = "default", onOpenPayment }: W
   };
 
   const reinitialiserJeu = () => {
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('sorea_ws_sport_lock');
+    }
     setAfficherFenetreResultat(false);
     setResultatGagnant(null);
     setChoixUtilisateur('attente');
@@ -910,36 +981,49 @@ return (
                     const localToday = new Date(today.getTime() - today.getTimezoneOffset() * 60000);
                     const todayKey = localToday.toISOString().split('T')[0];
                     
+                    let targetKey = 'sorea_todos_default';
                     for (let i = 0; i < localStorage.length; i++) {
                       const key = localStorage.key(i);
                       if (key && key.startsWith('sorea_todos_')) {
-                        const stored = localStorage.getItem(key);
-                        let todosObj = stored ? JSON.parse(stored) : {};
-                        const currentTodos = todosObj[todayKey] || [];
-                        const texteFormaté = `${resultatGagnant.name} : ${resultatGagnant.defiDuJour}`;
-                        const exists = currentTodos.some((t: any) => t.text === texteFormaté);
-                        if (!exists) {
-                          todosObj[todayKey] = [
-                            ...currentTodos,
-                            { 
-                              id: `${todayKey}-${Date.now()}`,
-                              themeName: resultatGagnant.name, 
-                              text: texteFormaté, 
-                              completed: false, 
-                              category: 'sport' 
-                            }
-                          ];
-                          localStorage.setItem(key, JSON.stringify(todosObj));
-                          window.dispatchEvent(new Event('storage'));
-                        }
+                        targetKey = key;
                         break;
                       }
+                    }
+
+                    const stored = localStorage.getItem(targetKey);
+                    let todosObj = stored ? JSON.parse(stored) : {};
+                    const currentTodos = todosObj[todayKey] || [];
+                    const texteFormaté = `${resultatGagnant.name} : ${resultatGagnant.defiDuJour}`;
+                    const exists = currentTodos.some((t: any) => t.text === texteFormaté);
+                    if (!exists) {
+                      todosObj[todayKey] = [
+                        ...currentTodos,
+                        { 
+                          id: `${todayKey}-${Date.now()}`,
+                          themeName: resultatGagnant.name, 
+                          text: texteFormaté, 
+                          completed: false, 
+                          category: 'sport' 
+                        }
+                      ];
+                      localStorage.setItem(targetKey, JSON.stringify(todosObj));
+                      window.dispatchEvent(new Event('storage'));
                     }
                   }
                   if (typeof window !== 'undefined') {
                     localStorage.setItem('sorea_has_notification', 'true');
                     localStorage.setItem('sorea_todo_notification', 'true');
                     window.dispatchEvent(new Event('sorea_notification_update'));
+
+                    if (resultatGagnant) {
+                      localStorage.setItem(
+                        'sorea_ws_sport_lock',
+                        JSON.stringify({
+                          timestamp: Date.now(),
+                          resultat: resultatGagnant,
+                        })
+                      );
+                    }
                   }
                   setChoixUtilisateur('oui');
                 }}
