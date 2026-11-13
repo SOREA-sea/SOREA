@@ -484,10 +484,6 @@ const themesData = [
   }
 ];
 
-const raisonsIndisponibilite = [
-  "J'ai du mal à me lancer aujourd'hui",
-  "Ce défi ne correspond pas à mon énergie du moment",
-];
 
 // ============================================================================
 // THÈMES DE COULEURS — couleurs Figma exactes
@@ -559,6 +555,7 @@ export default function WheelSpinnerBienEtre({ mode = "default", onOpenPayment }
   const [choixUtilisateur, setChoixUtilisateur] = useState<'attente' | 'oui' | 'non'>('attente');
   const [raisonSelectionnee, setRaisonSelectionnee] = useState("");
   const [raisonPersonnalisee, setRaisonPersonnalisee] = useState("");
+  const [modePasEnParler, setModePasEnParler] = useState(false);
 
   // Vérification de la persistance du défi sur 24 heures et gestion du retour Stripe success
   useEffect(() => {
@@ -710,6 +707,7 @@ export default function WheelSpinnerBienEtre({ mode = "default", onOpenPayment }
     setAfficherFenetreResultat(false);
     setResultatGagnant(null);
     setChoixUtilisateur('attente');
+    setModePasEnParler(false);
   };
 
   return (
@@ -1047,38 +1045,56 @@ export default function WheelSpinnerBienEtre({ mode = "default", onOpenPayment }
 
           {choixUtilisateur === 'non' && (
             <div className="flex flex-col gap-3 text-left bg-white p-5 rounded-2xl shadow-sm border w-full" style={{ borderColor: theme.borderBulle }}>
-              <label className="text-[#4b3b5c] text-[13px] font-semibold mb-1">Tu peux choisir une raison ou écrire la tienne :</label>
-              <div className="flex flex-col gap-2">
-                {raisonsIndisponibilite.map((raison) => (
-                  <button
-                    key={raison}
-                    type="button"
-                    onClick={() => setRaisonSelectionnee(raison)}
-                    className="rounded-xl px-3 py-2 text-left text-[12px] font-semibold transition-colors cursor-pointer"
-                    style={{
-                      backgroundColor: raisonSelectionnee === raison ? theme.bgBulle : 'white',
-                      border: `1px solid ${raisonSelectionnee === raison ? theme.borderCarte : theme.borderBulle}`,
-                      color: '#4b3b5c'
-                    }}
-                  >
-                    {raison}
-                  </button>
-                ))}
-              </div>
+              <label className="text-[#4b3b5c] text-[13px] font-semibold mb-1">Je ne peux pas réaliser ce défis parce que...</label>
+              
               <textarea
                 value={raisonPersonnalisee}
-                onChange={(e) => setRaisonPersonnalisee(e.target.value)}
+                onChange={(e) => {
+                  setRaisonPersonnalisee(e.target.value);
+                  if (e.target.value.trim().length > 0) {
+                    setModePasEnParler(false);
+                  }
+                }}
                 className="w-full border rounded-xl p-3 text-[13px] focus:outline-none resize-none mt-2"
                 style={{ borderColor: theme.borderBulle }}
                 rows={3}
                 placeholder="Écris ici pourquoi tu ne peux pas le faire..."
               />
+
               <button
-                onClick={() => { setRaisonSelectionnee(""); setRaisonPersonnalisee(""); reinitialiserJeu(); }}
-                className="bg-[#4b3b5c] text-white border-none rounded-full p-2 text-[14px] font-bold cursor-pointer mt-2 hover:bg-[#32273e] transition-colors"
+                onClick={() => {
+                  if (modePasEnParler) {
+                    setModePasEnParler(false);
+                  } else {
+                    setModePasEnParler(true);
+                    setRaisonPersonnalisee("");
+                  }
+                }}
+                type="button"
+                className="w-full rounded-xl px-4 py-2.5 text-center text-[13px] font-semibold transition-all cursor-pointer shadow-sm"
+                style={{
+                  backgroundColor: modePasEnParler ? theme.bgBulle : 'white',
+                  border: `1.5px solid ${modePasEnParler ? theme.borderCarte : theme.borderBulle}`,
+                  color: '#4b3b5c'
+                }}
               >
-                Valider
+                Je ne souhaite pas en parler...
               </button>
+
+              <div className="flex gap-2 mt-2">
+                <button
+                  onClick={() => { setRaisonSelectionnee(""); setRaisonPersonnalisee(""); setModePasEnParler(false); setChoixUtilisateur('attente'); }}
+                  className="flex-1 bg-gray-200 text-[#333] border-none rounded-full p-2 text-[14px] font-bold cursor-pointer hover:bg-gray-300 transition-colors text-center"
+                >
+                  Annuler
+                </button>
+                <button
+                  onClick={() => { setRaisonSelectionnee(""); setRaisonPersonnalisee(""); setModePasEnParler(false); reinitialiserJeu(); }}
+                  className="flex-1 bg-[#4b3b5c] text-white border-none rounded-full p-2 text-[14px] font-bold cursor-pointer hover:bg-[#32273e] transition-colors text-center"
+                >
+                  Valider
+                </button>
+              </div>
             </div>
           )}
         </div>
