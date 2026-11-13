@@ -6,6 +6,7 @@ import Navbar from '@/components/Navbar';
 import Footer from "@/components/Footer";
 import DailyEncouragement from "@/components/DailyEncouragement";
 import WheelSpinnerNutrition from "@/components/WheelSpinnerNutrition";
+import WheelSpinnerNutritionPayment from "@/components/WheelSpinnerNutritionPayment";
 
 // 1. Ajout des imports pour la gestion de la phase
 import { fetchCurrentPhase } from "@/lib/cyclePhase";
@@ -15,6 +16,8 @@ export default function PageNutrition() {
  const [showInstruction, setShowInstructionsNutrition] = useState(true);
  // 1. Ajout de l'état pour le mode actif
  const [activeMode, setActiveMode] = useState<"default" | "cycle">("default");
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [wheelKey, setWheelKey] = useState(0);
 
 // 2. Ajout de l'état pour stocker la phase actuelle du cycle
  const [currentPhase, setCurrentPhase] = useState<Phase>("Printemps");
@@ -128,7 +131,11 @@ const hideInstructionsNutrition = () => {
             <div className="relative flex flex-col items-center scale-65 origin-top shrink-0">
               <div className="relative flex justify-center items-center">
                 {/* Transmission du mode à la roue nutritionnelle */}
-                <WheelSpinnerNutrition mode={activeMode} />
+                <WheelSpinnerNutrition 
+                  key={wheelKey} 
+                  mode={activeMode} 
+                  onOpenPayment={() => setShowPaymentModal(true)} 
+                />
               </div>
             </div>
 
@@ -137,6 +144,15 @@ const hideInstructionsNutrition = () => {
         </div>
   
       </main>
+
+      <WheelSpinnerNutritionPayment
+        isOpen={showPaymentModal}
+        onClose={() => setShowPaymentModal(false)}
+        onConfirmPayment={() => {
+          setShowPaymentModal(false);
+          setWheelKey(prev => prev + 1);
+        }}
+      />
 
       {/* FOOTER (Optionnel sur les pages internes, mais conservé ici) */}
      
