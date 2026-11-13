@@ -86,56 +86,55 @@ const hideInstructionsWellness = () => {
 
           {/* La roue spécifique affichée ici directement */}
           {/* 2. Le jeu de la roue (maintenant dans la même div englobante) */}
-       
-           <div className="relative z-10 w-full flex flex-col items-center scale-65 origin-top">
-            <div className="relative flex justify-center items-center translate-x-[300px]">
-            
-            {/* Groupe "Défis Bien-être" et les 2 boutons placés strictement à gauche (dimensions et positionnement identiques au miroir) */}
-            <div className="absolute left-[-600px] top-[450px] -translate-y-1/2 z-30 flex flex-col items-center gap-28">
-              <div className="flex flex-col items-center text-center gap-10">
-                <h1 className="text-3xl md:text-5xl font-serif font-light text-[#212121] tracking-wider whitespace-nowrap leading-tight">
-                  Défis<br />Bien-être
-                </h1>
-                {/* Affichage dynamique de la phase si le mode "cycle" est actif */}
-                {activeMode === "cycle" && (
-                  <h2 className="text-4xl font-semibold text-[#7F4DC5] italic">
-                    {currentPhase}
-                  </h2>
-                )}
-              </div>
-
-              {/* Les 2 boutons (Par défaut et Cycles menstruels) */}
-              <div className="flex w-[350px] h-[55px] bg-white border border-[#9b6fd9] rounded-[10px] overflow-hidden shadow-sm">
-                <button 
-                  type="button"
-                  onClick={() => setActiveMode("default")}
-                  className={`flex-1 h-full flex items-center justify-center text-sm font-medium transition-colors border-r border-[#9b6fd9] cursor-pointer text-center px-1 ${
-                    activeMode === "default" ? "bg-purple-100 text-[#7F4DC5] font-bold" : "text-gray-800 hover:bg-purple-50"
-                  }`}
-                >
-                  Par défaut
-                </button>
-
-                <button 
-                  type="button"
-                  onClick={() => setActiveMode("cycle")}
-                  className={`flex-1 h-full flex items-center justify-center text-sm font-medium transition-colors cursor-pointer text-center px-1 ${
-                    activeMode === "cycle" ? "bg-purple-100 text-[#7F4DC5] font-bold" : "text-gray-800 hover:bg-purple-50"
-                  }`}
-                >
-                  Cycles menstruels
-                </button>
-              </div>
+       {/* Groupe "Défis Bien-être" et les boutons placés à gauche (hors du scale de la roue pour conserver leur taille réelle) */}
+          <div className="absolute left-[180px] top-[330px] z-30 flex flex-col items-center gap-10 pointer-events-auto">
+            <div className="flex flex-col items-center text-center gap-4">
+              <h1 className="text-3xl md:text-4xl font-serif font-light text-[#212121] tracking-wider whitespace-nowrap">
+                Défis<br />Bien-être
+              </h1>
+              {/* Affichage dynamique de la phase si le mode "cycle" est actif */}
+              {activeMode === "cycle" && (
+                <h2 className="text-3xl font-semibold text-[#7F4DC5] italic">
+                  {currentPhase}
+                </h2>
+              )}
             </div>
 
-            {/* Transmission du mode à la roue */}
-            <WheelSpinnerBienEtre 
-              key={wheelKey} 
-              mode={activeMode} 
-              onOpenPayment={() => setShowPaymentModal(true)} 
-            />
+            {/* Les boutons de sélection de mode (forme pilule identique au miroir) */}
+            <div className="flex w-[350px] h-[55px] bg-white border border-[#9b6fd9] rounded-xl overflow-hidden shadow-sm">
+              <button 
+                type="button"
+                onClick={() => setActiveMode("default")}
+                className={`flex-1 h-full flex items-center justify-center text-xs font-medium transition-colors border-r border-[#9b6fd9] cursor-pointer text-center px-1 ${
+                  activeMode === "default" ? "bg-purple-100 text-[#7F4DC5] font-bold" : "text-gray-800 hover:bg-purple-50"
+                }`}
+              >
+                Par défaut
+              </button>
+
+              <button 
+                type="button"
+                onClick={() => setActiveMode("cycle")}
+                className={`flex-1 h-full flex items-center justify-center text-xs font-medium transition-colors cursor-pointer text-center px-1 ${
+                  activeMode === "cycle" ? "bg-purple-100 text-[#7F4DC5] font-bold" : "text-gray-800 hover:bg-purple-50"
+                }`}
+              >
+                Cycles menstruels
+              </button>
+            </div>
           </div>
-        </div>
+
+          {/* La roue spécifique et son échelle indépendante */}
+          <div className="relative z-10 w-full flex flex-col items-center scale-65 origin-top">
+            <div className="relative flex justify-center items-center translate-x-[300px]">
+              {/* Transmission du mode à la roue */}
+              <WheelSpinnerBienEtre 
+                key={wheelKey} 
+                mode={activeMode} 
+                onOpenPayment={() => setShowPaymentModal(true)} 
+              />
+            </div>
+          </div>
     
   </div>
   

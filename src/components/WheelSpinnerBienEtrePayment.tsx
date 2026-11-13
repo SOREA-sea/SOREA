@@ -88,9 +88,10 @@ export default function WheelSinnerBienEtrePayment({
         <button
           type="button"
           onClick={onConfirmPayment}
-          className="w-full max-w-[280px] py-3.5 rounded-full text-white font-bold text-sm shadow-md hover:opacity-95 hover:-translate-y-0.5 transition-all cursor-pointer"
+          className="w-full max-w-[497px] py-4 rounded-xl text-white font-bold text-base hover:opacity-95 hover:-translate-y-0.5 transition-all cursor-pointer"
           style={{
-            background: "linear-gradient(90deg, #E856B8 0%, #D942A6 100%)",
+            backgroundColor: "var(--color-SOREA-R1, #D942A6)",
+            boxShadow: "0px 3px 13.6px rgba(0, 0, 0, 0.13), inset 0px -9px 10.6px #A84286",
           }}
         >
           Rejouer maintenant
