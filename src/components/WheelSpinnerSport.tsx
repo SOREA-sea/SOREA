@@ -1104,7 +1104,12 @@ return (
                 </button>
                 <button
                   onClick={() => { setRaisonSelectionnee(""); setRaisonPersonnalisee(""); setModePasEnParler(false); reinitialiserJeu(); }}
-                  className="flex-1 bg-[#4b3b5c] text-white border-none rounded-full p-2 text-[14px] font-bold cursor-pointer hover:bg-[#32273e] transition-colors text-center"
+                  disabled={!modePasEnParler && raisonPersonnalisee.trim() === ""}
+                  className={`flex-1 border-none rounded-full p-2 text-[14px] font-bold text-center transition-colors ${
+                    !modePasEnParler && raisonPersonnalisee.trim() === ""
+                      ? "bg-gray-300 text-gray-500 cursor-not-allowed opacity-60"
+                      : "bg-[#4b3b5c] text-white cursor-pointer hover:bg-[#32273e]"
+                  }`}
                 >
                   Valider
                 </button>
