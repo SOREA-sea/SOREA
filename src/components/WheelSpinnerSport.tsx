@@ -1103,7 +1103,7 @@ return (
                   Annuler
                 </button>
                 <button
-                  onClick={() => { setRaisonSelectionnee(""); setRaisonPersonnalisee(""); setModePasEnParler(false); reinitialiserJeu(); }}
+                  onClick={() => { setRaisonSelectionnee(""); setRaisonPersonnalisee(""); setModePasEnParler(false); setChoixUtilisateur('oui'); }}
                   disabled={!modePasEnParler && raisonPersonnalisee.trim() === ""}
                   className={`flex-1 border-none rounded-full p-2 text-[14px] font-bold text-center transition-colors ${
                     !modePasEnParler && raisonPersonnalisee.trim() === ""
