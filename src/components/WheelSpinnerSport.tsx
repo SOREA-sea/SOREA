@@ -564,7 +564,7 @@ export default function WheelSpinnerSport({ mode = "default", onOpenPayment }: W
   const [raisonPersonnalisee, setRaisonPersonnalisee] = useState("");
   const [modePasEnParler, setModePasEnParler] = useState(false);
 
-  // Vérification de la persistance du défi sur 24 heures et gestion du retour Stripe success
+  // Vérification de la persistance du défi (état d'attente infini, ou verrouillage 24h après validation)
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const params = new URLSearchParams(window.location.search);
@@ -577,40 +577,23 @@ export default function WheelSpinnerSport({ mode = "default", onOpenPayment }: W
         return;
       }
 
-      const savedLock = localStorage.getItem('sorea_ws_sport_lock');
-      if (savedLock) {
+      // 1. Vérifier s'il y a un état d'attente en cours (bloqué à vie tant qu'on n'a pas validé)
+      const savedPending = localStorage.getItem('sorea_ws_sport_pending');
+      if (savedPending) {
         try {
-          const parsed = JSON.parse(savedLock);
-          const now = Date.now();
-          const twentyFourHours = 24 * 60 * 60 * 1000;
-
-          if (now - parsed.timestamp < twentyFourHours && parsed.resultat) {
-            setResultatGagnant(parsed.resultat);
+          const parsedPending = JSON.parse(savedPending);
+          if (parsedPending && parsedPending.resultat) {
+            setResultatGagnant(parsedPending.resultat);
             setAfficherFenetreResultat(true);
-            setChoixUtilisateur('oui');
-          } else {
-            localStorage.removeItem('sorea_ws_sport_lock');
+            setChoixUtilisateur('attente');
+            return;
           }
         } catch (e) {
-          localStorage.removeItem('sorea_ws_sport_lock');
+          localStorage.removeItem('sorea_ws_sport_pending');
         }
       }
-    }
-  }, []);
 
-  // Vérification de la persistance du défi sur 24 heures et gestion du retour Stripe success
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const params = new URLSearchParams(window.location.search);
-      if (params.get('success') === 'true') {
-        localStorage.removeItem('sorea_ws_sport_lock');
-        setAfficherFenetreResultat(false);
-        setResultatGagnant(null);
-        setChoixUtilisateur('attente');
-        window.history.replaceState({}, document.title, window.location.pathname);
-        return;
-      }
-
+      // 2. Sinon, vérifier le verrouillage de 24h (post-validation)
       const savedLock = localStorage.getItem('sorea_ws_sport_lock');
       if (savedLock) {
         try {
@@ -730,19 +713,29 @@ export default function WheelSpinnerSport({ mode = "default", onOpenPayment }: W
       }
       const themeGagnant = activeThemes[sectorIndex];
       const randomDefi = themeGagnant.defis[Math.floor(Math.random() * themeGagnant.defis.length)];
-      setResultatGagnant({
+      const nouveauResultat = {
         name: themeGagnant.name,
         iconPath: themeGagnant.iconPath,
         objectifs: themeGagnant.objectifs,
         defiDuJour: randomDefi
-      });
+      };
+      setResultatGagnant(nouveauResultat);
       setAfficherFenetreResultat(true);
+
+      // Sauvegarde immédiate de l'état d'attente (bloqué à vie tant qu'il n'y a pas de clic de validation)
+      if (typeof window !== 'undefined') {
+        localStorage.setItem(
+          'sorea_ws_sport_pending',
+          JSON.stringify({ resultat: nouveauResultat })
+        );
+      }
     }, 4000);
   };
 
   const reinitialiserJeu = () => {
     if (typeof window !== 'undefined') {
       localStorage.removeItem('sorea_ws_sport_lock');
+      localStorage.removeItem('sorea_ws_sport_pending');
     }
     setAfficherFenetreResultat(false);
     setResultatGagnant(null);
@@ -1013,6 +1006,7 @@ return (
                     }
                   }
                   if (typeof window !== 'undefined') {
+                    localStorage.removeItem('sorea_ws_sport_pending'); // Supprime l'état d'attente infini
                     localStorage.setItem('sorea_has_notification', 'true');
                     localStorage.setItem('sorea_todo_notification', 'true');
                     window.dispatchEvent(new Event('sorea_notification_update'));
@@ -1146,6 +1140,7 @@ return (
                     }
 
                     if (typeof window !== 'undefined') {
+                      localStorage.removeItem('sorea_ws_sport_pending'); // Supprime l'état d'attente infini
                       localStorage.setItem('sorea_has_notification', 'true');
                       localStorage.setItem('sorea_todo_notification', 'true');
                       window.dispatchEvent(new Event('sorea_notification_update'));

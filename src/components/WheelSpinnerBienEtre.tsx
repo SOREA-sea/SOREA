@@ -557,7 +557,7 @@ export default function WheelSpinnerBienEtre({ mode = "default", onOpenPayment }
   const [raisonPersonnalisee, setRaisonPersonnalisee] = useState("");
   const [modePasEnParler, setModePasEnParler] = useState(false);
 
-  // Vérification de la persistance du défi sur 24 heures et gestion du retour Stripe success
+  // Vérification de la persistance du défi (état d'attente infini, ou verrouillage 24h après validation)
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const params = new URLSearchParams(window.location.search);
@@ -566,11 +566,27 @@ export default function WheelSpinnerBienEtre({ mode = "default", onOpenPayment }
         setAfficherFenetreResultat(false);
         setResultatGagnant(null);
         setChoixUtilisateur('attente');
-        // Nettoyer l'URL proprement sans recharger la page
         window.history.replaceState({}, document.title, window.location.pathname);
         return;
       }
 
+      // 1. Vérifier s'il y a un état d'attente en cours (bloqué à vie tant qu'on n'a pas validé)
+      const savedPending = localStorage.getItem('sorea_ws_bienetre_pending');
+      if (savedPending) {
+        try {
+          const parsedPending = JSON.parse(savedPending);
+          if (parsedPending && parsedPending.resultat) {
+            setResultatGagnant(parsedPending.resultat);
+            setAfficherFenetreResultat(true);
+            setChoixUtilisateur('attente');
+            return; // On stoppe ici pour garder l'état d'attente
+          }
+        } catch (e) {
+          localStorage.removeItem('sorea_ws_bienetre_pending');
+        }
+      }
+
+      // 2. Sinon, vérifier le verrouillage de 24h (post-validation)
       const savedLock = localStorage.getItem('sorea_ws_bienetre_lock');
       if (savedLock) {
         try {
@@ -690,19 +706,29 @@ export default function WheelSpinnerBienEtre({ mode = "default", onOpenPayment }
       }
       const themeGagnant = activeThemes[sectorIndex];
       const randomDefi = themeGagnant.defis[Math.floor(Math.random() * themeGagnant.defis.length)];
-      setResultatGagnant({
+      const nouveauResultat = {
         name: themeGagnant.name,
         iconPath: themeGagnant.iconPath,
         objectifs: themeGagnant.objectifs,
         defiDuJour: randomDefi
-      });
+      };
+      setResultatGagnant(nouveauResultat);
       setAfficherFenetreResultat(true);
+
+      // Sauvegarde immédiate de l'état d'attente (bloqué à vie tant qu'il n'y a pas de clic de validation)
+      if (typeof window !== 'undefined') {
+        localStorage.setItem(
+          'sorea_ws_bienetre_pending',
+          JSON.stringify({ resultat: nouveauResultat })
+        );
+      }
     }, 4000);
   };
 
   const reinitialiserJeu = () => {
     if (typeof window !== 'undefined') {
       localStorage.removeItem('sorea_ws_bienetre_lock');
+      localStorage.removeItem('sorea_ws_bienetre_pending');
     }
     setAfficherFenetreResultat(false);
     setResultatGagnant(null);
@@ -975,6 +1001,7 @@ export default function WheelSpinnerBienEtre({ mode = "default", onOpenPayment }
                     }
                   }
                   if (typeof window !== 'undefined') {
+                    localStorage.removeItem('sorea_ws_bienetre_pending'); // Supprime l'état d'attente infini
                     localStorage.setItem('sorea_has_notification', 'true');
                     localStorage.setItem('sorea_todo_notification', 'true');
                     window.dispatchEvent(new Event('sorea_notification_update'));
@@ -1132,6 +1159,7 @@ export default function WheelSpinnerBienEtre({ mode = "default", onOpenPayment }
                     }
 
                     if (typeof window !== 'undefined') {
+                      localStorage.removeItem('sorea_ws_bienetre_pending'); // Supprime l'état d'attente infini
                       localStorage.setItem('sorea_has_notification', 'true');
                       localStorage.setItem('sorea_todo_notification', 'true');
                       window.dispatchEvent(new Event('sorea_notification_update'));
