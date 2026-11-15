@@ -1076,7 +1076,29 @@ export default function WheelSpinnerNutrition({ mode = "default", onOpenPayment 
 
           {choixUtilisateur === 'oui' && (
             <button
-              onClick={onOpenPayment ? onOpenPayment : reinitialiserJeu}
+              onClick={async () => {
+                if (onOpenPayment) {
+                  onOpenPayment();
+                  return;
+                }
+                try {
+                  const res = await fetch("/api/stripe", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                      title: "Wheel-Spinner Nutrition",
+                      price: "0.95",
+                      type: "nutrition"
+                    }),
+                  });
+                  const data = await res.json();
+                  if (data.url) {
+                    window.location.href = data.url;
+                  }
+                } catch (e) {
+                  console.error("Erreur de redirection Stripe", e);
+                }
+              }}
               className="p-[16px] text-white rounded-[8px] text-[15px] font-[600] shadow-[0px_4px_10px_rgba(0,0,0,0.05)] transition-all border-none cursor-pointer w-full text-center"
               style={{ backgroundColor: theme.btnPrimary }}
               onMouseOver={(e) => e.currentTarget.style.backgroundColor = theme.btnPrimaryHover}
