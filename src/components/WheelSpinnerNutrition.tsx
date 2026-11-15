@@ -1132,7 +1132,69 @@ export default function WheelSpinnerNutrition({ mode = "default", onOpenPayment 
                   Annuler
                 </button>
                 <button
-                  onClick={() => { setRaisonSelectionnee(""); setRaisonPersonnalisee(""); setModePasEnParler(false); setChoixUtilisateur('oui'); }}
+                  onClick={() => { 
+                    if (resultatGagnant?.defiDuJour) {
+                      const today = new Date();
+                      const localToday = new Date(today.getTime() - today.getTimezoneOffset() * 60000);
+                      const todayKey = localToday.toISOString().split('T')[0];
+                      
+                      const raisonTexte = modePasEnParler 
+                        ? "Je ne peux pas réaliser ce défi" 
+                        : raisonPersonnalisee.trim();
+                      const texteFormaté = `${resultatGagnant.name} : ${raisonTexte}`;
+
+                      let targetKey = 'sorea_todos_default';
+                      for (let i = 0; i < localStorage.length; i++) {
+                        const key = localStorage.key(i);
+                        if (key && key.startsWith('sorea_todos_')) {
+                          targetKey = key;
+                          break;
+                        }
+                      }
+
+                      const stored = localStorage.getItem(targetKey);
+                      let todosObj = stored ? JSON.parse(stored) : {};
+                      const currentTodos = todosObj[todayKey] || [];
+                      
+                      const exists = currentTodos.some((t: any) => t.text === texteFormaté);
+                      if (!exists) {
+                        todosObj[todayKey] = [
+                          ...currentTodos,
+                          { 
+                            id: `${todayKey}-${Date.now()}`,
+                            themeName: resultatGagnant.name, 
+                            text: texteFormaté, 
+                            completed: false, 
+                            category: 'nutrition' 
+                          }
+                        ];
+                        localStorage.setItem(targetKey, JSON.stringify(todosObj));
+                        window.dispatchEvent(new Event('storage'));
+                        window.dispatchEvent(new Event('sorea_notification_update'));
+                      }
+                    }
+
+                    if (typeof window !== 'undefined') {
+                      localStorage.setItem('sorea_has_notification', 'true');
+                      localStorage.setItem('sorea_todo_notification', 'true');
+                      window.dispatchEvent(new Event('sorea_notification_update'));
+
+                      if (resultatGagnant) {
+                        localStorage.setItem(
+                          'sorea_ws_nutrition_lock',
+                          JSON.stringify({
+                            timestamp: Date.now(),
+                            resultat: resultatGagnant,
+                          })
+                        );
+                      }
+                    }
+
+                    setRaisonSelectionnee(""); 
+                    setRaisonPersonnalisee(""); 
+                    setModePasEnParler(false); 
+                    setChoixUtilisateur('oui');
+                  }}
                   disabled={!modePasEnParler && raisonPersonnalisee.trim() === ""}
                   className={`flex-1 border-none rounded-full p-2 text-[14px] font-bold text-center transition-colors ${
                     !modePasEnParler && raisonPersonnalisee.trim() === ""
