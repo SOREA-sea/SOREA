@@ -745,7 +745,45 @@ export default function WheelSpinnerNutrition({ mode = "default", onOpenPayment 
         wheelGroupRef.current.style.transform = `rotate(${angleActuel.current}deg)`;
       }
       const themeGagnant = activeThemes[sectorIndex];
-      const randomDefi = themeGagnant.defis[Math.floor(Math.random() * themeGagnant.defis.length)];
+
+      // Gestion stricte des 10 défis uniques sans doublon
+      const storageKey = `sorea_used_defis_nutrition_${themeGagnant.name}`;
+      let usedIndices: number[] = [];
+      if (typeof window !== 'undefined') {
+        const savedUsed = localStorage.getItem(storageKey);
+        if (savedUsed) {
+          try {
+            usedIndices = JSON.parse(savedUsed);
+          } catch (e) {
+            usedIndices = [];
+          }
+        }
+      }
+
+      const totalAvailable = Math.min(10, themeGagnant.defis.length);
+      let availableIndices = [];
+      for (let i = 0; i < totalAvailable; i++) {
+        if (!usedIndices.includes(i)) {
+          availableIndices.push(i);
+        }
+      }
+
+      if (availableIndices.length === 0) {
+        usedIndices = [];
+        for (let i = 0; i < totalAvailable; i++) {
+          availableIndices.push(i);
+        }
+      }
+
+      const randomIndexInAvailable = Math.floor(Math.random() * availableIndices.length);
+      const chosenIndex = availableIndices[randomIndexInAvailable];
+
+      usedIndices.push(chosenIndex);
+      if (typeof window !== 'undefined') {
+        localStorage.setItem(storageKey, JSON.stringify(usedIndices));
+      }
+
+      const randomDefi = themeGagnant.defis[chosenIndex];
       const nouveauResultat = {
         name: themeGagnant.name,
         iconPath: themeGagnant.iconPath,
@@ -944,23 +982,28 @@ export default function WheelSpinnerNutrition({ mode = "default", onOpenPayment 
       {/* COLONNE DROITE : CARTE DÉFI + BOUTONS D'ACTION EN DESSOUS */}
       <div className={`flex flex-col gap-[16px] w-[320px] ml-[130px] mt-[70px] transition-all duration-[600ms] ease-[cubic-bezier(0.16,1,0.3,1)] ${afficherFenetreResultat ? 'opacity-100 translate-x-0 pointer-events-auto' : 'opacity-0 translate-x-[40px] pointer-events-none'}`}>
         <div
-          className="w-full border-[2px] border-dashed rounded-[24px] p-[30px_24px] shadow-[0px_10px_30px_rgba(0,0,0,0.05)] flex flex-col"
-          style={{ backgroundColor: theme.bgCarte, borderColor: theme.borderCarte }}
+          className="w-full rounded-[24px] p-[30px_24px] shadow-[0px_10px_30px_rgba(0,0,0,0.05)] flex flex-col"
+          style={{ 
+            backgroundColor: theme.bgCarte, 
+            backgroundImage: `url("data:image/svg+xml,%3csvg width='100%25' height='100%25' xmlns='http://www.w3.org/2000/svg'%3e%3crect width='100%25' height='100%25' fill='none' rx='24' ry='24' stroke='%237F4DC5' stroke-width='2' stroke-dasharray='10%2c 20'/%3e%3c/svg%3e")` 
+          }}
         >
           <div
             className="w-[72px] h-[72px] rounded-full border-[1.5px] flex items-center justify-center mx-auto mb-[15px] shadow-[0px_4px_12px_rgba(127,77,197,0.08)] transition-colors duration-500"
-            style={{ backgroundColor: theme.bgBulle, borderColor: theme.borderBulle }}
+            style={{ background: "radial-gradient(circle, #E256B3 25%, rgba(226,86,179,0) 100%)", borderColor: "#E256B3", borderWidth: "2px" }}
           >
             {resultatGagnant && <img src={resultatGagnant.iconPath} alt={resultatGagnant.name} className="w-[40px] h-[40px] object-contain" />}
           </div>
 
           <div className="flex items-center justify-center gap-[6px] mb-[20px] relative">
-            <span
-              className="text-[22px] font-medium text-center transition-colors duration-500"
-              style={{ color: theme.textAccent }}
+            
+            {/*Titre du défi*/}
+            <strong
+              className="text-[22px] font-[800] text-center transition-colors duration-500"
+              style={{ color: "#E256B3" }}
             >
               {resultatGagnant?.name}
-            </span>
+            </strong>
 
             <div className="relative flex items-center cursor-pointer group">
               <img
@@ -981,17 +1024,17 @@ export default function WheelSpinnerNutrition({ mode = "default", onOpenPayment 
             </div>
           </div>
 
-          <div className="text-[15px] font-[700] text-[#212121] text-center mb-[20px] leading-[1.4] px-[10px]">
-            <strong>Défi du jour :</strong> <br />
-            <span className="font-medium mt-1 inline-block">{resultatGagnant?.defiDuJour}</span>
+          <div className="text-[20px] font-semibold text-[#212121] text-center mb-[20px] leading-[1.4] px-[10px]">
+            <span>Défi du jour :</span> <br />
+            <span className="text-[20px] text-left font-medium mt-1 inline-block">{resultatGagnant?.defiDuJour}</span>
           </div>
 
-          <div className="h-[1px] w-full my-[15px]" style={{ background: `radial-gradient(circle, ${theme.borderCarte} 0%, transparent 100%)` }}></div>
+          <img src="/image_Design-SOREA/DividingLinePink.svg" alt="Séparateur" className="w-full my-[15px] object-contain" />
 
-          <div className="text-[20px] font-[800] text-[#212121] text-center mb-[15px]">Objectif</div>
-          <ul className="text-[14px] leading-[1.6] text-[#333333] pl-[20px] m-0 list-disc">
+          <div className="text-[15px] font-[600] text-[#1A1A1A] text-center mb-[15px]">Objectif</div>
+          <ul className="text-[15px] leading-[1.6] text-[#333333] pl-[20px] m-0 list-disc">
             {resultatGagnant?.objectifs.map((obj, i) => (
-              <li key={i} className="mb-[12px]">{obj}</li>
+              <li key={i} className="font-medium mb-[12px]">{obj}</li>
             ))}
           </ul>
         </div>

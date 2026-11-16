@@ -103,7 +103,7 @@ export default function WheelSinnerBienEtrePayment({
         {/* Ligne séparatrice avec étoile */}
         <div className="w-full flex items-center justify-center my-2">
           <img
-            src="/image_Design-SOREA/DividingLine.svg"
+            src="/image_Design-SOREA/DividingLinePurple.svg"
             alt="Séparateur"
             className="w-full max-w-[340px] object-contain"
           />

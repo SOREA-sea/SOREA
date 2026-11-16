@@ -132,7 +132,7 @@ export default function AffirmationPayment({
 
         {/* Séparateur décoratif Ligne */}
         <div className="w-full flex items-center justify-center my-2">
-          <img src="/image_Design-SOREA/DividingLine.svg" alt="Ligne de séparation" className="w-full object-contain" />
+          <img src="/image_Design-SOREA/DividingLinePurple.svg" alt="Ligne de séparation" className="w-full object-contain" />
         </div>
 
         {/* Prix */}
