@@ -154,8 +154,8 @@ const hideInstructionsNutrition = () => {
 
                 {/* Infobulle placée EN BAS et PLUS LARGE (300px) */}
                 {!isCalendarActive && showTooltip && (
-                  <div className="absolute top-full mt-3 right-0 w-[300px] p-3.5 bg-gray-800 text-white text-xs rounded-xl shadow-2xl z-50 pointer-events-none text-center animate-in fade-in duration-200 leading-relaxed">
-                    Veuillez activer le calendrier pour découvrir tes défis selon ton cycle.
+                  <div className="absolute top-full mt-3 right-0 w-[250px] p-3.5 bg-gray-800 text-white text-xs rounded-xl shadow-2xl z-50 pointer-events-none text-center animate-in fade-in duration-200 leading-relaxed">
+                    Active ton calendrier de suivi pour <br/> découvrir les défis selon ton cycle.
                   </div>
                 )}
               </div>
