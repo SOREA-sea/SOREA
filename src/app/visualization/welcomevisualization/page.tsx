@@ -41,20 +41,12 @@ export default function VisualisationPage() {
             </p>
 
             <Link href="/visualization/visualisation">
-              <button className="bg-[#8B47FF] hover:bg-[#7a3be0] text-white font-medium px-7 py-3.5 rounded-2xl shadow-md transition-all duration-300 hover:scale-105 hover:shadow-lg cursor-pointer">
+              <button className="bg-[#7F4DC5] hover:bg-[#6a3db0] text-white font-medium px-7 py-3.5 rounded-2xl shadow-md transition-all duration-300 hover:scale-105 hover:shadow-lg cursor-pointer">
                 Lancer la projection
               </button>
             </Link>
           </div>
-
-          {/* Pellicule penchée ajustée et emprisonnée à droite */}
-          {/*<div className="absolute right-[-20px] top-[100px] w-[450px] lg:w-[520px] h-[120%] pointer-events-none z-0 flex justify-end items-center">
-            <img
-            src="/image_Design-SOREA/PelliculeSupport.svg"
-            alt="Pellicule support"
-            className="w-[360px] h-auto transform rotate-[35deg] translate-x-[-20px] translate-y-[30px] drop-shadow-md origin-top-right"
-          />
-        </div>*/}
+          
         {/* Container de la pellicule animée et penchée */}
 <div className="absolute right-[-30px] top-[100px] w-[450px] lg:w-[520px] h-[120%] pointer-events-none z-0 flex justify-end items-center">
   <div className="w-[360px] h-auto transform rotate-[25deg] translate-x-[80px] translate-y-[-20px] origin-top-right">

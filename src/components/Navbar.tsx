@@ -12,7 +12,7 @@ const NAV_LINKS = [
   //{ label: "Mon Carnet", href: "/carnet" },
   //{ label: "Vibe", href: "/vibe" },
   { label: "Mon suivi", href: "/suivi" },
-  { label: "Ambassadeur", href: "/ambassador" },
+  { label: "Ambassadeur", href: "/challenge" },
   
 ];
 

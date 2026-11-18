@@ -17,7 +17,7 @@ export default function Footer() {
     ];
 
     const infoLinks = [
-        { href: '/about', label: 'A propos' },
+        { href: '/challenge', label: 'À propos' },
         { href: '/ambassador', label: 'Devenir ambassadeur' },
         { href: '/termandprivacy', label: 'Mentions légales' },
     ];
@@ -91,19 +91,22 @@ export default function Footer() {
                     </div>
 
                     <div className="flex flex-col gap-3">
-                        <h3 className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#201a2b]/45">Contact</h3>
-                        <div className="flex flex-col gap-2 text-sm font-medium leading-snug text-[#201a2b]">
-                            <div className="flex items-center gap-2.5">
-                                <i className="fa-regular fa-envelope text-SOREA-V1" />
-                                <span>contact@sorea-sea.com</span>
+                        <h3 className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#201a2b]/45">Moyens de paiement</h3>
+                        <div className="flex flex-wrap items-center gap-2 pt-1">
+                            <div className="flex h-7 w-11 items-center justify-center rounded bg-white p-1 shadow-sm border border-gray-100">
+                                <Image src="/image_icone/PaymentVISA.svg" alt="Visa" width={32} height={20} className="h-4 w-auto object-contain" />
                             </div>
-                            <div className="flex items-center gap-2.5">
-                                <i className="fa-solid fa-phone text-SOREA-V1" />
-                                <span>+33 7 44 30 90 09</span>
+                            <div className="flex h-7 w-11 items-center justify-center rounded bg-white p-1 shadow-sm border border-gray-100">
+                                <Image src="/image_icone/PaymentMasterCard.svg" alt="Mastercard" width={32} height={20} className="h-5 w-auto object-contain" />
                             </div>
-                            <div className="flex items-center gap-2.5">
-                                <i className="fa-solid fa-location-dot text-SOREA-V1" />
-                                <span>02400 Château-Thierry</span>
+                            <div className="flex h-7 w-11 items-center justify-center rounded bg-white p-1 shadow-sm border border-gray-100">
+                                <Image src="/image_icone/PaymentApplePay.svg" alt="Apple Pay" width={32} height={20} className="h-10 w-auto object-contain" />
+                            </div>
+                            <div className="flex h-7 w-11 items-center justify-center rounded bg-white p-1 shadow-sm border border-gray-100">
+                                <Image src="/image_icone/PaymentGooglePay.svg" alt="Google Pay" width={32} height={20} className="h-8 w-auto object-contain" />
+                            </div>
+                            <div className="flex h-7 w-11 items-center justify-center rounded bg-white p-1 shadow-sm border border-gray-100">
+                                <Image src="/image_icone/PaymentPaypal.svg" alt="PayPal" width={32} height={20} className="h-10 w-auto object-contain" />
                             </div>
                         </div>
                     </div>
@@ -111,9 +114,15 @@ export default function Footer() {
                     <button
                         type="button"
                         onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-                        className="inline-flex h-9 w-14 items-center justify-center rounded-md bg-[#201a2b] text-[10px] font-bold uppercase text-white transition-all duration-300 ease-in-out hover:-translate-y-1 hover:bg-[#3a304a] hover:shadow-lg active:scale-95 lg:justify-self-end cursor-pointer"
+                        className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-white p-2.5 transition-all duration-300 ease-in-out hover:-translate-y-1 hover:shadow-lg active:scale-95 lg:justify-self-end cursor-pointer"
+                        style={{
+                            border: '3px solid transparent',
+                            backgroundImage: 'linear-gradient(white, white), linear-gradient(to right, #F4C4E4, #C0BBFC, #B7F8F5)',
+                            backgroundOrigin: 'border-box',
+                            backgroundClip: 'padding-box, border-box',
+                        }}
                     >
-                        CTA
+                        <img src="/image_icone/ArrowTop.svg" alt="Remonter en haut" className="w-7 h-7 object-contain" />
                     </button>
                     
                     <div className="flex items-center gap-2">

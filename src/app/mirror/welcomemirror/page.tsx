@@ -33,7 +33,7 @@ export default function MiroirLandingPage() {
               Prête à t'affirmer avec bienveillance ?
             </h1>
             <Link href="miroir">
-              <button className="bg-[#8B47FF] text-white font-bold px-8 py-4 rounded-2xl shadow-lg transition-all duration-300 hover:scale-105 hover:shadow-xl cursor-pointer">
+              <button className="bg-[#7F4DC5] text-white font-bold px-8 py-4 rounded-2xl shadow-lg transition-all duration-300 hover:scale-105 hover:shadow-xl cursor-pointer">
                 Activer mon miroir
               </button>
             </Link>
@@ -103,7 +103,7 @@ export default function MiroirLandingPage() {
 
         </section>
 <Link href="miroir">
-              <button className="bg-[#8B47FF] text-white font-bold px-8 py-4 rounded-2xl shadow-lg transition-all duration-300 hover:scale-105 hover:shadow-xl cursor-pointer">
+              <button className="bg-[#7F4DC5] text-white font-bold px-8 py-4 rounded-2xl shadow-lg transition-all duration-300 hover:scale-105 hover:shadow-xl cursor-pointer">
                 Activer mon miroir
               </button>
             </Link>

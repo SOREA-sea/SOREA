@@ -541,12 +541,17 @@ export default function WheelSpinnerNutrition({ mode = "default", onOpenPayment 
     fetchCurrentPhase().then(setCurrentPhase);
   }, []);
   
-    const [themeActif, setThemeActif] = useState<'pastel' | 'pop'>(() => {
-      if (typeof window !== 'undefined') {
-        return localStorage.getItem('soreaThemeActif_Nutrition') as 'pastel' | 'pop' || 'pastel';
+    const [themeActif, setThemeActif] = useState<'pastel' | 'pop'>('pastel');
+    const [themeCharge, setThemeCharge] = useState(false);
+
+    // Lecture du thème sauvegardé APRÈS le montage (évite le décalage serveur/navigateur)
+    useEffect(() => {
+      const themeSauvegarde = localStorage.getItem('soreaThemeActif_Nutrition');
+      if (themeSauvegarde === 'pop' || themeSauvegarde === 'pastel') {
+        setThemeActif(themeSauvegarde);
       }
-      return 'pastel';
-    });
+      setThemeCharge(true);
+    }, []);
 
 
 
@@ -681,16 +686,13 @@ export default function WheelSpinnerNutrition({ mode = "default", onOpenPayment 
   };
 
   const basculerTheme = () => {
-    setThemeActif((prev) => {
-      const nouveauTheme = prev === 'pastel' ? 'pop' : 'pastel';
+    const nouveauTheme = themeActif === 'pastel' ? 'pop' : 'pastel';
+    setThemeActif(nouveauTheme);
 
-      if (typeof window !== 'undefined') {
-        localStorage.setItem('soreaThemeActif_Nutrition', nouveauTheme);
-        window.dispatchEvent(new Event("themeChange_Nutrition"));
-      }
-
-      return nouveauTheme;
-    });
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('soreaThemeActif_Nutrition', nouveauTheme);
+      window.dispatchEvent(new Event("themeChange_Nutrition"));
+    }
   };
 
   useEffect(() => {
@@ -815,7 +817,7 @@ export default function WheelSpinnerNutrition({ mode = "default", onOpenPayment 
   };
 
   return (
-    <div className="w-full flex justify-center items-center relative pt-4 pb-0 gap-[100px]" style={{ fontFamily: "'Inter', sans-serif" }}>
+    <div className="w-full flex justify-center items-center relative pt-4 pb-0 gap-[100px]" style={{ fontFamily: "'Inter', sans-serif", opacity: themeCharge ? 1 : 0, transition: 'opacity 150ms ease' }}>
 
       {/* COLONNE CENTRALE : ROUE ET SOCLE GROUPÉS */}
       <div className="relative w-[340px] h-[460px] flex flex-col items-center justify-center transform scale-[1.35] origin-top">

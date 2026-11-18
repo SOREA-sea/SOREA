@@ -304,7 +304,7 @@ export default function VisualisationGallery({
         <div className="flex flex-col items-center justify-center gap-6 w-full lg:w-auto">
           <button
             onClick={() => setIsOpen(true)}
-            className="bg-[#8B47FF] text-white font-bold px-8 py-4 rounded-2xl shadow-lg transition-all duration-300 hover:scale-105 hover:shadow-xl cursor-pointer"
+            className="bg-[#7F4DC5] text-white font-bold px-8 py-4 rounded-2xl shadow-lg transition-all duration-300 hover:scale-105 hover:shadow-xl cursor-pointer"
           >
             Personnaliser mes projections
           </button>

@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import VisualisationGallery from "@/components/VisualisationGallery";
@@ -231,9 +232,21 @@ return (
           <Navbar />
         </div>
       </div>
+      
+<div className="w-full max-w-[1440px] mx-auto px-[96px] sticky top-[85px] z-40 pointer-events-none mb-[-60px]">
+          <div className="flex flex-col items-start gap-2 pointer-events-auto w-fit">
+            <Link href="welcomevisualization">
+              <button className="flex items-center gap-2 bg-white text-[#8B47FF] font-bold px-6 py-3 rounded-xl shadow-md transition-all duration-300 hover:scale-105 hover:shadow-xl cursor-pointer border border-[#8B47FF]">
+                ← Retour
+              </button>
+            </Link>
+          </div>
+        </div>
 
       {/* CONTENU PRINCIPAL DU JEU */}
       <main className="flex-1 w-full max-w-[1440px] mx-auto flex items-center mt-18 mb-9.5 pl-[90px]">
+        
+
         <div className="flex items-center gap-10 md:gap-16 relative">
           
           {/* GROUPE "VISUALISATION" ET LES 2 BOUTONS STYLISÉS À GAUCHE */}

@@ -543,12 +543,17 @@ export default function WheelSpinnerSport({ mode = "default", onOpenPayment }: W
     fetchCurrentPhase().then(setCurrentPhase);
   }, []);
 
-    const [themeActif, setThemeActif] = useState<'pastel' | 'pop'>(() => {
-      if (typeof window !== 'undefined') {
-        return localStorage.getItem('soreaThemeActif_Sport') as 'pastel' | 'pop' || 'pastel';
+    const [themeActif, setThemeActif] = useState<'pastel' | 'pop'>('pastel');
+    const [themeCharge, setThemeCharge] = useState(false);
+
+    // Lecture du thème sauvegardé APRÈS le montage (évite le décalage serveur/navigateur)
+    useEffect(() => {
+      const themeSauvegarde = localStorage.getItem('soreaThemeActif_Sport');
+      if (themeSauvegarde === 'pop' || themeSauvegarde === 'pastel') {
+        setThemeActif(themeSauvegarde);
       }
-      return 'pastel';
-    });
+      setThemeCharge(true);
+    }, []);
 
 
   const [estEnTrainDeTourner, setEstEnTrainDeTourner] = useState(false);
@@ -646,16 +651,13 @@ export default function WheelSpinnerSport({ mode = "default", onOpenPayment }: W
   };
 
   const basculerTheme = () => {
-    setThemeActif((prev) => {
-      const nouveauTheme = prev === 'pastel' ? 'pop' : 'pastel';
+    const nouveauTheme = themeActif === 'pastel' ? 'pop' : 'pastel';
+    setThemeActif(nouveauTheme);
 
-      if (typeof window !== 'undefined') {
-        localStorage.setItem('soreaThemeActif_Sport', nouveauTheme);
-        window.dispatchEvent(new Event("themeChange_Sport"));
-      }
-
-      return nouveauTheme;
-    });
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('soreaThemeActif_Sport', nouveauTheme);
+      window.dispatchEvent(new Event("themeChange_Sport"));
+    }
   };
 
   useEffect(() => {
@@ -782,7 +784,7 @@ export default function WheelSpinnerSport({ mode = "default", onOpenPayment }: W
   };
 
 return (
-    <div className="w-full flex justify-center items-center relative pt-4 pb-0 gap-[100px]" style={{ fontFamily: "'Inter', sans-serif" }}>
+    <div className="w-full flex justify-center items-center relative pt-4 pb-0 gap-[100px]" style={{ fontFamily: "'Inter', sans-serif", opacity: themeCharge ? 1 : 0, transition: 'opacity 150ms ease' }}>
 
       {/* COLONNE CENTRALE : ROUE ET SOCLE GROUPÉS */}
       <div className="relative w-[340px] h-[460px] flex flex-col items-center justify-center transform scale-[1.35] origin-top">

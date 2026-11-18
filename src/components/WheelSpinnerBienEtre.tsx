@@ -20,7 +20,7 @@ const themesData = [
       "Découvre tes principes et tes valeurs en te libérant des injonctions sociales et des jugements."
     ],
     defis: [
-      "Identifie une croyance limitante et écrit son opposée.",
+      "Identifie et note une croyance limitante que tu as sur toi. Écris son opposé. N'hésite pas à écrire cet opposé dans ton miroir des affirmations",
       "Note trois moments où tu as agi pour plaire aux autres plutôt qu'à toi-même. Surmonte cette limite et valorise ta propre valeur.",
       "Liste tes 5 valeurs fondamentales et vérifie si ton quotidien les respecte.",
       "Écris une lettre à ton enfant intérieur pour valider ses besoins ignorés et pardonner ton passé. Au moins quelques mots. ",
@@ -536,12 +536,17 @@ export default function WheelSpinnerBienEtre({ mode = "default", onOpenPayment }
     fetchCurrentPhase().then(setCurrentPhase);
   }, []);
 
-  const [themeActif, setThemeActif] = useState<'pastel' | 'pop'>(() => {
-    if (typeof window !== 'undefined') {
-      return localStorage.getItem('soreaThemeActif_BienEtre') as 'pastel' | 'pop' || 'pastel';
+  const [themeActif, setThemeActif] = useState<'pastel' | 'pop'>('pastel');
+  const [themeCharge, setThemeCharge] = useState(false);
+
+  // Lecture du thème sauvegardé APRÈS le montage (évite le décalage serveur/navigateur)
+  useEffect(() => {
+    const themeSauvegarde = localStorage.getItem('soreaThemeActif_BienEtre');
+    if (themeSauvegarde === 'pop' || themeSauvegarde === 'pastel') {
+      setThemeActif(themeSauvegarde);
     }
-    return 'pastel';
-  });
+    setThemeCharge(true);
+  }, []);
 
   const [estEnTrainDeTourner, setEstEnTrainDeTourner] = useState(false);
 
@@ -640,15 +645,13 @@ export default function WheelSpinnerBienEtre({ mode = "default", onOpenPayment }
   };
 
   const basculerTheme = () => {
-    setThemeActif((prev) => {
-      const nouveauTheme = prev === 'pastel' ? 'pop' : 'pastel';
+    const nouveauTheme = themeActif === 'pastel' ? 'pop' : 'pastel';
+    setThemeActif(nouveauTheme);
 
-      if (typeof window !== 'undefined') {
-        localStorage.setItem('soreaThemeActif_BienEtre', nouveauTheme);
-        window.dispatchEvent(new Event("themeChange_BienEtre"));
-      }
-      return nouveauTheme;
-    });
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('soreaThemeActif_BienEtre', nouveauTheme);
+      window.dispatchEvent(new Event("themeChange_BienEtre"));
+    }
   };
 
   useEffect(() => {
@@ -776,7 +779,7 @@ export default function WheelSpinnerBienEtre({ mode = "default", onOpenPayment }
   };
 
   return (
-<div className="w-full flex justify-center items-center relative pt-4 pb-0 gap-[100px]" style={{ fontFamily: "'Inter', sans-serif" }}>
+<div className="w-full flex justify-center items-center relative pt-4 pb-0 gap-[100px]" style={{ fontFamily: "'Inter', sans-serif", opacity: themeCharge ? 1 : 0, transition: 'opacity 150ms ease' }}>
       {/* COLONNE CENTRALE : ROUE ET SOCLE GROUPÉS */}
       <div className="relative w-[340px] h-[460px] flex flex-col items-center justify-center transform scale-[1.35] origin-top">
         

@@ -56,7 +56,7 @@ const wheelDataConfig = {
       description: (
         <>
           Affirme-toi chaque jour face à ton miroir virtuel. Répète des phrases positives pour{" "}
-          <span className="text-[#8B47FF] font-semibold">renforcer ta confiance</span>.
+          <span className="text-[#7F4DC5] font-semibold">renforcer ta confiance</span>.
         </>
       ),
       btnLabel: <>Affirmer ma<br />lumière intérieure</>,
@@ -71,7 +71,7 @@ const wheelDataConfig = {
       description: (
         <>
           Ajoute tes images inspirantes et{" "}
-          <span className="text-[#8B47FF] font-semibold">projette-toi dans tes rêves</span> : voyage, projets, instants de gratitude...
+          <span className="text-[#7F4DC5] font-semibold">projette-toi dans tes rêves</span> : voyage, projets, instants de gratitude...
         </>
       ),
       btnLabel: <>Visualisation<br />de mon idéal</>,
@@ -85,7 +85,7 @@ const wheelDataConfig = {
       description: (
         <>
           Plonge dans une expérience de souffle consciente, adaptée pour la stabilité hormonale.
-          <span className="text-[#8B47FF] font-semibold"> Reconnecte-toi à ton équilibre </span>.
+          <span className="text-[#7F4DC5] font-semibold"> Reconnecte-toi à ton équilibre </span>.
         </>
       ),
       btnLabel: <>Je me lance<br />dans ma séance</>,
@@ -101,7 +101,7 @@ const wheelDataConfig = {
       description: (
         <>
           Parle à ta nouvelle version, pousse toi à changer et accomplie enfin tes promesses :{" "}
-          <span className="text-[#8B47FF] font-semibold">développera ta paix intérieure</span>.
+          <span className="text-[#7F4DC5] font-semibold">développera ta paix intérieure</span>.
         </>
       ),
       btnLabel: <>Je laisse parler<br />ma plume</>,
@@ -116,7 +116,7 @@ const wheelDataConfig = {
       title: "Ton potentiel intérieur",
       description: (
         <>
-          Choisis ton défi bien-être parmi <span className="text-[#8B47FF] font-semibold">plusieurs roues à thèmes</span> et retrouve calme et sérénité grâce aux défis qui te seront proposés. Chaque tirage est une nouvelle occasion de prendre soin de toi, à ton rythme.{" "}
+          Choisis ton défi bien-être parmi <span className="text-[#7F4DC5] font-semibold">plusieurs roues à thèmes</span> et retrouve calme et sérénité grâce aux défis qui te seront proposés. Chaque tirage est une nouvelle occasion de prendre soin de toi, à ton rythme.{" "}
         </>
       ),
       btnLabel: <>Tourner la roue <br />de mes défis</>,
@@ -142,7 +142,7 @@ const wheelDataConfig = {
         <section className="grid grid-cols-1 xl:grid-cols-[1fr_360px_1fr] items-center gap-12">
 
         <div className="flex flex-col items-start gap-7">
-            <p className="text-[#8B47FF] font-bold tracking-[0.32em] uppercase text-sm">Challenge SOREA</p>
+            <p className="text-[#7F4DC5] font-bold tracking-[0.32em] uppercase text-sm">Challenge SOREA</p>
             <h1 className="text-6xl font-bold tracking-[0.08em] text-black">Challenge</h1>
             <p className="text-[#4b3b5c] text-xl leading-relaxed max-w-[390px]">
               Choisis ton défi bien-être du jour et avance avec douceur, une action après l&apos;autre.
@@ -163,7 +163,7 @@ const wheelDataConfig = {
             className="flex flex-col border-2 border-purple-200 hover:border-[#8B47FF] rounded-2xl p-8 gap-5 transition-all duration-300 relative"
             style={{ background: "radial-gradient(ellipse at center, #FEF0F9 0%, #FFFFFF 100%)" }}
           >
-            <div className="flex items-center gap-2 text-[#8B47FF] font-bold text-sm tracking-[0.16em] uppercase whitespace-nowrap">
+            <div className="flex items-center gap-2 text-[#7F4DC5] font-bold text-sm tracking-[0.16em] uppercase whitespace-nowrap">
             Ton potentiel intérieur
             </div>
             {isLoaded && (
@@ -172,7 +172,7 @@ const wheelDataConfig = {
                 <p className="bg-[#F4EBFF] rounded-2xl p-5 text-[#4b3b5c] leading-relaxed">
                   {currentWheelData.desc}
                 </p>
-                <div className="text-right text-[#8B47FF] font-bold tracking-wider pt-2">
+                <div className="text-right text-[#7F4DC5] font-bold tracking-wider pt-2">
                   Tourner →
                 </div>
               </>
@@ -183,6 +183,7 @@ const wheelDataConfig = {
         </section>
 
 {/* MIROIR */}
+{/*
 <section className="grid grid-cols-1 md:grid-cols-[auto_1fr] items-center gap-12">
           <div className="flex items-center justify-center">
             <img src="/image_Design-SOREA/miroir.svg" alt="Miroir affirmation" style={{ width: "280px", display: "block" }} />
@@ -205,7 +206,7 @@ const wheelDataConfig = {
           </div>
           </article>
 
-</section>
+</section>*/}
 
         {/*<section className="rounded-2xl border-2 border-[#8B47FF] bg-white/85 shadow-xl shadow-purple-100/70 backdrop-blur overflow-hidden p-8">
           {isLoaded ? (
@@ -248,14 +249,14 @@ const wheelDataConfig = {
                 href={section.locked ? "#" : section.href}
                 onClick={(e) => section.locked && e.preventDefault()}
                 className={`group relative grid grid-cols-[96px_minmax(0,1fr)] lg:grid-cols-[120px_minmax(0,1fr)] items-center gap-4 bg-white/60 px-4 py-4 shadow-sm border border-[#8B47FF]/20 transition-all duration-300 ${
-                  section.locked ? "cursor-default" : "hover:scale-105 hover:shadow-xl hover:border-[#8B47FF]/55"
-                } focus:outline-none focus-visible:ring-2 focus-visible:ring-[#8B47FF]/50 ${
+                  section.locked ? "cursor-default" : "hover:scale-105 hover:shadow-xl hover:border-[#7F4DC5]/55"
+                } focus:outline-none focus-visible:ring-2 focus-visible:ring-[#7F4DC5]/50 ${
                   i === sections.length - 1 ? "md:col-span-2" : ""
                 }`}
                 aria-label={`Ouvrir ${section.title}`}
               >
                 {section.locked && (
-                  <div className="absolute inset-0 bg-black/40 backdrop-grayscale backdrop-blur-[1px] z-20 flex flex-col items-center justify-center">
+                  <div className="absolute inset-0 bg-black/20 backdrop-grayscale backdrop-blur-[1px] z-20 flex flex-col items-center justify-center">
                     <img src="/image_icone/ClosedPadlockWhite.svg" alt="Cadenas" className="w-10 h-10 drop-shadow-md" />
                     <div className="absolute bottom-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-[#212121]/80 text-white text-xl px-3 py-1.5 shadow-lg pointer-events-none whitespace-nowrap">
                       Ce challenge sera bientôt disponible !
@@ -271,7 +272,7 @@ const wheelDataConfig = {
                   <p className="w-full bg-[#F4EBFF] rounded-xl px-4 py-3 text-center text-black text-sm lg:text-base leading-relaxed">
                     {section.description}
                   </p>
-                  <span className="bg-[#8B47FF] text-white font-bold px-7 py-3 rounded-xl shadow-md transition-shadow duration-300 group-hover:shadow-lg ring-0 group-hover:ring-2 group-hover:ring-[#8B47FF]/20 text-xs lg:text-sm text-center leading-tight tracking-[0.14em] uppercase cursor-pointer">
+                  <span className="bg-[#7F4DC5] text-white font-bold px-7 py-3 rounded-xl shadow-md transition-shadow duration-300 group-hover:shadow-lg ring-0 group-hover:ring-2 group-hover:ring-[#8B47FF]/20 text-xs lg:text-sm text-center leading-tight tracking-[0.14em] uppercase cursor-pointer">
                     {section.btnLabel}
                   </span>
                 </div>

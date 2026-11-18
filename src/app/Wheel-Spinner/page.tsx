@@ -10,6 +10,9 @@ import { getFavoriWheel, WheelCategory } from "@/lib/favorites-store";
 export default function RouteDesDefis() {
   const [showInstructions, setShowInstructions] = useState(true);
 
+  const isNutritionLocked = true; // Mets à false si tu souhaites déverrouiller la carte
+  const isSportLocked = true; // Pareil, Mets à false si tu souhaites déverrouiller la carte
+
   const [themeBienEtre, setThemeBienEtre] = useState<'pastel' | 'pop'>('pastel');
   const [themeSport, setThemeSport] = useState<'pastel' | 'pop'>('pastel');
   const [themeNutrition, setThemeNutrition] = useState<'pastel' | 'pop'>('pastel');
@@ -121,10 +124,21 @@ export default function RouteDesDefis() {
           
           {/* NUTRITION */}
                 <Link 
-                  href="/Wheel-Spinner/Nutrition"
-                  className="relative flex flex-col items-center justify-center p-8 w-[300px] h-[260px] cursor-pointer transition-all duration-300"
+                  href={isNutritionLocked ? "#" : "/Wheel-Spinner/Nutrition"}
+                  onClick={(e) => isNutritionLocked && e.preventDefault()}
+                  className={`relative flex flex-col items-center justify-center p-8 w-[300px] h-[260px] transition-all duration-300 overflow-hidden group ${
+                    isNutritionLocked ? "cursor-default" : "cursor-pointer"
+                  }`}
                   style={{ background: "linear-gradient(to bottom, #F4C4E4 0%, rgba(244, 196, 228, 0.1) 100%)" }}
                 >
+                  {isNutritionLocked && (
+                    <div className="absolute inset-0 bg-black/10 backdrop-grayscale backdrop-blur-[1px] z-20 flex flex-col items-center justify-center">
+                      <img src="/image_icone/ClosedPadlockWhite.svg" alt="Cadenas" className="w-10 h-10 drop-shadow-md" />
+                      <div className="absolute bottom-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-[#212121]/80 text-white text-base px-3 py-1.5 shadow-lg pointer-events-none whitespace-nowrap">
+                        Ce challenge sera bientôt disponible !
+                      </div>
+                    </div>
+                  )}
                   {favoriWheel === "nutrition" && (
                     <img 
                       src="/image_icone/FavoritesYes.svg" 
@@ -160,10 +174,21 @@ export default function RouteDesDefis() {
 
           {/* SPORT */}
                <Link 
-                  href="/Wheel-Spinner/Sport"
-                  className="relative flex flex-col items-center justify-center p-8 w-[300px] h-[260px] cursor-pointer transition-all duration-300"
+                  href={isSportLocked ? "#" : "/Wheel-Spinner/Sport"}
+                  onClick={(e) => isSportLocked && e.preventDefault()}
+                  className={`relative flex flex-col items-center justify-center p-8 w-[300px] h-[260px] transition-all duration-300 overflow-hidden group ${
+                    isSportLocked ? "cursor-default" : "cursor-pointer"
+                  }`}
                   style={{ background: "linear-gradient(to bottom, #B7F8F5 0%, rgba(183, 248, 245, 0.1) 100%)" }}
                 >
+                  {isSportLocked && (
+                    <div className="absolute inset-0 bg-black/10 backdrop-grayscale backdrop-blur-[1px] z-20 flex flex-col items-center justify-center">
+                      <img src="/image_icone/ClosedPadlockWhite.svg" alt="Cadenas" className="w-10 h-10 drop-shadow-md" />
+                      <div className="absolute bottom-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-[#212121]/80 text-white text-base px-3 py-1.5 shadow-lg pointer-events-none whitespace-nowrap">
+                        Ce challenge sera bientôt disponible !
+                      </div>
+                    </div>
+                  )}
                   {favoriWheel === "sport" && (
                     <img 
                       src="/image_icone/FavoritesYes.svg" 

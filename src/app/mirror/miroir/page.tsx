@@ -590,13 +590,14 @@ export default function NouvellePage() {
               <div
                 className="absolute z-10 overflow-hidden"
                 style={{
-                  width: "203px",
-                  height: "270px",
+                  width: "220px",
+                  height: "290px",
                   borderRadius: "50%",
-                  top: "48%",
+                  top: "50%",
                   left: "50%",
                   transform: "translate(-50%, -50%)",
-                  marginTop: "12px"
+                  marginTop: "6px",
+                  marginLeft: "-2px"
                 }}
               >
                 <video
@@ -710,8 +711,9 @@ export default function NouvellePage() {
 
             {/* Mention de protection des données, visible dès que la caméra est active */}
             {cameraActive && (
-              <p className="text-xs text-gray-400 text-center max-w-[320px]">
-                🔒 Ta caméra sert uniquement à t'afficher en direct dans le miroir. Rien n'est enregistré ni partagé.
+              <p className="text-xs text-gray-400 text-center max-w-[320px] flex items-center justify-center gap-1.5 -mt-1">
+                <img src="/image_icone/ClosedPadlockG1.svg" alt="Cadenas" className="w-3.5 h-3.5 inline-block shrink-0" />
+                <span>Ta caméra sert uniquement à t&apos;afficher en direct dans le miroir. Rien n&apos;est enregistré ni partagé.</span>
               </p>
             )}
 
