@@ -151,7 +151,8 @@ const active = localStorage.getItem('sorea_has_notification') === 'true' || loca
     if (!loggedUser) return;
     localStorage.setItem(`sorea_todos_${loggedUser.id}`, JSON.stringify(todosByDate));
     localStorage.setItem(`sorea_quotidien_todos_${loggedUser.id}`, JSON.stringify(quotidienTodos));
-  }, [todosByDate, quotidienTodos, loggedUser]);
+    localStorage.setItem(`sorea_quotidien_selected_${loggedUser.id}`, JSON.stringify(selectedQuotidienIds));
+  }, [todosByDate, quotidienTodos, selectedQuotidienIds, loggedUser]);
 
   const fetchLoggedUser = async () => {
     try {
@@ -169,6 +170,18 @@ const active = localStorage.getItem('sorea_has_notification') === 'true' || loca
         const storedQuotidien = localStorage.getItem(`sorea_quotidien_todos_${user.id}`);
         if (storedQuotidien) {
           setQuotidienTodos(JSON.parse(storedQuotidien));
+        }
+        const storedSelected = localStorage.getItem(`sorea_quotidien_selected_${user.id}`);
+        if (storedSelected) {
+          setSelectedQuotidienIds(JSON.parse(storedSelected));
+        } else if (stored) {
+          // Reconstruction pour les tâches ajoutées avant ce correctif
+          const rebuilt: Record<string, string[]> = {};
+          Object.entries(JSON.parse(stored) as Record<string, TodoItem[]>).forEach(([dateKey, items]) => {
+            const qIds = items.filter((t) => t.id.startsWith('q-')).map((t) => t.id);
+            if (qIds.length > 0) rebuilt[dateKey] = qIds;
+          });
+          setSelectedQuotidienIds(rebuilt);
         }
       }
     } catch (e) {
@@ -1052,7 +1065,7 @@ return (
               </div>
 
               {/* Navbar déplacée plus à droite avec ml-auto */}
-              <div className="flex rounded-2xl border border-purple-200 p-1 bg-white shadow-sm w-fit shrink-0 mr-8">
+              <div className="flex rounded-2xl border border-purple-200 p-1 bg-white shadow-sm w-fit shrink-0 ml-auto mr-2">
                 <button
                   type="button"
                   onClick={() => setTodoModalTab('todo')}
@@ -1112,7 +1125,14 @@ return (
                     const foundInDate = (todosByDate[selectedTodoDate] || []).find(t => t.id === q.id);
                     return foundInDate ? { ...q, completed: foundInDate.completed } : q;
                   });
-                  currentItems = [...manualTodos, ...syncedQuotTodos];
+                  const dayList = todosByDate[selectedTodoDate] || [];
+                  const dayListIds = dayList.map(t => t.id);
+                  currentItems = [
+                    ...dayList
+                      .filter(t => !t.id.startsWith('q-') || activeQuotIds.includes(t.id))
+                      .map(t => syncedQuotTodos.find(q => q.id === t.id) || t),
+                    ...syncedQuotTodos.filter(q => !dayListIds.includes(q.id)),
+                  ];
                 } else {
                   currentItems = quotidienTodos;
                 }
@@ -1128,7 +1148,14 @@ return (
                       const foundInDate = (todosByDate[selectedTodoDate] || []).find(t => t.id === q.id);
                       return foundInDate ? { ...q, completed: foundInDate.completed } : q;
                     });
-                    currentItems = [...manualTodos, ...syncedQuotTodos];
+                    const dayList = todosByDate[selectedTodoDate] || [];
+                    const dayListIds = dayList.map(t => t.id);
+                    currentItems = [
+                      ...dayList
+                        .filter(t => !t.id.startsWith('q-') || activeQuotIds.includes(t.id))
+                        .map(t => syncedQuotTodos.find(q => q.id === t.id) || t),
+                      ...syncedQuotTodos.filter(q => !dayListIds.includes(q.id)),
+                    ];
                   } else {
                     currentItems = quotidienTodos;
                   }
@@ -1145,14 +1172,15 @@ return (
                       onDragStart={() => handleDragStart(todo.id)}
                       onDragOver={handleDragOver}
                       onDrop={() => handleDrop(todo.id)}
-                      className="group flex items-center justify-between gap-4 rounded-3xl border px-4 py-3 transition cursor-grab active:cursor-grabbing"
+                      className="group flex items-center justify-between gap-4 rounded-3xl border px-4 py-3 min-h-[70px] transition cursor-grab active:cursor-grabbing"
                     style={{
                       backgroundColor: 
                         isQuotidienTab 
                           ? (isQuotidienSelected ? '#FFE4E6' : '#FFFFFF') // Blanc si non sélectionné, rouge clair si sélectionné
                           : (isQuotidienInTodo ? '#FFE4E6' : (todo.category === 'bien-etre' ? 'rgba(139, 71, 255, 0.15)' : todo.category === 'sport' ? '#CEFFFD' : todo.category === 'nutrition' ? '#FFE8F7' : 'transparent')),
                       borderColor: 
-                        (isQuotidienTab || isQuotidienInTodo) ? '#FDA4AF' : '#E5E7EB'
+                        (isQuotidienTab || isQuotidienInTodo) ? '#FDA4AF' : '#E5E7EB',
+                      minHeight: '70px'
                     }}
                     >
                       <div className="flex items-center gap-3 flex-1">

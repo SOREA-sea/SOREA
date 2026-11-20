@@ -42,6 +42,27 @@ export default function Footer() {
         textDecoration: 'underline',
     };
 
+    // Remontée fluide en haut de page (animation gérée manuellement, indépendante des réglages du navigateur)
+    const scrollToTopSmooth = () => {
+        const startY = window.scrollY;
+        if (startY === 0) return;
+
+        // Durée proportionnelle à la distance : entre 0,5 s et 1,2 s
+        const duration = Math.min(1200, Math.max(500, startY * 0.4));
+        const startTime = performance.now();
+
+        const easeInOutCubic = (t: number) =>
+            t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+
+        const step = (now: number) => {
+            const progress = Math.min((now - startTime) / duration, 1);
+            window.scrollTo({ top: startY * (1 - easeInOutCubic(progress)), behavior: 'instant' as ScrollBehavior });
+            if (progress < 1) requestAnimationFrame(step);
+        };
+
+        requestAnimationFrame(step);
+    };
+
     return (
         <footer className="relative left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] w-screen bg-[radial-gradient(circle_at_92%_7%,rgba(255,128,196,0.72)_0,rgba(255,128,196,0)_20%),radial-gradient(circle_at_58%_38%,rgba(170,204,220,0.95)_0,rgba(170,204,220,0)_32%),radial-gradient(circle_at_39%_64%,rgba(231,176,241,0.75)_0,rgba(231,176,241,0)_29%),linear-gradient(105deg,#eef2f8_0%,#B6C0F8_31%,#E7B0F1_55%,#AACCDC_78%,#e9eef4_100%)] px-5 py-6 font-['Inria_Sans'] text-[#201a2b] shadow-sm sm:px-7 sm:py-8 lg:px-9">
             <div className="mx-auto flex max-w-7xl flex-col gap-6 px-5 py-8 sm:px-8 lg:px-12">
@@ -113,7 +134,7 @@ export default function Footer() {
 
                     <button
                         type="button"
-                        onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+                        onClick={scrollToTopSmooth}
                         className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-white p-2.5 transition-all duration-300 ease-in-out hover:-translate-y-1 hover:shadow-lg active:scale-95 lg:justify-self-end cursor-pointer"
                         style={{
                             border: '3px solid transparent',

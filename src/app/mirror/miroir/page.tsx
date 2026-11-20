@@ -646,7 +646,7 @@ export default function NouvellePage() {
                   <button 
                     onClick={togglePlayPause}
                     disabled={loading}
-                    className="transition-transform duration-300 hover:scale-110 cursor-pointer disabled:opacity-40"
+                    className="transition-transform duration-300 hover:scale-110 cursor-pointer disabled:opacity-40 disabled:cursor-default disabled:hover:scale-100"
                     title={isPlaying ? "Pause" : "Commencer"}
                   >
                     <img
@@ -663,7 +663,7 @@ export default function NouvellePage() {
                     onClick={genererAffirmationMiroir}
                     disabled={loading || !isPlaying}
                     className={`w-full bg-[#8B47FF] text-white font-bold py-3 rounded-xl shadow-lg transition-all duration-300 text-center ${
-                      !isPlaying ? "opacity-40 cursor" : "hover:scale-105 hover:shadow-xl cursor-pointer"
+                      !isPlaying || loading ? "opacity-40 cursor-default" : "hover:scale-105 hover:shadow-xl cursor-pointer"
                     }`}
                     title={!isPlaying ? "Mettez lecture pour utiliser le bouton Suivant" : "Affirmation suivante"}
                   >
@@ -680,7 +680,7 @@ export default function NouvellePage() {
                   style={{
                     width: "210px",
                     top: cameraActive ? "72%" : "50%",
-                    left: "50%",
+                    left: "49.5%",
                     transform: "translate(-50%, -50%)",
                     backgroundColor: "rgba(33, 33, 33, 0.5)",
                     padding: "10px 25px",
@@ -698,7 +698,7 @@ export default function NouvellePage() {
                   style={{
                     width: "190px",
                     top: "35%",
-                    left: "50%",
+                    left: "49.5%",
                     transform: "translate(-50%, -50%)",
                     backgroundColor: "rgba(33, 33, 33, 0.8)",
                     padding: "10px 20px",
