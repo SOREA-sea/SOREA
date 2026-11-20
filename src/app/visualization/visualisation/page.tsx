@@ -37,6 +37,7 @@ export default function Page() {
 
   const [activeFavoriteCard, setActiveFavoriteCard] = useState<VisualisationCard | null>(null);
   const [selectedBoutiqueCard, setSelectedBoutiqueCard] = useState<any | null>(null);
+  const [hasPurchaseNotif, setHasPurchaseNotif] = useState(false);
 
   // Fonction pour récupérer les images favorites de la album ET de la boutique
   const loadFavoriteImages = () => {
@@ -126,6 +127,20 @@ export default function Page() {
     }
   };
 
+  // Badge de notification d'achat de pellicule (bouton Album)
+  useEffect(() => {
+    const checkPurchaseNotif = () => {
+      setHasPurchaseNotif(localStorage.getItem("sorea_visualisation_purchase_notification") === "true");
+    };
+    checkPurchaseNotif();
+    window.addEventListener("sorea_visualisation_purchase_notification_update", checkPurchaseNotif);
+    window.addEventListener("storage", checkPurchaseNotif);
+    return () => {
+      window.removeEventListener("sorea_visualisation_purchase_notification_update", checkPurchaseNotif);
+      window.removeEventListener("storage", checkPurchaseNotif);
+    };
+  }, []);
+
   // Gérer le retour de paiement réussi Stripe pour la visualisation
   useEffect(() => {
     const query = new URLSearchParams(window.location.search);
@@ -148,6 +163,9 @@ export default function Page() {
           localStorage.setItem("sorea_visualisation_boutique", JSON.stringify(updatedBoutique));
           localStorage.setItem("sorea_visualisation_pellicules", JSON.stringify(updatedPellicules));
           window.dispatchEvent(new Event("storage"));
+          localStorage.setItem("sorea_visualisation_purchase_notification", "true");
+          setHasPurchaseNotif(true);
+          window.dispatchEvent(new Event("sorea_visualisation_purchase_notification_update"));
         }
       }
       alert("Paiement réussi ! Ta pellicule a été transférée dans ton album.");
@@ -306,13 +324,16 @@ return (
                   loadActivePellicule();
                   setIsGalleryModalOpen(true);
                 }}
-                className={`flex-1 h-full flex items-center justify-center text-xs font-medium transition-colors cursor-pointer text-center px-2 ${
+                className={`relative flex-1 h-full flex items-center justify-center text-xs font-medium transition-colors cursor-pointer text-center px-2 ${
                   activeMode === "album"
                     ? "bg-purple-100 text-[#7F4DC5] font-bold"
                     : "text-gray-800 hover:bg-purple-50"
                 }`}
               >
                Album
+               {hasPurchaseNotif && (
+                 <span className="absolute top-1.5 right-2 w-2.5 h-2.5 bg-[#00CEC9] rounded-full animate-pulse pointer-events-none" />
+               )}
               </button>
             </div>
           </div>

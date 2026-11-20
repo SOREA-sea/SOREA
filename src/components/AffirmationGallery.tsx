@@ -122,6 +122,28 @@ export default function AffirmationGallery({
     };
   }, [externalIsOpen]);
 
+  const [hasPurchaseNotif, setHasPurchaseNotif] = useState(false);
+
+  React.useEffect(() => {
+    const checkPurchaseNotif = () => {
+      setHasPurchaseNotif(localStorage.getItem("sorea_affirmation_purchase_notification") === "true");
+    };
+    checkPurchaseNotif();
+    window.addEventListener("sorea_purchase_notification_update", checkPurchaseNotif);
+    window.addEventListener("storage", checkPurchaseNotif);
+    return () => {
+      window.removeEventListener("sorea_purchase_notification_update", checkPurchaseNotif);
+      window.removeEventListener("storage", checkPurchaseNotif);
+    };
+  }, []);
+
+  // Éteint le badge (ici et sur le bouton Galerie de la page)
+  const clearPurchaseNotif = () => {
+    localStorage.removeItem("sorea_affirmation_purchase_notification");
+    setHasPurchaseNotif(false);
+    window.dispatchEvent(new Event("sorea_purchase_notification_update"));
+  };
+
   const [internalIsOpen, setInternalIsOpen] = useState(false);
 
   const isOpen = externalIsOpen !== undefined ? externalIsOpen : internalIsOpen;
@@ -254,12 +276,15 @@ export default function AffirmationGallery({
             <div className="flex gap-6 border-b border-purple-100 pb-3 text-sm">
               <button 
                 type="button"
-                onClick={() => setPreviewTab("galerie")}
-                className={`font-bold pb-2 -mb-[13px] cursor-pointer transition-colors ${previewTab === "galerie" ? "text-[#8B47FF] border-b-2 border-[#8B47FF]" : "text-gray-400 hover:text-gray-600"}`}
+                onClick={() => { setPreviewTab("galerie"); clearPurchaseNotif(); }}
+                className={`relative font-bold pb-2 -mb-[13px] cursor-pointer transition-colors ${previewTab === "galerie" ? "text-[#8B47FF] border-b-2 border-[#8B47FF]" : "text-gray-400 hover:text-gray-600"}`}
               >
                 Galerie
+                {hasPurchaseNotif && (
+                  <span className="absolute -top-1 -right-3 w-2.5 h-2.5 bg-[#00CEC9] rounded-full animate-pulse pointer-events-none" />
+                )}
               </button>
-              {/* 🌟 POINT DE REPÈRE 2 : Ajout de l'onglet Boutique dans l'aperçu */}
+              {/* POINT DE REPÈRE 2 : Ajout de l'onglet Boutique dans l'aperçu */}
               <button 
                 type="button"
                 onClick={() => setPreviewTab("boutique")}
@@ -414,12 +439,15 @@ export default function AffirmationGallery({
               <div className="flex gap-6 text-sm z-10 relative">
                 <button 
                   type="button"
-                  onClick={() => setActiveTab("galerie")}
-                  className={`font-bold pb-1 cursor-pointer transition-colors ${activeTab === "galerie" ? "text-[#8B47FF] border-b-2 border-[#8B47FF]" : "text-gray-400 hover:text-gray-600"}`}
+                  onClick={() => { setActiveTab("galerie"); clearPurchaseNotif(); }}
+                  className={`relative font-bold pb-1 cursor-pointer transition-colors ${activeTab === "galerie" ? "text-[#8B47FF] border-b-2 border-[#8B47FF]" : "text-gray-400 hover:text-gray-600"}`}
                 >
                   Galerie
+                  {hasPurchaseNotif && (
+                    <span className="absolute -top-1 -right-3 w-2.5 h-2.5 bg-[#00CEC9] rounded-full animate-pulse pointer-events-none" />
+                  )}
                 </button>
-                {/* 🌟 POINT DE REPÈRE 4 : Ajout de l'onglet Boutique dans la modale */}
+                {/* POINT DE REPÈRE 4 : Ajout de l'onglet Boutique dans la modale */}
                 <button 
                   type="button"
                   onClick={() => setActiveTab("boutique")}

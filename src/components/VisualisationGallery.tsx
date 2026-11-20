@@ -176,6 +176,28 @@ export default function VisualisationGallery({
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [selectedImageIndex]);
 
+  const [hasPurchaseNotif, setHasPurchaseNotif] = useState(false);
+
+  useEffect(() => {
+    const checkPurchaseNotif = () => {
+      setHasPurchaseNotif(localStorage.getItem("sorea_visualisation_purchase_notification") === "true");
+    };
+    checkPurchaseNotif();
+    window.addEventListener("sorea_visualisation_purchase_notification_update", checkPurchaseNotif);
+    window.addEventListener("storage", checkPurchaseNotif);
+    return () => {
+      window.removeEventListener("sorea_visualisation_purchase_notification_update", checkPurchaseNotif);
+      window.removeEventListener("storage", checkPurchaseNotif);
+    };
+  }, []);
+
+  // Éteint le badge (ici et sur le bouton Album de la page)
+  const clearPurchaseNotif = () => {
+    localStorage.removeItem("sorea_visualisation_purchase_notification");
+    setHasPurchaseNotif(false);
+    window.dispatchEvent(new Event("sorea_visualisation_purchase_notification_update"));
+  };
+
   const [internalIsOpen, setInternalIsOpen] = useState(false);
   const isOpen = externalIsOpen !== undefined ? externalIsOpen : internalIsOpen;
   const setIsOpen = (val: boolean | ((prev: boolean) => boolean)) => {
@@ -313,14 +335,17 @@ export default function VisualisationGallery({
             <div className="flex gap-6 border-b border-purple-100 pb-3 text-sm">
               <button
                 type="button"
-                onClick={() => setPreviewTab("album")}
-                className={`font-bold pb-2 -mb-[13px] cursor-pointer transition-colors ${
+                onClick={() => { setPreviewTab("album"); clearPurchaseNotif(); }}
+                className={`relative font-bold pb-2 -mb-[13px] cursor-pointer transition-colors ${
                   previewTab === "album"
                     ? "text-[#8B47FF] border-b-2 border-[#8B47FF]"
                     : "text-gray-400 hover:text-gray-600"
                 }`}
               >
                 Album
+                {hasPurchaseNotif && (
+                  <span className="absolute -top-1 -right-3 w-2.5 h-2.5 bg-[#00CEC9] rounded-full animate-pulse pointer-events-none" />
+                )}
               </button>
               <button
                 type="button"
@@ -529,14 +554,17 @@ export default function VisualisationGallery({
               <div className="flex gap-6 text-sm z-10 relative">
                 <button
                   type="button"
-                  onClick={() => setActiveTab("album")}
-                  className={`font-bold pb-1 cursor-pointer transition-colors ${
+                  onClick={() => { setActiveTab("album"); clearPurchaseNotif(); }}
+                  className={`relative font-bold pb-1 cursor-pointer transition-colors ${
                     activeTab === "album"
                       ? "text-[#8B47FF] border-b-2 border-[#8B47FF]"
                       : "text-gray-400 hover:text-gray-600"
                   }`}
                 >
                   Album
+                  {hasPurchaseNotif && (
+                    <span className="absolute -top-1 -right-3 w-2.5 h-2.5 bg-[#00CEC9] rounded-full animate-pulse pointer-events-none" />
+                  )}
                 </button>
                 <button
                   type="button"

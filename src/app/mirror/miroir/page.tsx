@@ -48,6 +48,7 @@ export default function NouvellePage() {
 
   // État pour gérer la modale de paiement de la boutique
   const [selectedBoutiqueCard, setSelectedBoutiqueCard] = useState<any | null>(null);
+  const [hasPurchaseNotif, setHasPurchaseNotif] = useState(false);
 
   // État pour gérer la lecture / pause du bouton central
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
@@ -156,6 +157,20 @@ export default function NouvellePage() {
     }
   };
 
+  // Badge de notification d'achat d'affirmation (bouton Galerie)
+  useEffect(() => {
+    const checkPurchaseNotif = () => {
+      setHasPurchaseNotif(localStorage.getItem("sorea_affirmation_purchase_notification") === "true");
+    };
+    checkPurchaseNotif();
+    window.addEventListener("sorea_purchase_notification_update", checkPurchaseNotif);
+    window.addEventListener("storage", checkPurchaseNotif);
+    return () => {
+      window.removeEventListener("sorea_purchase_notification_update", checkPurchaseNotif);
+      window.removeEventListener("storage", checkPurchaseNotif);
+    };
+  }, []);
+
   // Gérer le retour de paiement réussi Stripe
   useEffect(() => {
     const query = new URLSearchParams(window.location.search);
@@ -178,6 +193,9 @@ export default function NouvellePage() {
           localStorage.setItem("sorea_affirmations_boutique", JSON.stringify(updatedBoutique));
           localStorage.setItem("sorea_affirmations", JSON.stringify(updatedAff));
           window.dispatchEvent(new Event("storage"));
+          localStorage.setItem("sorea_affirmation_purchase_notification", "true");
+          setHasPurchaseNotif(true);
+          window.dispatchEvent(new Event("sorea_purchase_notification_update"));
         }
       }
       alert("Paiement réussi ! Ton article a été transféré dans ta galerie.");
@@ -572,10 +590,13 @@ export default function NouvellePage() {
         setIsCustomModalOpen(true);
       }}
       className={`flex-1 h-full flex items-center justify-center text-xs font-medium transition-colors border-r border-[#9b6fd9] cursor-pointer text-center px-1 ${
-        activeMode === "custom" ? "bg-purple-100 text-[#7F4DC5] font-bold" : "text-gray-800 hover:bg-purple-50"
+        activeMode === "custom" ? "bg-purple-100 text-[#7F4DC5] font-bold relative" : "text-gray-800 hover:bg-purple-50 relative"
       }`}
     >
       Galerie
+      {hasPurchaseNotif && (
+        <span className="absolute top-1.5 right-2 w-2.5 h-2.5 bg-[#00CEC9] rounded-full animate-pulse pointer-events-none" />
+      )}
     </button>
   </div>
 
@@ -673,6 +694,17 @@ export default function NouvellePage() {
 
               </div>
 
+              {/* Mention de protection des données, placée sous la carte de contrôle, visible dès que la caméra est active */}
+              {cameraActive && (
+                <p
+                  className="absolute left-[440px] w-[300px] z-30 text-xs text-gray-400 text-center flex items-start justify-center gap-1.5"
+                  style={{ top: "calc(50% + 174px)" }}
+                >
+                  <img src="/image_icone/ClosedPadlockG1.svg" alt="Cadenas" className="w-3.5 h-3.5 inline-block shrink-0 mt-0.5" />
+                  <span>Ta caméra sert uniquement à t&apos;afficher en direct dans le miroir. Rien n&apos;est enregistré ni partagé.</span>
+                </p>
+              )}
+
               {/* Affirmation superposée sur le miroir (reste affichée pendant le chargement de la suivante) */}
               {affirmation && (
                 <div
@@ -708,14 +740,6 @@ export default function NouvellePage() {
                 </div>
               )}
             </div>
-
-            {/* Mention de protection des données, visible dès que la caméra est active */}
-            {cameraActive && (
-              <p className="text-xs text-gray-400 text-center max-w-[320px] flex items-center justify-center gap-1.5 -mt-1">
-                <img src="/image_icone/ClosedPadlockG1.svg" alt="Cadenas" className="w-3.5 h-3.5 inline-block shrink-0" />
-                <span>Ta caméra sert uniquement à t&apos;afficher en direct dans le miroir. Rien n&apos;est enregistré ni partagé.</span>
-              </p>
-            )}
 
             {/* Message quand le miroir est bloqué (maquette, sans vraie détection multi-appareils) */}
             {blockedByOtherDevice && (
