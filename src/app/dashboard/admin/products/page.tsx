@@ -114,10 +114,29 @@ export default function AdminProductsPage() {
       Array.from(e.target.files).forEach((file) => {
         const reader = new FileReader();
         reader.onload = (uploadEvent) => {
-          const base64Url = uploadEvent.target?.result as string;
-          if (base64Url) {
-            setCurrentVisImages((prev) => [...prev, { url: base64Url }]);
-          }
+          const originalUrl = uploadEvent.target?.result as string;
+          if (!originalUrl) return;
+
+          // Réduction de la photo : 900px max, JPEG qualité 70 %
+          const img = new window.Image();
+          img.onload = () => {
+            const MAX = 900;
+            const ratio = Math.min(1, MAX / Math.max(img.width, img.height));
+            const canvas = document.createElement("canvas");
+            canvas.width = Math.round(img.width * ratio);
+            canvas.height = Math.round(img.height * ratio);
+            const ctx = canvas.getContext("2d");
+            if (!ctx) {
+              setCurrentVisImages((prev) => [...prev, { url: originalUrl }]);
+              return;
+            }
+            ctx.fillStyle = "#ffffff";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+            const compressedUrl = canvas.toDataURL("image/jpeg", 0.7);
+            setCurrentVisImages((prev) => [...prev, { url: compressedUrl }]);
+          };
+          img.src = originalUrl;
         };
         reader.readAsDataURL(file);
       });
@@ -197,7 +216,7 @@ export default function AdminProductsPage() {
       }
 
       const existingBoutique = JSON.parse(localStorage.getItem("sorea_visualisation_boutique") || "[]");
-      const productWithDbId = { ...card, id: String(result.product.id) };
+      const productWithDbId = { ...card, id: String(result.product.id), sourceId: card.id };
 
       if (!existingBoutique.some((item: any) => item.id === productWithDbId.id)) {
         const updatedBoutique = [...existingBoutique, productWithDbId];
@@ -222,7 +241,11 @@ export default function AdminProductsPage() {
       setVisualisationCards(visualisationCards.filter(card => card.id !== id));
 
       const existingBoutique = JSON.parse(localStorage.getItem("sorea_visualisation_boutique") || "[]");
-      const updatedBoutique = existingBoutique.filter((item: any) => item.id !== id);
+      const updatedBoutique = existingBoutique.filter((item: any) =>
+        item.sourceId !== id &&
+        item.id !== id &&
+        !(item.title === cardToDelete.title && item.description === cardToDelete.description)
+      );
       localStorage.setItem("sorea_visualisation_boutique", JSON.stringify(updatedBoutique));
       window.dispatchEvent(new Event("visualisationSentToBoutique"));
     }
@@ -232,7 +255,7 @@ export default function AdminProductsPage() {
   const restoreVisualisationCard = (id: string) => {
     const cardToRestore = visualisationTrash.find(card => card.id === id);
     if (cardToRestore) {
-      setVisualisationCards([...visualisationCards, cardToRestore]);
+      setVisualisationCards([...visualisationCards, { ...cardToRestore, isSent: false }]);
       setVisualisationTrash(visualisationTrash.filter(card => card.id !== id));
     }
     setActiveVisMenuId(null);
@@ -359,7 +382,7 @@ export default function AdminProductsPage() {
 
       // 2. Synchronisation avec l'ID réel de la base de données dans le localStorage
       const existingBoutique = JSON.parse(localStorage.getItem("sorea_affirmations_boutique") || "[]");
-      const productWithDbId = { ...card, id: String(result.product.id) };
+      const productWithDbId = { ...card, id: String(result.product.id), sourceId: card.id };
 
       if (!existingBoutique.some((item: AffirmationCard) => item.id === productWithDbId.id)) {
         const updatedBoutique = [...existingBoutique, productWithDbId];
@@ -384,7 +407,11 @@ export default function AdminProductsPage() {
       setAffirmations(affirmations.filter(card => card.id !== id));
 
       const existingBoutique = JSON.parse(localStorage.getItem("sorea_affirmations_boutique") || "[]");
-      const updatedBoutique = existingBoutique.filter((item: AffirmationCard) => item.id !== id);
+      const updatedBoutique = existingBoutique.filter((item: any) =>
+        item.sourceId !== id &&
+        item.id !== id &&
+        !(item.title === cardToDelete.title && item.text === cardToDelete.text)
+      );
       localStorage.setItem("sorea_affirmations_boutique", JSON.stringify(updatedBoutique));
       window.dispatchEvent(new Event("affirmationSentToBoutique"));
     }
@@ -394,7 +421,7 @@ export default function AdminProductsPage() {
   const restoreAffirmationCard = (id: string) => {
     const cardToRestore = trash.find(card => card.id === id);
     if (cardToRestore) {
-      setAffirmations([...affirmations, cardToRestore]);
+      setAffirmations([...affirmations, { ...cardToRestore, isSent: false }]);
       setTrash(trash.filter(card => card.id !== id));
     }
     setActiveMenuId(null);

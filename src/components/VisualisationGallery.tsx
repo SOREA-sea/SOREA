@@ -1104,7 +1104,11 @@ export default function VisualisationGallery({
             imagesCount: selectedBoutiqueCard.images ? selectedBoutiqueCard.images.length : 3,
             description: selectedBoutiqueCard.description || "Une parenthèse en images pour conserver les instants qui vous font du bien et célébrer votre équilibre au quotidien.",
             price: selectedBoutiqueCard.price || 0.95,
-            imageUrl: selectedBoutiqueCard.imageUrl || (selectedBoutiqueCard.images?.[0] ? (typeof selectedBoutiqueCard.images[0] === 'string' ? selectedBoutiqueCard.images[0] : selectedBoutiqueCard.images[0].url) : "/image_Design-SOREA/PelliculeTest.svg"),
+            imageUrl: (() => {
+              const candidate = selectedBoutiqueCard.imageUrl || (selectedBoutiqueCard.images?.[0] ? (typeof selectedBoutiqueCard.images[0] === 'string' ? selectedBoutiqueCard.images[0] : selectedBoutiqueCard.images[0].url) : "");
+              // Une image Base64 (data:...) est trop lourde pour une API de paiement : on utilise l'image par défaut
+              return candidate && !String(candidate).startsWith("data:") ? candidate : "/image_Design-SOREA/PelliculeTest.svg";
+            })(),
           }}
         />
       )}
