@@ -101,6 +101,7 @@ model PeriodHistory {
   id        Int      @id @default(autoincrement())
   userId    Int
   startDate DateTime
+  endDate   DateTime?
   createdAt DateTime @default(now())
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)

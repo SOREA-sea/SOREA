@@ -12,8 +12,7 @@ const NAV_LINKS = [
   //{ label: "Mon Carnet", href: "/carnet" },
   //{ label: "Vibe", href: "/vibe" },
   { label: "Mon suivi", href: "/suivi" },
-  { label: "Ambassadeur", href: "/challenge" },
-  
+  //{ label: "Ambassadeur", href: "/ambassador" }
 ];
 
 export default function Navbar({ isLoggedIn = false }: { isLoggedIn?: boolean }) {

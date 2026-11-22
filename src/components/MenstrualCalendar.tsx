@@ -73,6 +73,7 @@ export default function MenstrualCalendar() {
   const [isActiveForm, setIsActiveForm] = useState(false);
   const [cycleLengthForm, setCycleLengthForm] = useState(28);
   const [periodLengthForm, setPeriodLengthForm] = useState(5);
+  const [periodMode, setPeriodMode] = useState<"exact" | "unknown" | "variable">("exact");
   const [lastPeriodStartForm, setLastPeriodStartForm] = useState("");
   const [showSurvey, setShowSurvey] = useState(false);
   const [showSurveyModal, setShowSurveyModal] = useState(false); // État pour afficher la modale "Vous êtes..."
@@ -206,7 +207,7 @@ const active = localStorage.getItem('sorea_has_notification') === 'true' || loca
       if (data.profile.lastPeriodStartDate) {
         setLastPeriodStartForm(new Date(data.profile.lastPeriodStartDate).toISOString().split("T")[0]);
       } else {
-        setLastPeriodStartForm(new Date().toISOString().split("T")[0]);
+        setLastPeriodStartForm("");
       }
     } catch (e) {
       console.error(e);
@@ -235,6 +236,34 @@ const active = localStorage.getItem('sorea_has_notification') === 'true' || loca
       window.removeEventListener('storage', handleStorageChange);
     };
   }, []); // Dépendance vide [] pour éviter de relancer les requêtes en boucle
+
+  // Bouton « Mes règles ont commencé aujourd'hui » : enregistre la date du jour comme début du nouveau cycle
+  const startNewCycleToday = async () => {
+    try {
+      const now = new Date();
+      // Date locale au format AAAA-MM-JJ (évite le décalage d'un jour lié au fuseau horaire)
+      const todayStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
+
+      const res = await fetch("/api/menstrual-profile", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          isActive: true,
+          lastPeriodStartDate: todayStr,
+        }),
+      });
+      if (!res.ok) return;
+
+      const data = await res.json();
+      setProfile(data.profile);
+      setCycleInfo(data.cycleInfo);
+      setLastPeriodStartForm(todayStr);
+      setCycleLengthForm(data.profile.cycleLength);
+      setPeriodLengthForm(data.profile.periodLength);
+    } catch (e) {
+      console.error(e);
+    }
+  };
 
   const saveSettings = async () => {
     try {
@@ -610,8 +639,9 @@ const active = localStorage.getItem('sorea_has_notification') === 'true' || loca
 
   const getPhaseForDate = (date: Date) => {
     // Si aucun profil n'est chargé, on se base par défaut sur un cycle standard de 28 jours et 5 jours de règles
-    const cLength = profile?.cycleLength || 28;
-    const pLength = profile?.periodLength || 5;
+    // Valeurs sécurisées : conversion en nombre + bornes réalistes (cycle 20-60 j, règles 1-10 j)
+    const cLength = Math.min(Math.max(Math.round(Number(profile?.cycleLength)) || 28, 20), 60);
+    const pLength = Math.min(Math.max(Math.round(Number(profile?.periodLength)) || 5, 1), 10);
     
     let refDateStr = profile?.lastPeriodStartDate;
     if (!refDateStr && cycleInfo?.refDate) {
@@ -621,13 +651,15 @@ const active = localStorage.getItem('sorea_has_notification') === 'true' || loca
     // Si aucune date de référence n'est disponible, on utilise la date du jour ou une référence par défaut
     if (!refDateStr) return null;
 
-    const ref = new Date(refDateStr);
-    ref.setHours(0, 0, 0, 0);
+    // Lecture de la date de référence en heure locale (évite les décalages d'un jour liés au fuseau horaire)
+    const [refYear, refMonth, refDay] = String(refDateStr).slice(0, 10).split("-").map(Number);
+    if (!refYear || !refMonth || !refDay) return null;
+    const ref = new Date(refYear, refMonth - 1, refDay);
     const target = new Date(date);
     target.setHours(0, 0, 0, 0);
 
     const diffTime = target.getTime() - ref.getTime();
-    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+    const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
 
     // Calcul modulo dynamique s'appuyant sur la longueur réelle du cycle (28j par défaut)
     const currentDay = (((diffDays % cLength) + cLength) % cLength) + 1;
@@ -636,9 +668,13 @@ const active = localStorage.getItem('sorea_has_notification') === 'true' || loca
     if (currentDay <= pLength) return "Hiver";
 
     // 2. Phase Ovulatoire (Été) : fixée autour de l'ovulation (généralement 14 jours avant la fin du cycle)
-    const ovulationDay = cLength - 14;
-    const ovStart = Math.max(pLength + 1, ovulationDay - 1);
-    const ovEnd = Math.min(cLength - 2, ovulationDay + 1);
+    // Ovulation ≈ 14 jours avant la fin du cycle, mais on garantit toujours
+    // au moins 2 jours de phase folliculaire (Printemps) et 4 jours de phase lutéale (Automne)
+    let ovulationDay = cLength - 14;
+    ovulationDay = Math.max(ovulationDay, pLength + 4);
+    ovulationDay = Math.min(ovulationDay, cLength - 5);
+    const ovStart = ovulationDay - 1;
+    const ovEnd = ovulationDay + 1;
 
     if (currentDay >= ovStart && currentDay <= ovEnd) {
       return "Été";
@@ -1721,8 +1757,9 @@ return (
                         ? 'border-gray-200 bg-gray-50 text-gray-300 cursor select-none' 
                         : 'border-gray-300 bg-white hover:border-[#8B47FF] text-gray-800 cursor-pointer'
                     }`}
+                    onClick={startNewCycleToday}
                   >
-                    J'ai mes règles !
+                    Mes règles ont commencé aujourd’hui
                   </button>
                   <button 
                     type="button" 
@@ -2027,31 +2064,65 @@ return (
                   {/* Titre et Input nombre de jours avec flèches */}
                   <div className="space-y-4">
                     <label className="block text-lg font-bold text-[#7F4DC5] text-center font-boska">
-                      Combien de jour durent vos règles ?
+                      Combien de jours durent vos règles ?
                     </label>
                     <div className="flex items-center justify-center">
-                      <div className="w-16 h-12 border border-gray-400 rounded-lg bg-white text-black flex items-center justify-center font-bold text-base shadow-sm select-none pointer-events-none">
+                      <button
+                        type="button"
+                        onClick={() => { setPeriodLengthForm((v) => Math.max(1, Number(v) - 1)); setPeriodMode("exact"); }}
+                        className="w-10 h-10 rounded-full border border-[#8B47FF] text-[#8B47FF] font-bold text-lg bg-white hover:bg-[#F4EBFF] transition-all cursor-pointer"
+                        aria-label="Diminuer la durée des règles"
+                      >
+                        −
+                      </button>
+                      <div className="w-16 h-12 mx-3 border border-gray-400 rounded-lg bg-white text-black flex items-center justify-center font-bold text-base shadow-sm select-none pointer-events-none">
                         {periodLengthForm}
                       </div>
+                      <button
+                        type="button"
+                        onClick={() => { setPeriodLengthForm((v) => Math.min(10, Number(v) + 1)); setPeriodMode("exact"); }}
+                        className="w-10 h-10 rounded-full border border-[#8B47FF] text-[#8B47FF] font-bold text-lg bg-white hover:bg-[#F4EBFF] transition-all cursor-pointer"
+                        aria-label="Augmenter la durée des règles"
+                      >
+                        +
+                      </button>
                     </div>
 
                     {/* Boutons "Je ne sais pas" et "C'est variable" */}
                     <div className="flex items-center justify-center gap-4 pt-2">
                       <button
                         type="button"
-                        onClick={() => setPeriodLengthForm(5)} // Valeur par défaut indicative
-                        className="px-5 py-2.5 rounded-xl border border-[#E256B3] text-[#7F4DC5] text-xs font-semibold bg-white hover:bg-pink-50 transition-all cursor-pointer shadow-sm"
+                        onClick={() => { setPeriodLengthForm(5); setPeriodMode("unknown"); }}
+                        className={`px-5 py-2.5 rounded-xl border text-xs font-semibold transition-all cursor-pointer shadow-sm ${
+                          periodMode === "unknown"
+                            ? "border-[#8B47FF] bg-[#F4EBFF] text-[#7F4DC5]"
+                            : "border-[#E256B3] bg-white text-[#7F4DC5] hover:bg-pink-50"
+                        }`}
                       >
                         Je ne sais pas
                       </button>
                       <button
                         type="button"
-                        onClick={() => setPeriodLengthForm(5)} // Valeur par défaut indicative
-                        className="px-5 py-2.5 rounded-xl border border-[#E256B3] text-[#7F4DC5] text-xs font-semibold bg-white hover:bg-pink-50 transition-all cursor-pointer shadow-sm"
+                        onClick={() => { setPeriodLengthForm(5); setPeriodMode("variable"); }}
+                        className={`px-5 py-2.5 rounded-xl border text-xs font-semibold transition-all cursor-pointer shadow-sm ${
+                          periodMode === "variable"
+                            ? "border-[#8B47FF] bg-[#F4EBFF] text-[#7F4DC5]"
+                            : "border-[#E256B3] bg-white text-[#7F4DC5] hover:bg-pink-50"
+                        }`}
                       >
                         C’est variable
                       </button>
                     </div>
+                    {periodMode === "unknown" && (
+                      <p className="text-xs text-gray-500 text-center">
+                        Pas de souci : on part sur 5 jours, la durée moyenne des règles.
+                      </p>
+                    )}
+                    {periodMode === "variable" && (
+                      <p className="text-xs text-gray-500 text-center">
+                        Pas de souci : on part sur 5 jours en moyenne, tu pourras ajuster quand tu veux.
+                      </p>
+                    )}
                   </div>
 
                   {/* Début des dernières règles */}
@@ -2059,14 +2130,35 @@ return (
                     <label className="block text-lg font-bold text-[#7F4DC5] text-center font-boska">
                       Début des dernières règles
                     </label>
-                    <div className="relative">
-                      <input
-                        type="date"
-                        value={lastPeriodStartForm}
-                        onChange={(e) => setLastPeriodStartForm(e.target.value)}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-2xl bg-white text-black focus:border-[#8B47FF] outline-none transition-all shadow-sm"
-                      />
+                    <div className="flex items-center gap-3">
+                      <div className="relative flex-1">
+                        <input
+                          type="date"
+                          value={lastPeriodStartForm}
+                          onChange={(e) => setLastPeriodStartForm(e.target.value)}
+                          className="w-full px-4 py-3 border border-gray-300 rounded-2xl bg-white text-black focus:border-[#8B47FF] outline-none transition-all shadow-sm"
+                        />
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setLastPeriodStartForm("");
+                          setCycleLengthForm(28);
+                        }}
+                        className={`shrink-0 px-4 py-3 rounded-2xl border text-xs font-semibold transition-all cursor-pointer shadow-sm ${
+                          lastPeriodStartForm === ""
+                            ? "border-[#8B47FF] bg-[#F4EBFF] text-[#7F4DC5]"
+                            : "border-[#E256B3] bg-white text-[#7F4DC5] hover:bg-pink-50"
+                        }`}
+                      >
+                        Je ne sais pas
+                      </button>
                     </div>
+                    {lastPeriodStartForm === "" && (
+                      <p className="text-xs text-gray-500 text-center">
+                        Pas de souci : on part sur un cycle de 28 jours.
+                      </p>
+                    )}
                   </div>
                 </div>
               )}

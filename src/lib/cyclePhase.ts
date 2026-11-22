@@ -61,7 +61,9 @@ export async function fetchCurrentPhase(): Promise<Phase> {
     const res = await fetch("/api/menstrual-profile");
     if (!res.ok) return "Printemps";
     const data = await res.json();
-    return getPhaseForDate(new Date(), data.profile, data.cycleInfo);
+    // La phase du jour est calculée par le serveur : une seule source de vérité, identique au calendrier
+    if (!data.profile?.isActive || !data.cycleInfo) return "Printemps";
+    return data.cycleInfo.phase as Phase;
   } catch (e) {
     console.error("Impossible de récupérer la phase du cycle", e);
     return "Printemps";
