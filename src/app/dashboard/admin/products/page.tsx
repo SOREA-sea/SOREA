@@ -93,6 +93,7 @@ export default function AdminProductsPage() {
   const [currentVisImages, setCurrentVisImages] = useState<any[]>([]);
   const [currentVisPrice, setCurrentVisPrice] = useState("0.95");
   const [currentVisDescription, setCurrentVisDescription] = useState("");
+  const [visErrors, setVisErrors] = useState({ title: false, description: false, images: false });
   const [editingVisId, setEditingVisId] = useState<string | null>(null);
   const [activeVisMenuId, setActiveVisMenuId] = useState<string | null>(null);
 
@@ -111,6 +112,7 @@ export default function AdminProductsPage() {
   // Fonction d'importation d'images converties en Base64
   const handleVisFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
+      setVisErrors((prev) => ({ ...prev, images: false }));
       Array.from(e.target.files).forEach((file) => {
         const reader = new FileReader();
         reader.onload = (uploadEvent) => {
@@ -150,7 +152,19 @@ export default function AdminProductsPage() {
 
   const handleSaveVisualisation = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!currentVisTitle.trim()) return;
+    const isTitleEmpty = !currentVisTitle.trim();
+    const isDescEmpty = !currentVisDescription.trim();
+    const isImagesEmpty = currentVisImages.length === 0;
+
+    if (isTitleEmpty || isDescEmpty || isImagesEmpty) {
+      setVisErrors({
+        title: isTitleEmpty,
+        description: isDescEmpty,
+        images: isImagesEmpty,
+      });
+      return;
+    }
+
     if (currentVisTitle.replace(/\s/g, "").length > 30) return;
 
     const priceNum = parseFloat(currentVisPrice);
@@ -187,6 +201,7 @@ export default function AdminProductsPage() {
     setCurrentVisImages([]);
     setCurrentVisPrice("0.95");
     setCurrentVisDescription("");
+    setVisErrors({ title: false, description: false, images: false });
     setIsAddingVisualisation(false);
   };
 
@@ -311,13 +326,27 @@ export default function AdminProductsPage() {
   const [isAddingAffirmation, setIsAddingAffirmation] = useState(false);
   const [currentAffirmationTitle, setCurrentAffirmationTitle] = useState("");
   const [currentAffirmationText, setCurrentAffirmationText] = useState("");
+  const [currentAffirmationDescription, setCurrentAffirmationDescription] = useState("");
   const [currentAffirmationPrice, setCurrentAffirmationPrice] = useState("0.95");
+  const [affirmationErrors, setAffirmationErrors] = useState({ title: false, text: false, description: false });
   const [editingAffirmationId, setEditingAffirmationId] = useState<string | null>(null);
   const [activeMenuId, setActiveMenuId] = useState<string | null>(null);
 
   const handleSaveAffirmation = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!currentAffirmationTitle.trim() || !currentAffirmationText.trim()) return;
+    const isTitleEmpty = !currentAffirmationTitle.trim();
+    const isTextEmpty = !currentAffirmationText.replace(/^✓\s*/, "").trim();
+    const isDescEmpty = !currentAffirmationDescription.trim();
+
+    if (isTitleEmpty || isTextEmpty || isDescEmpty) {
+      setAffirmationErrors({
+        title: isTitleEmpty,
+        text: isTextEmpty,
+        description: isDescEmpty,
+      });
+      return;
+    }
+
     if (currentAffirmationTitle.replace(/\s/g, "").length > 30) return;
 
     const priceNum = parseFloat(currentAffirmationPrice);
@@ -335,6 +364,8 @@ export default function AdminProductsPage() {
 
     setCurrentAffirmationTitle("");
     setCurrentAffirmationText("");
+    setCurrentAffirmationDescription("");
+    setAffirmationErrors({ title: false, text: false, description: false });
     setCurrentAffirmationPrice("0.95");
     setIsAddingAffirmation(false);
   };
@@ -721,10 +752,17 @@ export default function AdminProductsPage() {
                       onChange={(e) => {
                         if (e.target.value.replace(/\s/g, "").length <= 30) {
                           setCurrentAffirmationTitle(e.target.value);
+                          if (e.target.value.trim()) {
+                            setAffirmationErrors((prev) => ({ ...prev, title: false }));
+                          }
                         }
                       }}
                       placeholder="Titre de l'affirmaton (ex: Mon abondance)..."
-                      className="w-full bg-white border border-purple-200 rounded-xl px-4 py-3 text-gray-800 focus:outline-none focus:ring-2 focus:ring-[#8B47FF]"
+                      className={`w-full bg-white border rounded-xl px-4 py-3 text-gray-800 focus:outline-none focus:ring-2 ${
+                        affirmationErrors.title
+                          ? "border-red-500 ring-2 ring-red-500 focus:ring-red-500"
+                          : "border-purple-200 focus:ring-[#8B47FF]"
+                      }`}
                       autoFocus
                     />
                   </div>
@@ -752,40 +790,46 @@ export default function AdminProductsPage() {
                       value={currentAffirmationText}
                       onFocus={() => { if (!currentAffirmationText) setCurrentAffirmationText("✓ "); }}
                       onKeyDown={handleKeyDown}
-                      onChange={(e) => setCurrentAffirmationText(e.target.value)}
+                      onChange={(e) => {
+                        setCurrentAffirmationText(e.target.value);
+                        if (e.target.value.replace(/^✓\s*/, "").trim()) {
+                          setAffirmationErrors((prev) => ({ ...prev, text: false }));
+                        }
+                      }}
                       placeholder="J'avance vers ce qui me tiens à coeur..."
-                      className="w-full bg-white border border-purple-200 rounded-xl px-4 py-3 text-gray-800 focus:outline-none focus:ring-2 focus:ring-[#8B47FF] h-28 resize-none whitespace-pre-line overflow-y-auto"
+                      className={`w-full bg-white border rounded-xl px-4 py-3 text-gray-800 focus:outline-none focus:ring-2 h-28 resize-none whitespace-pre-line overflow-y-auto ${
+                        affirmationErrors.text
+                          ? "border-red-500 ring-2 ring-red-500 focus:ring-red-500"
+                          : "border-purple-200 focus:ring-[#8B47FF]"
+                      }`}
                     />
                   </div>
                   <div className="flex flex-col gap-1.5">
                     <div className="flex justify-between items-center">
                       <label className="text-sm font-bold text-gray-900">Entrez une description</label>
                       <span className="text-xs text-gray-500 font-medium">
-                        <span id="counter-aff-desc" className="font-medium">0</span>
+                        <span className={currentAffirmationDescription.replace(/\s/g, "").length >= 140 ? "text-red-500 font-bold" : "font-medium"}>
+                          {currentAffirmationDescription.replace(/\s/g, "").length}
+                        </span>
                         /150
                       </span>
                     </div>
                     <textarea 
+                      value={currentAffirmationDescription}
                       onChange={(e) => {
-                        const len = e.target.value.replace(/\s/g, "").length;
-                        const counterEl = document.getElementById("counter-aff-desc");
-                        if (counterEl) {
-                          counterEl.textContent = len.toString();
-                          if (len >= 140) {
-                            counterEl.className = "text-red-500 font-bold";
-                          } else {
-                            counterEl.className = "font-medium";
+                        if (e.target.value.replace(/\s/g, "").length <= 150) {
+                          setCurrentAffirmationDescription(e.target.value);
+                          if (e.target.value.trim()) {
+                            setAffirmationErrors((prev) => ({ ...prev, description: false }));
                           }
                         }
                       }}
-                      onInput={(e) => {
-                        const target = e.currentTarget;
-                        if (target.value.replace(/\s/g, "").length > 150) {
-                          target.value = target.value.slice(0, -1);
-                        }
-                      }}
                       placeholder="Adopte un meilleur enthousiasme pour ton quotidien..."
-                      className="w-full bg-white border border-purple-200 rounded-xl px-4 py-3 text-gray-800 focus:outline-none focus:ring-2 focus:ring-[#8B47FF] h-28 resize-none whitespace-pre-line overflow-y-auto"
+                      className={`w-full bg-white border rounded-xl px-4 py-3 text-gray-800 focus:outline-none focus:ring-2 h-28 resize-none whitespace-pre-line overflow-y-auto ${
+                        affirmationErrors.description
+                          ? "border-red-500 ring-2 ring-red-500 focus:ring-red-500"
+                          : "border-purple-200 focus:ring-[#8B47FF]"
+                      }`}
                     />
                   </div>
                 </div>
@@ -862,7 +906,7 @@ export default function AdminProductsPage() {
                   ))}
 
                   <button 
-                    onClick={() => { setIsAddingAffirmation(true); setEditingAffirmationId(null); setCurrentAffirmationText(""); setCurrentAffirmationTitle(""); }}
+                    onClick={() => { setIsAddingAffirmation(true); setEditingAffirmationId(null); setCurrentAffirmationText(""); setCurrentAffirmationTitle(""); setCurrentAffirmationDescription(""); setAffirmationErrors({ title: false, text: false, description: false }); }}
                     className="w-48 h-48 mx-auto rounded-2xl border-2 border-dashed border-purple-300 bg-[#FAF5FF] hover:bg-purple-50 transition-colors flex flex-col items-center justify-center text-purple-400 gap-2 cursor-pointer shadow-sm"
                   >
                     <span className="text-3xl">+</span>
@@ -975,10 +1019,17 @@ export default function AdminProductsPage() {
                         onChange={(e) => {
                           if (e.target.value.replace(/\s/g, "").length <= 30) {
                             setCurrentVisTitle(e.target.value);
+                            if (e.target.value.trim()) {
+                              setVisErrors((prev) => ({ ...prev, title: false }));
+                            }
                           }
                         }}
                         placeholder="Titre de la pellicule (ex: Voyage de rêve)..."
-                        className="w-full bg-white border border-purple-200 rounded-xl px-4 py-3 text-gray-800 focus:outline-none focus:ring-2 focus:ring-[#8B47FF]"
+                        className={`w-full bg-white border rounded-xl px-4 py-3 text-gray-800 focus:outline-none focus:ring-2 ${
+                          visErrors.title
+                            ? "border-red-500 ring-2 ring-red-500 focus:ring-red-500"
+                            : "border-purple-200 focus:ring-[#8B47FF]"
+                        }`}
                         autoFocus
                       />
                     </div>
@@ -999,14 +1050,32 @@ export default function AdminProductsPage() {
 
                   {/* Boutons Insérer et Ajuster */}
                   <div className={`flex items-center gap-3 ${isAdjustMode ? "z-40" : ""}`}>
-                    <button
-                      type="button"
-                      onClick={() => visFileInputRef.current?.click()}
-                      className="flex items-center gap-2 bg-white border border-purple-300 text-purple-900 font-semibold px-4 py-2.5 rounded-xl hover:bg-purple-100/50 transition-colors cursor-pointer text-sm"
-                    >
-                      <Plus size={18} />
-                      Insérer une image
-                    </button>
+                    <div className="relative">
+                      <button
+                        type="button"
+                        onClick={() => visFileInputRef.current?.click()}
+                        className="flex items-center gap-2 bg-white border border-purple-300 text-purple-900 font-semibold px-4 py-2.5 rounded-xl hover:bg-purple-100/50 transition-colors cursor-pointer text-sm"
+                      >
+                        <Plus size={18} />
+                        Insérer une image
+                      </button>
+
+                      {visErrors.images && currentVisImages.length === 0 && (
+                        <div className="relative mt-1.5 w-max z-30 select-none">
+                          <div className="ml-4 h-0 w-0 border-x-[6px] border-b-[6px] border-x-transparent border-b-[#9CA3AF]"></div>
+                          <div className="-mt-[5px] ml-4 h-0 w-0 border-x-[6px] border-b-[6px] border-x-transparent border-b-white relative z-10"></div>
+                          <div className="-mt-[1px] flex items-center gap-2.5 whitespace-nowrap rounded-[5px] border border-[#9CA3AF] bg-white px-3 py-2 text-[13px] font-normal text-[#1F2937] shadow-[0_3px_8px_rgba(0,0,0,0.14)]">
+                            <span
+                              style={{ backgroundColor: "#E85D04" }}
+                              className="inline-flex h-[18px] w-[18px] shrink-0 items-center justify-center rounded-[2px] text-[12px] font-bold leading-none text-white"
+                            >
+                              !
+                            </span>
+                            <span>Veuillez ajouter au moins une image avant de valider.</span>
+                          </div>
+                        </div>
+                      )}
+                    </div>
 
                     <button
                       type="button"
@@ -1112,10 +1181,17 @@ export default function AdminProductsPage() {
                       onChange={(e) => {
                         if (e.target.value.replace(/\s/g, "").length <= 150) {
                           setCurrentVisDescription(e.target.value);
+                          if (e.target.value.trim()) {
+                            setVisErrors((prev) => ({ ...prev, description: false }));
+                          }
                         }
                       }}
                       placeholder="Adopte un meilleur enthousiasme pour ton quotidien..."
-                      className="w-full bg-white border border-purple-200 rounded-xl px-4 py-3 text-gray-800 focus:outline-none focus:ring-2 focus:ring-[#8B47FF] h-28 resize-none whitespace-pre-line overflow-y-auto"
+                      className={`w-full bg-white border rounded-xl px-4 py-3 text-gray-800 focus:outline-none focus:ring-2 h-28 resize-none whitespace-pre-line overflow-y-auto ${
+                        visErrors.description
+                          ? "border-red-500 ring-2 ring-red-500 focus:ring-red-500"
+                          : "border-purple-200 focus:ring-[#8B47FF]"
+                      }`}
                     />
                   </div>
 
@@ -1322,7 +1398,7 @@ export default function AdminProductsPage() {
                   ))}
 
                   <button 
-                    onClick={() => { setIsAddingVisualisation(true); setEditingVisId(null); setCurrentVisTitle(""); setCurrentVisPrice("0.95"); }}
+                    onClick={() => { setIsAddingVisualisation(true); setEditingVisId(null); setCurrentVisTitle(""); setCurrentVisDescription(""); setCurrentVisImages([]); setVisErrors({ title: false, description: false, images: false }); setCurrentVisPrice("0.95"); }}
                     className="w-48 h-48 mx-auto rounded-2xl border-2 border-dashed border-purple-300 bg-[#FAF5FF] hover:bg-purple-50 transition-colors flex flex-col items-center justify-center text-purple-400 gap-2 cursor-pointer shadow-sm"
                   >
                     <span className="text-3xl">+</span>
