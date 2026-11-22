@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { Settings, ChevronLeft, ChevronRight, X, Trash2 } from "lucide-react";
 import MenstrualFlux from "./MenstrualFlux";
+import { getCyclePositionForDay, localDay, dayDiff, type PeriodEntry } from "@/lib/cycleCalc";
 
 interface Profile {
   isActive: boolean;
@@ -54,6 +55,7 @@ const NEGATIVE_MOODS = [
 export default function MenstrualCalendar() {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [cycleInfo, setCycleInfo] = useState<CycleInfo | null>(null);
+  const [history, setHistory] = useState<PeriodEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [showSettings, setShowSettings] = useState(false);
   const [isSnowflakeMode, setIsSnowflakeMode] = useState(() => {
@@ -197,6 +199,7 @@ const active = localStorage.getItem('sorea_has_notification') === 'true' || loca
       const data = await res.json();
       setProfile(data.profile);
       setCycleInfo(data.cycleInfo);
+      setHistory(data.history ?? []);
       setIsActiveForm(data.profile.isActive);
       // Si le suivi de cycle est désactivé, basculer par défaut sur l'Agenda Todo-List
       if (!data.profile.isActive) {
@@ -237,6 +240,28 @@ const active = localStorage.getItem('sorea_has_notification') === 'true' || loca
     };
   }, []); // Dépendance vide [] pour éviter de relancer les requêtes en boucle
 
+  // Boutons « Mes règles continuent » / « Je ne les ai plus » : enregistrent la durée réelle des règles
+  const updatePeriod = async (action: "continues" | "ended") => {
+    try {
+      const res = await fetch("/api/menstrual-profile", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ periodAction: action }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        if (data?.error) alert(data.error);
+        return;
+      }
+      setProfile(data.profile);
+      setCycleInfo(data.cycleInfo);
+      setHistory(data.history ?? []);
+      setPeriodLengthForm(data.profile.periodLength);
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
   // Bouton « Mes règles ont commencé aujourd'hui » : enregistre la date du jour comme début du nouveau cycle
   const startNewCycleToday = async () => {
     try {
@@ -257,6 +282,7 @@ const active = localStorage.getItem('sorea_has_notification') === 'true' || loca
       const data = await res.json();
       setProfile(data.profile);
       setCycleInfo(data.cycleInfo);
+      setHistory(data.history ?? []);
       setLastPeriodStartForm(todayStr);
       setCycleLengthForm(data.profile.cycleLength);
       setPeriodLengthForm(data.profile.periodLength);
@@ -281,6 +307,7 @@ const active = localStorage.getItem('sorea_has_notification') === 'true' || loca
       const data = await res.json();
       setProfile(data.profile);
       setCycleInfo(data.cycleInfo);
+      setHistory(data.history ?? []);
       if (!data.profile.isActive) {
         setActiveTab('todo');
       }
@@ -637,56 +664,29 @@ const active = localStorage.getItem('sorea_has_notification') === 'true' || loca
     }
   };
 
-  const getPhaseForDate = (date: Date) => {
-    // Si aucun profil n'est chargé, on se base par défaut sur un cycle standard de 28 jours et 5 jours de règles
-    // Valeurs sécurisées : conversion en nombre + bornes réalistes (cycle 20-60 j, règles 1-10 j)
-    const cLength = Math.min(Math.max(Math.round(Number(profile?.cycleLength)) || 28, 20), 60);
-    const pLength = Math.min(Math.max(Math.round(Number(profile?.periodLength)) || 5, 1), 10);
-    
+    const getPhaseForDate = (date: Date) => {
+    // Historique réel des règles ; à défaut (ancienne réponse du serveur), on repart de la date de début connue
     let refDateStr = profile?.lastPeriodStartDate;
     if (!refDateStr && cycleInfo?.refDate) {
       refDateStr = cycleInfo.refDate;
     }
+    const entries: PeriodEntry[] =
+      history.length > 0
+        ? history
+        : refDateStr
+        ? [{ startDate: String(refDateStr).slice(0, 10), endDate: null }]
+        : [];
 
-    // Si aucune date de référence n'est disponible, on utilise la date du jour ou une référence par défaut
-    if (!refDateStr) return null;
+    // Si aucune date de référence n'est disponible, pas de phase
+    if (entries.length === 0) return null;
 
-    // Lecture de la date de référence en heure locale (évite les décalages d'un jour liés au fuseau horaire)
-    const [refYear, refMonth, refDay] = String(refDateStr).slice(0, 10).split("-").map(Number);
-    if (!refYear || !refMonth || !refDay) return null;
-    const ref = new Date(refYear, refMonth - 1, refDay);
-    const target = new Date(date);
-    target.setHours(0, 0, 0, 0);
-
-    const diffTime = target.getTime() - ref.getTime();
-    const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
-
-    // Calcul modulo dynamique s'appuyant sur la longueur réelle du cycle (28j par défaut)
-    const currentDay = (((diffDays % cLength) + cLength) % cLength) + 1;
-
-    // 1. Phase Menstruelle (Hiver) : basée sur la durée des règles
-    if (currentDay <= pLength) return "Hiver";
-
-    // 2. Phase Ovulatoire (Été) : fixée autour de l'ovulation (généralement 14 jours avant la fin du cycle)
-    // Ovulation ≈ 14 jours avant la fin du cycle, mais on garantit toujours
-    // au moins 2 jours de phase folliculaire (Printemps) et 4 jours de phase lutéale (Automne)
-    let ovulationDay = cLength - 14;
-    ovulationDay = Math.max(ovulationDay, pLength + 4);
-    ovulationDay = Math.min(ovulationDay, cLength - 5);
-    const ovStart = ovulationDay - 1;
-    const ovEnd = ovulationDay + 1;
-
-    if (currentDay >= ovStart && currentDay <= ovEnd) {
-      return "Été";
-    }
-
-    // 3. Phase Pré-Ovulatoire / Folliculaire (Printemps) : entre la fin des règles et l'ovulation
-    if (currentDay < ovStart) {
-      return "Printemps";
-    }
-
-    // 4. Phase Prémenstruelle / Lutéale (Automne) : après l'ovulation jusqu'à la fin du cycle
-    return "Automne";
+    // Même calcul que le serveur, les roues et le suivi (src/lib/cycleCalc.ts)
+    const position = getCyclePositionForDay(
+      localDay(date),
+      { cycleLength: profile?.cycleLength ?? 28, periodLength: profile?.periodLength ?? 5 },
+      entries
+    );
+    return position ? position.phase : null;
   };
 
   const renderCalendar = () => {
@@ -1318,6 +1318,13 @@ return (
 
       {selectedDate && activeTab === 'calendar' && (() => {
         const currentSelectedPhase = getPhaseForDate(selectedDate);
+        // « Mes règles continuent » / « Je ne les ai plus » : seulement pour aujourd'hui,
+        // dans les 15 jours qui suivent le début des dernières règles
+        const todayDay = localDay(new Date());
+        const lastStartDay = profile?.lastPeriodStartDate ? String(profile.lastPeriodStartDate).slice(0, 10) : null;
+        const daysSincePeriodStart = lastStartDay ? dayDiff(lastStartDay, todayDay) : -1;
+        const canUpdatePeriod =
+          localDay(selectedDate) === todayDay && daysSincePeriodStart >= 0 && daysSincePeriodStart <= 14;
         const today = new Date();
         today.setHours(0, 0, 0, 0);
         const isFutureDate = selectedDate > today;
@@ -1761,12 +1768,13 @@ return (
                   >
                     Mes règles ont commencé aujourd’hui
                   </button>
-                  <button 
-                    type="button" 
-                    disabled={currentSelectedPhase === 'Hiver'}
+                  <button
+                    type="button"
+                    disabled={!canUpdatePeriod}
+                    onClick={() => updatePeriod("continues")}
                     className={`p-4 rounded-2xl border text-sm font-semibold transition-all text-center shadow-sm ${
-                      currentSelectedPhase === 'Hiver' 
-                        ? 'border-gray-200 bg-gray-50 text-gray-300 cursor select-none' 
+                      !canUpdatePeriod
+                        ? 'border-gray-200 bg-gray-50 text-gray-300 cursor-default select-none'
                         : 'border-gray-300 bg-white hover:border-[#8B47FF] text-gray-800 cursor-pointer'
                     }`}
                   >
@@ -1775,7 +1783,16 @@ return (
                   <button type="button" className="p-4 rounded-2xl border border-gray-300 bg-white hover:border-[#8B47FF] text-sm font-semibold text-gray-800 transition-all cursor-pointer shadow-sm text-center">
                     Je ne les ai pas
                   </button>
-                  <button type="button" className="p-4 rounded-2xl border border-gray-300 bg-white hover:border-[#8B47FF] text-sm font-semibold text-gray-800 transition-all cursor-pointer shadow-sm text-center">
+                  <button
+                    type="button"
+                    disabled={!canUpdatePeriod}
+                    onClick={() => updatePeriod("ended")}
+                    className={`p-4 rounded-2xl border text-sm font-semibold transition-all text-center shadow-sm ${
+                      !canUpdatePeriod
+                        ? 'border-gray-200 bg-gray-50 text-gray-300 cursor-default select-none'
+                        : 'border-gray-300 bg-white hover:border-[#8B47FF] text-gray-800 cursor-pointer'
+                    }`}
+                  >
                     Je ne les ai plus
                   </button>
                   <div className="sm:col-span-2 p-4 rounded-2xl border border-gray-300 bg-white">

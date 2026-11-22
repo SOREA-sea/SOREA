@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import type { PrismaClient } from "@prisma/client";
 import prisma from "@/lib/prisma";
+import { computeCycleInfo, type PeriodEntry } from "@/lib/cycleCalc";
 import { getUserFromRequest } from "../../middleware/auth";
 
 type SavezVousClient = {
@@ -51,55 +52,52 @@ function getTodayStr(timezone = "Europe/Paris"): string {
     .join("-");
 }
 
-function getPhase(
-  currentDay: number,
-  cycleLength: number,
-  periodLength: number,
-) {
-  if (currentDay <= periodLength) return "Hiver";
-  const ovulationStart = cycleLength - 14;
-  const ovulationEnd = cycleLength - 12;
+export async function GET() {
+  const prismaClient = prisma as PrismaClientWithSavezVous;
 
-  if (currentDay < ovulationStart) return "Printemps";
-  if (currentDay >= ovulationStart && currentDay <= ovulationEnd) return "Été";
-  return "Automne";
-}
+  // Phase du cycle de la personne connectée (null sans suivi activé ou sans compte connecté)
+  let phase: string | null = null;
+  let timezone = "Europe/Paris";
 
-function calculateCycleInfo(
-  isActive: boolean,
-  cycleLength: number,
-  periodLength: number,
-  lastPeriodStartDate: Date | null,
-  timezone = "Europe/Paris",
-) {
-  if (!isActive || !lastPeriodStartDate) {
-    return { phase: null };
+  try {
+    const user = await getUserFromRequest();
+    if (user) {
+      timezone = user.timezone || timezone;
+      const profile = await prisma.menstrualProfile.findUnique({
+        where: { userId: user.id },
+      });
+
+      if (profile && profile.isActive && profile.lastPeriodStartDate) {
+        // @ts-ignore
+        const entry = await prisma.periodHistory.findFirst({
+          where: { userId: user.id, startDate: profile.lastPeriodStartDate },
+          orderBy: { id: "desc" },
+        });
+        const history: PeriodEntry[] = [
+          {
+            startDate: profile.lastPeriodStartDate.toISOString().slice(0, 10),
+            endDate: entry?.endDate ? entry.endDate.toISOString().slice(0, 10) : null,
+          },
+        ];
+        phase = computeCycleInfo(
+          profile.isActive,
+          { cycleLength: profile.cycleLength, periodLength: profile.periodLength },
+          history,
+          timezone,
+        ).phase;
+      }
+    }
+  } catch (error) {
+    console.warn("Erreur lecture du profil de cycle :", error);
   }
 
-  const todayTz = new Date(
-    new Date().toLocaleString("en-US", { timeZone: timezone }),
-  );
-  todayTz.setHours(0, 0, 0, 0);
-
-  const refDate = new Date(lastPeriodStartDate);
-  refDate.setHours(0, 0, 0, 0);
-
-  const diffDays = Math.floor(
-    (todayTz.getTime() - refDate.getTime()) / (1000 * 60 * 60 * 24),
-  );
-  const currentDay =
-    (((diffDays % cycleLength) + cycleLength) % cycleLength) + 1;
-
-  return { phase: getPhase(currentDay, cycleLength, periodLength) };
-}
-
-export async function GET() {
-  const todayStr = getTodayStr();
-  const prismaClient = prisma as PrismaClientWithSavezVous;
+  const todayStr = getTodayStr(timezone);
+  // Une affirmation par jour ET par phase : chaque personne reçoit une affirmation adaptée à sa phase
+  const cacheKey = phase ? `${todayStr}-${phase}` : `${todayStr}-neutre`;
 
   try {
     const existing = await prismaClient.savezVous.findUnique({
-      where: { date: todayStr },
+      where: { date: cacheKey },
     });
 
     if (existing) {
@@ -114,31 +112,12 @@ export async function GET() {
 
   let affirmation =
     LOCAL_FALLBACKS[Math.floor(Math.random() * LOCAL_FALLBACKS.length)];
-  let phase: string | null = null;
 
   if (process.env.GEMINI_API_KEY) {
     try {
-      const user = await getUserFromRequest();
-      let phaseNote = "";
-
-      if (user?.timezone) {
-        const profile = await prisma.menstrualProfile.findUnique({
-          where: { userId: user.id },
-        });
-        if (profile) {
-          const cycleInfo = calculateCycleInfo(
-            profile.isActive,
-            profile.cycleLength,
-            profile.periodLength,
-            profile.lastPeriodStartDate,
-            user.timezone,
-          );
-          phase = cycleInfo.phase;
-          if (phase) {
-            phaseNote = `La personne a activé le suivi du cycle menstruel et est en phase ${phase}. Adapte l'affirmation à cette phase avec bienveillance.`;
-          }
-        }
-      }
+      const phaseNote = phase
+        ? `La personne a activé le suivi du cycle menstruel et est en phase ${phase}. Adapte l'affirmation à cette phase avec bienveillance.`
+        : "";
 
       const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
       const model = genAI.getGenerativeModel({
@@ -161,7 +140,7 @@ export async function GET() {
 
   try {
     await prismaClient.savezVous.upsert({
-      where: { date: todayStr },
+      where: { date: cacheKey },
       update: {
         title: "Affirmation du jour",
         paragraph1: affirmation,
@@ -169,7 +148,7 @@ export async function GET() {
         paragraph3: null,
       },
       create: {
-        date: todayStr,
+        date: cacheKey,
         title: "Affirmation du jour",
         paragraph1: affirmation,
         paragraph2: phase || "",

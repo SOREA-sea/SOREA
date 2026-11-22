@@ -3,11 +3,13 @@
 import { useState, useEffect } from "react";
 import MenstrualCalendar from "@/components/MenstrualCalendar";
 import { Download } from "lucide-react";
+import { getCyclePositionForDay, localDay, type PeriodEntry } from "@/lib/cycleCalc";
 
 export default function SuiviPage() {
   const [summaries, setSummaries] = useState<Array<{ id: string; date: string; time: string; phase?: string; icon?: string }>>([]);
   const [activeTab, setActiveTab] = useState<"Liste" | "Par date">("Liste");
   const [profile, setProfile] = useState<{ cycleLength: number; periodLength: number; lastPeriodStartDate: string | null } | null>(null);
+  const [history, setHistory] = useState<PeriodEntry[]>([]);
   const [currentMonthIndex, setCurrentMonthIndex] = useState(0);
   const [sortOrder, setSortOrder] = useState<"Croissant" | "Décroissant">("Croissant");
 
@@ -19,6 +21,7 @@ export default function SuiviPage() {
         if (res.ok) {
           const data = await res.json();
           setProfile(data.profile);
+          setHistory(data.history ?? []);
         }
       } catch (e) {
         console.error(e);
@@ -46,29 +49,27 @@ export default function SuiviPage() {
         : { name: "Phase Menstruelle", icon: "/image_Design-SOREA/Hiver.svg" };
     }
 
-    const cLength = profile.cycleLength || 28;
-    const pLength = profile.periodLength || 5;
-    const ref = new Date(profile.lastPeriodStartDate);
-    ref.setHours(0, 0, 0, 0);
-    date.setHours(0, 0, 0, 0);
+        // Même calcul que le calendrier, les roues et le serveur (src/lib/cycleCalc.ts)
+    const position = getCyclePositionForDay(
+      localDay(date),
+      { cycleLength: profile.cycleLength || 28, periodLength: profile.periodLength || 5 },
+      history.length > 0
+        ? history
+        : [{ startDate: String(profile.lastPeriodStartDate).slice(0, 10), endDate: null }]
+    );
+    const phase = position ? position.phase : "Hiver";
 
-    const diffTime = date.getTime() - ref.getTime();
-    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-    const currentDay = (((diffDays % cLength) + cLength) % cLength) + 1;
-
-    if (currentDay <= pLength) {
+    if (phase === "Hiver") {
       return isDiscret
         ? { name: "Hiver", icon: "/image_icone/Flocon.svg" }
         : { name: "Phase Menstruelle", icon: "/image_Design-SOREA/Hiver.svg" };
     }
-    const ovStart = cLength - 14;
-    const ovEnd = cLength - 12;
-    if (currentDay < ovStart) {
+    if (phase === "Printemps") {
       return isDiscret
         ? { name: "Printemps", icon: "/image_icone/Printemps.svg" }
         : { name: "Phase Folliculaire", icon: "/image_icone/Printemps.svg" };
     }
-    if (currentDay >= ovStart && currentDay <= ovEnd) {
+    if (phase === "Été") {
       return isDiscret
         ? { name: "Été", icon: "/image_icone/Été.svg" }
         : { name: "Phase Ovulatoire", icon: "/image_icone/Été.svg" };
@@ -77,7 +78,7 @@ export default function SuiviPage() {
       ? { name: "Automne", icon: "/image_icone/Automne.svg" }
       : { name: "Phase Lutéale", icon: "/image_icone/Automne.svg" };
   };
-
+  
   // Charger les synthèses sauvegardées au démarrage de la page
   useEffect(() => {
     if (typeof window !== 'undefined') {

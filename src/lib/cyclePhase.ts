@@ -5,6 +5,7 @@
 // pour que le Miroir et le Calendrier restent toujours cohérents entre eux.
 
 import type { Phase } from "./affirmations";
+import { getCyclePositionForDay, localDay, type PeriodEntry } from "./cycleCalc";
 
 export interface CycleProfile {
   isActive: boolean;
@@ -29,27 +30,22 @@ export interface CycleInfo {
 export function getPhaseForDate(
   date: Date,
   profile: CycleProfile | null,
-  cycleInfo: CycleInfo | null
+  cycleInfo: CycleInfo | null,
+  history: PeriodEntry[] = []
 ): Phase {
   if (!cycleInfo || !profile || !profile.isActive) return "Printemps";
 
-  const ref = new Date(cycleInfo.refDate);
-  ref.setHours(0, 0, 0, 0);
-  const target = new Date(date);
-  target.setHours(0, 0, 0, 0);
+  // Historique réel des règles ; à défaut, on repart de la date de référence du cycle en cours
+  const entries: PeriodEntry[] =
+    history.length > 0 ? history : [{ startDate: String(cycleInfo.refDate).slice(0, 10), endDate: null }];
 
-  const diffTime = target.getTime() - ref.getTime();
-  const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-  const cLength = profile.cycleLength || 28;
-  const currentDay = (((diffDays % cLength) + cLength) % cLength) + 1;
-  const pLength = profile.periodLength || 5;
-
-  if (currentDay <= pLength) return "Hiver";
-  const ovStart = cLength - 14;
-  const ovEnd = cLength - 12;
-  if (currentDay < ovStart) return "Printemps";
-  if (currentDay >= ovStart && currentDay <= ovEnd) return "Été";
-  return "Automne";
+  // Même calcul que le calendrier, le suivi et le serveur (src/lib/cycleCalc.ts)
+  const position = getCyclePositionForDay(
+    localDay(date),
+    { cycleLength: profile.cycleLength, periodLength: profile.periodLength },
+    entries
+  );
+  return (position ? position.phase : "Printemps") as Phase;
 }
 
 /**
