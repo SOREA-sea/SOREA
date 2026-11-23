@@ -62,6 +62,15 @@ const CATEGORIE_GROSSESSE = {
   items: ["Nausées matinales", "Fatigue intense", "Mouvements du bébé", "Contractions", "Reflux gastrique", "Jambes lourdes", "Douleurs ligamentaires", "Vergetures", "Essoufflement", "Envies alimentaires", "Crampes aux mollets"]
 };
 
+const CATEGORIE_POSTPARTUM = {
+  category: "Post-partum",
+  items: ["Saignements (lochies)", "Douleurs périnéales", "Douleurs de cicatrice", "Fatigue intense", "Manque de sommeil", "Sueurs nocturnes", "Perte de cheveux", "Baby blues", "Maux de dos", "Baisse de libido"]
+};
+const CATEGORIE_ALLAITEMENT = {
+  category: "Allaitement",
+  items: ["Montée de lait", "Engorgement", "Crevasses", "Seins douloureux", "Baisse de lait"]
+};
+
 export default function MenstrualCalendar() {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [cycleInfo, setCycleInfo] = useState<CycleInfo | null>(null);
@@ -139,13 +148,21 @@ export default function MenstrualCalendar() {
   };
 
   // Situation de l'utilisatrice (modale « Vous êtes... ») + grossesse
-  const [situation, setSituation] = useState<'reglee' | 'enceinte' | 'menopausee' | 'autres' | 'projet' | 'perimenopause'>('reglee');
+  const [situation, setSituation] = useState<'reglee' | 'enceinte' | 'menopausee' | 'autres' | 'projet' | 'perimenopause' | 'postpartum'>('reglee');
   const [ddrGrossesse, setDdrGrossesse] = useState("");
   const [situationLoaded, setSituationLoaded] = useState(false);
   const [showPregnancyModal, setShowPregnancyModal] = useState(false);
   const [ddrForm, setDdrForm] = useState("");
   const [dpaForm, setDpaForm] = useState("");
   const [pregnancyError, setPregnancyError] = useState("");
+
+  // Post-partum / Allaitante
+  const [dateAccouchement, setDateAccouchement] = useState("");
+  const [allaitement, setAllaitement] = useState<'oui' | 'non'>('non');
+  const [showPostpartumModal, setShowPostpartumModal] = useState(false);
+  const [accouchementForm, setAccouchementForm] = useState("");
+  const [allaitementForm, setAllaitementForm] = useState<'oui' | 'non'>('non');
+  const [postpartumError, setPostpartumError] = useState("");
 
   // Modale « Vous êtes... » : 'principal' (Réglée, Enceinte...) ou 'autres' (En projet de grossesse...)
   const [surveyView, setSurveyView] = useState<'principal' | 'autres'>('principal');
@@ -179,7 +196,10 @@ export default function MenstrualCalendar() {
   useEffect(() => {
     try {
       const s = localStorage.getItem('sorea_situation_suivi');
-      if (s === 'reglee' || s === 'enceinte' || s === 'menopausee' || s === 'autres' || s === 'projet' || s === 'perimenopause') setSituation(s);
+      if (s === 'reglee' || s === 'enceinte' || s === 'menopausee' || s === 'autres' || s === 'projet' || s === 'perimenopause' || s === 'postpartum') setSituation(s);
+      const acc = localStorage.getItem('sorea_accouchement_date');
+      if (acc) setDateAccouchement(acc);
+      if (localStorage.getItem('sorea_allaitement') === 'oui') setAllaitement('oui');
       const d = localStorage.getItem('sorea_grossesse_ddr');
       if (d) setDdrGrossesse(d);
     } catch (e) {
@@ -192,7 +212,9 @@ export default function MenstrualCalendar() {
     if (!situationLoaded) return;
     localStorage.setItem('sorea_situation_suivi', situation);
     localStorage.setItem('sorea_grossesse_ddr', ddrGrossesse);
-  }, [situation, ddrGrossesse, situationLoaded]);
+    localStorage.setItem('sorea_accouchement_date', dateAccouchement);
+    localStorage.setItem('sorea_allaitement', allaitement);
+  }, [situation, ddrGrossesse, dateAccouchement, allaitement, situationLoaded]);
 
   // Ajoute n jours à une date « AAAA-MM-JJ » (sans décalage de fuseau)
   const ajouterJours = (jourStr: string, n: number) => {
@@ -213,7 +235,7 @@ export default function MenstrualCalendar() {
   };
 
   // Choix « Enceinte » / « Ménopausée » / « Autres » dans la modale « Vous êtes... »
-  const choisirSituation = async (choix: 'enceinte' | 'menopausee' | 'autres') => {
+  const choisirSituation = async (choix: 'enceinte' | 'menopausee' | 'autres' | 'postpartum') => {
     setShowSurveyModal(false);
     setSituation(choix);
     if (choix === 'autres') return;
@@ -242,6 +264,14 @@ export default function MenstrualCalendar() {
       console.error(e);
     }
 
+    if (choix === 'postpartum') {
+      setAccouchementForm(dateAccouchement);
+      setAllaitementForm(allaitement);
+      setPostpartumError("");
+      setShowPostpartumModal(true);
+      return;
+    }
+
     if (choix === 'enceinte') {
       setDdrForm(ddrGrossesse);
       setDpaForm("");
@@ -250,11 +280,63 @@ export default function MenstrualCalendar() {
     }
   };
 
+  // Post-partum : semaine (S1 = 7 premiers jours) et jour depuis l'accouchement (null avant la naissance)
+  const infosPostpartum = (jourStr: string) => {
+    if (situation !== 'postpartum' || !dateAccouchement) return null;
+    const jours = dayDiff(dateAccouchement, jourStr);
+    if (jours < 0) return null;
+    return { jours, semaine: Math.floor(jours / 7) + 1 };
+  };
+
+  const validerPostpartum = () => {
+    if (!accouchementForm) {
+      setPostpartumError("Indique la date de ton accouchement.");
+      return;
+    }
+    const ecoule = dayDiff(accouchementForm, localDay(new Date()));
+    if (ecoule < 0 || ecoule > 730) {
+      setPostpartumError("La date doit être passée et dater de moins de 2 ans.");
+      return;
+    }
+    setDateAccouchement(accouchementForm);
+    setAllaitement(allaitementForm);
+    setPostpartumError("");
+    setShowPostpartumModal(false);
+    setCurrentMonth(new Date());
+  };
+
+  // « Mes règles sont revenues » : le jour choisi devient le début des règles, retour au suivi de cycle habituel
+  const reglesRevenues = async (jour: string) => {
+    try {
+      const res = await fetch("/api/menstrual-profile", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ isActive: true, lastPeriodStartDate: jour }),
+      });
+      if (!res.ok) return;
+      const data = await res.json();
+      setProfile(data.profile);
+      setCycleInfo(data.cycleInfo);
+      setHistory(data.history ?? []);
+      setLastPeriodStartForm(jour);
+      setCycleLengthForm(data.profile.cycleLength);
+      setPeriodLengthForm(data.profile.periodLength);
+      setIsActiveForm(true);
+      setSituation('reglee');
+      setDateAccouchement("");
+      setSelectedDate(null);
+      setCurrentMonth(new Date());
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
   // Fin de grossesse / changement de situation : on repasse par la modale « Vous êtes... »
   const changerDeSituation = () => {
     setSelectedDate(null);
     setSituation('reglee');
     setDdrGrossesse("");
+    setDateAccouchement("");
     setIsActiveForm(true);
     setShowSurveyModal(true);
   };
@@ -391,7 +473,7 @@ const active = localStorage.getItem('sorea_has_notification') === 'true' || loca
       setIsActiveForm(data.profile.isActive);
       // Si le suivi de cycle est désactivé, basculer par défaut sur l'Agenda Todo-List (sauf grossesse / ménopause)
       const situationSauvee = localStorage.getItem('sorea_situation_suivi');
-      if (!data.profile.isActive && situationSauvee !== 'enceinte' && situationSauvee !== 'menopausee') {
+      if (!data.profile.isActive && situationSauvee !== 'enceinte' && situationSauvee !== 'menopausee' && situationSauvee !== 'postpartum') {
         setActiveTab('todo');
       }
       setCycleLengthForm(data.profile.cycleLength);
@@ -854,7 +936,7 @@ const active = localStorage.getItem('sorea_has_notification') === 'true' || loca
   };
 
     const getPhaseForDate = (date: Date) => {
-    if (situation === 'enceinte' || situation === 'menopausee') return null;
+    if (situation === 'enceinte' || situation === 'menopausee' || situation === 'postpartum') return null;
     if (situation === 'perimenopause') {
       const peri = getPerimenopauseForDay(localDay(date));
       if (peri !== undefined) return peri ? peri.phase : null;
@@ -1114,6 +1196,19 @@ const isTodayWithNotification = isToday && hasNotif;
               </span>
             )
           )}
+          {activeTab === 'calendar' && phaseVisible && infosPostpartum(dateKey) && infosPostpartum(dateKey)!.jours < 84 && (
+            infosPostpartum(dateKey)!.jours === 0 ? (
+              <img
+                src="/image_icone/Baby.svg"
+                alt="Naissance"
+                className="w-6 h-6 absolute bottom-1 right-1 object-contain"
+              />
+            ) : (
+              <span className="absolute bottom-1 right-1.5 font-bold leading-none text-[14px] text-[#E256B3]">
+                {`S${infosPostpartum(dateKey)!.semaine}`}
+              </span>
+            )
+          )}
         </div>
       );
     }
@@ -1144,6 +1239,8 @@ return (
               <p className="text-black font-medium mt-1">Suivi de grossesse</p>
             ) : situation === 'menopausee' ? (
               <p className="text-black font-medium mt-1">Suivi ménopause</p>
+            ) : situation === 'postpartum' ? (
+              <p className="text-black font-medium mt-1">Suivi post-partum</p>
             ) : profile?.isActive ? (
               <p className="text-black font-medium mt-1">Suivi menstruel activé</p>
             ) : (
@@ -1272,6 +1369,33 @@ return (
         </div>
       )}
 
+      {/* BLOC POST-PARTUM : semaine depuis la naissance, allaitement, retour des règles */}
+      {activeTab === 'calendar' && situation === 'postpartum' && (() => {
+        const infos = infosPostpartum(localDay(new Date()));
+        return (
+          <div className="w-full mb-8 p-5 rounded-2xl border border-[#E256B3] bg-white text-sm text-gray-800 leading-relaxed">
+            <p className="font-bold text-[#7F4DC5] mb-1">Post-partum{allaitement === 'oui' ? ' · Allaitement' : ''}</p>
+            {infos ? (
+              <p>Semaine {infos.semaine} depuis la naissance de ton bébé (jour {infos.jours + 1}).</p>
+            ) : (
+              <p>Renseigne la date de ton accouchement dans l'onglet « Paramètre » pour suivre tes semaines.</p>
+            )}
+            {infos && infos.jours < 42 && (
+              <p className="mt-1">Les saignements des premières semaines (lochies) ne sont pas des règles : ils durent en général 4 à 6 semaines.</p>
+            )}
+            {allaitement === 'oui' ? (
+              <p className="mt-1">L'allaitement peut retarder le retour des règles : c'est normal. L'ovulation peut pourtant revenir avant les premières règles, l'allaitement n'est pas une contraception fiable à lui seul.</p>
+            ) : (
+              <p className="mt-1">
+                Sans allaitement, les règles reviennent souvent entre 6 et 12 semaines après l'accouchement.
+                {infos && infos.jours >= 84 && " Elles se font attendre : en parler à ton médecin ou à ta sage-femme peut te rassurer."}
+              </p>
+            )}
+            <p className="mt-1">Dès que tes règles reviennent : ouvre ce jour, onglet « Paramètre », puis « Mes règles sont revenues ».</p>
+          </div>
+        );
+      })()}
+
       {/* BLOC MÉNOPAUSE : pas de phases */}
       {activeTab === 'calendar' && situation === 'menopausee' && (
         <div className="w-full mb-8 p-5 rounded-2xl border border-[#E256B3] bg-white text-sm text-gray-800 leading-relaxed">
@@ -1281,7 +1405,7 @@ return (
       )}
 
       {/* BLOC : Je filtre mes phases (Affiché uniquement si activeTab === 'calendar') */}
-      {activeTab === 'calendar' && situation !== 'enceinte' && situation !== 'menopausee' && (
+      {activeTab === 'calendar' && situation !== 'enceinte' && situation !== 'menopausee' && situation !== 'postpartum' && (
         <div className="w-full mb-8 flex flex-col gap-6">
           
           {/* En-tête : Titre et Icône Help cliquable */}
@@ -1784,6 +1908,11 @@ return (
                     Semaine {infosGrossesse(localDay(selectedDate))!.semaines} · Trimestre {infosGrossesse(localDay(selectedDate))!.trimestre}
                   </p>
                 )}
+                {infosPostpartum(localDay(selectedDate)) && (
+                  <p className="text-sm font-semibold text-[#E256B3] mt-1">
+                    Semaine {infosPostpartum(localDay(selectedDate))!.semaine} après l'accouchement
+                  </p>
+                )}
                 {situation === 'projet' && getFertiliteForDay(localDay(selectedDate)) && (
                   <p className="text-sm font-semibold text-[#00B8B3] mt-1">
                     {getFertiliteForDay(localDay(selectedDate)) === 'pic' ? 'Pic de fertilité' : 'Fenêtre fertile'}
@@ -2026,7 +2155,7 @@ return (
                     category: "Corps",
                     items: ["Rétention d'eau", "Jambes lourdes", "Gonflement abdominal", "Prise de poids temporaire", "Seins gonfiés", "Ventre dur"]
                   },
-                  ...(situation === 'menopausee' || situation === 'perimenopause' ? [CATEGORIE_MENOPAUSE] : situation === 'enceinte' ? [CATEGORIE_GROSSESSE] : [])
+                  ...(situation === 'menopausee' || situation === 'perimenopause' ? [CATEGORIE_MENOPAUSE] : situation === 'enceinte' ? [CATEGORIE_GROSSESSE] : situation === 'postpartum' ? [CATEGORIE_POSTPARTUM, ...(allaitement === 'oui' ? [CATEGORIE_ALLAITEMENT] : [])] : [])
                 ];
 
                 const rows = [];
@@ -2251,6 +2380,67 @@ return (
                 </div>
               )}
 
+              {/* ONGLET 3 : PARAMÈTRE — POST-PARTUM */}
+              {symptomTab === 'rectifier' && situation === 'postpartum' && (
+                <div className="flex flex-col gap-4">
+                  <div className="p-4 rounded-2xl border border-[#E256B3] bg-white text-sm text-gray-800 leading-relaxed">
+                    {infosPostpartum(localDay(selectedDate)) ? (
+                      <>
+                        <p className="font-bold text-[#7F4DC5] mb-1">
+                          Semaine {infosPostpartum(localDay(selectedDate))!.semaine} · jour {infosPostpartum(localDay(selectedDate))!.jours + 1} après l'accouchement
+                        </p>
+                        <p>Accouchement le {new Date(dateAccouchement + 'T00:00:00').toLocaleDateString("fr-FR", { day: 'numeric', month: 'long', year: 'numeric' })}</p>
+                      </>
+                    ) : (
+                      <p>Ce jour est avant ton accouchement.</p>
+                    )}
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSelectedDate(null);
+                        setAccouchementForm(dateAccouchement);
+                        setAllaitementForm(allaitement);
+                        setPostpartumError("");
+                        setShowPostpartumModal(true);
+                      }}
+                      className="p-4 rounded-2xl border border-gray-300 bg-white hover:border-[#8B47FF] text-sm font-semibold text-gray-800 transition-all cursor-pointer shadow-sm text-center"
+                    >
+                      Modifier mon post-partum
+                    </button>
+                    <button
+                      type="button"
+                      disabled={isFutureDate}
+                      onClick={() => reglesRevenues(localDay(selectedDate))}
+                      className={`p-4 rounded-2xl border text-sm font-semibold transition-all text-center shadow-sm ${
+                        isFutureDate
+                          ? 'border-gray-200 bg-gray-50 text-gray-300 cursor-default select-none'
+                          : 'border-gray-300 bg-white hover:border-[#8B47FF] text-gray-800 cursor-pointer'
+                      }`}
+                    >
+                      Mes règles sont revenues
+                    </button>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setAllaitement(allaitement === 'oui' ? 'non' : 'oui')}
+                    className="p-4 rounded-2xl border border-gray-300 bg-white hover:border-[#8B47FF] text-sm font-semibold text-gray-800 transition-all cursor-pointer shadow-sm text-center"
+                  >
+                    {allaitement === 'oui' ? "Je n'allaite plus" : "J'allaite"}
+                  </button>
+                  <div className="p-4 rounded-2xl border border-gray-300 bg-white">
+                    <input
+                      type="text"
+                      placeholder="Plus de précisions..."
+                      value={rectifierByDay[localDay(selectedDate)]?.note ?? ""}
+                      onChange={(e) => majParametreJour(localDay(selectedDate), { note: e.target.value })}
+                      className="w-full text-sm outline-none text-gray-800 placeholder-gray-400 bg-transparent"
+                    />
+                  </div>
+                </div>
+              )}
+
               {/* ONGLET 3 : PARAMÈTRE — MÉNOPAUSE */}
               {symptomTab === 'rectifier' && situation === 'menopausee' && (
                 <div className="flex flex-col gap-4">
@@ -2278,7 +2468,7 @@ return (
               )}
 
               {/* ONGLET 3 : À RECTIFIER ! */}
-              {symptomTab === 'rectifier' && situation !== 'enceinte' && situation !== 'menopausee' && (
+              {symptomTab === 'rectifier' && situation !== 'enceinte' && situation !== 'menopausee' && situation !== 'postpartum' && (
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <button 
                     type="button" 
@@ -2424,7 +2614,7 @@ return (
                     category: "Corps",
                     items: ["Rétention d'eau", "Jambes lourdes", "Gonflement abdominal", "Prise de poids temporaire", "Seins gonfiés", "Ventre dur"]
                   },
-                  ...(situation === 'menopausee' || situation === 'perimenopause' ? [CATEGORIE_MENOPAUSE] : situation === 'enceinte' ? [CATEGORIE_GROSSESSE] : [])
+                  ...(situation === 'menopausee' || situation === 'perimenopause' ? [CATEGORIE_MENOPAUSE] : situation === 'enceinte' ? [CATEGORIE_GROSSESSE] : situation === 'postpartum' ? [CATEGORIE_POSTPARTUM, ...(allaitement === 'oui' ? [CATEGORIE_ALLAITEMENT] : [])] : [])
                 ];
 
                 return (
@@ -2850,6 +3040,7 @@ return (
                 </button>
                 <button
                   type="button"
+                  onClick={() => choisirSituation('postpartum')}
                   className="p-5 rounded-xl border-2 border-[#8B47FF] bg-white text-black font-semibold text-base hover:bg-[#F4EBFF] transition-all cursor-pointer text-center shadow-sm"
                 >
                   post-partum / Allaitante
@@ -2933,6 +3124,72 @@ return (
               <button
                 type="button"
                 onClick={validerGrossesse}
+                className="bg-[#8B47FF] text-white px-6 py-2 rounded-xl font-bold shadow-md hover:bg-[#7535e6] transition-colors cursor-pointer"
+              >
+                Valider
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modale POST-PARTUM : date d'accouchement + allaitement */}
+      {showPostpartumModal && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-3xl p-8 shadow-2xl w-full max-w-lg relative border-2 border-[#8B47FF]">
+            <h3 className="text-2xl font-bold mb-2 text-[#7F4DC5] text-center font-boska">Mon post-partum</h3>
+            <p className="text-sm text-gray-600 text-center mb-6">
+              Renseigne la date de ton accouchement pour suivre tes semaines et le retour de tes règles.
+            </p>
+
+            <div className="flex flex-col gap-4 mb-4">
+              <label className="flex flex-col gap-1.5 text-sm font-bold text-gray-900">
+                Date de mon accouchement
+                <input
+                  type="date"
+                  value={accouchementForm}
+                  max={localDay(new Date())}
+                  onChange={(e) => setAccouchementForm(e.target.value)}
+                  className="w-full bg-white border border-purple-200 rounded-xl px-4 py-3 text-gray-800 font-normal focus:outline-none focus:ring-2 focus:ring-[#8B47FF]"
+                />
+              </label>
+              <div className="flex flex-col gap-1.5 text-sm font-bold text-gray-900">
+                J'allaite
+                <div className="grid grid-cols-2 gap-3">
+                  {(['oui', 'non'] as const).map((choix) => (
+                    <button
+                      key={choix}
+                      type="button"
+                      onClick={() => setAllaitementForm(choix)}
+                      className={`p-3 rounded-xl border-2 font-semibold transition-all cursor-pointer ${
+                        allaitementForm === choix
+                          ? 'border-[#8B47FF] bg-[#F4EBFF] text-[#5B3ABC]'
+                          : 'border-gray-200 bg-white text-gray-700 hover:border-[#8B47FF]'
+                      }`}
+                    >
+                      {choix === 'oui' ? 'Oui' : 'Non'}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {postpartumError && <p className="text-sm font-semibold text-red-500 mb-4">{postpartumError}</p>}
+
+            <div className="flex justify-end gap-3">
+              <button
+                type="button"
+                onClick={() => {
+                  setShowPostpartumModal(false);
+                  if (!dateAccouchement) setSituation('autres');
+                }}
+                className="px-5 py-2 rounded-xl text-gray-600 hover:bg-gray-200 font-semibold transition-colors cursor-pointer"
+              >
+                Annuler
+              </button>
+              <button
+                type="button"
+                onClick={validerPostpartum}
                 className="bg-[#8B47FF] text-white px-6 py-2 rounded-xl font-bold shadow-md hover:bg-[#7535e6] transition-colors cursor-pointer"
               >
                 Valider
