@@ -28,6 +28,44 @@ interface AffirmationCard {
   description?: string;
 }
 
+// Écriture sécurisée : le stockage du navigateur est limité (~5 Mo), un dépassement ne doit pas faire planter la page
+const ecrireStockage = (cle: string, valeur: unknown): boolean => {
+  try {
+    localStorage.setItem(cle, JSON.stringify(valeur));
+    return true;
+  } catch (e) {
+    console.error(`Stockage plein : impossible d'enregistrer ${cle}`, e);
+    return false;
+  }
+};
+
+// Miniature d'une image (pour la boutique) : 320 px maximum, JPEG qualité 60 %
+const creerMiniature = (image: any): Promise<any> =>
+  new Promise((resolve) => {
+    const url: string = typeof image === "string" ? image : image?.url;
+    if (!url || !url.startsWith("data:")) {
+      resolve(image);
+      return;
+    }
+    const img = new window.Image();
+    img.onload = () => {
+      const ratio = Math.min(1, 320 / Math.max(img.width, img.height));
+      const canvas = document.createElement("canvas");
+      canvas.width = Math.max(1, Math.round(img.width * ratio));
+      canvas.height = Math.max(1, Math.round(img.height * ratio));
+      const ctx = canvas.getContext("2d");
+      if (!ctx) {
+        resolve(image);
+        return;
+      }
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+      const miniature = canvas.toDataURL("image/jpeg", 0.6);
+      resolve(typeof image === "string" ? miniature : { ...image, url: miniature });
+    };
+    img.onerror = () => resolve(image);
+    img.src = url;
+  });
+
 export default function AdminProductsPage() {
   const [products, setProducts] = useState<ProductData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -81,10 +119,15 @@ export default function AdminProductsPage() {
 
   useEffect(() => {
     // Seuls les éléments ayant explicitement cliqué sur "Envoyer" synchronisent les composants/galeries externes
-    localStorage.setItem("sorea_admin_vente_affirmations", JSON.stringify(affirmations));
-    localStorage.setItem("sorea_admin_vente_trash", JSON.stringify(trash));
-    localStorage.setItem("sorea_admin_vente_visualisations", JSON.stringify(visualisationCards));
-    localStorage.setItem("sorea_admin_vente_visualisation_trash", JSON.stringify(visualisationTrash));
+    const toutEstEnregistre = [
+      ecrireStockage("sorea_admin_vente_affirmations", affirmations),
+      ecrireStockage("sorea_admin_vente_trash", trash),
+      ecrireStockage("sorea_admin_vente_visualisations", visualisationCards),
+      ecrireStockage("sorea_admin_vente_visualisation_trash", visualisationTrash),
+    ].every(Boolean);
+    if (!toutEstEnregistre) {
+      setMessage({ type: "error", text: "Le stockage du navigateur est plein : vide la corbeille des visualisations ou supprime d'anciennes pellicules, puis réessaie." });
+    }
   }, [affirmations, trash, visualisationCards, visualisationTrash]);
 
   const [isVisualisationModalOpen, setIsVisualisationModalOpen] = useState(false);
@@ -232,11 +275,21 @@ export default function AdminProductsPage() {
       }
 
       const existingBoutique = JSON.parse(localStorage.getItem("sorea_visualisation_boutique") || "[]");
-      const productWithDbId = { ...card, id: String(result.product.id), sourceId: card.id };
+      // Boutique : on ne garde que des miniatures des 3 premières images + le nombre d'images (le stockage du navigateur est limité)
+      const miniatures = await Promise.all((card.images || []).slice(0, 3).map((img: any) => creerMiniature(img)));
+      const productWithDbId = {
+        ...card,
+        id: String(result.product.id),
+        sourceId: card.id,
+        images: miniatures,
+        imagesCount: card.images ? card.images.length : 0,
+      };
 
       if (!existingBoutique.some((item: any) => item.id === productWithDbId.id)) {
         const updatedBoutique = [...existingBoutique, productWithDbId];
-        localStorage.setItem("sorea_visualisation_boutique", JSON.stringify(updatedBoutique));
+        if (!ecrireStockage("sorea_visualisation_boutique", updatedBoutique)) {
+          throw new Error("Le stockage du navigateur est plein : vide la corbeille des visualisations ou supprime d'anciennes pellicules, puis réessaie.");
+        }
         window.dispatchEvent(new Event("visualisationSentToBoutique"));
       }
 

@@ -104,7 +104,11 @@ export default function VisualisationGallery({
   });
 
   useEffect(() => {
-    localStorage.setItem("sorea_visualisation_boutique", JSON.stringify(boutiqueCards));
+    try {
+      localStorage.setItem("sorea_visualisation_boutique", JSON.stringify(boutiqueCards));
+    } catch (e) {
+      console.error("Stockage plein : boutique non sauvegardée", e);
+    }
   }, [boutiqueCards]);
 
   useEffect(() => {
@@ -141,8 +145,12 @@ export default function VisualisationGallery({
   };
 
   useEffect(() => {
-    localStorage.setItem("sorea_visualisation_pellicules", JSON.stringify(pellicules));
-    localStorage.setItem("sorea_visualisation_trash", JSON.stringify(trash));
+    try {
+      localStorage.setItem("sorea_visualisation_pellicules", JSON.stringify(pellicules));
+      localStorage.setItem("sorea_visualisation_trash", JSON.stringify(trash));
+    } catch (e) {
+      console.error("Stockage plein : pellicules non sauvegardées", e);
+    }
 
     // Si aucun favori n'est défini mais qu'il y a des pellicules (album ou boutique), on met la première en favori
     if (!favoriteId) {
@@ -1129,9 +1137,12 @@ export default function VisualisationGallery({
           data={{
             id: selectedBoutiqueCard.id,
             title: selectedBoutiqueCard.title,
-            imagesCount: selectedBoutiqueCard.images ? selectedBoutiqueCard.images.length : 3,
+            imagesCount: selectedBoutiqueCard.imagesCount ?? (selectedBoutiqueCard.images ? selectedBoutiqueCard.images.length : 3),
             description: selectedBoutiqueCard.description || "Une parenthèse en images pour conserver les instants qui vous font du bien et célébrer votre équilibre au quotidien.",
             price: selectedBoutiqueCard.price || 0.95,
+            // Favori uniquement si l'id ne se confond pas avec celui d'une pellicule de l'album (ex : "1", "2")
+            isFavorite: favoriteId === selectedBoutiqueCard.id && !pellicules.some((p) => p.id === selectedBoutiqueCard.id),
+            images: (selectedBoutiqueCard.images || []).slice(0, 3),
             imageUrl: (() => {
               const candidate = selectedBoutiqueCard.imageUrl || (selectedBoutiqueCard.images?.[0] ? (typeof selectedBoutiqueCard.images[0] === 'string' ? selectedBoutiqueCard.images[0] : selectedBoutiqueCard.images[0].url) : "");
               // Une image Base64 (data:...) est trop lourde pour une API de paiement : on utilise l'image par défaut

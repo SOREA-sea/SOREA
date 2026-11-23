@@ -10,6 +10,8 @@ export interface VisualisationPaymentData {
   description?: string;
   price?: number | string;
   imageUrl?: string;
+  isFavorite?: boolean;
+  images?: (string | { url: string; transform?: { scale: number; x: number; y: number } })[];
 }
 
 interface VisualisationPaymentProps {
@@ -18,6 +20,24 @@ interface VisualisationPaymentProps {
   onPaymentSuccess?: () => void;
   data?: VisualisationPaymentData;
 }
+
+// Mise en page calée sur le SVG « PaiementVisualisation » (1016 × 1547) : on écrit les mesures du SVG,
+// elles sont converties pour que la modale garde les mêmes proportions à toutes les tailles
+const px = (n: number) => `${(n / 10.16).toFixed(3)}cqw`;
+const L = (x: number) => `${((x / 1016) * 100).toFixed(3)}%`;
+const T = (y: number) => `${((y / 1547) * 100).toFixed(3)}%`;
+const POLICE = "Inter, ui-sans-serif, system-ui, sans-serif";
+
+// ✏️ RÉGLAGES DES 3 IMAGES SUR LA PELLICULE
+// Les valeurs sont en unités du SVG : le bloc de la pellicule fait 706 de large sur 350 de haut.
+// x : plus grand = l'image va vers la droite | y : plus grand = l'image descend
+// largeur / hauteur : taille de l'image complète
+// visible : largeur réellement affichée (plus petite que « largeur » = l'image est coupée sur sa droite)
+const CADRES_PELLICULE = [
+  { x: 57, y: 43, largeur: 207, hauteur: 208, visible: 207 },
+  { x: 282, y: 43, largeur: 207, hauteur: 208, visible: 207 },
+  { x: 510, y: 43, largeur: 207, hauteur: 208, visible: 114 },
+];
 
 export default function VisualisationPayment({
   isOpen = true,
@@ -65,93 +85,215 @@ export default function VisualisationPayment({
       ? data.price.toFixed(2)
       : data.price || "0.95";
 
+  const texteDescription =
+    data.description ||
+    "Une parenthèse en images pour conserver les instants qui vous font du bien et célébrer votre équilibre au quotidien.";
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4 animate-fade-in">
       {/* Conteneur principal de la modale */}
-      <div className="relative w-full max-w-[480px] bg-[#FAF5FF] rounded-[32px] shadow-2xl border border-purple-100 p-8 flex flex-col items-center">
+      <div
+        className="relative"
+        style={{
+          width: "min(560px, 100%, calc((100dvh - 2rem) * 0.6568))",
+          aspectRatio: "1016 / 1547",
+          containerType: "inline-size",
+        }}
+      >
+      <div className="absolute inset-0 shadow-2xl overflow-hidden" style={{ background: "#FAF5FF", borderRadius: px(64), fontFamily: POLICE }}>
         {/* En-tête : Marque SOREA & Bouton Fermer */}
-        <div className="w-full flex items-center justify-between mb-4">
-          <span className="text-sm font-semibold tracking-[0.3em] text-[#333333] uppercase">
-            S O R E A
-          </span>
-          <button
-            onClick={onClose}
-            type="button"
-            className="p-1 rounded-full text-gray-400 hover:text-gray-700 hover:bg-purple-100/50 transition-colors cursor-pointer"
-            aria-label="Fermer"
-          >
-            <X size={24} />
-          </button>
-        </div>
+        {[0, 1, 2].map((i) => (
+          <img
+            key={i}
+            src="/image_Design-SOREA/Logo-Lueur.png"
+            alt=""
+            aria-hidden="true"
+            onError={(e) => { e.currentTarget.style.display = "none"; }}
+            className="absolute pointer-events-none"
+            style={{ left: L(124), top: T(65), width: px(166), height: px(160), objectFit: "contain" }}
+          />
+        ))}
+        <img
+          src="/image_Design-SOREA/Logo-SOREAMiniature.svg"
+          alt="SOREA"
+          className="absolute"
+          style={{ left: L(118), top: T(131), width: px(179), height: px(29), objectFit: "contain" }}
+        />
+        <button
+          onClick={onClose}
+          type="button"
+          className="absolute cursor-pointer flex items-center justify-center"
+          style={{ left: L(884), top: T(63), width: px(46), height: px(45) }}
+          aria-label="Fermer"
+        >
+          <img src="/image_icone/Cross.svg" alt="Fermer" className="w-full h-full object-contain" />
+        </button>
 
         {/* Tag / Badge CATEGORIE */}
-        <div className="inline-flex items-center gap-1.5 px-4 py-1 rounded-full bg-[#E5D7F8] text-[#8B47FF] text-xs font-bold mb-3">
-          <span>Visualisation</span>
-          <span className="text-[10px]">★</span>
+        <div
+          className="absolute flex items-center justify-center font-bold"
+          style={{ left: L(355), top: T(233), width: px(248), height: px(50), borderRadius: "9999px", background: "#DBCEEF", color: "#7F4DC5", fontSize: px(30), letterSpacing: "0.07em" }}
+        >
+          Visualisation
         </div>
+        {data.isFavorite && (
+          <img
+            src="/image_icone/FavoritesYes.svg"
+            alt="Favori"
+            className="absolute"
+            style={{ left: L(627), top: T(247), width: px(22), height: px(21), objectFit: "contain" }}
+          />
+        )}
 
         {/* Titre de l'achat */}
-        <h2 className="text-2xl font-bold text-[#1F1F1F] text-center mb-6">
+        <h2
+          className="absolute font-bold text-black text-center"
+          style={{ left: L(90), top: T(324), width: px(780), margin: 0, fontSize: px(50), lineHeight: px(60), letterSpacing: "0.07em", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}
+        >
           {data.title || "Titre de l'achat"}
         </h2>
 
-        {/* Bloc Visuel de la Pellicule (SVG / Image) */}
-        <div className="relative w-[320px] h-[180px] aspect-[16/9] rounded-2xl bg-[#FAF5FF] flex items-center justify-center p-2 mb-4">
+        {/* Bloc Visuel de la Pellicule : le SVG, puis les 3 premières images posées sur les 3 cadres */}
+        <div
+          className="absolute"
+          style={{ left: L(152), top: T(444), width: px(706), height: px(350) }}
+        >
           <img
             src="/image_Design-SOREA/PelliculeTest.svg"
             alt={data.title || "Pellicule de Visualisation"}
-            className="w-full h-full object-contain filter drop-shadow-md"
+            className="absolute"
+            style={{
+              left: 0,
+              top: 0,
+              width: "100%",
+              height: "100%",
+              objectFit: "contain",
+              filter: `drop-shadow(${px(35)} ${px(50)} ${px(20)} rgba(0,0,0,0.25))`,
+            }}
           />
+          {[0, 1, 2].map((i) => {
+            const photo = data.images?.[i];
+            if (!photo) return null;
+            const urlPhoto = typeof photo === "string" ? photo : photo.url;
+            const zoom = typeof photo === "string" ? 1 : photo.transform?.scale ?? 1;
+            return (
+              <div
+                key={i}
+                className="absolute overflow-hidden"
+                style={{
+                  left: px(CADRES_PELLICULE[i].x),
+                  top: px(CADRES_PELLICULE[i].y),
+                  width: px(CADRES_PELLICULE[i].visible),
+                  height: px(CADRES_PELLICULE[i].hauteur),
+                }}
+              >
+                {/* La 3e image garde la taille d'un cadre complet : le bord de la pellicule la coupe */}
+                <img
+                  src={urlPhoto}
+                  alt=""
+                  style={{
+                    width: px(CADRES_PELLICULE[i].largeur),
+                    height: "100%",
+                    objectFit: "cover",
+                    transform: `scale(${zoom})`,
+                    transformOrigin: "center",
+                    display: "block",
+                  }}
+                />
+              </div>
+            );
+          })}
         </div>
 
         {/* Badge N+1 images */}
-        <div className="px-4 py-1 rounded-full bg-white border border-purple-100 shadow-xs text-xs font-bold text-[#8B47FF] mb-4">
-          {data.imagesCount && data.imagesCount > 0
-            ? data.imagesCount - 2 > 0
-              ? data.imagesCount - 2
-              : 1
-            : 1}{" "}
-          images
+        <div
+          className="absolute flex items-center justify-center font-semibold"
+          style={{ left: L(371), top: T(855), width: px(299), height: px(58), background: "#FBFAFF", color: "#7F4DC5", fontSize: px(31), letterSpacing: "0.07em" }}
+        >
+          {data.imagesCount ?? 0} {(data.imagesCount ?? 0) > 1 ? "images" : "image"}
         </div>
 
-        {/* Description du produit */}
-        <p className="text-xs text-center leading-relaxed text-gray-500 max-w-[360px] mb-4 font-normal">
-          {data.description ||
-            "Une parenthèse en images pour conserver les instants qui vous font du bien et célébrer votre équilibre au quotidien."}
-        </p>
+        {/* Description du produit (hauteur fixe, 4 lignes maximum) */}
+        <div
+          className="absolute flex items-center justify-center"
+          style={{ left: L(181), top: T(928), width: px(679), height: px(122), boxSizing: "border-box", padding: `0 ${px(24)}`, background: "#F7F1FB" }}
+        >
+          <p
+            className="w-full text-center"
+            style={{
+              margin: 0,
+              color: "#4B4B4B",
+              fontSize: px(22.5),
+              lineHeight: px(texteDescription.length > 110 ? 30 : 40),
+              whiteSpace: "pre-line",
+              overflowWrap: "anywhere",
+              textWrap: "balance",
+              overflow: "hidden",
+              display: "-webkit-box",
+              WebkitBoxOrient: "vertical",
+              WebkitLineClamp: 4,
+            } as React.CSSProperties}
+          >
+            {texteDescription}
+          </p>
+        </div>
 
         {/* Séparateur décoratif Étoile */}
-        <div className="w-full flex items-center justify-center gap-4 my-2">
-          <div className="h-[1px] flex-1 bg-gradient-to-r from-transparent via-purple-200 to-transparent" />
-          <svg
-            className="w-5 h-5 text-[#8B47FF] fill-current"
-            viewBox="0 0 24 24"
-          >
-            <path d="M12 0L14.59 9.41L24 12L14.59 14.59L12 24L9.41 14.59L0 12L9.41 9.41L12 0Z" />
-          </svg>
-          <div className="h-[1px] flex-1 bg-gradient-to-r from-transparent via-purple-200 to-transparent" />
-        </div>
+        <img
+          src="/image_Design-SOREA/DividingLinePurple.svg"
+          alt="Ligne de séparation"
+          className="absolute"
+          style={{ left: L(47), top: T(1099), width: px(922), transform: "translateY(-50%)" }}
+        />
 
         {/* Prix */}
-        <div className="my-4 text-center">
-          <span className="text-xl font-semibold text-[#8B47FF]">
-            {displayPrice} €
-          </span>
+        <div
+          className="absolute w-full text-center font-bold"
+          style={{ left: 0, top: T(1208), transform: "translateY(-50%)", paddingLeft: px(25), boxSizing: "border-box", color: "#7F4DC5", fontSize: px(50), lineHeight: 1, letterSpacing: "0.07em" }}
+        >
+          {displayPrice} €
         </div>
 
         {/* Bouton d'action / Paiement */}
         <button
           onClick={handleCheckout}
           type="button"
-          className="w-full py-4 px-6 rounded-2xl bg-[#E256B3] hover:bg-[#d647a5] active:scale-[0.99] transition-all shadow-md hover:shadow-lg text-white font-bold text-sm flex items-center justify-center gap-2 cursor-pointer"
+          className="absolute hover:opacity-95 active:scale-[0.99] transition-all flex items-center justify-center cursor-pointer font-semibold"
+          style={{
+            left: L(243.5),
+            top: T(1277),
+            width: px(554),
+            height: px(88),
+            paddingTop: px(6),
+            boxSizing: "border-box",
+            borderRadius: px(25),
+            background: "#E256B3",
+            color: "#FBFAFF",
+            fontSize: px(29.5),
+            letterSpacing: "0.08em",
+            boxShadow: `inset 0 -${px(9)} ${px(10.6)} #A84286, 0 ${px(3)} ${px(13.6)} rgba(0,0,0,0.13)`,
+          }}
         >
           <span>Débloquer ma pellicule</span>
         </button>
 
         {/* Footer Sécurisé */}
-        <span className="mt-4 text-[11px] text-gray-400 font-medium tracking-wide">
-          Paiement sécurisé
-        </span>
+        <div
+          className="absolute flex items-center"
+          style={{ left: L(347), top: T(1427), transform: "translateY(-50%)", gap: px(26) }}
+        >
+          <img src="/image_icone/ClosedPadlockG1.svg" alt="Cadenas" style={{ width: px(21), height: px(29), objectFit: "contain" }} />
+          <span style={{ color: "#7F6674", fontSize: px(25.6), letterSpacing: "0.07em", lineHeight: 1 }}>
+            Paiement sécurisé
+          </span>
+        </div>
+
+        {/* Ombre intérieure du cadre (comme dans la maquette) */}
+        <div
+          className="absolute inset-0 pointer-events-none"
+          style={{ borderRadius: px(64), boxShadow: `inset -${px(16)} -${px(20)} ${px(20)} rgba(0,0,0,0.25)` }}
+        />
+      </div>
       </div>
     </div>
   );
