@@ -67,7 +67,7 @@ async function recomputeAveragePeriodLength(userId: number): Promise<number | nu
 
 function getPhase(currentDay: number, cycleLength: number, periodLength: number) {
   // Mêmes bornes et même règle que le calendrier (MenstrualCalendar.tsx)
-  const cLength = Math.min(Math.max(Math.round(Number(cycleLength)) || 28, 20), 60);
+  const cLength = Math.min(Math.max(Math.round(Number(cycleLength)) || 28, 20), 90);
   const pLength = Math.min(Math.max(Math.round(Number(periodLength)) || 5, 1), 10);
 
   if (currentDay <= pLength) return "Hiver";
@@ -118,7 +118,7 @@ function calculateCycleInfo(
 
   const diffTime = today.getTime() - refDateMidnight.getTime();
   const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
-  const safeCycleLength = Math.min(Math.max(Math.round(Number(cycleLength)) || 28, 20), 60);
+  const safeCycleLength = Math.min(Math.max(Math.round(Number(cycleLength)) || 28, 20), 90);
   
   const currentDay = (((diffDays % safeCycleLength) + safeCycleLength) % safeCycleLength) + 1;
   const daysUntilNext = safeCycleLength - currentDay + 1;
@@ -204,9 +204,9 @@ export async function PUT(request: Request) {
     const body = await request.json();
     const { isActive, cycleLength: rawCycleLength, periodLength: rawPeriodLength, lastPeriodStartDate } = body;
 
-    // Valeurs validées : entiers dans des bornes réalistes (cycle 20-60 jours, règles 1-10 jours)
+    // Valeurs validées : entiers dans des bornes réalistes (cycle 20-90 jours, règles 1-10 jours)
     const cycleLength: number | undefined =
-      rawCycleLength !== undefined ? Math.min(Math.max(Math.round(Number(rawCycleLength)) || 28, 20), 60) : undefined;
+      rawCycleLength !== undefined ? Math.min(Math.max(Math.round(Number(rawCycleLength)) || 28, 20), 90) : undefined;
     const periodLength: number | undefined =
       rawPeriodLength !== undefined ? Math.min(Math.max(Math.round(Number(rawPeriodLength)) || 5, 1), 10) : undefined;
 

@@ -17,7 +17,7 @@ export interface CycleSettings {
 const DAY_MS = 24 * 60 * 60 * 1000;
 
 export function clampCycleLength(value: unknown): number {
-  return Math.min(Math.max(Math.round(Number(value)) || 28, 20), 60);
+  return Math.min(Math.max(Math.round(Number(value)) || 28, 20), 90);
 }
 
 export function clampPeriodLength(value: unknown): number {
@@ -114,7 +114,7 @@ export function getCyclePositionForDay(day: string, settings: CycleSettings, his
   let cycleLength = defaultCycle;
   if (next) {
     const actual = dayDiff(entry.startDate, next.startDate);
-    if (actual >= 20 && actual <= 60) cycleLength = actual;
+    if (actual >= 20 && actual <= 90) cycleLength = actual;
   }
 
   const diff = dayDiff(entry.startDate, day);

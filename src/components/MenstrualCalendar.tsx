@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { Settings, ChevronLeft, ChevronRight, X, Trash2 } from "lucide-react";
 import MenstrualFlux from "./MenstrualFlux";
-import { getCyclePositionForDay, localDay, dayDiff, type PeriodEntry } from "@/lib/cycleCalc";
+import { getCyclePositionForDay, phaseForCycleDay, localDay, dayDiff, type PeriodEntry } from "@/lib/cycleCalc";
 
 interface Profile {
   isActive: boolean;
@@ -139,7 +139,7 @@ export default function MenstrualCalendar() {
   };
 
   // Situation de l'utilisatrice (modale « Vous êtes... ») + grossesse
-  const [situation, setSituation] = useState<'reglee' | 'enceinte' | 'menopausee' | 'autres'>('reglee');
+  const [situation, setSituation] = useState<'reglee' | 'enceinte' | 'menopausee' | 'autres' | 'projet' | 'perimenopause'>('reglee');
   const [ddrGrossesse, setDdrGrossesse] = useState("");
   const [situationLoaded, setSituationLoaded] = useState(false);
   const [showPregnancyModal, setShowPregnancyModal] = useState(false);
@@ -147,10 +147,39 @@ export default function MenstrualCalendar() {
   const [dpaForm, setDpaForm] = useState("");
   const [pregnancyError, setPregnancyError] = useState("");
 
+  // Modale « Vous êtes... » : 'principal' (Réglée, Enceinte...) ou 'autres' (En projet de grossesse...)
+  const [surveyView, setSurveyView] = useState<'principal' | 'autres'>('principal');
+  useEffect(() => {
+    if (!showSurveyModal) setSurveyView('principal');
+  }, [showSurveyModal]);
+
+  // « En projet de grossesse » : tests d'ovulation positifs et rapports, mémorisés par jour
+  const [projetByDay, setProjetByDay] = useState<Record<string, { test: boolean; rapport: boolean }>>({});
+  const [projetLoaded, setProjetLoaded] = useState(false);
+
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem('sorea_projet_jour');
+      if (stored) setProjetByDay(JSON.parse(stored));
+    } catch (e) {
+      console.error(e);
+    }
+    setProjetLoaded(true);
+  }, []);
+
+  useEffect(() => {
+    if (!projetLoaded) return;
+    localStorage.setItem('sorea_projet_jour', JSON.stringify(projetByDay));
+  }, [projetByDay, projetLoaded]);
+
+  const majProjetJour = (jour: string, patch: Partial<{ test: boolean; rapport: boolean }>) => {
+    setProjetByDay((prev) => ({ ...prev, [jour]: { test: false, rapport: false, ...prev[jour], ...patch } }));
+  };
+
   useEffect(() => {
     try {
       const s = localStorage.getItem('sorea_situation_suivi');
-      if (s === 'reglee' || s === 'enceinte' || s === 'menopausee' || s === 'autres') setSituation(s);
+      if (s === 'reglee' || s === 'enceinte' || s === 'menopausee' || s === 'autres' || s === 'projet' || s === 'perimenopause') setSituation(s);
       const d = localStorage.getItem('sorea_grossesse_ddr');
       if (d) setDdrGrossesse(d);
     } catch (e) {
@@ -826,6 +855,10 @@ const active = localStorage.getItem('sorea_has_notification') === 'true' || loca
 
     const getPhaseForDate = (date: Date) => {
     if (situation === 'enceinte' || situation === 'menopausee') return null;
+    if (situation === 'perimenopause') {
+      const peri = getPerimenopauseForDay(localDay(date));
+      if (peri !== undefined) return peri ? peri.phase : null;
+    }
     // Historique réel des règles ; à défaut (ancienne réponse du serveur), on repart de la date de début connue
     let refDateStr = profile?.lastPeriodStartDate;
     if (!refDateStr && cycleInfo?.refDate) {
@@ -848,6 +881,105 @@ const active = localStorage.getItem('sorea_has_notification') === 'true' || loca
       entries
     );
     return position ? position.phase : null;
+  };
+
+  // Périménopause : cycles irréguliers → durée = médiane des derniers cycles réels, prévision en fourchette
+  const getPerimenopauseData = () => {
+    const base: string[] =
+      history.length > 0
+        ? history.map((h) => h.startDate.slice(0, 10))
+        : profile?.lastPeriodStartDate
+        ? [String(profile.lastPeriodStartDate).slice(0, 10)]
+        : cycleInfo?.refDate
+        ? [String(cycleInfo.refDate).slice(0, 10)]
+        : [];
+    if (base.length === 0) return null;
+
+    const starts = [...base].sort();
+    const longueurs: number[] = [];
+    for (let i = 1; i < starts.length; i++) {
+      const d = dayDiff(starts[i - 1], starts[i]);
+      if (d >= 15 && d <= 120) longueurs.push(d);
+    }
+    const recentes = longueurs.slice(-6);
+    const triees = [...recentes].sort((a, b) => a - b);
+    const mediane =
+      triees.length > 0
+        ? triees.length % 2
+          ? triees[(triees.length - 1) / 2]
+          : Math.round((triees[triees.length / 2 - 1] + triees[triees.length / 2]) / 2)
+        : profile?.cycleLength ?? 28;
+
+    return {
+      dernierDebut: starts[starts.length - 1],
+      mediane,
+      mini: triees.length >= 2 ? triees[0] : Math.max(15, mediane - 7),
+      maxi: triees.length >= 2 ? triees[triees.length - 1] : mediane + 7,
+      nbCycles: recentes.length,
+      periodLength: profile?.periodLength ?? 5,
+    };
+  };
+
+  // undefined = passé (calcul habituel), null = aucune phase prévisible, sinon phase + indicateur « estimée »
+  const getPerimenopauseForDay = (
+    jourStr: string
+  ): { phase: 'Hiver' | 'Printemps' | 'Été' | 'Automne'; estimated: boolean } | null | undefined => {
+    if (situation !== 'perimenopause') return undefined;
+    const d = getPerimenopauseData();
+    if (!d) return undefined;
+
+    const ecart = dayDiff(d.dernierDebut, jourStr);
+    if (ecart < 0) return undefined;
+    if (ecart < d.periodLength) return { phase: 'Hiver', estimated: false };
+    if (ecart >= d.mini && ecart <= d.maxi) return { phase: 'Hiver', estimated: true };
+    if (ecart < d.mini) {
+      return { phase: phaseForCycleDay(ecart + 1, Math.max(d.mediane, 20), d.periodLength), estimated: true };
+    }
+    return null;
+  };
+
+  // Fertilité (situation « En projet de grossesse ») : pic = ovulation -2 à 0, fenêtre fertile = ovulation -5 à +1
+  const getFertiliteForDay = (jourStr: string): 'pic' | 'fertile' | null => {
+    if (situation !== 'projet') return null;
+
+    let refDateStr = profile?.lastPeriodStartDate;
+    if (!refDateStr && cycleInfo?.refDate) refDateStr = cycleInfo.refDate;
+    const entries: PeriodEntry[] =
+      history.length > 0
+        ? history
+        : refDateStr
+        ? [{ startDate: String(refDateStr).slice(0, 10), endDate: null }]
+        : [];
+    if (entries.length === 0) return null;
+
+    const reglages = { cycleLength: profile?.cycleLength ?? 28, periodLength: profile?.periodLength ?? 5 };
+    const pos = getCyclePositionForDay(jourStr, reglages, entries);
+    if (!pos) return null;
+
+    // Même règle que cycleCalc.phaseForCycleDay pour le jour d'ovulation
+    let ov = pos.cycleLength - 14;
+    ov = Math.max(ov, pos.periodLength + 4);
+    ov = Math.min(ov, pos.cycleLength - 5);
+
+    // Premier jour du cycle qui contient ce jour (fonctionne aussi pour les cycles à venir)
+    const debutCycle = (j: string) => {
+      const p = getCyclePositionForDay(j, reglages, entries);
+      return p ? ajouterJours(j, -(p.cycleDay - 1)) : null;
+    };
+    const debut = ajouterJours(jourStr, -(pos.cycleDay - 1));
+    let ovDate = ajouterJours(debut, ov - 1);
+
+    // Un test d'ovulation positif de ce cycle recale l'ovulation (≈ 24 à 36 h plus tard)
+    const testJour = Object.keys(projetByDay)
+      .filter((j) => projetByDay[j]?.test && debutCycle(j) === debut)
+      .sort()
+      .pop();
+    if (testJour) ovDate = ajouterJours(testJour, 1);
+
+    const ecart = dayDiff(ovDate, jourStr);
+    if (ecart >= -2 && ecart <= 0) return 'pic';
+    if (ecart >= -5 && ecart <= 1) return 'fertile';
+    return null;
   };
 
   const renderCalendar = () => {
@@ -954,11 +1086,33 @@ const isTodayWithNotification = isToday && hasNotif;
           >
             {day}
           </span>
-          {iconVisible}
+          {situation === 'perimenopause' && getPerimenopauseForDay(dateKey)?.estimated ? (
+            <span className="opacity-50">{iconVisible}</span>
+          ) : (
+            iconVisible
+          )}
+          {profile?.isActive && activeTab === 'calendar' && phaseVisible && getFertiliteForDay(dateKey) && (
+            <span
+              title={getFertiliteForDay(dateKey) === 'pic' ? 'Pic de fertilité' : 'Fenêtre fertile'}
+              className={`absolute bottom-1.5 left-1.5 rounded-full ${
+                getFertiliteForDay(dateKey) === 'pic'
+                  ? 'w-3 h-3 bg-[#00B8B3] ring-2 ring-[#B7F8F5]'
+                  : 'w-2.5 h-2.5 bg-[#B7F8F5]'
+              }`}
+            />
+          )}
           {grossesseJour && activeTab === 'calendar' && phaseVisible && (
-            <span className="absolute bottom-1 right-1 text-[10px] font-bold text-[#E256B3]">
-              {situation === 'enceinte' && ddrGrossesse && dateKey === ajouterJours(ddrGrossesse, 280) ? '👶' : `T${grossesseJour.trimestre}`}
-            </span>
+            situation === 'enceinte' && ddrGrossesse && dateKey === ajouterJours(ddrGrossesse, 280) ? (
+              <img
+                src="/image_icone/Baby.svg"
+                alt="Terme prévu"
+                className="w-6 h-6 absolute bottom-1 right-1 object-contain"
+              />
+            ) : (
+              <span className="absolute bottom-1 right-1.5 font-bold leading-none text-[14px] text-[#E256B3]">
+                {`T${grossesseJour.trimestre}`}
+              </span>
+            )
           )}
         </div>
       );
@@ -1234,6 +1388,63 @@ return (
             </div>
           )}
 
+        </div>
+      )}
+
+      {/* BANDEAU PÉRIMÉNOPAUSE : fourchette des prochaines règles + règle des 12 mois */}
+      {activeTab === 'calendar' && situation === 'perimenopause' && (() => {
+        const d = getPerimenopauseData();
+        if (!d) return null;
+        const jours = dayDiff(d.dernierDebut, localDay(new Date()));
+        const fmt = (j: string) =>
+          new Date(j + 'T00:00:00').toLocaleDateString("fr-FR", { day: 'numeric', month: 'long' });
+        return (
+          <div className="w-full mb-6 p-5 rounded-2xl border border-[#E256B3] bg-white text-sm text-gray-800 leading-relaxed">
+            <p className="font-bold text-[#7F4DC5] mb-1">Périménopause : des cycles qui varient, c'est normal</p>
+            {jours >= 0 && <p>Jour {jours + 1} depuis le début de tes dernières règles.</p>}
+            {jours <= d.maxi ? (
+              <p>
+                Prochaines règles attendues entre le {fmt(ajouterJours(d.dernierDebut, d.mini))} et le{" "}
+                {fmt(ajouterJours(d.dernierDebut, d.maxi))}{" "}
+                {d.nbCycles < 2
+                  ? "(estimation large : enregistre tes prochaines règles pour l'affiner)."
+                  : `(d'après tes ${d.nbCycles} derniers cycles).`}
+              </p>
+            ) : (
+              <p>
+                Tes règles ont dépassé la fourchette prévue de {jours - d.maxi} jour(s) : en périménopause, un cycle peut
+                s'allonger ou être sauté. Dès qu'elles reviennent, clique sur « Mes règles ont commencé aujourd'hui »
+                dans l'onglet « Paramètre » du jour.
+              </p>
+            )}
+            {jours >= 365 && (
+              <div className="mt-3">
+                <p className="font-semibold">Cela fait plus de 12 mois sans règles : tu es peut-être ménopausée.</p>
+                <button
+                  type="button"
+                  onClick={() => choisirSituation('menopausee')}
+                  className="mt-2 px-4 py-2 rounded-xl border border-[#8B47FF] text-[#8B47FF] font-semibold hover:bg-[#F4EBFF] transition-all cursor-pointer"
+                >
+                  Passer en Ménopausée
+                </button>
+              </div>
+            )}
+          </div>
+        );
+      })()}
+
+      {/* LÉGENDE « EN PROJET DE GROSSESSE » */}
+      {activeTab === 'calendar' && situation === 'projet' && (
+        <div className="w-full mb-6 flex flex-wrap items-center gap-x-6 gap-y-2 text-sm text-gray-800">
+          <span className="flex items-center gap-2">
+            <span className="inline-block w-2.5 h-2.5 rounded-full bg-[#B7F8F5]" /> Fenêtre fertile
+          </span>
+          <span className="flex items-center gap-2">
+            <span className="inline-block w-3 h-3 rounded-full bg-[#00B8B3] ring-2 ring-[#B7F8F5]" /> Pic de fertilité
+          </span>
+          <span className="w-full text-xs text-gray-500">
+            Estimations d'après ton cycle : elles ne constituent pas une contraception.
+          </span>
         </div>
       )}
 
@@ -1573,6 +1784,11 @@ return (
                     Semaine {infosGrossesse(localDay(selectedDate))!.semaines} · Trimestre {infosGrossesse(localDay(selectedDate))!.trimestre}
                   </p>
                 )}
+                {situation === 'projet' && getFertiliteForDay(localDay(selectedDate)) && (
+                  <p className="text-sm font-semibold text-[#00B8B3] mt-1">
+                    {getFertiliteForDay(localDay(selectedDate)) === 'pic' ? 'Pic de fertilité' : 'Fenêtre fertile'}
+                  </p>
+                )}
               </div>
               <button
                 onClick={() => setSelectedDate(null)}
@@ -1810,7 +2026,7 @@ return (
                     category: "Corps",
                     items: ["Rétention d'eau", "Jambes lourdes", "Gonflement abdominal", "Prise de poids temporaire", "Seins gonfiés", "Ventre dur"]
                   },
-                  ...(situation === 'menopausee' ? [CATEGORIE_MENOPAUSE] : situation === 'enceinte' ? [CATEGORIE_GROSSESSE] : [])
+                  ...(situation === 'menopausee' || situation === 'perimenopause' ? [CATEGORIE_MENOPAUSE] : situation === 'enceinte' ? [CATEGORIE_GROSSESSE] : [])
                 ];
 
                 const rows = [];
@@ -2118,6 +2334,42 @@ return (
                   >
                     Je ne les ai plus
                   </button>
+                  {situation === 'projet' && (
+                    <>
+                      <button
+                        type="button"
+                        disabled={isFutureDate}
+                        onClick={() =>
+                          majProjetJour(localDay(selectedDate), { test: !projetByDay[localDay(selectedDate)]?.test })
+                        }
+                        className={`p-4 rounded-2xl border text-sm font-semibold transition-all text-center shadow-sm ${
+                          isFutureDate
+                            ? 'border-gray-200 bg-gray-50 text-gray-300 cursor-default select-none'
+                            : projetByDay[localDay(selectedDate)]?.test
+                            ? 'border-[#8B47FF] bg-[#C4B5FD]/40 text-purple-950 cursor-pointer'
+                            : 'border-gray-300 bg-white hover:border-[#8B47FF] text-gray-800 cursor-pointer'
+                        }`}
+                      >
+                        Test d'ovulation positif
+                      </button>
+                      <button
+                        type="button"
+                        disabled={isFutureDate}
+                        onClick={() =>
+                          majProjetJour(localDay(selectedDate), { rapport: !projetByDay[localDay(selectedDate)]?.rapport })
+                        }
+                        className={`p-4 rounded-2xl border text-sm font-semibold transition-all text-center shadow-sm ${
+                          isFutureDate
+                            ? 'border-gray-200 bg-gray-50 text-gray-300 cursor-default select-none'
+                            : projetByDay[localDay(selectedDate)]?.rapport
+                            ? 'border-[#8B47FF] bg-[#C4B5FD]/40 text-purple-950 cursor-pointer'
+                            : 'border-gray-300 bg-white hover:border-[#8B47FF] text-gray-800 cursor-pointer'
+                        }`}
+                      >
+                        Rapport
+                      </button>
+                    </>
+                  )}
                   <div className="sm:col-span-2 p-4 rounded-2xl border border-gray-300 bg-white">
                     <input
                       type="text"
@@ -2172,7 +2424,7 @@ return (
                     category: "Corps",
                     items: ["Rétention d'eau", "Jambes lourdes", "Gonflement abdominal", "Prise de poids temporaire", "Seins gonfiés", "Ventre dur"]
                   },
-                  ...(situation === 'menopausee' ? [CATEGORIE_MENOPAUSE] : situation === 'enceinte' ? [CATEGORIE_GROSSESSE] : [])
+                  ...(situation === 'menopausee' || situation === 'perimenopause' ? [CATEGORIE_MENOPAUSE] : situation === 'enceinte' ? [CATEGORIE_GROSSESSE] : [])
                 ];
 
                 return (
@@ -2547,7 +2799,7 @@ return (
             </button>
             <h3 className="text-2xl font-bold mb-8 text-[#7F4DC5] text-center font-boska">Vous êtes...</h3>
             
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
+            <div className={`grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8 ${surveyView === 'principal' ? '' : 'hidden'}`}>
               <button
                 type="button"
                 onClick={() => {
@@ -2575,12 +2827,53 @@ return (
               </button>
               <button
                 type="button"
-                onClick={() => choisirSituation('autres')}
+                onClick={() => setSurveyView('autres')}
                 className="p-5 rounded-xl border-2 border-[#8B47FF] bg-white text-black font-semibold text-base hover:bg-[#F4EBFF] transition-all cursor-pointer text-center shadow-sm"
               >
                 Autres
               </button>
             </div>
+
+            {/* Seconde vue : s'affiche après un clic sur « Autres » (boutons pas encore fonctionnels) */}
+            {surveyView === 'autres' && (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSituation('projet');
+                    setShowSurveyModal(false);
+                    setShowSettings(true); // même parcours que « Réglée » : on renseigne le début des dernières règles
+                  }}
+                  className="p-5 rounded-xl border-2 border-[#8B47FF] bg-white text-black font-semibold text-base hover:bg-[#F4EBFF] transition-all cursor-pointer text-center shadow-sm"
+                >
+                  En projet de grossesse
+                </button>
+                <button
+                  type="button"
+                  className="p-5 rounded-xl border-2 border-[#8B47FF] bg-white text-black font-semibold text-base hover:bg-[#F4EBFF] transition-all cursor-pointer text-center shadow-sm"
+                >
+                  post-partum / Allaitante
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSituation('perimenopause');
+                    setShowSurveyModal(false);
+                    setShowSettings(true); // même parcours que « Réglée » : on renseigne le début des dernières règles
+                  }}
+                  className="p-5 rounded-xl border-2 border-[#8B47FF] bg-white text-black font-semibold text-base hover:bg-[#F4EBFF] transition-all cursor-pointer text-center shadow-sm"
+                >
+                  Périménopausée
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setSurveyView('principal')}
+                  className="p-5 rounded-xl border-2 border-[#8B47FF] bg-white text-black font-semibold text-base hover:bg-[#F4EBFF] transition-all cursor-pointer text-center shadow-sm"
+                >
+                  Autres
+                </button>
+              </div>
+            )}
           </div>
         </div>
       )}
