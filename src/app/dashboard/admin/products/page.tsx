@@ -25,6 +25,7 @@ interface AffirmationCard {
   text: string;
   price?: number;
   isSent?: boolean;
+  description?: string;
 }
 
 export default function AdminProductsPage() {
@@ -356,10 +357,10 @@ export default function AdminProductsPage() {
     }
 
     if (editingAffirmationId) {
-      setAffirmations(affirmations.map(item => item.id === editingAffirmationId ? { ...item, title: currentAffirmationTitle, text: currentAffirmationText, price: priceNum } : item));
+      setAffirmations(affirmations.map(item => item.id === editingAffirmationId ? { ...item, title: currentAffirmationTitle, text: currentAffirmationText, price: priceNum, description: currentAffirmationDescription } : item));
       setEditingAffirmationId(null);
     } else {
-      setAffirmations([...affirmations, { id: Date.now().toString(), title: currentAffirmationTitle, text: currentAffirmationText, price: priceNum }]);
+      setAffirmations([...affirmations, { id: Date.now().toString(), title: currentAffirmationTitle, text: currentAffirmationText, price: priceNum, description: currentAffirmationDescription }]);
     }
 
     setCurrentAffirmationTitle("");
@@ -374,6 +375,7 @@ export default function AdminProductsPage() {
     setEditingAffirmationId(null);
     setCurrentAffirmationTitle(`${card.title || ""} (Copie)`);
     setCurrentAffirmationText(card.text);
+    setCurrentAffirmationDescription(card.description || "");
     setCurrentAffirmationPrice(card.price ? card.price.toString() : "0.95");
     card.isSent = false;
     setIsAddingAffirmation(true);

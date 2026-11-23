@@ -720,11 +720,12 @@ export default function AffirmationGallery({
           data={{
             id: selectedBoutiqueCard.id,
             title: selectedBoutiqueCard.title,
-            quotes: selectedBoutiqueCard.text ? selectedBoutiqueCard.text.split("\n").filter((l: string) => l.trim().length > 0).slice(0, 2) : [],
+            quotes: selectedBoutiqueCard.text ? selectedBoutiqueCard.text.split("\n").filter((l: string) => l.trim().length > 0).slice(0, 3) : [],
             totalQuotesCount: selectedBoutiqueCard.text ? selectedBoutiqueCard.text.split("\n").filter((l: string) => l.trim().length > 0).length : 1,
             description: selectedBoutiqueCard.description || "Un ensemble d'affirmations puissantes pour votre quotidien.",
             price: selectedBoutiqueCard.price || 0.95,
             imageUrl: selectedBoutiqueCard.imageUrl || "/image_Design-SOREA/PaiementAffirmation.svg",
+            isFavorite: isBoutiqueFavori(selectedBoutiqueCard.id),
           }}
         />
       )}
