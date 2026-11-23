@@ -78,6 +78,10 @@ export default function AffirmationGallery({
     });
   };
 
+  // Une carte de la boutique n'est favorite que si son id ne se confond pas avec celui d'une carte de la galerie
+  const isBoutiqueFavori = (id: string) =>
+    favoriteId === id && !affirmations.some((a) => a.id === id);
+
   const [boutiqueCards, setBoutiqueCards] = React.useState<AffirmationCard[]>(() => {
     if (typeof window !== "undefined") {
       const saved = localStorage.getItem("sorea_affirmations_boutique");
@@ -366,14 +370,14 @@ export default function AffirmationGallery({
                             type="button"
                             onClick={(e) => toggleFavorite(card.id, e)}
                             className={`transition-opacity cursor-pointer ${
-                              favoriteId === card.id
+                              isBoutiqueFavori(card.id)
                                 ? "opacity-100"
                                 : "opacity-0 group-hover:opacity-100"
                             }`}
                           >
                             <img
                               src={
-                                favoriteId === card.id
+                                isBoutiqueFavori(card.id)
                                   ? "/image_icone/FavoritesYes.svg"
                                   : "/image_icone/FavoritesNo.svg"
                               }
@@ -638,14 +642,14 @@ export default function AffirmationGallery({
                             type="button"
                             onClick={(e) => toggleFavorite(card.id, e)}
                             className={`transition-opacity cursor-pointer ${
-                              favoriteId === card.id
+                              isBoutiqueFavori(card.id)
                                 ? "opacity-100"
                                 : "opacity-0 group-hover:opacity-100"
                             }`}
                           >
                             <img
                               src={
-                                favoriteId === card.id
+                                isBoutiqueFavori(card.id)
                                   ? "/image_icone/FavoritesYes.svg"
                                   : "/image_icone/FavoritesNo.svg"
                               }
