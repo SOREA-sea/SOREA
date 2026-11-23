@@ -66,6 +66,8 @@ model User {
   symptomLogs      SymptomLog[]
   periodHistories  PeriodHistory[]
   vibeNews         VibeNews[]
+  purchasedShopProducts ShopProduct[] @relation("ShopProductBuyer")
+  purchasedGameProducts GameProduct[] @relation("GameProductBuyer")
 
 }
 
@@ -159,6 +161,10 @@ model ShopProduct {
   orderItems       OrderItem[]
   supplierId       Int?
   supplier         Supplier?         @relation(fields: [supplierId], references: [id], onDelete: Cascade)
+  buyerId          Int?
+  buyer            User?             @relation("ShopProductBuyer", fields: [buyerId], references: [id], onDelete: SetNull)
+  buyerFirstName   String?
+  buyerLastName    String?
 }
 
 model GameProduct {
@@ -172,6 +178,10 @@ model GameProduct {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
+  buyerId          Int?
+  buyer            User?                 @relation("GameProductBuyer", fields: [buyerId], references: [id], onDelete: SetNull)
+  buyerFirstName   String?
+  buyerLastName    String?
   cartItems        GameCartItem[]
   favoriteProducts GameFavoriteProduct[]
   orderItems       GameOrderItem[]
@@ -352,6 +362,8 @@ model Payment {
   stripeId             String?  @unique
   commissionPercentage Float?
   userId               Int
+  customerFirstName    String?
+  customerLastName     String?
   createdAt            DateTime @default(now())
   updatedAt            DateTime @updatedAt
 

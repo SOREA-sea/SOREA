@@ -562,6 +562,17 @@ export default function WheelSpinnerBienEtre({ mode = "default", onOpenPayment }
   const [raisonPersonnalisee, setRaisonPersonnalisee] = useState("");
   const [modePasEnParler, setModePasEnParler] = useState(false);
 
+  // Mesures utilisées quand le formulaire « Je ne peux pas réaliser ce défi » remplace la carte du défi
+  const carteRef = useRef<HTMLDivElement>(null);
+  const colonneRef = useRef<HTMLDivElement>(null);
+  const [hauteurCarte, setHauteurCarte] = useState(0);
+  const [hauteurColonne, setHauteurColonne] = useState(0);
+  const ouvrirFormulaireRefus = () => {
+    setHauteurCarte(carteRef.current?.offsetHeight ?? 0);
+    setHauteurColonne(colonneRef.current?.offsetHeight ?? 0);
+    setChoixUtilisateur('non');
+  };
+
   // Vérification de la persistance du défi (état d'attente infini, ou verrouillage 24h après validation)
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -943,11 +954,12 @@ export default function WheelSpinnerBienEtre({ mode = "default", onOpenPayment }
       </div>
 
       {/* COLONNE DROITE : CARTE DÉFI + BOUTONS D'ACTION EN DESSOUS */}
-      <div className={`flex flex-col gap-[16px] w-[320px] ml-[130px] mt-[70px] transition-all duration-[600ms] ease-[cubic-bezier(0.16,1,0.3,1)] ${afficherFenetreResultat ? 'opacity-100 translate-x-0 pointer-events-auto' : 'opacity-0 translate-x-[40px] pointer-events-none'}`}>
+      <div ref={colonneRef} style={choixUtilisateur === 'non' ? { minHeight: hauteurColonne } : undefined} className={`flex flex-col gap-[16px] w-[320px] ml-[130px] mt-[70px] transition-all duration-[600ms] ease-[cubic-bezier(0.16,1,0.3,1)] ${afficherFenetreResultat ? 'opacity-100 translate-x-0 pointer-events-auto' : 'opacity-0 translate-x-[40px] pointer-events-none'}`}>
         
         {/* LA CARTE DE DÉFI */}
         <div
-          className="w-full rounded-[24px] p-[30px_24px] shadow-[0px_10px_30px_rgba(0,0,0,0.05)] flex flex-col"
+          ref={carteRef}
+          className={`w-full rounded-[24px] p-[30px_24px] shadow-[0px_10px_30px_rgba(0,0,0,0.05)] flex-col ${choixUtilisateur === 'non' ? 'hidden' : 'flex'}`}
           style={{ 
             backgroundColor: theme.bgCarte, 
             backgroundImage: `url("data:image/svg+xml,%3csvg width='100%25' height='100%25' xmlns='http://www.w3.org/2000/svg'%3e%3crect width='100%25' height='100%25' fill='none' rx='24' ry='24' stroke='%237F4DC5' stroke-width='2' stroke-dasharray='10%2c 20'/%3e%3c/svg%3e")` 
@@ -1005,7 +1017,10 @@ export default function WheelSpinnerBienEtre({ mode = "default", onOpenPayment }
         </div>
 
         {/* LES BOUTONS D'ACTION (PLACÉS JUSTE EN DESSOUS) */}
-        <div className="flex flex-col gap-[12px] w-full">
+        <div
+          className="flex flex-col gap-[12px] w-full justify-center"
+          style={choixUtilisateur === 'non' ? { minHeight: hauteurCarte } : undefined}
+        >
           {choixUtilisateur === 'attente' && (
             <>
               <button
@@ -1074,7 +1089,7 @@ export default function WheelSpinnerBienEtre({ mode = "default", onOpenPayment }
                 C'est parti !
               </button>
               <button
-                onClick={() => setChoixUtilisateur('non')}
+                onClick={ouvrirFormulaireRefus}
                 className="p-[16px] bg-[#B9B2B9] text-[#333] rounded-[8px] text-[15px] font-[600] shadow-[0px_4px_10px_rgba(0,0,0,0.05)] hover:bg-[#a59fa5] hover:-translate-y-[2px] transition-all border-none cursor-pointer w-full text-center"
               >
                 Je ne peux pas le faire

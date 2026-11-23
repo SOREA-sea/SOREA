@@ -137,6 +137,8 @@ export default async function AdminOverviewPage() {
       value: `${totalRevenue.toFixed(2)} €`,
       sub: `${totalTransactionsCount} transactions`,
       color: "bg-amber-100 text-amber-600",
+      // Lien vers Prisma Studio, uniquement en développement (inutile et inaccessible en production)
+      href: process.env.NODE_ENV === "development" ? "http://localhost:5555" : undefined,
       icon: (
         <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -163,9 +165,12 @@ export default async function AdminOverviewPage() {
       {/* Stats cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
         {stats.map((stat) => (
-          <div
+          <a
             key={stat.label}
-            className="glass-panel rounded-3xl p-6 hover:shadow-lg transition-all"
+            href={stat.href}
+            target={stat.href ? "_blank" : undefined}
+            rel={stat.href ? "noopener noreferrer" : undefined}
+            className={`glass-panel rounded-3xl p-6 hover:shadow-lg transition-all block ${stat.href ? "cursor-pointer hover:scale-[1.01]" : ""}`}
           >
             <div className="flex items-center gap-4">
               <div className={`w-14 h-14 rounded-2xl flex items-center justify-center ${stat.color}`}>
@@ -177,7 +182,10 @@ export default async function AdminOverviewPage() {
               </div>
             </div>
             <p className="text-foreground/40 text-xs mt-3">{stat.sub}</p>
-          </div>
+            {stat.href && (
+              <p className="text-amber-600 text-xs font-semibold mt-1">Ouvrir la base de données →</p>
+            )}
+          </a>
         ))}
       </div>
 

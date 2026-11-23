@@ -9,9 +9,10 @@ import { getFavoriWheel, WheelCategory } from "@/lib/favorites-store";
 
 export default function RouteDesDefis() {
   const [showInstructions, setShowInstructions] = useState(true);
+  const [survol, setSurvol] = useState<'nutrition' | 'bienetre' | 'sport' | null>(null);
 
-  const isNutritionLocked = true; // Mets à false si tu souhaites déverrouiller la carte
-  const isSportLocked = true; // Pareil, Mets à false si tu souhaites déverrouiller la carte
+  const isNutritionLocked = false; // Mets à false si tu souhaites déverrouiller la carte
+  const isSportLocked = false; // Pareil, Mets à false si tu souhaites déverrouiller la carte
 
   const [themeBienEtre, setThemeBienEtre] = useState<'pastel' | 'pop'>('pastel');
   const [themeSport, setThemeSport] = useState<'pastel' | 'pop'>('pastel');
@@ -126,11 +127,22 @@ export default function RouteDesDefis() {
                 <Link 
                   href={isNutritionLocked ? "#" : "/Wheel-Spinner/Nutrition"}
                   onClick={(e) => isNutritionLocked && e.preventDefault()}
+                  onMouseEnter={() => setSurvol('nutrition')}
+                  onMouseLeave={() => setSurvol(null)}
                   className={`relative flex flex-col items-center justify-center p-8 w-[300px] h-[260px] transition-all duration-300 overflow-hidden group ${
                     isNutritionLocked ? "cursor-default" : "cursor-pointer"
                   }`}
-                  style={{ background: "linear-gradient(to bottom, #F4C4E4 0%, rgba(244, 196, 228, 0.1) 100%)" }}
+                  style={{ isolation: 'isolate' }}
                 >
+                  {/* Fond coloré visible uniquement au survol */}
+                  <div
+                    className="absolute inset-0 z-0 pointer-events-none"
+                    style={{
+                      background: "linear-gradient(to bottom, #F4C4E4 0%, rgba(244, 196, 228, 0.1) 100%)",
+                      clipPath: survol === 'nutrition' ? 'inset(0% 0% 0% 0%)' : 'inset(100% 0% 0% 0%)',
+                      transition: 'clip-path 300ms ease-out',
+                    }}
+                  />
                   {isNutritionLocked && (
                     <div className="absolute inset-0 bg-black/10 backdrop-grayscale backdrop-blur-[1px] z-20 flex flex-col items-center justify-center">
                       <img src="/image_icone/ClosedPadlockWhite.svg" alt="Cadenas" className="w-10 h-10 drop-shadow-md" />
@@ -146,17 +158,28 @@ export default function RouteDesDefis() {
                       className="absolute top-4 right-4 w-6 h-6 object-contain" 
                     />
                   )}
-                  <h2 className="text-3xl font-bold text-center text-[#5A37AC] pb-5">Nutrition</h2>
-                  <img src={themeNutrition === 'pop' ? "/image_Design-SOREA/image_Wheel-Spinner/WS_Nutrition2.svg" : "/image_Design-SOREA/image_Wheel-Spinner/WS_Nutrition1.svg"} alt="Wheel-Spinner Nutrition" className="mb-4 transition-all duration-300" />
-                  <span className="text-sm text-gray-500 text-center">Défis sains et gourmands</span>
+                  <h2 className="relative z-10 text-3xl font-bold text-center text-[#5A37AC] pb-5">Nutrition</h2>
+                  <img src={themeNutrition === 'pop' ? "/image_Design-SOREA/image_Wheel-Spinner/WS_Nutrition2.svg" : "/image_Design-SOREA/image_Wheel-Spinner/WS_Nutrition1.svg"} alt="Wheel-Spinner Nutrition" className="relative z-10 mb-4 transition-all duration-300" />
+                  <span className="relative z-10 text-sm text-gray-500 text-center">Défis sains et gourmands</span>
                 </Link>
 
          {/* BIEN-ÊTRE */}
                 <Link 
                   href="/Wheel-Spinner/BienEtre"
-                  className="relative flex flex-col items-center justify-center p-8 w-[300px] h-[260px] cursor-pointer transition-all duration-300"
-                  style={{ background: "linear-gradient(to bottom, #C0ACFF 0%, rgba(192, 172, 255, 0.1) 100%)" }}
+                  onMouseEnter={() => setSurvol('bienetre')}
+                  onMouseLeave={() => setSurvol(null)}
+                  className="relative flex flex-col items-center justify-center p-8 w-[300px] h-[260px] cursor-pointer transition-all duration-300 overflow-hidden group"
+                  style={{ isolation: 'isolate' }}
                 >
+                  {/* Fond coloré visible uniquement au survol */}
+                  <div
+                    className="absolute inset-0 z-0 pointer-events-none"
+                    style={{
+                      background: "linear-gradient(to bottom, #C0ACFF 0%, rgba(192, 172, 255, 0.1) 100%)",
+                      clipPath: survol === 'bienetre' ? 'inset(0% 0% 0% 0%)' : 'inset(100% 0% 0% 0%)',
+                      transition: 'clip-path 300ms ease-out',
+                    }}
+                  />
                   {favoriWheel === "bien-etre" && (
                     <img 
                       src="/image_icone/FavoritesYes.svg" 
@@ -164,23 +187,34 @@ export default function RouteDesDefis() {
                       className="absolute top-4 right-4 w-6 h-6 object-contain" 
                     />
                   )}
-                  <h2 className="text-3xl font-bold text-center text-[#5A37AC] pb-5">Bien-être</h2>
+                  <h2 className="relative z-10 text-3xl font-bold text-center text-[#5A37AC] pb-5">Bien-être</h2>
                   <img src={themeBienEtre === 'pop' ? "/image_Design-SOREA/image_Wheel-Spinner/WS_Bien-être2.svg" : "/image_Design-SOREA/image_Wheel-Spinner/WS_Bien-être1.svg"} 
                     alt="Wheel-Spinner Bien-être" 
-                    className="mb-4 transition-all duration-300" 
+                    className="relative z-10 mb-4 transition-all duration-300" 
                   />
-                  <span className="text-sm text-gray-500 text-center">Recentrage et positivité</span>
+                  <span className="relative z-10 text-sm text-gray-500 text-center">Recentrage et positivité</span>
                 </Link>
 
           {/* SPORT */}
                <Link 
                   href={isSportLocked ? "#" : "/Wheel-Spinner/Sport"}
                   onClick={(e) => isSportLocked && e.preventDefault()}
+                  onMouseEnter={() => setSurvol('sport')}
+                  onMouseLeave={() => setSurvol(null)}
                   className={`relative flex flex-col items-center justify-center p-8 w-[300px] h-[260px] transition-all duration-300 overflow-hidden group ${
                     isSportLocked ? "cursor-default" : "cursor-pointer"
                   }`}
-                  style={{ background: "linear-gradient(to bottom, #B7F8F5 0%, rgba(183, 248, 245, 0.1) 100%)" }}
+                  style={{ isolation: 'isolate' }}
                 >
+                  {/* Fond coloré visible uniquement au survol */}
+                  <div
+                    className="absolute inset-0 z-0 pointer-events-none"
+                    style={{
+                      background: "linear-gradient(to bottom, #B7F8F5 0%, rgba(183, 248, 245, 0.1) 100%)",
+                      clipPath: survol === 'sport' ? 'inset(0% 0% 0% 0%)' : 'inset(100% 0% 0% 0%)',
+                      transition: 'clip-path 300ms ease-out',
+                    }}
+                  />
                   {isSportLocked && (
                     <div className="absolute inset-0 bg-black/10 backdrop-grayscale backdrop-blur-[1px] z-20 flex flex-col items-center justify-center">
                       <img src="/image_icone/ClosedPadlockWhite.svg" alt="Cadenas" className="w-10 h-10 drop-shadow-md" />
@@ -196,9 +230,9 @@ export default function RouteDesDefis() {
                       className="absolute top-4 right-4 w-6 h-6 object-contain" 
                     />
                   )}
-                  <h2 className="text-3xl font-bold text-center text-[#5A37AC] pb-5">Sport</h2>
-                  <img src={themeSport === 'pop' ? "/image_Design-SOREA/image_Wheel-Spinner/WS_Sport2.svg" : "/image_Design-SOREA/image_Wheel-Spinner/WS_Sport1.svg"} alt="Wheel-Spinner Sport" className="mb-4 transition-all duration-300" />
-                  <span className="text-sm text-gray-500 text-center">Bouge et dépense-toi</span>
+                  <h2 className="relative z-10 text-3xl font-bold text-center text-[#5A37AC] pb-5">Sport</h2>
+                  <img src={themeSport === 'pop' ? "/image_Design-SOREA/image_Wheel-Spinner/WS_Sport2.svg" : "/image_Design-SOREA/image_Wheel-Spinner/WS_Sport1.svg"} alt="Wheel-Spinner Sport" className="relative z-10 mb-4 transition-all duration-300" />
+                  <span className="relative z-10 text-sm text-gray-500 text-center">Bouge et dépense-toi</span>
                 </Link>
 
               </div>

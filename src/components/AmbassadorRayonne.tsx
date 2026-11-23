@@ -43,7 +43,7 @@ export default function RayonneSection() {
           <div className="flex flex-col gap-4 w-full max-w-md">
             <div className="flex items-center gap-4">
               <Image
-                src="/image_LandingPage/LotusTiret.svg"
+                src="/image_icone/LotusPuce.svg"
                 alt="Lotus"
                 width={24}
                 height={24}
@@ -56,7 +56,7 @@ export default function RayonneSection() {
 
             <div className="flex items-center gap-4">
               <Image
-                src="/image_LandingPage/LotusTiret.svg"
+                src="/image_icone/LotusPuce.svg"
                 alt="Lotus"
                 width={24}
                 height={24}
@@ -69,7 +69,7 @@ export default function RayonneSection() {
 
             <div className="flex items-center gap-4">
               <Image
-                src="/image_LandingPage/LotusTiret.svg"
+                src="/image_icone/LotusPuce.svg"
                 alt="Lotus"
                 width={24}
                 height={24}
@@ -82,7 +82,7 @@ export default function RayonneSection() {
 
             <div className="flex items-center gap-4">
               <Image
-                src="/image_LandingPage/LotusTiret.svg"
+                src="/image_icone/LotusPuce.svg"
                 alt="Lotus"
                 width={24}
                 height={24}
@@ -95,7 +95,7 @@ export default function RayonneSection() {
 
             <div className="flex items-center gap-4">
               <Image
-                src="/image_LandingPage/LotusTiret.svg"
+                src="/image_icone/LotusPuce.svg"
                 alt="Lotus"
                 width={24}
                 height={24}
