@@ -52,6 +52,16 @@ const NEGATIVE_MOODS = [
   "Léthargie", "Somnolente", "Stressée", "Triste"
 ];
 
+// Symptômes propres à chaque situation (ajoutés aux catégories habituelles)
+const CATEGORIE_MENOPAUSE = {
+  category: "Ménopause",
+  items: ["Bouffées de chaleur", "Sueurs nocturnes", "Troubles du sommeil", "Palpitations", "Sécheresse vaginale", "Baisse de libido", "Brouillard mental", "Douleurs articulaires", "Prise de poids", "Irritabilité"]
+};
+const CATEGORIE_GROSSESSE = {
+  category: "Grossesse",
+  items: ["Nausées matinales", "Fatigue intense", "Mouvements du bébé", "Contractions", "Reflux gastrique", "Jambes lourdes", "Douleurs ligamentaires", "Vergetures", "Essoufflement", "Envies alimentaires", "Crampes aux mollets"]
+};
+
 export default function MenstrualCalendar() {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [cycleInfo, setCycleInfo] = useState<CycleInfo | null>(null);
@@ -126,6 +136,132 @@ export default function MenstrualCalendar() {
 
   const majParametreJour = (jour: string, patch: Partial<{ absent: boolean; note: string }>) => {
     setRectifierByDay((prev) => ({ ...prev, [jour]: { absent: false, note: "", ...prev[jour], ...patch } }));
+  };
+
+  // Situation de l'utilisatrice (modale « Vous êtes... ») + grossesse
+  const [situation, setSituation] = useState<'reglee' | 'enceinte' | 'menopausee' | 'autres'>('reglee');
+  const [ddrGrossesse, setDdrGrossesse] = useState("");
+  const [situationLoaded, setSituationLoaded] = useState(false);
+  const [showPregnancyModal, setShowPregnancyModal] = useState(false);
+  const [ddrForm, setDdrForm] = useState("");
+  const [dpaForm, setDpaForm] = useState("");
+  const [pregnancyError, setPregnancyError] = useState("");
+
+  useEffect(() => {
+    try {
+      const s = localStorage.getItem('sorea_situation_suivi');
+      if (s === 'reglee' || s === 'enceinte' || s === 'menopausee' || s === 'autres') setSituation(s);
+      const d = localStorage.getItem('sorea_grossesse_ddr');
+      if (d) setDdrGrossesse(d);
+    } catch (e) {
+      console.error(e);
+    }
+    setSituationLoaded(true);
+  }, []);
+
+  useEffect(() => {
+    if (!situationLoaded) return;
+    localStorage.setItem('sorea_situation_suivi', situation);
+    localStorage.setItem('sorea_grossesse_ddr', ddrGrossesse);
+  }, [situation, ddrGrossesse, situationLoaded]);
+
+  // Ajoute n jours à une date « AAAA-MM-JJ » (sans décalage de fuseau)
+  const ajouterJours = (jourStr: string, n: number) => {
+    const [y, m, d] = jourStr.split('-').map(Number);
+    return new Date(Date.UTC(y, m - 1, d + n)).toISOString().slice(0, 10);
+  };
+
+  // Semaine d'aménorrhée (SA), trimestre et jours restants pour un jour donné (null si hors grossesse)
+  const infosGrossesse = (jourStr: string) => {
+    if (situation !== 'enceinte' || !ddrGrossesse) return null;
+    const jours = dayDiff(ddrGrossesse, jourStr);
+    if (jours < 0 || jours > 294) return null;
+    return {
+      semaines: Math.floor(jours / 7),
+      trimestre: jours < 98 ? 1 : jours < 196 ? 2 : 3,
+      joursRestants: Math.max(0, dayDiff(jourStr, ajouterJours(ddrGrossesse, 280))),
+    };
+  };
+
+  // Choix « Enceinte » / « Ménopausée » / « Autres » dans la modale « Vous êtes... »
+  const choisirSituation = async (choix: 'enceinte' | 'menopausee' | 'autres') => {
+    setShowSurveyModal(false);
+    setSituation(choix);
+    if (choix === 'autres') return;
+
+    // Pas de cycle menstruel : on désactive le suivi de cycle (roues et affirmations ne s'appuient plus dessus)
+    setIsActiveForm(false);
+    setPhaseFilters([]);
+    try {
+      const res = await fetch("/api/menstrual-profile", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          isActive: false,
+          cycleLength: cycleLengthForm,
+          periodLength: periodLengthForm,
+          lastPeriodStartDate: null,
+        }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setProfile(data.profile);
+        setCycleInfo(data.cycleInfo);
+        setHistory(data.history ?? []);
+      }
+    } catch (e) {
+      console.error(e);
+    }
+
+    if (choix === 'enceinte') {
+      setDdrForm(ddrGrossesse);
+      setDpaForm("");
+      setPregnancyError("");
+      setShowPregnancyModal(true);
+    }
+  };
+
+  // Fin de grossesse / changement de situation : on repasse par la modale « Vous êtes... »
+  const changerDeSituation = () => {
+    setSelectedDate(null);
+    setSituation('reglee');
+    setDdrGrossesse("");
+    setIsActiveForm(true);
+    setShowSurveyModal(true);
+  };
+
+  const validerGrossesse = () => {
+    // Mois prévu d'accouchement (mm/aaaa) : on prend le 15 du mois, puis on recule de 280 jours
+    let dpaMois = "";
+    if (dpaForm) {
+      const m = dpaForm.match(/^(\d{2})\/(\d{4})$/);
+      if (!m || Number(m[1]) < 1 || Number(m[1]) > 12) {
+        setPregnancyError("Indique le mois prévu au format mm/aaaa (ex : 08/2026).");
+        return;
+      }
+      dpaMois = `${m[2]}-${m[1]}`;
+    }
+    const ddr = ddrForm || (dpaMois ? ajouterJours(`${dpaMois}-15`, -280) : "");
+    if (!ddr) {
+      setPregnancyError("Indique la date de tes dernières règles ou ta date prévue d'accouchement.");
+      return;
+    }
+    const aujourdhui = localDay(new Date());
+    let ecoule = dayDiff(ddr, aujourdhui);
+    let ddrFinale = ddr;
+    // Mois prévu : le 15 du mois est une estimation, elle peut tomber jusqu'à ~3 semaines trop tard pour un début de grossesse
+    if (!ddrForm && ecoule < 0 && ecoule >= -20) {
+      ddrFinale = aujourdhui;
+      ecoule = 0;
+    }
+    if (ecoule < 0 || ecoule > 294) {
+      setPregnancyError("Cette date ne correspond pas à une grossesse en cours (42 semaines maximum).");
+      return;
+    }
+    setDdrGrossesse(ddrFinale);
+    setPregnancyError("");
+    setShowPregnancyModal(false);
+    setCurrentMonth(new Date());
   };
 
   const [selectedTodoDate, setSelectedTodoDate] = useState<string | null>(null);
@@ -224,8 +360,9 @@ const active = localStorage.getItem('sorea_has_notification') === 'true' || loca
       setCycleInfo(data.cycleInfo);
       setHistory(data.history ?? []);
       setIsActiveForm(data.profile.isActive);
-      // Si le suivi de cycle est désactivé, basculer par défaut sur l'Agenda Todo-List
-      if (!data.profile.isActive) {
+      // Si le suivi de cycle est désactivé, basculer par défaut sur l'Agenda Todo-List (sauf grossesse / ménopause)
+      const situationSauvee = localStorage.getItem('sorea_situation_suivi');
+      if (!data.profile.isActive && situationSauvee !== 'enceinte' && situationSauvee !== 'menopausee') {
         setActiveTab('todo');
       }
       setCycleLengthForm(data.profile.cycleLength);
@@ -688,6 +825,7 @@ const active = localStorage.getItem('sorea_has_notification') === 'true' || loca
   };
 
     const getPhaseForDate = (date: Date) => {
+    if (situation === 'enceinte' || situation === 'menopausee') return null;
     // Historique réel des règles ; à défaut (ancienne réponse du serveur), on repart de la date de début connue
     let refDateStr = profile?.lastPeriodStartDate;
     if (!refDateStr && cycleInfo?.refDate) {
@@ -752,7 +890,9 @@ const active = localStorage.getItem('sorea_has_notification') === 'true' || loca
       const dateKey = localDate.toISOString().split("T")[0];
       const isToday = new Date().toDateString() === date.toDateString();
       const isSelected = selectedDate?.toDateString() === date.toDateString();
-      const phaseVisible = !phaseFilters.length || (phase && phaseFilters.includes(phase));
+      const grossesseJour = infosGrossesse(dateKey);
+      const phaseOuTrimestre = grossesseJour ? `T${grossesseJour.trimestre}` : phase;
+      const phaseVisible = !phaseFilters.length || (phaseOuTrimestre && phaseFilters.includes(phaseOuTrimestre));
       const hiddenStyles = !phaseVisible ? "opacity-30" : "";
       // Masquer les icônes de phase si le suivi est désactivé OU si l'on est sur l'onglet Todo-List
       const iconVisible = profile?.isActive && activeTab === 'calendar' && phaseVisible ? icon : null;
@@ -815,6 +955,11 @@ const isTodayWithNotification = isToday && hasNotif;
             {day}
           </span>
           {iconVisible}
+          {grossesseJour && activeTab === 'calendar' && phaseVisible && (
+            <span className="absolute bottom-1 right-1 text-[10px] font-bold text-[#E256B3]">
+              {situation === 'enceinte' && ddrGrossesse && dateKey === ajouterJours(ddrGrossesse, 280) ? '👶' : `T${grossesseJour.trimestre}`}
+            </span>
+          )}
         </div>
       );
     }
@@ -841,7 +986,11 @@ return (
             {activeTab === 'calendar' ? 'Mon rythme' : 'Agenda Todo-List'}
           </h1>
           {activeTab === 'calendar' ? (
-            profile?.isActive ? (
+            situation === 'enceinte' ? (
+              <p className="text-black font-medium mt-1">Suivi de grossesse</p>
+            ) : situation === 'menopausee' ? (
+              <p className="text-black font-medium mt-1">Suivi ménopause</p>
+            ) : profile?.isActive ? (
               <p className="text-black font-medium mt-1">Suivi menstruel activé</p>
             ) : (
               <p className="text-black font-medium mt-1">Suivi menstruel désactivé</p>
@@ -855,7 +1004,7 @@ return (
           {activeTab === 'calendar' && (
             <button
               onClick={() => setIsSnowflakeMode(!isSnowflakeMode)}
-              className="px-4 py-3.5 bg-white border border-[#8B47FF] text-[#8B47FF] font-bold rounded-2xl hover:bg-[#F4EBFF] transition-all duration-300 shadow-sm text-sm cursor-pointer"
+              className="px-4 py-3.5 bg-white border border-[#8B47FF] text-[#8B47FF] font-bold rounded-[5px] hover:bg-[#F4EBFF] transition-all duration-300 shadow-sm text-sm cursor-pointer"
             >
               Mode{isSnowflakeMode ? "❄️Saison" : "🩸Phase"}
             </button>
@@ -923,8 +1072,62 @@ return (
           </div>
       </div>
 
+      {/* BLOC GROSSESSE : filtre par trimestre */}
+      {activeTab === 'calendar' && situation === 'enceinte' && (
+        <div className="w-full mb-8 flex flex-col gap-4">
+          <h3 className="text-xl font-bold text-[#7F4DC5] underline underline-offset-4 font-satoshi">
+            Je filtre mes trimestres
+          </h3>
+          {(() => {
+            const infos = infosGrossesse(localDay(new Date()));
+            return infos ? (
+              <p className="text-sm text-gray-800">
+                Aujourd'hui : semaine {infos.semaines} (SA) · trimestre {infos.trimestre} · plus que {infos.joursRestants} jours avant la date prévue d'accouchement.
+              </p>
+            ) : (
+              <p className="text-sm text-gray-800">Renseigne ta date dans l'onglet « Paramètre » d'un jour pour suivre ta grossesse.</p>
+            );
+          })()}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+            {[['T1', '1er trimestre'], ['T2', '2e trimestre'], ['T3', '3e trimestre']].map(([cle, label]) => (
+              <button
+                key={cle}
+                type="button"
+                onClick={() => togglePhaseFilter(cle)}
+                className={`px-4 py-3 rounded-2xl text-sm font-semibold transition-all cursor-pointer ${
+                  phaseFilters.includes(cle)
+                    ? 'border-[#8B47FF] shadow-sm ring-2 ring-[#8B47FF]/20'
+                    : 'text-gray-800 hover:bg-[#FAF4FF]'
+                }`}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+          {phaseFilters.length > 0 && (
+            <div className="flex justify-end">
+              <button
+                type="button"
+                onClick={() => setPhaseFilters([])}
+                className="text-xs font-semibold text-[#8B47FF] underline hover:text-[#6f37e6] transition-colors cursor-pointer"
+              >
+                Réinitialiser les filtres
+              </button>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* BLOC MÉNOPAUSE : pas de phases */}
+      {activeTab === 'calendar' && situation === 'menopausee' && (
+        <div className="w-full mb-8 p-5 rounded-2xl border border-[#E256B3] bg-white text-sm text-gray-800 leading-relaxed">
+          <p className="font-bold text-[#7F4DC5] mb-1">Ménopause : plus de cycle à suivre</p>
+          <p>Clique sur un jour pour noter ton humeur et tes symptômes (bouffées de chaleur, sommeil, sueurs nocturnes…) et repérer ce qui revient.</p>
+        </div>
+      )}
+
       {/* BLOC : Je filtre mes phases (Affiché uniquement si activeTab === 'calendar') */}
-      {activeTab === 'calendar' && (
+      {activeTab === 'calendar' && situation !== 'enceinte' && situation !== 'menopausee' && (
         <div className="w-full mb-8 flex flex-col gap-6">
           
           {/* En-tête : Titre et Icône Help cliquable */}
@@ -1365,6 +1568,11 @@ return (
                 <p className="text-2xl font-bold text-black">
                   {selectedDate.toLocaleDateString("fr-FR", { weekday: 'long', day: 'numeric', month: 'long' })}
                 </p>
+                {infosGrossesse(localDay(selectedDate)) && (
+                  <p className="text-sm font-semibold text-[#E256B3] mt-1">
+                    Semaine {infosGrossesse(localDay(selectedDate))!.semaines} · Trimestre {infosGrossesse(localDay(selectedDate))!.trimestre}
+                  </p>
+                )}
               </div>
               <button
                 onClick={() => setSelectedDate(null)}
@@ -1601,7 +1809,8 @@ return (
                   {
                     category: "Corps",
                     items: ["Rétention d'eau", "Jambes lourdes", "Gonflement abdominal", "Prise de poids temporaire", "Seins gonfiés", "Ventre dur"]
-                  }
+                  },
+                  ...(situation === 'menopausee' ? [CATEGORIE_MENOPAUSE] : situation === 'enceinte' ? [CATEGORIE_GROSSESSE] : [])
                 ];
 
                 const rows = [];
@@ -1776,8 +1985,84 @@ return (
                 );
               })()}
 
+              {/* ONGLET 3 : PARAMÈTRE — GROSSESSE */}
+              {symptomTab === 'rectifier' && situation === 'enceinte' && (
+                <div className="flex flex-col gap-4">
+                  <div className="p-4 rounded-2xl border border-[#E256B3] bg-white text-sm text-gray-800 leading-relaxed">
+                    {infosGrossesse(localDay(selectedDate)) ? (
+                      <>
+                        <p className="font-bold text-[#7F4DC5] mb-1">
+                          Semaine {infosGrossesse(localDay(selectedDate))!.semaines} (SA) · Trimestre {infosGrossesse(localDay(selectedDate))!.trimestre}
+                        </p>
+                        <p>Accouchement prévu vers {new Date(ajouterJours(ddrGrossesse, 280) + 'T00:00:00').toLocaleDateString("fr-FR", { month: 'long', year: 'numeric' })}</p>
+                        <p>Plus que {infosGrossesse(localDay(selectedDate))!.joursRestants} jours à partir de ce jour.</p>
+                      </>
+                    ) : (
+                      <p>Ce jour est en dehors de ta grossesse en cours.</p>
+                    )}
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSelectedDate(null);
+                      setDdrForm(ddrGrossesse);
+                      setDpaForm("");
+                      setPregnancyError("");
+                      setShowPregnancyModal(true);
+                    }}
+                    className="p-4 rounded-2xl border border-gray-300 bg-white hover:border-[#8B47FF] text-sm font-semibold text-gray-800 transition-all cursor-pointer shadow-sm text-center"
+                  >
+                    Modifier ma date de grossesse
+                  </button>
+                  <button
+                    type="button"
+                    onClick={changerDeSituation}
+                    className="p-4 rounded-2xl border border-gray-300 bg-white hover:border-[#8B47FF] text-sm font-semibold text-gray-800 transition-all cursor-pointer shadow-sm text-center"
+                  >
+                    Ma grossesse est terminée !
+                  </button>
+                  </div>
+                  <div className="p-4 rounded-2xl border border-gray-300 bg-white">
+                    <input
+                      type="text"
+                      placeholder="Plus de précisions..."
+                      value={rectifierByDay[localDay(selectedDate)]?.note ?? ""}
+                      onChange={(e) => majParametreJour(localDay(selectedDate), { note: e.target.value })}
+                      className="w-full text-sm outline-none text-gray-800 placeholder-gray-400 bg-transparent"
+                    />
+                  </div>
+                </div>
+              )}
+
+              {/* ONGLET 3 : PARAMÈTRE — MÉNOPAUSE */}
+              {symptomTab === 'rectifier' && situation === 'menopausee' && (
+                <div className="flex flex-col gap-4">
+                  <div className="p-4 rounded-2xl border border-[#E256B3] bg-white text-sm text-gray-800 leading-relaxed">
+                    <p className="font-bold text-[#7F4DC5] mb-1">Ménopause</p>
+                    <p>Pas de cycle à rectifier : utilise les onglets Humeur et Symptôme physique pour noter chaque jour ce que tu ressens.</p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={changerDeSituation}
+                    className="p-4 rounded-2xl border border-gray-300 bg-white hover:border-[#8B47FF] text-sm font-semibold text-gray-800 transition-all cursor-pointer shadow-sm text-center"
+                  >
+                    Ma situation a changé
+                  </button>
+                  <div className="p-4 rounded-2xl border border-gray-300 bg-white">
+                    <input
+                      type="text"
+                      placeholder="Plus de précisions..."
+                      value={rectifierByDay[localDay(selectedDate)]?.note ?? ""}
+                      onChange={(e) => majParametreJour(localDay(selectedDate), { note: e.target.value })}
+                      className="w-full text-sm outline-none text-gray-800 placeholder-gray-400 bg-transparent"
+                    />
+                  </div>
+                </div>
+              )}
+
               {/* ONGLET 3 : À RECTIFIER ! */}
-              {symptomTab === 'rectifier' && (
+              {symptomTab === 'rectifier' && situation !== 'enceinte' && situation !== 'menopausee' && (
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <button 
                     type="button" 
@@ -1886,7 +2171,8 @@ return (
                   {
                     category: "Corps",
                     items: ["Rétention d'eau", "Jambes lourdes", "Gonflement abdominal", "Prise de poids temporaire", "Seins gonfiés", "Ventre dur"]
-                  }
+                  },
+                  ...(situation === 'menopausee' ? [CATEGORIE_MENOPAUSE] : situation === 'enceinte' ? [CATEGORIE_GROSSESSE] : [])
                 ];
 
                 return (
@@ -2265,6 +2551,7 @@ return (
               <button
                 type="button"
                 onClick={() => {
+                  setSituation('reglee');
                   setShowSurveyModal(false);
                   setShowSettings(true); // Ouvre la modale des paramètres (2e image)
                 }}
@@ -2274,21 +2561,21 @@ return (
               </button>
               <button
                 type="button"
-                onClick={() => setShowSurveyModal(false)}
+                onClick={() => choisirSituation('enceinte')}
                 className="p-5 rounded-xl border-2 border-[#8B47FF] bg-white text-black font-semibold text-base hover:bg-[#F4EBFF] transition-all cursor-pointer text-center shadow-sm"
               >
                 Enceinte
               </button>
               <button
                 type="button"
-                onClick={() => setShowSurveyModal(false)}
+                onClick={() => choisirSituation('menopausee')}
                 className="p-5 rounded-xl border-2 border-[#8B47FF] bg-white text-black font-semibold text-base hover:bg-[#F4EBFF] transition-all cursor-pointer text-center shadow-sm"
               >
                 Ménopausée
               </button>
               <button
                 type="button"
-                onClick={() => setShowSurveyModal(false)}
+                onClick={() => choisirSituation('autres')}
                 className="p-5 rounded-xl border-2 border-[#8B47FF] bg-white text-black font-semibold text-base hover:bg-[#F4EBFF] transition-all cursor-pointer text-center shadow-sm"
               >
                 Autres
@@ -2297,6 +2584,71 @@ return (
           </div>
         </div>
       )}
+      {/* Modale GROSSESSE : date des dernières règles ou date prévue d'accouchement */}
+      {showPregnancyModal && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-3xl p-8 shadow-2xl w-full max-w-lg relative border-2 border-[#8B47FF]">
+            <h3 className="text-2xl font-bold mb-2 text-[#7F4DC5] text-center font-boska">Ma grossesse</h3>
+            <p className="text-sm text-gray-600 text-center mb-6">
+              Renseigne l'une des deux dates pour suivre ta semaine de grossesse et ton trimestre.
+            </p>
+
+            <div className="flex flex-col gap-4 mb-4">
+              <label className="flex flex-col gap-1.5 text-sm font-bold text-gray-900">
+                Date de mes dernières règles
+                <input
+                  type="date"
+                  value={ddrForm}
+                  max={localDay(new Date())}
+                  onChange={(e) => { setDdrForm(e.target.value); if (e.target.value) setDpaForm(""); }}
+                  className="w-full bg-white border border-purple-200 rounded-xl px-4 py-3 text-gray-800 font-normal focus:outline-none focus:ring-2 focus:ring-[#8B47FF]"
+                />
+              </label>
+              <p className="text-xs text-gray-400 text-center">ou</p>
+              <label className="flex flex-col gap-1.5 text-sm font-bold text-gray-900">
+                Mois prévu d'accouchement
+                <input
+                  type="text"
+                  inputMode="numeric"
+                  maxLength={7}
+                  placeholder="mm/aaaa"
+                  value={dpaForm}
+                  onChange={(e) => {
+                    const chiffres = e.target.value.replace(/\D/g, "").slice(0, 6);
+                    const formate = chiffres.length > 2 ? `${chiffres.slice(0, 2)}/${chiffres.slice(2)}` : chiffres;
+                    setDpaForm(formate);
+                    if (formate) setDdrForm("");
+                  }}
+                  className="w-full bg-white border border-purple-200 rounded-xl px-4 py-3 text-gray-800 font-normal focus:outline-none focus:ring-2 focus:ring-[#8B47FF]"
+                />
+              </label>
+            </div>
+
+            {pregnancyError && <p className="text-sm font-semibold text-red-500 mb-4">{pregnancyError}</p>}
+
+            <div className="flex justify-end gap-3">
+              <button
+                type="button"
+                onClick={() => {
+                  setShowPregnancyModal(false);
+                  if (!ddrGrossesse) setSituation('autres');
+                }}
+                className="px-5 py-2 rounded-xl text-gray-600 hover:bg-gray-200 font-semibold transition-colors cursor-pointer"
+              >
+                Annuler
+              </button>
+              <button
+                type="button"
+                onClick={validerGrossesse}
+                className="bg-[#8B47FF] text-white px-6 py-2 rounded-xl font-bold shadow-md hover:bg-[#7535e6] transition-colors cursor-pointer"
+              >
+                Valider
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/*NOUVEAU : Modale d'aide détaillée pour le Calendrier Menstruel */}
       {showCalendarHelpModal && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
