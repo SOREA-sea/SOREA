@@ -105,6 +105,29 @@ export default function MenstrualCalendar() {
   const [fluxTime, setFluxTime] = useState<string>(""); // Heure réelle validée
   const [resultatSummary, setResultatSummary] = useState("");
 
+  // Onglet « Paramètre » : « Je ne les ai pas » + « Plus de précisions », mémorisés par jour
+  const [rectifierByDay, setRectifierByDay] = useState<Record<string, { absent: boolean; note: string }>>({});
+  const [rectifierLoaded, setRectifierLoaded] = useState(false);
+
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem('sorea_parametre_jour');
+      if (stored) setRectifierByDay(JSON.parse(stored));
+    } catch (e) {
+      console.error(e);
+    }
+    setRectifierLoaded(true);
+  }, []);
+
+  useEffect(() => {
+    if (!rectifierLoaded) return;
+    localStorage.setItem('sorea_parametre_jour', JSON.stringify(rectifierByDay));
+  }, [rectifierByDay, rectifierLoaded]);
+
+  const majParametreJour = (jour: string, patch: Partial<{ absent: boolean; note: string }>) => {
+    setRectifierByDay((prev) => ({ ...prev, [jour]: { absent: false, note: "", ...prev[jour], ...patch } }));
+  };
+
   const [selectedTodoDate, setSelectedTodoDate] = useState<string | null>(null);
   const [showTodoModal, setShowTodoModal] = useState(false);
   const [todoModalTab, setTodoModalTab] = useState<'todo' | 'quotidien'>('todo');
@@ -1780,7 +1803,22 @@ return (
                   >
                     Mes règles continuent
                   </button>
-                  <button type="button" className="p-4 rounded-2xl border border-gray-300 bg-white hover:border-[#8B47FF] text-sm font-semibold text-gray-800 transition-all cursor-pointer shadow-sm text-center">
+                  <button
+                    type="button"
+                    disabled={isFutureDate}
+                    onClick={() =>
+                      majParametreJour(localDay(selectedDate), {
+                        absent: !rectifierByDay[localDay(selectedDate)]?.absent,
+                      })
+                    }
+                    className={`p-4 rounded-2xl border text-sm font-semibold transition-all text-center shadow-sm ${
+                      isFutureDate
+                        ? 'border-gray-200 bg-gray-50 text-gray-300 cursor-default select-none'
+                        : rectifierByDay[localDay(selectedDate)]?.absent
+                        ? 'border-[#8B47FF] bg-[#C4B5FD]/40 text-purple-950 cursor-pointer'
+                        : 'border-gray-300 bg-white hover:border-[#8B47FF] text-gray-800 cursor-pointer'
+                    }`}
+                  >
                     Je ne les ai pas
                   </button>
                   <button
@@ -1796,7 +1834,13 @@ return (
                     Je ne les ai plus
                   </button>
                   <div className="sm:col-span-2 p-4 rounded-2xl border border-gray-300 bg-white">
-                    <input type="text" placeholder="Plus de précisions..." className="w-full text-sm outline-none text-gray-800 placeholder-gray-400 bg-transparent" />
+                    <input
+                      type="text"
+                      placeholder="Plus de précisions..."
+                      value={rectifierByDay[localDay(selectedDate)]?.note ?? ""}
+                      onChange={(e) => majParametreJour(localDay(selectedDate), { note: e.target.value })}
+                      className="w-full text-sm outline-none text-gray-800 placeholder-gray-400 bg-transparent"
+                    />
                   </div>
                 </div>
               )}
