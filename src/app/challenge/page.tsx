@@ -9,6 +9,7 @@ import DailyEncouragement from "@/components/DailyEncouragement";
 import { useRouter } from "next/navigation";
 import { getFavoriFilRouge, FilRougeItem, getFavoriWheel, WheelCategory } from "../../lib/favorites-store";
 import FilRougeCard from "../../components/FilRougeCard";
+import AuthRequiredModal from "@/components/AuthRequiredModal";
 
 const wheelDataConfig = {
   "bien-etre": {
@@ -37,6 +38,36 @@ const wheelDataConfig = {
   const [favori, setFavori] = useState<FilRougeItem | null>(null);
   const [favoriWheel, setFavoriWheel] = useState<WheelCategory>("bien-etre");
   const [isLoaded, setIsLoaded] = useState(false);
+  const [estConnecte, setEstConnecte] = useState<boolean | null>(null); // null = vérification en cours
+  const [showAuthModal, setShowAuthModal] = useState(false);
+
+  // Même vérification que la Navbar : /api/auth/me
+  useEffect(() => {
+    let annule = false;
+    fetch("/api/auth/me", { credentials: "include" })
+      .then(async (res) => {
+        if (!res.ok) return null;
+        const data = await res.json();
+        return data.user ?? null;
+      })
+      .then((user) => {
+        if (!annule) setEstConnecte(!!user);
+      })
+      .catch(() => {
+        if (!annule) setEstConnecte(false);
+      });
+    return () => {
+      annule = true;
+    };
+  }, []);
+
+  // Clic sur un outil bien-être : sans connexion confirmée, on affiche la fenêtre au lieu d'ouvrir la page
+  const protegerClic = (e: React.MouseEvent) => {
+    if (estConnecte !== true) {
+      e.preventDefault();
+      setShowAuthModal(true);
+    }
+  };
 
   useEffect(() => {
     setFavori(getFavoriFilRouge());
@@ -158,7 +189,7 @@ const wheelDataConfig = {
             {isLoaded && <img src={currentWheelData.img} alt="roue" style={{ width: "280px", display: "block" }} />}
           </div>
 
-        <Link href={currentWheelData.href} className="group block">
+        <Link href={currentWheelData.href} onClick={protegerClic} className="group block">
           <article
             className="flex flex-col border-2 border-purple-200 hover:border-[#8B47FF] rounded-2xl p-8 gap-5 transition-all duration-300 relative"
             style={{ background: "radial-gradient(ellipse at center, #FEF0F9 0%, #FFFFFF 100%)" }}
@@ -247,7 +278,13 @@ const wheelDataConfig = {
               <Link
                 key={i}
                 href={section.locked ? "#" : section.href}
-                onClick={(e) => section.locked && e.preventDefault()}
+                onClick={(e) => {
+                  if (section.locked) {
+                    e.preventDefault();
+                    return;
+                  }
+                  protegerClic(e);
+                }}
                 className={`group relative grid grid-cols-[96px_minmax(0,1fr)] lg:grid-cols-[120px_minmax(0,1fr)] items-center gap-4 bg-white/60 px-4 py-4 shadow-sm border border-[#8B47FF]/20 transition-all duration-300 ${
                   section.locked ? "cursor-default" : "hover:scale-105 hover:shadow-xl hover:border-[#7F4DC5]/55"
                 } focus:outline-none focus-visible:ring-2 focus-visible:ring-[#7F4DC5]/50 ${
@@ -297,6 +334,8 @@ const wheelDataConfig = {
       <div className="w-full max-w-[1440px] px-6 lg:px-[96px] mx-auto pb-[24px]">
         <Footer />
       </div>
+
+      <AuthRequiredModal isOpen={showAuthModal} onClose={() => setShowAuthModal(false)} />
       
     </div>
   );

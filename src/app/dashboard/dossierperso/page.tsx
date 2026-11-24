@@ -4,6 +4,7 @@ import prisma from "@/lib/prisma";
 import Link from "next/link";
 import MenstrualCalendar from "@/components/MenstrualCalendar";
 import StreakTracker from "@/components/StreakTracker";
+import OffreSeptJours from "@/components/OffreSeptJours";
 
 export default async function DashboardPage() {
   const cookieStore = await cookies();
@@ -193,7 +194,12 @@ export default async function DashboardPage() {
             <div className="mx-auto w-full max-w-[720px]">
               <MenstrualCalendar />
             </div>
+            
           </div>
+          <div className="mx-auto w-full max-w-[720px]">
+            <OffreSeptJours />
+            </div>
+            
           <div className="glass-panel rounded-3xl p-6">
             <h3 className="text-xl font-bold mb-4">Ma jauge de streak</h3>
            {/*  <div className="mx-auto w-full max-w-[480px]">

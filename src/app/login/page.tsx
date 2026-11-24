@@ -4,6 +4,7 @@ import { Suspense, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import OffreSeptJours from "@/components/OffreSeptJours";
 
 function LoginContent() {
     const router = useRouter();
@@ -23,6 +24,7 @@ function LoginContent() {
     const [registerError, setRegisterError] = useState<string | null>(null);
     const [registerLoading, setRegisterLoading] = useState(false);
     const [registerLoadingType, setRegisterLoadingType] = useState<"member" | "coach" | null>(null);
+    const [showOffre, setShowOffre] = useState(false); // fenêtre « Offre 7 jours » après l'inscription
     
     // 2FA states
     const [show2FALogin, setShow2FALogin] = useState(false);
@@ -125,9 +127,9 @@ const submitRegister = async (asCoach: boolean) => {
         const data = await res.json();
         if (!res.ok) throw new Error(data.error || "Une erreur est survenue");
 
-        // registration completed
-        router.push("/dashboard");
-        router.refresh();
+        // inscription terminée : on affiche l'offre de 7 jours avant la redirection
+        // (pas de router.refresh() ici : le layout du dossier login renverrait tout de suite vers /dashboard)
+        setShowOffre(true);
 
     } catch (err) {
         setRegisterError(err instanceof Error ? err.message : "Erreur d'inscription");
@@ -419,6 +421,7 @@ const confirm2FALogin = async () => {
                 </div>
             </main>
             <Footer />
+            {showOffre && <OffreSeptJours />}
         </div>
     );
 }

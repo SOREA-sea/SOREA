@@ -69,6 +69,7 @@ export async function POST(req: NextRequest) {
         role: isCoach ? "coach" : "user",
         birthDate: birthDate ?? null,
         twoFactorEnabled: false,
+        trialEndsAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // essai gratuit de 7 jours
       },
     });
 

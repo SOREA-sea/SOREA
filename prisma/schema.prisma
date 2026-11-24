@@ -23,6 +23,9 @@ model User {
   updatedAt DateTime  @updatedAt
   timezone  String    @default("Europe/Paris")
 
+  // Essai gratuit : date de fin des 7 jours offerts (rempli à l'inscription)
+  trialEndsAt DateTime?
+
   //  Email verification
   emailVerified           Boolean   @default(false)
   emailVerificationToken  String?

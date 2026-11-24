@@ -1,6 +1,7 @@
 "use client";
 
 import { createContext, useCallback, useContext, useEffect, useRef, useState } from "react";
+import { usePathname } from "next/navigation";
 
 // Les fichiers sont dans public/sons/ : « id » = nom du fichier sans « .mp3 »
 export const SONS = [
@@ -44,13 +45,17 @@ export function AmbianceProvider({ children }: { children: React.ReactNode }) {
   const audiosRef = useRef<Map<string, HTMLAudioElement>>(new Map());
   const timersRef = useRef<Map<string, ReturnType<typeof setTimeout>>>(new Map());
   const volumesRef = useRef<Volumes>({});
+  const utilisateurRef = useRef<string | null>(null); // compte dont on joue les sons (null = personne)
+  const verifRef = useRef(0); // numéro de la dernière vérification du compte
+  const pathname = usePathname();
 
   const [sonsActifs, setSonsActifs] = useState<Volumes>({});
   const [erreur, setErreur] = useState<string | null>(null);
 
   const sauvegarder = useCallback(() => {
     try {
-      localStorage.setItem(CLE_SONS, JSON.stringify(volumesRef.current));
+      if (!utilisateurRef.current) return;
+      localStorage.setItem(`${CLE_SONS}_${utilisateurRef.current}`, JSON.stringify(volumesRef.current));
     } catch {}
   }, []);
 
@@ -159,22 +164,39 @@ export function AmbianceProvider({ children }: { children: React.ReactNode }) {
     [sauvegarder]
   );
 
-  // Au chargement de l'application : on retrouve les sons et leurs volumes (même après déconnexion / reconnexion)
-  useEffect(() => {
-    try {
-      let enregistres: Volumes = {};
-      const brut = localStorage.getItem(CLE_SONS);
-      if (brut) {
-        enregistres = JSON.parse(brut);
-      } else {
-        // Ancien format (un seul son) : on le reprend une fois
-        const ancienSon = localStorage.getItem("sorea_ambiance_son");
-        if (ancienSon) {
-          const ancienVolume = parseFloat(localStorage.getItem("sorea_ambiance_volume") ?? "");
-          enregistres = { [ancienSon]: Number.isNaN(ancienVolume) ? VOLUME_PAR_DEFAUT : ancienVolume };
-        }
-      }
+  // Coupe tous les sons sans toucher à l'enregistrement (utilisé quand le compte change)
+  const toutCouper = useCallback(() => {
+    timersRef.current.forEach((t) => clearTimeout(t));
+    timersRef.current.clear();
+    audiosRef.current.forEach((a) => a.pause());
+    audiosRef.current.clear();
+    volumesRef.current = {};
+    setSonsActifs({});
+  }, []);
 
+  // Vérifie quel compte est connecté. Si ça a changé (connexion, déconnexion, autre compte),
+  // on coupe les sons en cours et on relance ceux enregistrés pour ce compte.
+  const synchroniser = useCallback(async () => {
+    const numero = ++verifRef.current;
+    let id: string | null = null;
+    try {
+      const res = await fetch("/api/auth/me", { credentials: "include" });
+      if (res.ok) {
+        const data = await res.json();
+        id = data.user?.id ? String(data.user.id) : null;
+      }
+    } catch {}
+    if (numero !== verifRef.current) return; // une vérification plus récente a pris le relais
+    if (id === utilisateurRef.current) return; // même compte : rien à changer
+
+    toutCouper();
+    utilisateurRef.current = id;
+    setErreur(null);
+    if (!id) return; // déconnecté : silence
+
+    try {
+      const brut = localStorage.getItem(`${CLE_SONS}_${id}`);
+      const enregistres: Volumes = brut ? JSON.parse(brut) : {};
       const restaures: Volumes = {};
       SONS.forEach((s) => {
         const v = enregistres[s.id];
@@ -182,9 +204,17 @@ export function AmbianceProvider({ children }: { children: React.ReactNode }) {
       });
       volumesRef.current = restaures;
       setSonsActifs({ ...restaures });
-      Object.entries(restaures).forEach(([id, v]) => lancer(id, v));
+      Object.entries(restaures).forEach(([idSon, v]) => lancer(idSon, v));
     } catch {}
+  }, [lancer, toutCouper]);
 
+  // Au chargement, puis à chaque changement de page : on vérifie le compte connecté
+  useEffect(() => {
+    synchroniser();
+  }, [pathname, synchroniser]);
+
+  // À la fermeture complète de l'application : on arrête tout
+  useEffect(() => {
     const audios = audiosRef.current;
     const timers = timersRef.current;
     return () => {
@@ -193,7 +223,7 @@ export function AmbianceProvider({ children }: { children: React.ReactNode }) {
       audios.forEach((a) => a.pause());
       audios.clear();
     };
-  }, [lancer]);
+  }, []);
 
   return (
     <AmbianceContext.Provider value={{ sonsActifs, erreur, basculer, arreter, changerVolume }}>

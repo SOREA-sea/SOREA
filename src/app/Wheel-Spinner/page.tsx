@@ -6,6 +6,7 @@ import Navbar from '@/components/Navbar';
 import Footer from "@/components/Footer";
 import DailyEncouragement from "@/components/DailyEncouragement";
 import { getFavoriWheel, WheelCategory } from "@/lib/favorites-store";
+import AuthRequiredModal from "@/components/AuthRequiredModal";
 
 export default function RouteDesDefis() {
   const [showInstructions, setShowInstructions] = useState(true);
@@ -18,6 +19,36 @@ export default function RouteDesDefis() {
   const [themeSport, setThemeSport] = useState<'pastel' | 'pop'>('pastel');
   const [themeNutrition, setThemeNutrition] = useState<'pastel' | 'pop'>('pastel');
   const [favoriWheel, setFavoriWheelState] = useState<WheelCategory | null>(null);
+  const [estConnecte, setEstConnecte] = useState<boolean | null>(null); // null = vérification en cours
+  const [showAuthModal, setShowAuthModal] = useState(false);
+
+  // Même vérification que la Navbar : /api/auth/me
+  useEffect(() => {
+    let annule = false;
+    fetch("/api/auth/me", { credentials: "include" })
+      .then(async (res) => {
+        if (!res.ok) return null;
+        const data = await res.json();
+        return data.user ?? null;
+      })
+      .then((user) => {
+        if (!annule) setEstConnecte(!!user);
+      })
+      .catch(() => {
+        if (!annule) setEstConnecte(false);
+      });
+    return () => {
+      annule = true;
+    };
+  }, []);
+
+  // Clic sur un Wheel-Spinner : sans connexion confirmée, on affiche la fenêtre au lieu d'ouvrir la page
+  const protegerClic = (e: React.MouseEvent) => {
+    if (estConnecte !== true) {
+      e.preventDefault();
+      setShowAuthModal(true);
+    }
+  };
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -126,7 +157,13 @@ export default function RouteDesDefis() {
           {/* NUTRITION */}
                 <Link 
                   href={isNutritionLocked ? "#" : "/Wheel-Spinner/Nutrition"}
-                  onClick={(e) => isNutritionLocked && e.preventDefault()}
+                  onClick={(e) => {
+                    if (isNutritionLocked) {
+                      e.preventDefault();
+                      return;
+                    }
+                    protegerClic(e);
+                  }}
                   onMouseEnter={() => setSurvol('nutrition')}
                   onMouseLeave={() => setSurvol(null)}
                   className={`relative flex flex-col items-center justify-center p-8 w-[300px] h-[260px] transition-all duration-300 overflow-hidden group ${
@@ -166,6 +203,7 @@ export default function RouteDesDefis() {
          {/* BIEN-ÊTRE */}
                 <Link 
                   href="/Wheel-Spinner/BienEtre"
+                  onClick={protegerClic}
                   onMouseEnter={() => setSurvol('bienetre')}
                   onMouseLeave={() => setSurvol(null)}
                   className="relative flex flex-col items-center justify-center p-8 w-[300px] h-[260px] cursor-pointer transition-all duration-300 overflow-hidden group"
@@ -198,7 +236,13 @@ export default function RouteDesDefis() {
           {/* SPORT */}
                <Link 
                   href={isSportLocked ? "#" : "/Wheel-Spinner/Sport"}
-                  onClick={(e) => isSportLocked && e.preventDefault()}
+                  onClick={(e) => {
+                    if (isSportLocked) {
+                      e.preventDefault();
+                      return;
+                    }
+                    protegerClic(e);
+                  }}
                   onMouseEnter={() => setSurvol('sport')}
                   onMouseLeave={() => setSurvol(null)}
                   className={`relative flex flex-col items-center justify-center p-8 w-[300px] h-[260px] transition-all duration-300 overflow-hidden group ${
@@ -254,6 +298,8 @@ export default function RouteDesDefis() {
 
       {/* FOOTER */}
       <Footer />
+
+      <AuthRequiredModal isOpen={showAuthModal} onClose={() => setShowAuthModal(false)} />
     </div>
   );
 }
