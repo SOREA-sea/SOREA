@@ -108,6 +108,15 @@ const navItems = [
       </svg>
     ),
   },
+  {
+    href: "/dashboard/ambiance",
+    label: "Ambiance",
+    icon: (
+      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3" />
+      </svg>
+    ),
+  },
 ];
 
 const adminNavItems = [
@@ -294,7 +303,10 @@ export default function DashboardSidebar({ user, notificationsCount = 0 }: Dashb
 
       {/* ── NAVIGATION ── */}
       <nav className="flex-1 mt-5 space-y-1.5">
-        {navItems.map((item) => renderNavItem(item))}
+        {/* « Mes favoris » et « Mon panier » sont masqués pour le moment : retire ce .filter(...) pour les réafficher */}
+        {navItems
+          .filter((item) => !["/dashboard/favorites", "/dashboard/panier"].includes(item.href))
+          .map((item) => renderNavItem(item))}
 
         {/* Espace dédié uniquement aux coachs */}
         {isCoach && (

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono, Inria_Sans, Roboto } from "next/font/google";
 /*import Chatbot from "@/components/Chatbot";*/
 import "../lib/globals.css";
+import { AmbianceProvider } from "@/components/AmbianceProvider";
 
 const inriaSans = Inria_Sans({
   variable: "--font-inria-sans",
@@ -66,7 +67,7 @@ export default function RootLayout({
                 <link rel="stylesheet" href="https://www.dimdams.com/font-awesome/css/all.min.css" />
             </head>
             <body className="min-h-full flex flex-col">
-              {children}
+              <AmbianceProvider>{children}</AmbianceProvider>
               {/*<Chatbot />*/}
             </body>
         </html>
