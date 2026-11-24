@@ -6,6 +6,9 @@ export const runtime = 'nodejs';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', { apiVersion: '2022-11-15' });
 
+// Stripe renvoie parfois un identifiant, parfois l'objet complet
+const idDe = (x: any): string | null => (typeof x === 'string' ? x : x?.id ?? null);
+
 export async function POST(req: Request) {
   const body = await req.text();
   const sig = (req.headers as any).get('stripe-signature') || '';
@@ -13,11 +16,10 @@ export async function POST(req: Request) {
 
   let event: Stripe.Event;
   try {
-    if (webhookSecret) {
-      event = stripe.webhooks.constructEvent(body, sig, webhookSecret);
-    } else {
-      event = JSON.parse(body) as Stripe.Event;
+    if (!webhookSecret) {
+      throw new Error('STRIPE_WEBHOOK_SECRET manquant dans le .env.local');
     }
+    event = stripe.webhooks.constructEvent(body, sig, webhookSecret);
   } catch (err: any) {
     console.error('Webhook signature verification failed.', err.message);
     return NextResponse.json({ error: 'Webhook error' }, { status: 400 });
@@ -48,6 +50,41 @@ export async function POST(req: Request) {
             await prisma.payment.update({ where: { id: dbPayment.id }, data: { status: 'refunded' } });
           }
         }
+        break;
+      }
+      // Abonnement : le paiement d'essai (0 €) est validé, la carte est enregistrée
+      case 'checkout.session.completed': {
+        const checkout = event.data.object as Stripe.Checkout.Session;
+        if (checkout.mode !== 'subscription') break; // achats uniques : pas concernés
+        const userId = Number(checkout.metadata?.userId);
+        if (!userId) break;
+
+        await prisma.user.update({
+          where: { id: userId },
+          data: {
+            stripeCustomerId: idDe(checkout.customer),
+            stripeSubscriptionId: idDe(checkout.subscription),
+            subscriptionStatus: 'trialing',
+          },
+        });
+        break;
+      }
+      // Abonnement : changement d'état (essai fini, activé, impayé, résilié...)
+      case 'customer.subscription.created':
+      case 'customer.subscription.updated':
+      case 'customer.subscription.deleted': {
+        const abonnement = event.data.object as Stripe.Subscription;
+        const statut = event.type === 'customer.subscription.deleted' ? 'canceled' : abonnement.status;
+        const userId = Number(abonnement.metadata?.userId);
+
+        await prisma.user.updateMany({
+          where: userId ? { id: userId } : { stripeSubscriptionId: abonnement.id },
+          data: {
+            stripeCustomerId: idDe(abonnement.customer),
+            stripeSubscriptionId: abonnement.id,
+            subscriptionStatus: statut,
+          },
+        });
         break;
       }
       case 'charge.dispute.created': {

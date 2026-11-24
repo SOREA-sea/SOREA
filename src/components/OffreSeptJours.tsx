@@ -9,8 +9,25 @@ const HAUTEUR = 1621;
 
 const VIOLET = "#7F4DC5";
 
-export default function OffreSeptJours() {
+export default function OffreSeptJours({ onClose }: { onClose: () => void }) {
   const [echelle, setEchelle] = useState(1);
+  const [chargement, setChargement] = useState(false);
+  const [erreur, setErreur] = useState<string | null>(null);
+
+  // « C'est parti ! » : on ouvre la page Stripe (0 € aujourd'hui, carte enregistrée)
+  const demarrerEssai = async () => {
+    setErreur(null);
+    setChargement(true);
+    try {
+      const res = await fetch("/api/checkout/essai", { method: "POST", credentials: "include" });
+      const data = await res.json();
+      if (!res.ok || !data.url) throw new Error(data.error || "Impossible d'enregistrer la carte pour le moment.");
+      window.location.href = data.url;
+    } catch (e) {
+      setErreur(e instanceof Error ? e.message : "Une erreur est survenue.");
+      setChargement(false);
+    }
+  };
 
   useEffect(() => {
     const ajuster = () =>
@@ -50,6 +67,17 @@ export default function OffreSeptJours() {
             fontFamily: "var(--font-inria-sans), sans-serif",
           }}
         >
+          {/* Croix : ferme la fenêtre (l'essai de 7 jours est déjà actif) */}
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label="Fermer"
+            className="absolute cursor-pointer flex items-center justify-center"
+            style={{ left: 884, top: 63, width: 46, height: 45 }}
+          >
+            <img src="/image_icone/Cross.svg" alt="" className="w-full h-full object-contain" />
+          </button>
+
           {/* Logo SOREA (texte + petite lueur) */}
           <div
             className="absolute"
@@ -117,9 +145,11 @@ export default function OffreSeptJours() {
             style={{ left: 622, top: 678, width: 240, height: 290, objectFit: "contain" }}
           />
 
-          {/* Bouton rose (pas encore actif) */}
+          {/* Bouton rose : enregistre la carte (0 € aujourd'hui) */}
           <button
             type="button"
+            onClick={demarrerEssai}
+            disabled={chargement}
             className="absolute text-white font-bold"
             style={{
               left: 325,
@@ -131,10 +161,11 @@ export default function OffreSeptJours() {
               boxShadow: "inset 0 -7px 4px rgba(120, 30, 90, 0.35), 0 3px 4px rgba(0,0,0,0.2)",
               fontSize: 30,
               letterSpacing: "0.06em",
-              cursor: "default",
+              cursor: chargement ? "wait" : "pointer",
+              opacity: chargement ? 0.7 : 1,
             }}
           >
-            C’est parti !
+            {chargement ? "Redirection…" : "C’est parti !"}
           </button>
 
           {/* Paiement sécurisé */}
@@ -178,12 +209,20 @@ export default function OffreSeptJours() {
             Choisir mon abonnement
           </button>
 
+          {/* Information sur la croix (ou erreur si le paiement ne démarre pas) */}
+          <div
+            className="absolute text-center"
+            style={{ left: 0, top: 1392, width: 1016, fontSize: 18, lineHeight: "24px", letterSpacing: "0.05em", color: erreur ? "#C0392B" : "#7F6674" }}
+          >
+            {erreur ?? "Tu peux aussi fermer cette fenêtre : tes 7 jours offerts démarrent dans tous les cas."}
+          </div>
+
           {/* Tampon en bas */}
           <img
             src="/image_Design-SOREA/SubscriptionBuffer.svg"
             alt=""
             className="absolute"
-            style={{ left: 378, top: 1422, width: 260, height: 90, objectFit: "contain" }}
+            style={{ left: 378, top: 1445, width: 260, height: 90, objectFit: "contain" }}
           />
         </div>
       </div>

@@ -196,9 +196,6 @@ export default async function DashboardPage() {
             </div>
             
           </div>
-          <div className="mx-auto w-full max-w-[720px]">
-            <OffreSeptJours />
-            </div>
             
           <div className="glass-panel rounded-3xl p-6">
             <h3 className="text-xl font-bold mb-4">Ma jauge de streak</h3>

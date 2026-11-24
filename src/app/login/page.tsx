@@ -421,7 +421,14 @@ const confirm2FALogin = async () => {
                 </div>
             </main>
             <Footer />
-            {showOffre && <OffreSeptJours />}
+            {showOffre && (
+                <OffreSeptJours
+                    onClose={() => {
+                        router.push("/dashboard");
+                        router.refresh();
+                    }}
+                />
+            )}
         </div>
     );
 }
