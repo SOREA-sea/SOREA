@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import BoutonGererAbonnement from "@/components/BoutonGererAbonnement";
 
 interface ProfileData {
   id: number;
@@ -352,6 +353,17 @@ export default function ProfilePage() {
             </div>
           )
         )}
+      </div>
+
+      {/* Abonnement : résilier ou changer de carte via le portail Stripe */}
+      <div className="glass-panel rounded-3xl p-8 space-y-5">
+        <div>
+          <h2 className="text-xl font-bold">Mon abonnement</h2>
+          <p className="text-foreground/60 text-sm mt-1">
+            Résiliez votre abonnement ou modifiez votre moyen de paiement.
+          </p>
+        </div>
+        <BoutonGererAbonnement />
       </div>
     </div>
   );

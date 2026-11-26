@@ -6,15 +6,15 @@ import { usePathname } from "next/navigation";
 // Les fichiers sont dans public/sons/ : « id » = nom du fichier sans « .mp3 »
 export const SONS = [
   { id: "Droplet", titre: "Gouttes de pluie" },
-  { id: "Rain", titre: "Pluie douce" },
+  { id: "Rain", titre: "Douce averse" },
   { id: "Fireplace", titre: "Feu de cheminée" },
-  { id: "CalmZenMusic", titre: "Musique zen & calme" },
-  { id: "Birdsong", titre: "Chants d'oiseaux apaisants" },
+  { id: "CalmZenMusic", titre: "Le calme" },
+  { id: "Birdsong", titre: "Chants d'oiseaux" },
   { id: "VacuumCleaner", titre: "Aspirateur" },
   { id: "ShimmeringGlitter", titre: "Paillettes scintillantes" },
   { id: "KalimbaLullaby", titre: "Berceuse kalimba" },
-  { id: "Space", titre: "Ambiance espace" },
-  { id: "432Hz", titre: "Musique 432 Hz" },
+  { id: "Space", titre: "Voie lactée" },
+  { id: "432Hz", titre: "Fréquence 432 Hertz" },
 ];
 
 const CLE_SONS = "sorea_ambiance_sons"; // sons actifs et leur volume, ex : {"Rain":0.7,"Fireplace":0.4}

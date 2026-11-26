@@ -25,6 +25,8 @@ export async function GET() {
             firstName: true,
             lastName: true,
             role: true,
+            trialEndsAt: true,
+            subscriptionStatus: true,
           }
         },
       },

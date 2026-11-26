@@ -4,6 +4,7 @@ import prisma from "@/lib/prisma";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import DashboardSidebar from "@/components/DashboardSidebar";
+import GardeAbonnement from "@/components/GardeAbonnement";
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   const cookieStore = await cookies();
@@ -36,6 +37,13 @@ export default async function DashboardLayout({ children }: { children: React.Re
 
   const favoritesCount = favoriteProducts + favoriteCoaches + favoriteSessions;
 
+  // Essai de 7 jours terminé et pas d'abonnement en cours : la frame d'abonnement bloque l'écran
+  const essaiTermine =
+    !!user.trialEndsAt &&
+    user.trialEndsAt <= new Date() &&
+    user.subscriptionStatus !== "trialing" &&
+    user.subscriptionStatus !== "active";
+
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-b from-pastel-1 to-pastel-2 text-foreground font-sans">
       <Navbar isLoggedIn={true} />
@@ -59,6 +67,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
         </main>
       </div>
       <Footer />
+      <GardeAbonnement essaiTermine={essaiTermine} />
     </div>
   );
 }

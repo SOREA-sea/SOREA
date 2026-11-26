@@ -64,7 +64,6 @@ export async function POST(req: Request) {
           data: {
             stripeCustomerId: idDe(checkout.customer),
             stripeSubscriptionId: idDe(checkout.subscription),
-            subscriptionStatus: 'trialing',
           },
         });
         break;
@@ -100,6 +99,8 @@ export async function POST(req: Request) {
     }
   } catch (err) {
     console.error('Error handling webhook:', err);
+    // 500 : Stripe considère l'événement comme non traité et le renverra
+    return NextResponse.json({ error: 'Webhook handler failed' }, { status: 500 });
   }
 
   return NextResponse.json({ received: true });

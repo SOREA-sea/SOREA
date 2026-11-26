@@ -3,6 +3,7 @@ import { Geist, Geist_Mono, Inria_Sans, Roboto } from "next/font/google";
 /*import Chatbot from "@/components/Chatbot";*/
 import "../lib/globals.css";
 import { AmbianceProvider } from "@/components/AmbianceProvider";
+import GardeAbonnementGlobal from "@/components/GardeAbonnementGlobal";
 
 const inriaSans = Inria_Sans({
   variable: "--font-inria-sans",
@@ -68,6 +69,7 @@ export default function RootLayout({
             </head>
             <body className="min-h-full flex flex-col">
               <AmbianceProvider>{children}</AmbianceProvider>
+              <GardeAbonnementGlobal />
               {/*<Chatbot />*/}
             </body>
         </html>

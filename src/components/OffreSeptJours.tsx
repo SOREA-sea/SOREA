@@ -1,11 +1,15 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import FrameAbonnement from "@/components/FrameAbonnement";
 
 // Taille de la maquette « Offre 7 jours abonnement.svg » : tout est positionné en pixels dans ce cadre,
 // puis le cadre entier est réduit (jamais agrandi) pour tenir dans la fenêtre.
 const LARGEUR = 1016;
 const HAUTEUR = 1621;
+
+// Taille maximale d'affichage (1 = taille de la maquette). Monte pour agrandir, baisse pour réduire.
+const ECHELLE_MAX = 0.5;
 
 const VIOLET = "#7F4DC5";
 
@@ -13,6 +17,7 @@ export default function OffreSeptJours({ onClose }: { onClose: () => void }) {
   const [echelle, setEchelle] = useState(1);
   const [chargement, setChargement] = useState(false);
   const [erreur, setErreur] = useState<string | null>(null);
+  const [montrerFrame, setMontrerFrame] = useState(false);
 
   // « C'est parti ! » : on ouvre la page Stripe (0 € aujourd'hui, carte enregistrée)
   const demarrerEssai = async () => {
@@ -31,7 +36,7 @@ export default function OffreSeptJours({ onClose }: { onClose: () => void }) {
 
   useEffect(() => {
     const ajuster = () =>
-      setEchelle(Math.min(1, (window.innerWidth - 32) / LARGEUR, (window.innerHeight - 32) / HAUTEUR));
+      setEchelle(Math.min(ECHELLE_MAX, (window.innerWidth - 32) / LARGEUR));
     ajuster();
     window.addEventListener("resize", ajuster);
     return () => window.removeEventListener("resize", ajuster);
@@ -48,12 +53,12 @@ export default function OffreSeptJours({ onClose }: { onClose: () => void }) {
 
   return (
     <div
-      className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 backdrop-blur-sm"
+      className="fixed inset-0 z-[99999] overflow-y-auto bg-black/40 backdrop-blur-sm"
       role="dialog"
       aria-modal="true"
       aria-label="Offre 7 jours"
     >
-      <div style={{ width: LARGEUR * echelle, height: HAUTEUR * echelle }}>
+      <div className="mx-auto my-4" style={{ width: LARGEUR * echelle, height: HAUTEUR * echelle }}>
         <div
           className="relative"
           style={{
@@ -192,6 +197,7 @@ export default function OffreSeptJours({ onClose }: { onClose: () => void }) {
           {/* Bouton violet (pas encore actif) */}
           <button
             type="button"
+            onClick={() => setMontrerFrame(true)}
             className="absolute text-white font-bold"
             style={{
               left: 214,
@@ -203,7 +209,7 @@ export default function OffreSeptJours({ onClose }: { onClose: () => void }) {
               boxShadow: "inset 0 -7px 4px rgba(40, 2, 103, 0.35), 0 3px 4px rgba(0,0,0,0.2)",
               fontSize: 30,
               letterSpacing: "0.06em",
-              cursor: "default",
+              cursor: "pointer",
             }}
           >
             Choisir mon abonnement
@@ -226,6 +232,7 @@ export default function OffreSeptJours({ onClose }: { onClose: () => void }) {
           />
         </div>
       </div>
+      {montrerFrame && <FrameAbonnement onClose={() => setMontrerFrame(false)} />}
     </div>
   );
 }

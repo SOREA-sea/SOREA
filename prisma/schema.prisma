@@ -26,6 +26,11 @@ model User {
   // Essai gratuit : date de fin des 7 jours offerts (rempli à l'inscription)
   trialEndsAt DateTime?
 
+  // Abonnement Stripe (rempli par le webhook)
+  stripeCustomerId     String?
+  stripeSubscriptionId String? @unique
+  subscriptionStatus   String? // trialing, active, past_due, canceled...
+
   //  Email verification
   emailVerified           Boolean   @default(false)
   emailVerificationToken  String?

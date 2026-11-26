@@ -4,7 +4,6 @@ import prisma from "@/lib/prisma";
 import Link from "next/link";
 import MenstrualCalendar from "@/components/MenstrualCalendar";
 import StreakTracker from "@/components/StreakTracker";
-import OffreSeptJours from "@/components/OffreSeptJours";
 
 export default async function DashboardPage() {
   const cookieStore = await cookies();
