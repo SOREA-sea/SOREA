@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import { X, Plus, Edit2, Trash2 } from "lucide-react";
 import AffirmationPayment from "@/components/AffirmationPayment";
+import { getBoutiqueAffirmationsAction } from "@/app/dashboard/admin/products/actions";
 
 interface AffirmationCard {
   id: string;
@@ -109,10 +110,12 @@ export default function AffirmationGallery({
 
   React.useEffect(() => {
     const handleStorageChange = () => {
-      const savedBoutique = localStorage.getItem("sorea_affirmations_boutique");
-      if (savedBoutique) setBoutiqueCards(JSON.parse(savedBoutique));
       const savedAff = localStorage.getItem("sorea_affirmations");
       if (savedAff) setAffirmations(JSON.parse(savedAff));
+      // La Boutique vient de la base (GameProduct) : la même pour tous les comptes
+      getBoutiqueAffirmationsAction().then((result) => {
+        if (result.success) setBoutiqueCards(result.products);
+      });
     };
 
     // Chargement initial au montage ou à l'ouverture de la modale

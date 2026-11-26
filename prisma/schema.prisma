@@ -186,6 +186,10 @@ model GameProduct {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
+  // Pellicules de visualisation : miniatures (JSON, 3 max) affichées dans la Boutique + nombre total d'images
+  images      String?
+  imagesCount Int?
+
   buyerId          Int?
   buyer            User?                 @relation("GameProductBuyer", fields: [buyerId], references: [id], onDelete: SetNull)
   buyerFirstName   String?

@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { Plus, X } from "lucide-react";
-import { createAffirmationAction, createVisualisationAction } from "./actions";
+import { createAffirmationAction, createVisualisationAction, retirerAffirmationBoutiqueAction, retirerVisualisationBoutiqueAction } from "./actions";
 
 interface ProductData {
   id: number;
@@ -264,10 +264,16 @@ export default function AdminProductsPage() {
   const sendVisualisationToShop = async (card: any) => {
     setActiveVisMenuId(null);
     try {
+      // Boutique : on ne garde que des miniatures des 3 premières images + le nombre d'images
+      const miniatures = await Promise.all((card.images || []).slice(0, 3).map((img: any) => creerMiniature(img)));
+
+      // 1. Enregistrement en base (GameProduct) avec les miniatures : visible par tous les comptes
       const result = await createVisualisationAction({
         title: card.title,
         description: card.description || "",
         price: card.price || 0.95,
+        images: miniatures,
+        imagesCount: card.images ? card.images.length : 0,
       });
 
       if (!result.success) {
@@ -275,8 +281,6 @@ export default function AdminProductsPage() {
       }
 
       const existingBoutique = JSON.parse(localStorage.getItem("sorea_visualisation_boutique") || "[]");
-      // Boutique : on ne garde que des miniatures des 3 premières images + le nombre d'images (le stockage du navigateur est limité)
-      const miniatures = await Promise.all((card.images || []).slice(0, 3).map((img: any) => creerMiniature(img)));
       const productWithDbId = {
         ...card,
         id: String(result.product.id),
@@ -287,9 +291,9 @@ export default function AdminProductsPage() {
 
       if (!existingBoutique.some((item: any) => item.id === productWithDbId.id)) {
         const updatedBoutique = [...existingBoutique, productWithDbId];
-        if (!ecrireStockage("sorea_visualisation_boutique", updatedBoutique)) {
-          throw new Error("Le stockage du navigateur est plein : vide la corbeille des visualisations ou supprime d'anciennes pellicules, puis réessaie.");
-        }
+        // Copie locale facultative : la Boutique est désormais lue depuis la base,
+        // un stockage navigateur plein ne doit donc plus bloquer l'envoi (déjà enregistré en base)
+        ecrireStockage("sorea_visualisation_boutique", updatedBoutique);
         window.dispatchEvent(new Event("visualisationSentToBoutique"));
       }
 
@@ -317,6 +321,10 @@ export default function AdminProductsPage() {
       );
       localStorage.setItem("sorea_visualisation_boutique", JSON.stringify(updatedBoutique));
       window.dispatchEvent(new Event("visualisationSentToBoutique"));
+      // Retire aussi la pellicule de la Boutique de tous les utilisateurs (base de données)
+      retirerVisualisationBoutiqueAction({ title: cardToDelete.title, description: cardToDelete.description || "" }).then(() => {
+        window.dispatchEvent(new Event("visualisationSentToBoutique"));
+      });
     }
     setActiveVisMenuId(null);
   };
@@ -500,6 +508,10 @@ export default function AdminProductsPage() {
       );
       localStorage.setItem("sorea_affirmations_boutique", JSON.stringify(updatedBoutique));
       window.dispatchEvent(new Event("affirmationSentToBoutique"));
+      // Retire aussi l'affirmation de la Boutique de tous les utilisateurs (base de données)
+      retirerAffirmationBoutiqueAction({ title: cardToDelete.title, text: cardToDelete.text }).then(() => {
+        window.dispatchEvent(new Event("affirmationSentToBoutique"));
+      });
     }
     setActiveMenuId(null);
   };

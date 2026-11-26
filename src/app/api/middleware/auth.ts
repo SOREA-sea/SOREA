@@ -22,25 +22,8 @@ export async function getUserFromRequest() {
       }
     }
 
-    // 2. Chercher une session temporaire 2FA (2fa_temp_*)
-    const allCookies = cookieStore.getAll();
-    for (const cookie of allCookies) {
-      if (cookie.name.startsWith("2fa_temp_")) {
-        try {
-          const tempSessionData = JSON.parse(cookie.value);
-          if (tempSessionData.userId) {
-            const user = await prisma.user.findUnique({
-              where: { id: tempSessionData.userId },
-            });
-            if (user) return user;
-          }
-        } catch {
-          // Ignorer les cookies corrompus
-          continue;
-        }
-      }
-    }
-
+    // Un cookie 2fa_temp_* ne connecte PAS l'utilisateur : il ne sert qu'à
+    // /api/auth/2fa/verify-login, qui crée la vraie session une fois le code 2FA validé.
     return null;
   } catch (error) {
     console.error("Erreur getUserFromRequest:", error);

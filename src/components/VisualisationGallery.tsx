@@ -16,6 +16,7 @@ import {
   ChevronDown 
 } from "lucide-react";
 import VisualisationPayment from "@/components/VisualisationPayment";
+import { getBoutiqueVisualisationsAction } from "@/app/dashboard/admin/products/actions";
 
 interface CropTransform {
   scale: number;
@@ -113,8 +114,10 @@ export default function VisualisationGallery({
 
   useEffect(() => {
     const handleStorageChange = () => {
-      const savedBoutique = localStorage.getItem("sorea_visualisation_boutique");
-      if (savedBoutique) setBoutiqueCards(JSON.parse(savedBoutique));
+      // La Boutique vient de la base (GameProduct) : la même pour tous les comptes
+      getBoutiqueVisualisationsAction().then((result) => {
+        if (result.success) setBoutiqueCards(result.products);
+      });
       const savedPell = localStorage.getItem("sorea_visualisation_pellicules");
       if (savedPell) setPellicules(JSON.parse(savedPell));
     };
