@@ -377,9 +377,10 @@ export default function SuiviPage() {
                     title="Mois précédent"
                   >
                     <img 
-                      src="/image_icone/FlècheCarrousel.svg" 
+                      src="/image_icone/ArrowCarousel.svg" 
                       alt="Précédent" 
-                      className={`w-6 h-6 object-contain transition-opacity ${safeIndex >= sortedEntries.length - 1 ? 'opacity-30' : 'opacity-100'}`} 
+                      style={{ rotate: "90deg" }}
+                      className={`w-6 h-6 object-contain transition-opacity ${safeIndex >= sortedEntries.length - 1 ? 'opacity-30' : 'opacity-100'}`}
                     />
                   </button>
 
@@ -391,9 +392,9 @@ export default function SuiviPage() {
                     title="Mois suivant"
                   >
                     <img 
-                      src="/image_icone/FlècheCarrousel.svg" 
+                      src="/image_icone/ArrowCarousel.svg" 
                       alt="Suivant" 
-                      className={`w-6 h-6 object-contain rotate-180 transition-opacity ${safeIndex === 0 ? 'opacity-30' : 'opacity-100'}`} 
+                      className={`w-6 h-6 object-contain -rotate-90 transition-opacity ${safeIndex === 0 ? 'opacity-30' : 'opacity-100'}`} 
                     />
                   </button>
                 </div>

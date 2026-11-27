@@ -24,6 +24,12 @@ export async function POST(req: NextRequest) {
         { status: 403 }
       );
     }
+    if (email && blockedEmails2.includes(email.toLowerCase().trim())) {
+      return Response.json(
+        { error: "Accès refusé : vous n'êtes pas autorisé d'accéder au site." },
+        { status: 403 }
+      );
+    }
     // ── 1. Champs obligatoires ───────────────────────────────────────────────
     if (!firstName || !lastName || !email || !password) {
       return NextResponse.json(

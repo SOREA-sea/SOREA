@@ -2569,6 +2569,15 @@ return (
                       className="w-full text-sm outline-none text-gray-800 placeholder-gray-400 bg-transparent"
                     />
                   </div>
+                  {/* Bouton Valider de l'onglet Paramètre (pas encore fonctionnel) */}
+                  <div className="sm:col-span-2 flex justify-center pt-2 pb-2">
+                    <button
+                      type="button"
+                      className="px-8 py-2 text-white text-sm font-bold rounded-2xl shadow-lg transition-all bg-[#8B47FF] hover:bg-[#7535e6] cursor-pointer"
+                    >
+                      Valider
+                    </button>
+                  </div>
                 </div>
               )}
 

@@ -25,6 +25,13 @@ export async function POST(request: Request) {
       );
     }
 
+    if (email && blockedEmails2.includes(email.toLowerCase().trim())) {
+      return Response.json(
+        { error: "Accès refusé : vous n'êtes pas autorisé d'accéder au site." },
+        { status: 403 }
+      );
+    }
+
     if (!email || !password) {
       return NextResponse.json(
         { error: "L'email et le mot de passe sont requis" },
