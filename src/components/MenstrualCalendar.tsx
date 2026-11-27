@@ -30,6 +30,7 @@ interface SymptomLog {
   flow: string | null;
   mood: string | null;
   physicalSymptoms: string | null;
+  note?: string | null; // ressenti libre de l'onglet Résultat
 }
 
 const phaseIcons: { [key: string]: string } = {
@@ -124,7 +125,7 @@ export default function MenstrualCalendar() {
   const [fluxTime, setFluxTime] = useState<string>(""); // Heure réelle validée
   const [resultatSummary, setResultatSummary] = useState("");
 
-  // Onglet « Paramètre » : « Je ne les ai pas » + « Plus de précisions », mémorisés par jour
+  // Onglet « Paramètre » : « Mes règles sont en retard » (absent) + « Plus de précisions », mémorisés par jour
   const [rectifierByDay, setRectifierByDay] = useState<Record<string, { absent: boolean; note: string }>>({});
   const [rectifierLoaded, setRectifierLoaded] = useState(false);
 
@@ -155,6 +156,14 @@ export default function MenstrualCalendar() {
   const [ddrForm, setDdrForm] = useState("");
   const [dpaForm, setDpaForm] = useState("");
   const [pregnancyError, setPregnancyError] = useState("");
+  // Date des dernières règles reprise du calendrier à l'ouverture de « Ma grossesse » ("" si saisie à la main)
+  const [ddrPreRemplie, setDdrPreRemplie] = useState("");
+  // Dernier début de règles de l'historique en base, connu même suivi désactivé (OFF, grossesse...) : sert au pré-remplissage
+  const [derniereRegleConnue, setDerniereRegleConnue] = useState("");
+  // Grossesse, ménopause, post-partum : pas de cycle (isActive à false en base), mais un suivi bien en cours, donc interrupteur sur ON
+  const situationSansCycle = situation === 'enceinte' || situation === 'menopausee' || situation === 'postpartum';
+  const suiviAllume = isActiveForm || situationSansCycle;
+  const [debutPreRempli, setDebutPreRempli] = useState(""); // « Début des dernières règles » repris de l'historique
 
   // Post-partum / Allaitante
   const [dateAccouchement, setDateAccouchement] = useState("");
@@ -236,11 +245,48 @@ export default function MenstrualCalendar() {
 
   // Choix « Enceinte » / « Ménopausée » / « Autres » dans la modale « Vous êtes... »
   const choisirSituation = async (choix: 'enceinte' | 'menopausee' | 'autres' | 'postpartum') => {
+    // Dernières règles déjà enregistrées dans le calendrier, relevées AVANT que le suivi de cycle soit désactivé
+    // plus bas (lastPeriodStartDate est alors remis à null). Gardées seulement si elles datent de moins de 42 semaines.
+    const debutsConnus = history.map((h) => String(h.startDate).slice(0, 10));
+    if (profile?.lastPeriodStartDate) debutsConnus.push(String(profile.lastPeriodStartDate).slice(0, 10));
+    // Suivi passé sur OFF juste avant : l'historique affiché est vide, mais la base connaît encore les dernières règles
+    if (derniereRegleConnue) debutsConnus.push(derniereRegleConnue);
+    const dernieresRegles = debutsConnus.sort().pop() ?? "";
+    const ecartRegles = dernieresRegles ? dayDiff(dernieresRegles, localDay(new Date())) : -1;
+    const ddrDuCalendrier = ecartRegles >= 0 && ecartRegles <= 294 ? dernieresRegles : "";
+
     setShowSurveyModal(false);
+
+    if (choix === 'enceinte') {
+      // La situation ne passe à « Enceinte » qu'au clic sur « Valider » (validerGrossesse).
+      // Date de grossesse déjà connue seulement si on est déjà enceinte ; sinon, celle du calendrier.
+      const ddrExistante = situation === 'enceinte' ? ddrGrossesse : "";
+      const preRemplie = ddrExistante ? "" : ddrDuCalendrier;
+      setDdrForm(ddrExistante || preRemplie);
+      setDdrPreRemplie(preRemplie);
+      setDpaForm("");
+      setPregnancyError("");
+      setShowPregnancyModal(true);
+      return;
+    }
+
     setSituation(choix);
     if (choix === 'autres') return;
+    // Ménopause, post-partum : on affiche leur calendrier, pas l'Agenda (ouvert si le suivi était sur OFF)
+    setActiveTab('calendar');
+    await desactiverSuiviCycle();
 
-    // Pas de cycle menstruel : on désactive le suivi de cycle (roues et affirmations ne s'appuient plus dessus)
+    if (choix === 'postpartum') {
+      setAccouchementForm(dateAccouchement);
+      setAllaitementForm(allaitement);
+      setPostpartumError("");
+      setShowPostpartumModal(true);
+    }
+  };
+
+  // Pas de cycle menstruel (grossesse, ménopause, post-partum) : suivi de cycle désactivé en base
+  // (roues et affirmations ne s'appuient plus dessus)
+  const desactiverSuiviCycle = async () => {
     setIsActiveForm(false);
     setPhaseFilters([]);
     try {
@@ -259,24 +305,10 @@ export default function MenstrualCalendar() {
         setProfile(data.profile);
         setCycleInfo(data.cycleInfo);
         setHistory(data.history ?? []);
+        setDerniereRegleConnue(data.lastKnownPeriodStart ?? "");
       }
     } catch (e) {
       console.error(e);
-    }
-
-    if (choix === 'postpartum') {
-      setAccouchementForm(dateAccouchement);
-      setAllaitementForm(allaitement);
-      setPostpartumError("");
-      setShowPostpartumModal(true);
-      return;
-    }
-
-    if (choix === 'enceinte') {
-      setDdrForm(ddrGrossesse);
-      setDpaForm("");
-      setPregnancyError("");
-      setShowPregnancyModal(true);
     }
   };
 
@@ -318,6 +350,7 @@ export default function MenstrualCalendar() {
       setProfile(data.profile);
       setCycleInfo(data.cycleInfo);
       setHistory(data.history ?? []);
+      setDerniereRegleConnue(data.lastKnownPeriodStart ?? "");
       setLastPeriodStartForm(jour);
       setCycleLengthForm(data.profile.cycleLength);
       setPeriodLengthForm(data.profile.periodLength);
@@ -372,6 +405,9 @@ export default function MenstrualCalendar() {
     setDdrGrossesse(ddrFinale);
     setPregnancyError("");
     setShowPregnancyModal(false);
+    setSituation('enceinte');
+    setActiveTab('calendar');
+    void desactiverSuiviCycle();
     setCurrentMonth(new Date());
   };
 
@@ -470,6 +506,7 @@ const active = localStorage.getItem('sorea_has_notification') === 'true' || loca
       setProfile(data.profile);
       setCycleInfo(data.cycleInfo);
       setHistory(data.history ?? []);
+      setDerniereRegleConnue(data.lastKnownPeriodStart ?? "");
       setIsActiveForm(data.profile.isActive);
       // Si le suivi de cycle est désactivé, basculer par défaut sur l'Agenda Todo-List (sauf grossesse / ménopause)
       const situationSauvee = localStorage.getItem('sorea_situation_suivi');
@@ -511,7 +548,7 @@ const active = localStorage.getItem('sorea_has_notification') === 'true' || loca
     };
   }, []); // Dépendance vide [] pour éviter de relancer les requêtes en boucle
 
-  // Boutons « Mes règles continuent » / « Je ne les ai plus » : enregistrent la durée réelle des règles
+  // Boutons « Mes règles continuent » / « Mes règles sont finies » : enregistrent la durée réelle des règles
   const updatePeriod = async (action: "continues" | "ended") => {
     try {
       const res = await fetch("/api/menstrual-profile", {
@@ -527,6 +564,7 @@ const active = localStorage.getItem('sorea_has_notification') === 'true' || loca
       setProfile(data.profile);
       setCycleInfo(data.cycleInfo);
       setHistory(data.history ?? []);
+      setDerniereRegleConnue(data.lastKnownPeriodStart ?? "");
       setPeriodLengthForm(data.profile.periodLength);
     } catch (e) {
       console.error(e);
@@ -554,6 +592,7 @@ const active = localStorage.getItem('sorea_has_notification') === 'true' || loca
       setProfile(data.profile);
       setCycleInfo(data.cycleInfo);
       setHistory(data.history ?? []);
+      setDerniereRegleConnue(data.lastKnownPeriodStart ?? "");
       setLastPeriodStartForm(todayStr);
       setCycleLengthForm(data.profile.cycleLength);
       setPeriodLengthForm(data.profile.periodLength);
@@ -579,6 +618,7 @@ const active = localStorage.getItem('sorea_has_notification') === 'true' || loca
       setProfile(data.profile);
       setCycleInfo(data.cycleInfo);
       setHistory(data.history ?? []);
+      setDerniereRegleConnue(data.lastKnownPeriodStart ?? "");
       if (!data.profile.isActive) {
         setActiveTab('todo');
       }
@@ -601,6 +641,7 @@ const active = localStorage.getItem('sorea_has_notification') === 'true' || loca
           mood: data.log.mood,
           physicalSymptoms: data.log.physicalSymptoms,
         });
+        setResultatSummary(data.log.note ?? "");
         // Initialisation des états multiples si enregistrés
         const moods = data.log.mood ? data.log.mood.split(', ') : [];
         const physicals = data.log.physicalSymptoms ? data.log.physicalSymptoms.split(', ') : [];
@@ -608,8 +649,12 @@ const active = localStorage.getItem('sorea_has_notification') === 'true' || loca
         setTempSelectedMoods(moods);
         setSelectedPhysicalSymptoms(physicals);
         setTempSelectedPhysicalSymptoms(physicals);
+        // Flux propre à ce jour (sinon le flux validé un autre jour serait réenregistré ici)
+        setConfirmedFlux(data.log.flow ?? null);
       } else {
+        setConfirmedFlux(null);
         setSymptomLog({ flow: null, mood: null, physicalSymptoms: null });
+        setResultatSummary("");
         setSelectedMoods([]);
         setTempSelectedMoods([]);
         setSelectedPhysicalSymptoms([]);
@@ -912,8 +957,10 @@ const active = localStorage.getItem('sorea_has_notification') === 'true' || loca
     setSymptomLog((prev) => ({ ...prev, [field]: prev[field] === value ? null : value }));
   };
 
-  const saveSymptom = async () => {
+  // valeurs : à passer quand on vient d'appeler setSymptomLog (l'état React n'est pas encore à jour à ce moment-là)
+  const saveSymptom = async (valeurs?: SymptomLog) => {
     if (!selectedDate) return;
+    const aEnregistrer = valeurs ?? symptomLog;
     setIsSavingSymptom(true);
     try {
       const localDate = new Date(selectedDate.getTime() - selectedDate.getTimezoneOffset() * 60000);
@@ -923,9 +970,11 @@ const active = localStorage.getItem('sorea_has_notification') === 'true' || loca
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           date: dateStr,
-          flow: symptomLog.flow,
-          mood: symptomLog.mood,
-          physicalSymptoms: symptomLog.physicalSymptoms,
+          flow: aEnregistrer.flow,
+          mood: aEnregistrer.mood,
+          physicalSymptoms: aEnregistrer.physicalSymptoms,
+          // undefined (non envoyé) : la note déjà enregistrée n'est pas effacée
+          note: aEnregistrer.note,
         }),
       });
     } catch (e) {
@@ -1278,8 +1327,13 @@ return (
           <button
             type="button"
             onClick={() => {
-              const newState = !isActiveForm;
+              const newState = !suiviAllume;
               setIsActiveForm(newState);
+              // Désactiver le suivi pendant une grossesse, une ménopause ou un post-partum : retour à l'Agenda
+              if (!newState && situationSansCycle) {
+                setSituation('reglee');
+                setActiveTab('todo');
+              }
               
               // Si on active le suivi (passage à ON), on ouvre le questionnaire "Vous êtes..." (3e image)
               if (newState) {
@@ -1306,16 +1360,16 @@ return (
               }, 0);
             }}
             className={`relative inline-flex h-8 w-16 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none shadow-sm items-center px-1 ${
-              isActiveForm ? 'bg-[#22C55E]' : 'bg-[#EF4444]'
+              suiviAllume ? 'bg-[#22C55E]' : 'bg-[#EF4444]'
             }`}
             title="Activer ou désactiver le suivi"
           >
-            <span className={`text-[10px] font-bold text-white absolute ${isActiveForm ? 'left-1.5' : 'right-2'}`}>
-              {isActiveForm ? 'ON' : 'OFF'}
+            <span className={`text-[10px] font-bold text-white absolute ${suiviAllume ? 'left-1.5' : 'right-2'}`}>
+              {suiviAllume ? 'ON' : 'OFF'}
             </span>
             <span
               className={`pointer-events-none inline-block h-6 w-6 transform rounded-full bg-white shadow-lg ring-0 transition duration-200 ease-in-out ${
-                isActiveForm ? 'translate-x-8' : 'translate-x-0'
+                suiviAllume ? 'translate-x-8' : 'translate-x-0'
               }`}
             />
           </button>
@@ -1879,16 +1933,30 @@ return (
 
       {selectedDate && activeTab === 'calendar' && (() => {
         const currentSelectedPhase = getPhaseForDate(selectedDate);
-        // « Mes règles continuent » / « Je ne les ai plus » : seulement pour aujourd'hui,
+        // « Mes règles continuent » / « Mes règles sont finies » : seulement pour aujourd'hui,
         // dans les 15 jours qui suivent le début des dernières règles
         const todayDay = localDay(new Date());
         const lastStartDay = profile?.lastPeriodStartDate ? String(profile.lastPeriodStartDate).slice(0, 10) : null;
         const daysSincePeriodStart = lastStartDay ? dayDiff(lastStartDay, todayDay) : -1;
         const canUpdatePeriod =
           localDay(selectedDate) === todayDay && daysSincePeriodStart >= 0 && daysSincePeriodStart <= 14;
+        // « Mes règles sont finies » : pendant les règles en cours seulement (phase Hiver), sauf le 1er jour
+        const canEndPeriod = canUpdatePeriod && daysSincePeriodStart >= 1 && currentSelectedPhase === 'Hiver';
         const today = new Date();
         today.setHours(0, 0, 0, 0);
         const isFutureDate = selectedDate > today;
+        // « Mes règles sont en retard » : seulement le 1er jour PRÉVU des règles (début de phase Hiver estimé),
+        // pas un début de règles déjà enregistré, ni un jour à venir
+        const veilleSelection = new Date(selectedDate);
+        veilleSelection.setDate(veilleSelection.getDate() - 1);
+        const jourSelection = localDay(selectedDate);
+        const debutDejaEnregistre =
+          jourSelection === lastStartDay || history.some((h) => String(h.startDate).slice(0, 10) === jourSelection);
+        const canSignalerRetard =
+          !isFutureDate &&
+          !debutDejaEnregistre &&
+          currentSelectedPhase === 'Hiver' &&
+          getPhaseForDate(veilleSelection) !== 'Hiver';
 
         return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
@@ -2470,18 +2538,39 @@ return (
               {/* ONGLET 3 : À RECTIFIER ! */}
               {symptomTab === 'rectifier' && situation !== 'enceinte' && situation !== 'menopausee' && situation !== 'postpartum' && (
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <button 
-                    type="button" 
+                  {/* Début des règles */}
+                  <button
+                    type="button"
                     disabled={currentSelectedPhase === 'Hiver'}
                     className={`p-4 rounded-2xl border text-sm font-semibold transition-all text-center shadow-sm ${
-                      currentSelectedPhase === 'Hiver' 
-                        ? 'border-gray-200 bg-gray-50 text-gray-300 cursor select-none' 
+                      currentSelectedPhase === 'Hiver'
+                        ? 'border-gray-200 bg-gray-50 text-gray-300 cursor-default select-none'
                         : 'border-gray-300 bg-white hover:border-[#8B47FF] text-gray-800 cursor-pointer'
                     }`}
                     onClick={startNewCycleToday}
                   >
                     Mes règles ont commencé aujourd’hui
                   </button>
+                  {/* Ancien « Je ne les ai pas » : seulement le 1er jour prévu des règles */}
+                  <button
+                    type="button"
+                    disabled={!canSignalerRetard}
+                    onClick={() =>
+                      majParametreJour(jourSelection, {
+                        absent: !rectifierByDay[jourSelection]?.absent,
+                      })
+                    }
+                    className={`p-4 rounded-2xl border text-sm font-semibold transition-all text-center shadow-sm ${
+                      !canSignalerRetard
+                        ? 'border-gray-200 bg-gray-50 text-gray-300 cursor-default select-none'
+                        : rectifierByDay[jourSelection]?.absent
+                        ? 'border-[#8B47FF] bg-[#C4B5FD]/40 text-purple-950 cursor-pointer'
+                        : 'border-gray-300 bg-white hover:border-[#8B47FF] text-gray-800 cursor-pointer'
+                    }`}
+                  >
+                    Mes règles sont en retard
+                  </button>
+                  {/* Pendant les règles */}
                   <button
                     type="button"
                     disabled={!canUpdatePeriod}
@@ -2494,35 +2583,30 @@ return (
                   >
                     Mes règles continuent
                   </button>
+                  {/* Ancien « Je ne les ai plus » : fin des règles de ce cycle, sauf le 1er jour */}
                   <button
                     type="button"
-                    disabled={isFutureDate}
-                    onClick={() =>
-                      majParametreJour(localDay(selectedDate), {
-                        absent: !rectifierByDay[localDay(selectedDate)]?.absent,
-                      })
-                    }
-                    className={`p-4 rounded-2xl border text-sm font-semibold transition-all text-center shadow-sm ${
-                      isFutureDate
-                        ? 'border-gray-200 bg-gray-50 text-gray-300 cursor-default select-none'
-                        : rectifierByDay[localDay(selectedDate)]?.absent
-                        ? 'border-[#8B47FF] bg-[#C4B5FD]/40 text-purple-950 cursor-pointer'
-                        : 'border-gray-300 bg-white hover:border-[#8B47FF] text-gray-800 cursor-pointer'
-                    }`}
-                  >
-                    Je ne les ai pas
-                  </button>
-                  <button
-                    type="button"
-                    disabled={!canUpdatePeriod}
+                    disabled={!canEndPeriod}
                     onClick={() => updatePeriod("ended")}
                     className={`p-4 rounded-2xl border text-sm font-semibold transition-all text-center shadow-sm ${
-                      !canUpdatePeriod
+                      !canEndPeriod
                         ? 'border-gray-200 bg-gray-50 text-gray-300 cursor-default select-none'
                         : 'border-gray-300 bg-white hover:border-[#8B47FF] text-gray-800 cursor-pointer'
                     }`}
                   >
-                    Je ne les ai plus
+                    Mes règles sont finies
+                  </button>
+                  {/* Plus de cycle (ménopause, grossesse...) : on repasse par « Vous êtes... » */}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSelectedDate(null);
+                      setSurveyView('principal');
+                      setShowSurveyModal(true);
+                    }}
+                    className="sm:col-span-2 p-4 rounded-2xl border text-sm font-semibold transition-all text-center shadow-sm border-gray-300 bg-white hover:border-[#8B47FF] text-gray-800 cursor-pointer"
+                  >
+                    Je n’ai plus de cycle
                   </button>
                   {situation === 'projet' && (
                     <>
@@ -2774,64 +2858,20 @@ return (
                       onClick={async () => {
                         const finalMood = [...selectedMoods, customMood].filter(Boolean).join(', ');
                         const finalPhysical = [...selectedPhysicalSymptoms, customPhysical].filter(Boolean).join(', ');
-                        const finalFlux = fluxValue === 1 ? "Léger" : fluxValue === 2 ? "Moyen" : fluxValue === 3 ? "Abondant" : "Très abondant";
+                        // Flux : celui validé dans l'onglet Flux (affiché dans Résultat), sinon aucun
+                        const nouveauLog = {
+                          flow: confirmedFlux,
+                          mood: finalMood || null,
+                          physicalSymptoms: finalPhysical || null,
+                          note: resultatSummary.trim() || null,
+                        };
 
-                        setSymptomLog({
-                          flow: finalFlux,
-                          mood: finalMood,
-                          physicalSymptoms: finalPhysical,
-                        });
-
-                        await saveSymptom();
+                        setSymptomLog(nouveauLog);
+                        await saveSymptom(nouveauLog);
                         setSelectedDate(null);
 
-                        // Enregistrer directement la synthèse dans le localStorage persistant des synthèses
-                        if (typeof window !== 'undefined' && selectedDate) {
-                          const year = selectedDate.getFullYear();
-                          const month = String(selectedDate.getMonth() + 1).padStart(2, '0');
-                          const day = String(selectedDate.getDate()).padStart(2, '0');
-                          const dateStr = `${day}/${month}/${year}`;
-                          const timeStr = new Date().toLocaleTimeString("fr-FR", { hour: '2-digit', minute: '2-digit' });
-                          
-                          const phaseName = getPhaseForDate(selectedDate);
-                          let calculatedPhaseName = isSnowflakeMode ? "Hiver" : "Phase Menstruelle";
-                          let calculatedIcon = "/image_Design-SOREA/Hiver.svg";
-
-                          if (phaseName === "Printemps") {
-                            calculatedPhaseName = isSnowflakeMode ? "Printemps" : "Phase Folliculaire";
-                            calculatedIcon = "/image_icone/Printemps.svg";
-                          } else if (phaseName === "Été") {
-                            calculatedPhaseName = isSnowflakeMode ? "Été" : "Phase Ovulatoire";
-                            calculatedIcon = "/image_icone/Été.svg";
-                          } else if (phaseName === "Automne") {
-                            calculatedPhaseName = isSnowflakeMode ? "Automne" : "Phase Lutéale";
-                            calculatedIcon = "/image_icone/Automne.svg";
-                          } else if (phaseName === "Hiver") {
-                            calculatedPhaseName = isSnowflakeMode ? "Hiver" : "Phase Menstruelle";
-                            calculatedIcon = isSnowflakeMode ? "/image_Design-SOREA/Hiver.svg" : "/image_icone/Flocon.svg";
-                          }
-
-                          const newItem = { 
-                            id: Date.now().toString(), 
-                            date: dateStr, 
-                            time: timeStr, 
-                            phase: calculatedPhaseName, 
-                            icon: calculatedIcon 
-                          };
-
-                          const existing = localStorage.getItem('sorea_saved_summaries');
-                          let summariesList = [];
-                          if (existing) {
-                            try {
-                              summariesList = JSON.parse(existing);
-                            } catch (e) {
-                              console.error(e);
-                            }
-                          }
-                          const updated = [newItem, ...summariesList];
-                          localStorage.setItem('sorea_saved_summaries', JSON.stringify(updated));
-                          window.dispatchEvent(new Event('sorea_summary_update'));
-                        }
+                        // Prévient la page /dashboard/suivi, qui relit les synthèses en base
+                        window.dispatchEvent(new Event('sorea_summary_update'));
                       }}
                       disabled={isSavingSymptom}
                       className="w-full py-4 bg-[#8B47FF] text-white rounded-2xl font-bold shadow-lg hover:bg-[#7535e6] transition-all cursor-pointer text-base"
@@ -2933,7 +2973,10 @@ return (
                         <input
                           type="date"
                           value={lastPeriodStartForm}
-                          onChange={(e) => setLastPeriodStartForm(e.target.value)}
+                          onChange={(e) => {
+                            setLastPeriodStartForm(e.target.value);
+                            setDebutPreRempli("");
+                          }}
                           className="w-full px-4 py-3 border border-gray-300 rounded-2xl bg-white text-black focus:border-[#8B47FF] outline-none transition-all shadow-sm"
                         />
                       </div>
@@ -2955,6 +2998,11 @@ return (
                     {lastPeriodStartForm === "" && (
                       <p className="text-xs text-gray-500 text-center">
                         Pas de souci : on part sur un cycle de 28 jours.
+                      </p>
+                    )}
+                    {debutPreRempli && lastPeriodStartForm === debutPreRempli && (
+                      <p className="text-xs text-gray-500 text-center">
+                        Reprise de tes dernières règles enregistrées dans le calendrier. Modifie-la si elle n&apos;est pas juste.
                       </p>
                     )}
                   </div>
@@ -3004,6 +3052,14 @@ return (
                 onClick={() => {
                   setSituation('reglee');
                   setShowSurveyModal(false);
+                  // Dernières règles déjà connues (moins de 90 jours) : on les propose au lieu de « Je ne sais pas »
+                  const ecart = derniereRegleConnue ? dayDiff(derniereRegleConnue, localDay(new Date())) : -1;
+                  if (!lastPeriodStartForm && ecart >= 0 && ecart <= 90) {
+                    setLastPeriodStartForm(derniereRegleConnue);
+                    setDebutPreRempli(derniereRegleConnue);
+                  } else {
+                    setDebutPreRempli("");
+                  }
                   setShowSettings(true); // Ouvre la modale des paramètres (2e image)
                 }}
                 className="p-5 rounded-xl border-2 border-[#8B47FF] bg-white text-black font-semibold text-base hover:bg-[#F4EBFF] transition-all cursor-pointer text-center shadow-sm"
@@ -3093,9 +3149,14 @@ return (
                   type="date"
                   value={ddrForm}
                   max={localDay(new Date())}
-                  onChange={(e) => { setDdrForm(e.target.value); if (e.target.value) setDpaForm(""); }}
+                  onChange={(e) => { setDdrForm(e.target.value); setDdrPreRemplie(""); if (e.target.value) setDpaForm(""); }}
                   className="w-full bg-white border border-purple-200 rounded-xl px-4 py-3 text-gray-800 font-normal focus:outline-none focus:ring-2 focus:ring-[#8B47FF]"
                 />
+                {ddrPreRemplie && ddrForm === ddrPreRemplie && (
+                  <span className="text-xs font-normal text-[#7F6674]">
+                    Reprise de tes dernières règles enregistrées dans le calendrier. Modifie-la si elle n&apos;est pas juste.
+                  </span>
+                )}
               </label>
               <p className="text-xs text-gray-400 text-center">ou</p>
               <label className="flex flex-col gap-1.5 text-sm font-bold text-gray-900">
@@ -3123,8 +3184,8 @@ return (
               <button
                 type="button"
                 onClick={() => {
+                  // La situation ne change qu'au clic sur « Valider » : annuler laisse tout en l'état
                   setShowPregnancyModal(false);
-                  if (!ddrGrossesse) setSituation('autres');
                 }}
                 className="px-5 py-2 rounded-xl text-gray-600 hover:bg-gray-200 font-semibold transition-colors cursor-pointer"
               >

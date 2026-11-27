@@ -3,9 +3,32 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { useEffect } from 'react';
+
+// Pleine largeur : 100vw inclut la barre de défilement verticale (~15 px), qui faisait déborder la page.
+// --sorea-scrollbar = largeur réelle de cette barre (0 sans barre), retranchée à la largeur du footer.
+const STYLE_PLEINE_LARGEUR = {
+    width: 'calc(100vw - var(--sorea-scrollbar, 0px))',
+    marginLeft: 'calc(var(--sorea-scrollbar, 0px) / 2 - 50vw)',
+    marginRight: 'calc(var(--sorea-scrollbar, 0px) / 2 - 50vw)',
+};
 
 export default function Footer() {
     const pathname = usePathname();
+
+    useEffect(() => {
+        const root = document.documentElement;
+        const mesurer = () => root.style.setProperty('--sorea-scrollbar', `${window.innerWidth - root.clientWidth}px`);
+        mesurer();
+        // La barre apparaît aussi quand le contenu s'allonge (chargement des données), pas seulement au redimensionnement
+        const observateur = new ResizeObserver(mesurer);
+        observateur.observe(document.body);
+        window.addEventListener('resize', mesurer);
+        return () => {
+            observateur.disconnect();
+            window.removeEventListener('resize', mesurer);
+        };
+    }, []);
 
     const navLinks = [
         { href: '/', label: 'Accueil' },
@@ -64,7 +87,7 @@ export default function Footer() {
     };
 
     return (
-        <footer className="relative left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] w-screen bg-[radial-gradient(circle_at_92%_7%,rgba(255,128,196,0.72)_0,rgba(255,128,196,0)_20%),radial-gradient(circle_at_58%_38%,rgba(170,204,220,0.95)_0,rgba(170,204,220,0)_32%),radial-gradient(circle_at_39%_64%,rgba(231,176,241,0.75)_0,rgba(231,176,241,0)_29%),linear-gradient(105deg,#eef2f8_0%,#B6C0F8_31%,#E7B0F1_55%,#AACCDC_78%,#e9eef4_100%)] px-5 py-6 font-['Inria_Sans'] text-[#201a2b] shadow-sm sm:px-7 sm:py-8 lg:px-9">
+        <footer style={STYLE_PLEINE_LARGEUR} className="relative left-1/2 right-1/2 bg-[radial-gradient(circle_at_92%_7%,rgba(255,128,196,0.72)_0,rgba(255,128,196,0)_20%),radial-gradient(circle_at_58%_38%,rgba(170,204,220,0.95)_0,rgba(170,204,220,0)_32%),radial-gradient(circle_at_39%_64%,rgba(231,176,241,0.75)_0,rgba(231,176,241,0)_29%),linear-gradient(105deg,#eef2f8_0%,#B6C0F8_31%,#E7B0F1_55%,#AACCDC_78%,#e9eef4_100%)] px-5 py-6 font-['Inria_Sans'] text-[#201a2b] shadow-sm sm:px-7 sm:py-8 lg:px-9">
             <div className="mx-auto flex max-w-7xl flex-col gap-6 px-5 py-8 sm:px-8 lg:px-12">
                 <div className="grid gap-8 rounded-lg bg-white/55 p-5 backdrop-blur-md sm:p-7 lg:grid-cols-[1.05fr_1fr_1fr_1.4fr_72px] lg:items-start">
                     <div className="flex flex-col items-start gap-5">

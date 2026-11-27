@@ -43,6 +43,17 @@ async function loadHistory(userId: number, lastPeriodStartDate: Date | null): Pr
     .sort((a, b) => a.startDate.localeCompare(b.startDate));
 }
 
+// Dernier début de règles connu dans l'historique, même quand le suivi de cycle est désactivé
+// (OFF, grossesse, ménopause...) : sert à pré-remplir les dates au lieu de les redemander
+async function loadLastKnownPeriodStart(userId: number): Promise<string | null> {
+  const row = await prisma.periodHistory.findFirst({
+    where: { userId },
+    orderBy: { startDate: "desc" },
+    select: { startDate: true },
+  });
+  return row ? toDay(row.startDate) : null;
+}
+
 // Durée moyenne des règles sur les 6 dernières règles terminées (null s'il y en a moins de 2)
 async function recomputeAveragePeriodLength(userId: number): Promise<number | null> {
   // @ts-ignore
@@ -176,7 +187,8 @@ export async function GET() {
       session.user.timezone
     );
 
-    return NextResponse.json({ profile, cycleInfo, history }, { status: 200 });
+    const lastKnownPeriodStart = await loadLastKnownPeriodStart(session.userId);
+    return NextResponse.json({ profile, cycleInfo, history, lastKnownPeriodStart }, { status: 200 });
   } catch (error) {
     console.error("Erreur menstrual-profile GET:", error);
     return NextResponse.json({ error: "Erreur interne" }, { status: 500 });
@@ -210,7 +222,7 @@ export async function PUT(request: Request) {
     const periodLength: number | undefined =
       rawPeriodLength !== undefined ? Math.min(Math.max(Math.round(Number(rawPeriodLength)) || 5, 1), 10) : undefined;
 
-    // Actions rapides du calendrier : « Je ne les ai plus » (ended) / « Mes règles continuent » (continues)
+    // Actions rapides du calendrier : « Mes règles sont finies » (ended) / « Mes règles continuent » (continues)
     if (body.periodAction === "ended" || body.periodAction === "continues") {
       const currentProfile = await prisma.menstrualProfile.findUnique({
         where: { userId: session.userId }
@@ -280,7 +292,8 @@ export async function PUT(request: Request) {
         history,
         session.user.timezone
       );
-      return NextResponse.json({ profile: updatedProfile, cycleInfo, history }, { status: 200 });
+      const lastKnownPeriodStart = await loadLastKnownPeriodStart(session.userId);
+      return NextResponse.json({ profile: updatedProfile, cycleInfo, history, lastKnownPeriodStart }, { status: 200 });
     }
 
     const data: any = {};
@@ -394,7 +407,8 @@ export async function PUT(request: Request) {
       session.user.timezone
     );
 
-    return NextResponse.json({ profile, cycleInfo, history }, { status: 200 });
+    const lastKnownPeriodStart = await loadLastKnownPeriodStart(session.userId);
+    return NextResponse.json({ profile, cycleInfo, history, lastKnownPeriodStart }, { status: 200 });
 
   } catch (error) {
     console.error("Erreur menstrual-profile PUT:", error);

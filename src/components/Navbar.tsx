@@ -213,7 +213,7 @@ export default function Navbar({ isLoggedIn = false }: { isLoggedIn?: boolean })
           transition: opacity 0.18s ease;
         }
 
-        sorea-navbar-link:hover,
+        .sorea-navbar-link:hover,
         .sorea-navbar-link--active {
           color: var(--color-SOREA-R1);
         }
@@ -270,14 +270,50 @@ export default function Navbar({ isLoggedIn = false }: { isLoggedIn?: boolean })
 
           .sorea-navbar-nav {
             gap: 20px;
+            margin-left: 0;
           }
 
           .sorea-navbar-link {
             font-size: 15px;
           }
 
+          /* Bouton « Mon espace » / « Se connecter » gardé en mobile (seul accès au tableau de bord), en version compacte */
           .sorea-cta-btn {
-            display: none;
+            min-width: 0;
+            min-height: 36px;
+            padding: 8px 14px;
+            font-size: 14px;
+          }
+        }
+
+        @media (max-width: 480px) {
+          .sorea-navbar {
+            gap: 8px;
+            padding: 8px 10px;
+          }
+
+          .sorea-logo-link,
+          .sorea-logo-link img {
+            width: 48px;
+            height: 48px;
+          }
+
+          .sorea-navbar-panel {
+            padding: 0 12px;
+            gap: 10px;
+          }
+
+          .sorea-navbar-nav {
+            gap: 12px;
+          }
+
+          .sorea-navbar-link {
+            font-size: 14px;
+          }
+
+          .sorea-cta-btn {
+            padding: 8px 12px;
+            font-size: 13px;
           }
         }
       `}</style>

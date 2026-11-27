@@ -124,6 +124,7 @@ model SymptomLog {
   flow             String?
   mood             String?
   physicalSymptoms String?
+  note             String? // « Comment s'est passé ta période ? » (onglet Résultat du calendrier)
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
 

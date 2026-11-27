@@ -29,7 +29,7 @@ export async function GET(request: Request) {
     const date = new Date(dateParam);
     date.setHours(0, 0, 0, 0);
 
-    // @ts-ignore
+
     const log = await prisma.symptomLog.findUnique({
       where: {
         userId_date: {
@@ -65,6 +65,8 @@ export async function PUT(request: Request) {
 
     const body = await request.json();
     const { date: dateStr, flow, mood, physicalSymptoms } = body;
+    // Ressenti libre : non envoyé = inchangé ; texte limité pour éviter un stockage abusif
+    const note = typeof body.note === "string" ? body.note.trim().slice(0, 2000) || null : body.note === null ? null : undefined;
 
     if (!dateStr) {
       return NextResponse.json({ error: "Date requise" }, { status: 400 });
@@ -73,7 +75,7 @@ export async function PUT(request: Request) {
     const date = new Date(dateStr);
     date.setHours(0, 0, 0, 0);
 
-    // @ts-ignore
+
     const log = await prisma.symptomLog.upsert({
       where: {
         userId_date: {
@@ -84,14 +86,16 @@ export async function PUT(request: Request) {
       update: {
         flow,
         mood,
-        physicalSymptoms
+        physicalSymptoms,
+        ...(note !== undefined ? { note } : {}),
       },
       create: {
         userId: session.userId,
         date: date,
         flow,
         mood,
-        physicalSymptoms
+        physicalSymptoms,
+        note: note ?? null,
       }
     });
 
