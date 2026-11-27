@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Settings, ChevronLeft, ChevronRight, X, Trash2 } from "lucide-react";
 import MenstrualFlux from "./MenstrualFlux";
 import { getCyclePositionForDay, phaseForCycleDay, localDay, dayDiff, type PeriodEntry } from "@/lib/cycleCalc";
@@ -10,6 +10,11 @@ interface Profile {
   cycleLength: number;
   periodLength: number;
   lastPeriodStartDate: string | null;
+  // Situation « Vous êtes... », enregistrée en base (null = jamais enregistrée)
+  situation?: string | null;
+  pregnancyStartDate?: string | null;
+  deliveryDate?: string | null;
+  breastfeeding?: boolean;
 }
 
 interface CycleInfo {
@@ -125,24 +130,9 @@ export default function MenstrualCalendar() {
   const [fluxTime, setFluxTime] = useState<string>(""); // Heure réelle validée
   const [resultatSummary, setResultatSummary] = useState("");
 
-  // Onglet « Paramètre » : « Mes règles sont en retard » (absent) + « Plus de précisions », mémorisés par jour
+  // Onglet « Paramètre » : « Mes règles sont en retard » (absent) + « Plus de précisions », par jour.
+  // Modifiés ici, enregistrés en base au clic sur « Valider » (/api/cycle-days)
   const [rectifierByDay, setRectifierByDay] = useState<Record<string, { absent: boolean; note: string }>>({});
-  const [rectifierLoaded, setRectifierLoaded] = useState(false);
-
-  useEffect(() => {
-    try {
-      const stored = localStorage.getItem('sorea_parametre_jour');
-      if (stored) setRectifierByDay(JSON.parse(stored));
-    } catch (e) {
-      console.error(e);
-    }
-    setRectifierLoaded(true);
-  }, []);
-
-  useEffect(() => {
-    if (!rectifierLoaded) return;
-    localStorage.setItem('sorea_parametre_jour', JSON.stringify(rectifierByDay));
-  }, [rectifierByDay, rectifierLoaded]);
 
   const majParametreJour = (jour: string, patch: Partial<{ absent: boolean; note: string }>) => {
     setRectifierByDay((prev) => ({ ...prev, [jour]: { absent: false, note: "", ...prev[jour], ...patch } }));
@@ -179,56 +169,221 @@ export default function MenstrualCalendar() {
     if (!showSurveyModal) setSurveyView('principal');
   }, [showSurveyModal]);
 
-  // « En projet de grossesse » : tests d'ovulation positifs et rapports, mémorisés par jour
+  // « En projet de grossesse » : tests d'ovulation positifs et rapports, par jour (enregistrés avec « Valider »)
   const [projetByDay, setProjetByDay] = useState<Record<string, { test: boolean; rapport: boolean }>>({});
-  const [projetLoaded, setProjetLoaded] = useState(false);
-
-  useEffect(() => {
-    try {
-      const stored = localStorage.getItem('sorea_projet_jour');
-      if (stored) setProjetByDay(JSON.parse(stored));
-    } catch (e) {
-      console.error(e);
-    }
-    setProjetLoaded(true);
-  }, []);
-
-  useEffect(() => {
-    if (!projetLoaded) return;
-    localStorage.setItem('sorea_projet_jour', JSON.stringify(projetByDay));
-  }, [projetByDay, projetLoaded]);
 
   const majProjetJour = (jour: string, patch: Partial<{ test: boolean; rapport: boolean }>) => {
     setProjetByDay((prev) => ({ ...prev, [jour]: { test: false, rapport: false, ...prev[jour], ...patch } }));
   };
 
-  useEffect(() => {
-    try {
-      const s = localStorage.getItem('sorea_situation_suivi');
-      if (s === 'reglee' || s === 'enceinte' || s === 'menopausee' || s === 'autres' || s === 'projet' || s === 'perimenopause' || s === 'postpartum') setSituation(s);
-      const acc = localStorage.getItem('sorea_accouchement_date');
-      if (acc) setDateAccouchement(acc);
-      if (localStorage.getItem('sorea_allaitement') === 'oui') setAllaitement('oui');
-      const d = localStorage.getItem('sorea_grossesse_ddr');
-      if (d) setDdrGrossesse(d);
-    } catch (e) {
-      console.error(e);
-    }
-    setSituationLoaded(true);
-  }, []);
+  // Situation : enregistrée en base (profil menstruel), propre au compte. Lue une seule fois au premier
+  // chargement du profil (appliquerSituation), puis renvoyée au serveur à chaque changement.
+  const situationChargeeRef = useRef(false);
+  const situationEnvoyeeRef = useRef("");
+  const corpsSituation = (sit: string, ddr: string, acc: string, all: boolean) =>
+    JSON.stringify({ situation: sit, pregnancyStartDate: ddr || null, deliveryDate: acc || null, breastfeeding: all });
 
   useEffect(() => {
     if (!situationLoaded) return;
-    localStorage.setItem('sorea_situation_suivi', situation);
-    localStorage.setItem('sorea_grossesse_ddr', ddrGrossesse);
-    localStorage.setItem('sorea_accouchement_date', dateAccouchement);
-    localStorage.setItem('sorea_allaitement', allaitement);
+    const corps = corpsSituation(situation, ddrGrossesse, dateAccouchement, allaitement === 'oui');
+    if (corps === situationEnvoyeeRef.current) return;
+    situationEnvoyeeRef.current = corps;
+    fetch("/api/menstrual-profile", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: corps,
+    }).catch((e) => console.error(e));
   }, [situation, ddrGrossesse, dateAccouchement, allaitement, situationLoaded]);
+
+  const appliquerSituation = (p: Profile | null) => {
+    let sit: string | null = p?.situation ?? null;
+    let ddr = p?.pregnancyStartDate ? String(p.pregnancyStartDate).slice(0, 10) : "";
+    let acc = p?.deliveryDate ? String(p.deliveryDate).slice(0, 10) : "";
+    let all = !!p?.breastfeeding;
+    const anciennesCles = ['sorea_situation_suivi', 'sorea_grossesse_ddr', 'sorea_accouchement_date', 'sorea_allaitement'];
+    try {
+      if (!sit) {
+        // Jamais enregistrée en base : reprise unique de l'ancien stockage du navigateur
+        sit = localStorage.getItem('sorea_situation_suivi');
+        ddr = localStorage.getItem('sorea_grossesse_ddr') || "";
+        acc = localStorage.getItem('sorea_accouchement_date') || "";
+        all = localStorage.getItem('sorea_allaitement') === 'oui';
+      }
+      anciennesCles.forEach((cle) => localStorage.removeItem(cle));
+    } catch (e) {
+      console.error(e);
+    }
+    const valide: typeof situation =
+      sit === 'enceinte' || sit === 'menopausee' || sit === 'autres' || sit === 'projet' || sit === 'perimenopause' || sit === 'postpartum'
+        ? sit
+        : 'reglee';
+    setSituation(valide);
+    setDdrGrossesse(ddr);
+    setDateAccouchement(acc);
+    setAllaitement(all ? 'oui' : 'non');
+    // Déjà en base à l'identique : rien à renvoyer
+    if (p?.situation) situationEnvoyeeRef.current = corpsSituation(valide, ddr, acc, all);
+    setSituationLoaded(true);
+    return valide;
+  };
 
   // Ajoute n jours à une date « AAAA-MM-JJ » (sans décalage de fuseau)
   const ajouterJours = (jourStr: string, n: number) => {
     const [y, m, d] = jourStr.split('-').map(Number);
     return new Date(Date.UTC(y, m - 1, d + n)).toISOString().slice(0, 10);
+  };
+
+  // ── Réglages par jour (onglet Paramètre), enregistrés en base avec « Valider » ──
+  type ParametresJour = { absent: boolean; note: string; test: boolean; rapport: boolean };
+  type JourServeur = { day: string; late: boolean; note: string; ovulationTest: boolean; intercourse: boolean };
+  const [joursEnregistres, setJoursEnregistres] = useState<Record<string, ParametresJour>>({});
+  const [statutValider, setStatutValider] = useState<{ jour: string; etat: 'enCours' | 'ok' | 'erreur' } | null>(null);
+
+  const parametresDuJour = (jour: string): ParametresJour => ({
+    absent: !!rectifierByDay[jour]?.absent,
+    note: rectifierByDay[jour]?.note ?? "",
+    test: !!projetByDay[jour]?.test,
+    rapport: !!projetByDay[jour]?.rapport,
+  });
+
+  const jourModifie = (jour: string) => {
+    const a = parametresDuJour(jour);
+    const b = joursEnregistres[jour] ?? { absent: false, note: "", test: false, rapport: false };
+    return a.absent !== b.absent || a.note.trim() !== b.note.trim() || a.test !== b.test || a.rapport !== b.rapport;
+  };
+
+  const envoyerJour = async (jour: string, p: ParametresJour): Promise<JourServeur> => {
+    const res = await fetch("/api/cycle-days", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ day: jour, late: p.absent, note: p.note, ovulationTest: p.test, intercourse: p.rapport }),
+    });
+    if (!res.ok) throw new Error("Enregistrement du jour impossible");
+    return (await res.json()).day;
+  };
+
+  const enregistrerParametresJour = async (jour: string) => {
+    setStatutValider({ jour, etat: 'enCours' });
+    try {
+      const d = await envoyerJour(jour, parametresDuJour(jour));
+      setJoursEnregistres((prev) => ({
+        ...prev,
+        [jour]: { absent: d.late, note: d.note, test: d.ovulationTest, rapport: d.intercourse },
+      }));
+      setStatutValider({ jour, etat: 'ok' });
+    } catch (e) {
+      console.error(e);
+      setStatutValider({ jour, etat: 'erreur' });
+    }
+  };
+
+  // Chargement depuis la base ; reprise unique des anciennes données du navigateur (localStorage)
+  useEffect(() => {
+    let actif = true;
+    fetch("/api/cycle-days")
+      .then((res) => (res.ok ? res.json() : null))
+      .then(async (data) => {
+        if (!actif || !data) return;
+        let days: JourServeur[] = data.days ?? [];
+        try {
+          const anciensParam = JSON.parse(localStorage.getItem('sorea_parametre_jour') || '{}');
+          const anciensProjet = JSON.parse(localStorage.getItem('sorea_projet_jour') || '{}');
+          const joursAnciens = Array.from(new Set([...Object.keys(anciensParam), ...Object.keys(anciensProjet)]));
+          if (days.length === 0 && joursAnciens.length > 0) {
+            const repris: JourServeur[] = [];
+            for (const jour of joursAnciens) {
+              if (!/^\d{4}-\d{2}-\d{2}$/.test(jour)) continue;
+              const p: ParametresJour = {
+                absent: !!anciensParam[jour]?.absent,
+                note: String(anciensParam[jour]?.note ?? ""),
+                test: !!anciensProjet[jour]?.test,
+                rapport: !!anciensProjet[jour]?.rapport,
+              };
+              if (!p.absent && !p.note.trim() && !p.test && !p.rapport) continue;
+              repris.push(await envoyerJour(jour, p));
+            }
+            days = repris;
+          }
+          localStorage.removeItem('sorea_parametre_jour');
+          localStorage.removeItem('sorea_projet_jour');
+        } catch (e) {
+          console.error(e);
+        }
+        if (!actif) return;
+        const rect: Record<string, { absent: boolean; note: string }> = {};
+        const proj: Record<string, { test: boolean; rapport: boolean }> = {};
+        const enr: Record<string, ParametresJour> = {};
+        for (const d of days) {
+          rect[d.day] = { absent: d.late, note: d.note };
+          proj[d.day] = { test: d.ovulationTest, rapport: d.intercourse };
+          enr[d.day] = { absent: d.late, note: d.note, test: d.ovulationTest, rapport: d.intercourse };
+        }
+        setRectifierByDay(rect);
+        setProjetByDay(proj);
+        setJoursEnregistres(enr);
+      })
+      .catch((e) => console.error(e));
+    return () => {
+      actif = false;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // « Mes règles sont en retard » validé un 1er jour prévu des règles, sans nouveau début depuis : retard en cours.
+  // Les jours de règles prévus ne s'affichent plus et les prévisions repartent de demain.
+  const retardRegles = (() => {
+    if (situation === 'enceinte' || situation === 'menopausee' || situation === 'postpartum' || situation === 'perimenopause') return null;
+    if (!profile?.isActive || !profile.lastPeriodStartDate) return null;
+    const debut = String(profile.lastPeriodStartDate).slice(0, 10);
+    const aujourdhui = localDay(new Date());
+    const attendu = Object.keys(joursEnregistres)
+      .filter((j) => joursEnregistres[j].absent && j > debut && j <= aujourdhui)
+      .sort()
+      .pop();
+    if (!attendu) return null;
+    return { attendu, jours: dayDiff(attendu, aujourdhui) + 1 };
+  })();
+  const avecRetard = (entries: PeriodEntry[]): PeriodEntry[] =>
+    retardRegles ? [...entries, { startDate: ajouterJours(localDay(new Date()), 1), endDate: null }] : entries;
+
+  // Champ « Plus de précisions » + bouton « Valider » (enregistre tous les réglages du jour en base)
+  const blocPrecisionsValider = (jour: string) => {
+    const modifie = jourModifie(jour);
+    const statut = statutValider?.jour === jour ? statutValider.etat : null;
+    return (
+      <>
+        <div className="p-4 rounded-2xl border border-gray-300 bg-white">
+          <input
+            type="text"
+            placeholder="Plus de précisions..."
+            value={rectifierByDay[jour]?.note ?? ""}
+            onChange={(e) => majParametreJour(jour, { note: e.target.value })}
+            className="w-full text-sm outline-none text-gray-800 placeholder-gray-400 bg-transparent"
+          />
+        </div>
+        <div className="flex flex-col items-center gap-2 pt-2 pb-2">
+          <button
+            type="button"
+            disabled={!modifie || statut === 'enCours'}
+            onClick={() => enregistrerParametresJour(jour)}
+            className={`px-8 py-2 text-sm font-bold rounded-2xl shadow-lg transition-all ${
+              modifie && statut !== 'enCours'
+                ? 'bg-[#8B47FF] hover:bg-[#7535e6] text-white cursor-pointer'
+                : 'bg-gray-100 text-gray-400 cursor-default'
+            }`}
+          >
+            {statut === 'enCours' ? 'Enregistrement...' : 'Valider'}
+          </button>
+          {statut === 'erreur' ? (
+            <p className="text-xs font-semibold text-red-500">L&apos;enregistrement a échoué, réessaie.</p>
+          ) : modifie ? (
+            <p className="text-xs text-[#7F6674]">Modifications non enregistrées : clique sur « Valider ».</p>
+          ) : statut === 'ok' ? (
+            <p className="text-xs text-[#7F6674]">Enregistré.</p>
+          ) : null}
+        </div>
+      </>
+    );
   };
 
   // Semaine d'aménorrhée (SA), trimestre et jours restants pour un jour donné (null si hors grossesse)
@@ -508,8 +663,10 @@ const active = localStorage.getItem('sorea_has_notification') === 'true' || loca
       setHistory(data.history ?? []);
       setDerniereRegleConnue(data.lastKnownPeriodStart ?? "");
       setIsActiveForm(data.profile.isActive);
+      // Situation lue en base au premier chargement seulement (ensuite l'état local fait foi et part au serveur)
+      const situationSauvee = situationChargeeRef.current ? situation : appliquerSituation(data.profile);
+      situationChargeeRef.current = true;
       // Si le suivi de cycle est désactivé, basculer par défaut sur l'Agenda Todo-List (sauf grossesse / ménopause)
-      const situationSauvee = localStorage.getItem('sorea_situation_suivi');
       if (!data.profile.isActive && situationSauvee !== 'enceinte' && situationSauvee !== 'menopausee' && situationSauvee !== 'postpartum') {
         setActiveTab('todo');
       }
@@ -1009,7 +1166,7 @@ const active = localStorage.getItem('sorea_has_notification') === 'true' || loca
     const position = getCyclePositionForDay(
       localDay(date),
       { cycleLength: profile?.cycleLength ?? 28, periodLength: profile?.periodLength ?? 5 },
-      entries
+      avecRetard(entries)
     );
     return position ? position.phase : null;
   };
@@ -1084,7 +1241,8 @@ const active = localStorage.getItem('sorea_has_notification') === 'true' || loca
     if (entries.length === 0) return null;
 
     const reglages = { cycleLength: profile?.cycleLength ?? 28, periodLength: profile?.periodLength ?? 5 };
-    const pos = getCyclePositionForDay(jourStr, reglages, entries);
+    const entriesRetard = avecRetard(entries);
+    const pos = getCyclePositionForDay(jourStr, reglages, entriesRetard);
     if (!pos) return null;
 
     // Même règle que cycleCalc.phaseForCycleDay pour le jour d'ovulation
@@ -1094,7 +1252,7 @@ const active = localStorage.getItem('sorea_has_notification') === 'true' || loca
 
     // Premier jour du cycle qui contient ce jour (fonctionne aussi pour les cycles à venir)
     const debutCycle = (j: string) => {
-      const p = getCyclePositionForDay(j, reglages, entries);
+      const p = getCyclePositionForDay(j, reglages, entriesRetard);
       return p ? ajouterJours(j, -(p.cycleDay - 1)) : null;
     };
     const debut = ajouterJours(jourStr, -(pos.cycleDay - 1));
@@ -1455,6 +1613,45 @@ return (
         <div className="w-full mb-8 p-5 rounded-2xl border border-[#E256B3] bg-white text-sm text-gray-800 leading-relaxed">
           <p className="font-bold text-[#7F4DC5] mb-1">Ménopause : plus de cycle à suivre</p>
           <p>Clique sur un jour pour noter ton humeur et tes symptômes (bouffées de chaleur, sommeil, sueurs nocturnes…) et repérer ce qui revient.</p>
+        </div>
+      )}
+
+      {/* BLOC RETARD : « Mes règles sont en retard » validé, et pas de nouveau début de règles depuis */}
+      {activeTab === 'calendar' && retardRegles && (
+        <div className="w-full mb-8 p-5 rounded-2xl border border-[#E256B3] bg-white text-sm text-gray-800 leading-relaxed flex flex-col gap-4">
+          <div>
+            <p className="font-bold text-[#7F4DC5] mb-1">
+              Règles en retard · {retardRegles.jours} jour{retardRegles.jours > 1 ? 's' : ''}
+            </p>
+            <p>
+              Elles étaient prévues le {new Date(retardRegles.attendu + 'T00:00:00').toLocaleDateString("fr-FR", { day: 'numeric', month: 'long' })}.
+              Le calendrier ne les affiche plus et décale tes prochaines prévisions jusqu&apos;à leur arrivée.
+            </p>
+            {retardRegles.jours >= 7 && (
+              <p className="mt-2">
+                Si ta situation a changé (grossesse, ménopause…), mets à jour ton suivi. Si le retard se prolonge, parles-en à un professionnel de santé.
+              </p>
+            )}
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <button
+              type="button"
+              onClick={startNewCycleToday}
+              className="p-3 rounded-2xl border border-gray-300 bg-white hover:border-[#8B47FF] text-sm font-semibold text-gray-800 transition-all cursor-pointer shadow-sm text-center"
+            >
+              Mes règles ont commencé aujourd’hui
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setSurveyView('principal');
+                setShowSurveyModal(true);
+              }}
+              className="p-3 rounded-2xl border border-gray-300 bg-white hover:border-[#8B47FF] text-sm font-semibold text-gray-800 transition-all cursor-pointer shadow-sm text-center"
+            >
+              Je n’ai plus de cycle
+            </button>
+          </div>
         </div>
       )}
 
@@ -1952,11 +2149,14 @@ return (
         const jourSelection = localDay(selectedDate);
         const debutDejaEnregistre =
           jourSelection === lastStartDay || history.some((h) => String(h.startDate).slice(0, 10) === jourSelection);
+        // Retard déjà signalé ce jour-là : le bouton reste actif pour pouvoir le retirer
+        // (une fois validé, ce jour n'est plus affiché en phase Hiver)
         const canSignalerRetard =
-          !isFutureDate &&
-          !debutDejaEnregistre &&
-          currentSelectedPhase === 'Hiver' &&
-          getPhaseForDate(veilleSelection) !== 'Hiver';
+          !!rectifierByDay[jourSelection]?.absent ||
+          (!isFutureDate &&
+            !debutDejaEnregistre &&
+            currentSelectedPhase === 'Hiver' &&
+            getPhaseForDate(veilleSelection) !== 'Hiver');
 
         return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
@@ -2436,15 +2636,7 @@ return (
                     Ma grossesse est terminée !
                   </button>
                   </div>
-                  <div className="p-4 rounded-2xl border border-gray-300 bg-white">
-                    <input
-                      type="text"
-                      placeholder="Plus de précisions..."
-                      value={rectifierByDay[localDay(selectedDate)]?.note ?? ""}
-                      onChange={(e) => majParametreJour(localDay(selectedDate), { note: e.target.value })}
-                      className="w-full text-sm outline-none text-gray-800 placeholder-gray-400 bg-transparent"
-                    />
-                  </div>
+                  {blocPrecisionsValider(localDay(selectedDate))}
                 </div>
               )}
 
@@ -2497,15 +2689,7 @@ return (
                   >
                     {allaitement === 'oui' ? "Je n'allaite plus" : "J'allaite"}
                   </button>
-                  <div className="p-4 rounded-2xl border border-gray-300 bg-white">
-                    <input
-                      type="text"
-                      placeholder="Plus de précisions..."
-                      value={rectifierByDay[localDay(selectedDate)]?.note ?? ""}
-                      onChange={(e) => majParametreJour(localDay(selectedDate), { note: e.target.value })}
-                      className="w-full text-sm outline-none text-gray-800 placeholder-gray-400 bg-transparent"
-                    />
-                  </div>
+                  {blocPrecisionsValider(localDay(selectedDate))}
                 </div>
               )}
 
@@ -2523,15 +2707,7 @@ return (
                   >
                     Ma situation a changé
                   </button>
-                  <div className="p-4 rounded-2xl border border-gray-300 bg-white">
-                    <input
-                      type="text"
-                      placeholder="Plus de précisions..."
-                      value={rectifierByDay[localDay(selectedDate)]?.note ?? ""}
-                      onChange={(e) => majParametreJour(localDay(selectedDate), { note: e.target.value })}
-                      className="w-full text-sm outline-none text-gray-800 placeholder-gray-400 bg-transparent"
-                    />
-                  </div>
+                  {blocPrecisionsValider(localDay(selectedDate))}
                 </div>
               )}
 
@@ -2644,23 +2820,8 @@ return (
                       </button>
                     </>
                   )}
-                  <div className="sm:col-span-2 p-4 rounded-2xl border border-gray-300 bg-white">
-                    <input
-                      type="text"
-                      placeholder="Plus de précisions..."
-                      value={rectifierByDay[localDay(selectedDate)]?.note ?? ""}
-                      onChange={(e) => majParametreJour(localDay(selectedDate), { note: e.target.value })}
-                      className="w-full text-sm outline-none text-gray-800 placeholder-gray-400 bg-transparent"
-                    />
-                  </div>
-                  {/* Bouton Valider de l'onglet Paramètre (pas encore fonctionnel) */}
-                  <div className="sm:col-span-2 flex justify-center pt-2 pb-2">
-                    <button
-                      type="button"
-                      className="px-8 py-2 text-white text-sm font-bold rounded-2xl shadow-lg transition-all bg-[#8B47FF] hover:bg-[#7535e6] cursor-pointer"
-                    >
-                      Valider
-                    </button>
+                  <div className="sm:col-span-2 flex flex-col gap-4">
+                    {blocPrecisionsValider(jourSelection)}
                   </div>
                 </div>
               )}

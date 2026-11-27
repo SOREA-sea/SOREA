@@ -37,21 +37,24 @@ type Cycle = {
   detail?: string;
 };
 
-// Situation choisie dans le calendrier (modale « Vous êtes... »), mémorisée dans le navigateur
+// Situation choisie dans le calendrier (modale « Vous êtes... »), enregistrée en base dans le profil menstruel
 type SituationSuivi = { type: string; ddr: string; accouchement: string; allaitement: boolean };
 const SITUATION_PAR_DEFAUT: SituationSuivi = { type: "reglee", ddr: "", accouchement: "", allaitement: false };
-const lireSituation = (): SituationSuivi => {
-  try {
-    return {
-      type: localStorage.getItem("sorea_situation_suivi") || "reglee",
-      ddr: localStorage.getItem("sorea_grossesse_ddr") || "",
-      accouchement: localStorage.getItem("sorea_accouchement_date") || "",
-      allaitement: localStorage.getItem("sorea_allaitement") === "oui",
-    };
-  } catch {
-    return SITUATION_PAR_DEFAUT;
-  }
+type ProfilSituation = {
+  situation?: string | null;
+  pregnancyStartDate?: string | null;
+  deliveryDate?: string | null;
+  breastfeeding?: boolean;
 };
+const lireSituation = (p: ProfilSituation | null | undefined): SituationSuivi =>
+  p
+    ? {
+        type: p.situation || "reglee",
+        ddr: p.pregnancyStartDate ? String(p.pregnancyStartDate).slice(0, 10) : "",
+        accouchement: p.deliveryDate ? String(p.deliveryDate).slice(0, 10) : "",
+        allaitement: !!p.breastfeeding,
+      }
+    : SITUATION_PAR_DEFAUT;
 // Situations où il n'y a pas de cycle menstruel à regrouper
 const SITUATIONS_SANS_CYCLE = ["enceinte", "menopausee", "postpartum"];
 // Titre de la page et des PDF, cohérent avec l'en-tête du calendrier
@@ -120,27 +123,43 @@ export default function SuiviPage() {
   const [cyclesOuverts, setCyclesOuverts] = useState<string[]>([]);
   const [nbCyclesRapport, setNbCyclesRapport] = useState<3 | 6 | 12>(3);
   const [situation, setSituation] = useState<SituationSuivi>(SITUATION_PAR_DEFAUT);
+  const [joursRetard, setJoursRetard] = useState<string[]>([]); // « Mes règles sont en retard » validés dans le calendrier
   const modeSansCycle = SITUATIONS_SANS_CYCLE.includes(situation.type);
 
   const aujourdhui = localDay(new Date());
   const [periodeDu, setPeriodeDu] = useState(debutMois(aujourdhui));
   const [periodeAu, setPeriodeAu] = useState(finMois(aujourdhui));
 
-  // Charger le profil menstruel (durées, historique des règles) pour les cycles et les phases
+  // Profil menstruel (durées, historique des règles, situation) et retards signalés, lus en base.
+  // Relus au retour sur l'onglet : la situation ou un retard a pu changer dans le calendrier.
   useEffect(() => {
-    async function fetchProfile() {
-      try {
-        const res = await fetch("/api/menstrual-profile");
-        if (res.ok) {
-          const data = await res.json();
+    let actif = true;
+    const chargerProfil = () => {
+      fetch("/api/menstrual-profile")
+        .then((res) => (res.ok ? res.json() : null))
+        .then((data) => {
+          if (!actif || !data) return;
           setProfile(data.profile);
           setHistory(data.history ?? []);
-        }
-      } catch (e) {
-        console.error(e);
-      }
-    }
-    fetchProfile();
+          setSituation(lireSituation(data.profile));
+        })
+        .catch((e) => console.error(e));
+      fetch("/api/cycle-days")
+        .then((res) => (res.ok ? res.json() : null))
+        .then((data) => {
+          if (!actif || !data) return;
+          setJoursRetard(
+            (data.days ?? []).filter((d: { late: boolean }) => d.late).map((d: { day: string }) => d.day)
+          );
+        })
+        .catch((e) => console.error(e));
+    };
+    chargerProfil();
+    window.addEventListener("focus", chargerProfil);
+    return () => {
+      actif = false;
+      window.removeEventListener("focus", chargerProfil);
+    };
   }, []);
 
   // Synthèses quotidiennes : lues en base, propres au compte connecté
@@ -151,7 +170,6 @@ export default function SuiviPage() {
         .then((res) => (res.ok ? res.json() : null))
         .then((data) => {
           if (!actif || !data) return;
-          setSituation(lireSituation());
           // Anciennes fiches de synthèse du navigateur : remplacées par la base, plus utilisées
           localStorage.removeItem("sorea_saved_summaries");
           setJours(data.logs ?? []);
@@ -166,22 +184,11 @@ export default function SuiviPage() {
     };
 
     chargerSyntheses();
-    // Situation changée dans le calendrier (autre onglet ou retour sur cet onglet) : on la relit
-    const relireSituation = () => {
-      if (actif) setSituation(lireSituation());
-    };
-    const surStockage = (e: StorageEvent) => {
-      if (e.key === null || e.key.startsWith("sorea_situation") || e.key.startsWith("sorea_grossesse") || e.key.startsWith("sorea_accouchement") || e.key === "sorea_allaitement") relireSituation();
-    };
     // Le bouton « Enregistrer les symptômes » du calendrier prévient la page après l'enregistrement
     window.addEventListener("sorea_summary_update", chargerSyntheses);
-    window.addEventListener("storage", surStockage);
-    window.addEventListener("focus", relireSituation);
     return () => {
       actif = false;
       window.removeEventListener("sorea_summary_update", chargerSyntheses);
-      window.removeEventListener("storage", surStockage);
-      window.removeEventListener("focus", relireSituation);
     };
   }, []);
 
@@ -396,6 +403,19 @@ export default function SuiviPage() {
     return `Cycle du ${formatJourCourt(cycle.start)} au ${formatJour(cycle.end!)}`;
   };
 
+  // Retard signalé pour la fin de ce cycle : règles prévues ce jour-là et pas venues.
+  // Durée : jusqu'au début réel des règles suivantes (cycle terminé) ou jusqu'à aujourd'hui (cycle en cours).
+  const retardDuCycle = (cycle: Cycle): { prevu: string; jours: number } | null => {
+    if (cycle.avantSuivi || cycle.titre) return null;
+    const prevu = joursRetard
+      .filter((d) => d > cycle.start && (cycle.enCours ? d <= aujourdhui : d <= cycle.end!))
+      .sort()[0];
+    if (!prevu) return null;
+    return { prevu, jours: dayDiff(prevu, cycle.enCours ? aujourdhui : cycle.end!) + 1 };
+  };
+  const texteRetard = (r: { prevu: string; jours: number }, enCours: boolean) =>
+    `Règles en retard : prévues le ${formatJour(r.prevu)}, ${enCours ? "toujours pas arrivées après" : "arrivées avec"} ${r.jours} jour${r.jours > 1 ? "s" : ""} de retard`;
+
   const detailCycle = (cycle: Cycle) => {
     if (cycle.detail) return cycle.detail;
     if (cycle.avantSuivi) return `Du ${formatJour(cycle.start)} au ${formatJour(cycle.end!)}`;
@@ -532,6 +552,7 @@ export default function SuiviPage() {
   const telechargerCycle = (cycle: Cycle) => {
     const corps = `
       <div class="periode">${esc(titreCycle(cycle))} — ${esc(detailCycle(cycle))}</div>
+      ${retardDuCycle(cycle) ? `<div class="periode">${esc(texteRetard(retardDuCycle(cycle)!, cycle.enCours))}</div>` : ""}
       ${blocFrequences(cycle.jours)}
       <div class="section-title">Détail jour par jour</div>
       ${tableauJours(cycle.jours)}
@@ -640,6 +661,7 @@ export default function SuiviPage() {
           <td>${c.enCours ? `${dayDiff(c.start, aujourdhui) + 1} j (en cours)` : `${c.dureeCycle} j`}</td>
           <td>${c.dureeRegles ? `${c.dureeRegles} j${c.reglesEstimees ? " (estimé)" : ""}` : "–"}</td>
           <td>${c.jours.length}</td>
+          <td>${retardDuCycle(c) ? `${retardDuCycle(c)!.jours} j${c.enCours ? " (en cours)" : ""}` : "–"}</td>
         </tr>`
       )
       .join("");
@@ -655,7 +677,7 @@ export default function SuiviPage() {
       ${
         lignesCycles
           ? `<table style="margin-bottom: 20px;">
-              <thead><tr><th>Début des règles</th><th>Fin du cycle</th><th>Durée du cycle</th><th>Durée des règles</th><th>Jours renseignés</th></tr></thead>
+              <thead><tr><th>Début des règles</th><th>Fin du cycle</th><th>Durée du cycle</th><th>Durée des règles</th><th>Jours renseignés</th><th>Retard des règles</th></tr></thead>
               <tbody>${lignesCycles}</tbody>
             </table>`
           : `<p class="vide">Aucun cycle enregistré.</p>`
@@ -853,6 +875,9 @@ export default function SuiviPage() {
                     <div className="space-y-1">
                       <h3 className="text-xl font-bold text-[#8B47FF]">{titreCycle(cycle)}</h3>
                       <p className="text-sm font-semibold text-gray-800">{detailCycle(cycle)}</p>
+                      {retardDuCycle(cycle) && (
+                        <p className="text-sm font-semibold text-[#E256B3]">{texteRetard(retardDuCycle(cycle)!, cycle.enCours)}</p>
+                      )}
                     </div>
                     <div className="flex flex-col items-end gap-2 shrink-0">
                       {boutonTelecharger(

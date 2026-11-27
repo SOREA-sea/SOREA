@@ -13,6 +13,15 @@ import {
 
 const toDay = (date: Date) => date.toISOString().slice(0, 10);
 
+// Situation (modale « Vous êtes... ») : valeurs acceptées
+const SITUATIONS = ["reglee", "enceinte", "menopausee", "autres", "projet", "perimenopause", "postpartum"];
+// "AAAA-MM-JJ" -> minuit UTC ; "" ou null -> null ; autre chose -> undefined (champ ignoré)
+const jourVersDate = (valeur: unknown): Date | null | undefined => {
+  if (valeur === null || valeur === "") return null;
+  if (typeof valeur === "string" && /^\d{4}-\d{2}-\d{2}$/.test(valeur)) return new Date(`${valeur}T00:00:00.000Z`);
+  return undefined;
+};
+
 // Historique des règles de l'utilisatrice, au format jour "AAAA-MM-JJ", du plus ancien au plus récent
 async function loadHistory(userId: number, lastPeriodStartDate: Date | null): Promise<PeriodEntry[]> {
   // Date inconnue (« Je ne sais pas ») : pas d'historique, le calcul part d'une valeur par défaut
@@ -299,6 +308,14 @@ export async function PUT(request: Request) {
     const data: any = {};
     if (isActive !== undefined) data.isActive = isActive;
     if (periodLength !== undefined) data.periodLength = periodLength;
+
+    // Situation et ses dates : enregistrées en base, propres au compte (plus dans le navigateur)
+    if (typeof body.situation === "string" && SITUATIONS.includes(body.situation)) data.situation = body.situation;
+    const ddr = jourVersDate(body.pregnancyStartDate);
+    if (ddr !== undefined) data.pregnancyStartDate = ddr;
+    const accouchement = jourVersDate(body.deliveryDate);
+    if (accouchement !== undefined) data.deliveryDate = accouchement;
+    if (typeof body.breastfeeding === "boolean") data.breastfeeding = body.breastfeeding;
 
     if (lastPeriodStartDate !== undefined) {
       const newStartDate = lastPeriodStartDate ? new Date(lastPeriodStartDate) : null;

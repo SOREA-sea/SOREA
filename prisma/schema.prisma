@@ -57,6 +57,7 @@ model User {
   favoriteCoaches      FavoriteCoach[]
   favoriteSessions FavoriteSession[]
   menstrualProfile MenstrualProfile?
+  cycleDays        CycleDay[]
 
   // carnet Gratitude
   habitChecks HabitCheck[]
@@ -101,10 +102,32 @@ model MenstrualProfile {
   cycleLength         Int       @default(28)
   periodLength        Int       @default(5)
   lastPeriodStartDate DateTime?
+  // Situation choisie dans « Vous êtes... » (null = jamais enregistrée en base : reprise de l'ancien localStorage)
+  situation           String?   // reglee | enceinte | menopausee | autres | projet | perimenopause | postpartum
+  pregnancyStartDate  DateTime? // date des dernières règles de la grossesse (DDR)
+  deliveryDate        DateTime? // date de l'accouchement (post-partum)
+  breastfeeding       Boolean   @default(false)
   createdAt           DateTime  @default(now())
   updatedAt           DateTime  @updatedAt
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+// Réglages d'un jour du calendrier (onglet Paramètre), enregistrés par le bouton « Valider »
+model CycleDay {
+  id            Int      @id @default(autoincrement())
+  userId        Int
+  day           String   // "AAAA-MM-JJ"
+  late          Boolean  @default(false) // « Mes règles sont en retard »
+  note          String?  // « Plus de précisions... »
+  ovulationTest Boolean  @default(false) // « Test d'ovulation positif » (projet de grossesse)
+  intercourse   Boolean  @default(false) // « Rapport » (projet de grossesse)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, day])
 }
 
 model PeriodHistory {
