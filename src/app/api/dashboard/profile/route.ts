@@ -36,7 +36,25 @@ export async function PATCH(request: Request) {
     }
 
     const body = await request.json();
-    const { firstName, lastName, email, timezone } = body;
+    const texte = (v: unknown) => (typeof v === "string" ? v.trim() : "");
+    const firstName = texte(body.firstName);
+    const lastName = texte(body.lastName);
+    const email = texte(body.email).toLowerCase();
+    const timezone = texte(body.timezone);
+
+    if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      return NextResponse.json({ error: "Adresse email invalide" }, { status: 400 });
+    }
+    if (timezone) {
+      try {
+        new Intl.DateTimeFormat("fr-FR", { timeZone: timezone });
+      } catch {
+        return NextResponse.json({ error: "Fuseau horaire invalide" }, { status: 400 });
+      }
+    }
+    if (firstName.length > 60 || lastName.length > 60) {
+      return NextResponse.json({ error: "Prénom ou nom trop long (60 caractères au maximum)" }, { status: 400 });
+    }
 
     // Validation basique
     if (!firstName && !lastName && !email && !timezone) {
@@ -75,6 +93,7 @@ export async function PATCH(request: Request) {
         role: true,
         createdAt: true,
         timezone: true,
+        twoFactorEnabled: true,
       },
     });
 

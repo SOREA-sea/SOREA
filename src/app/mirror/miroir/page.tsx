@@ -9,6 +9,7 @@ import AffirmationPayment from "@/components/AffirmationPayment";
 import { pickAffirmation, Phase } from "@/lib/affirmations";
 import { pickDefaultAffirmation } from "@/lib/defaultAffirmations";
 import { fetchCurrentPhase } from "@/lib/cyclePhase";
+import { lireModeDiscret } from "@/lib/modeDiscret";
 
 export default function NouvellePage() {
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -18,22 +19,8 @@ export default function NouvellePage() {
   const [isCustomModalOpen, setIsCustomModalOpen] = useState(false);
 
   // État pour détecter si le calendrier est en mode Saison (true) ou Phase (false)
-  const [isSnowflakeMode, setIsSnowflakeMode] = useState(() => {
-    if (typeof window !== 'undefined') {
-      return localStorage.getItem('sorea_snowflake_mode') === 'true';
-    }
-    return false;
-  });
-
-  useEffect(() => {
-    const handleStorageChange = () => {
-      if (typeof window !== 'undefined') {
-        setIsSnowflakeMode(localStorage.getItem('sorea_snowflake_mode') === 'true');
-      }
-    };
-    window.addEventListener('storage', handleStorageChange);
-    return () => window.removeEventListener('storage', handleStorageChange);
-  }, []);
+  // Enregistré en base dans le profil menstruel (relu avec le profil, et au retour sur l'onglet)
+  const [isSnowflakeMode, setIsSnowflakeMode] = useState(false);
 
   const audioStreamRef = useRef<MediaStream | null>(null);
   const [microActive, setMicroActive] = useState(false); // Désactivé par défaut pour ne pas bloquer les utilisateurs sans micro
@@ -224,11 +211,15 @@ export default function NouvellePage() {
         if (!res.ok) return;
         const data = await res.json();
         setProfile(data.profile);
+        setIsSnowflakeMode(lireModeDiscret(data.profile?.discreetMode));
       } catch (e) {
         console.error("Erreur lors du chargement du profil menstruel", e);
       }
     };
     fetchProfile();
+    // Le mode discret a pu changer dans le calendrier, ouvert dans un autre onglet
+    window.addEventListener("focus", fetchProfile);
+    return () => window.removeEventListener("focus", fetchProfile);
   }, []);
 
   useEffect(() => {

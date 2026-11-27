@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import prisma from "@/lib/prisma";
+import { userAgentDe } from "@/lib/appareil";
 import bcrypt from "bcrypt";
 import crypto from "crypto";
 
@@ -20,7 +21,7 @@ export async function POST(request: Request) {
 
     if (email && blockedEmails1.includes(email.toLowerCase().trim())) {
       return Response.json(
-        { error: "Accès refusé au site : Sharmila, Nous vous conseillons d'aller vous faire soigner dans un hôpital psychiatrique avant de venir emmerder le monde. :)" },
+        { error: "Accès refusé au site : Sharmila Rangassamy, Nous vous conseillons d'aller vous faire soigner dans un hôpital psychiatrique avant de venir emmerder le monde. :)" },
         { status: 403 }
       );
     }
@@ -104,6 +105,7 @@ export async function POST(request: Request) {
       data: {
         userId: user.id,
         expiresAt,
+        userAgent: userAgentDe(request),
       },
     });
 

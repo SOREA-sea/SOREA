@@ -2,7 +2,8 @@ import { NextResponse } from "next/server";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import type { PrismaClient } from "@prisma/client";
 import prisma from "@/lib/prisma";
-import { computeCycleInfo, type PeriodEntry } from "@/lib/cycleCalc";
+import { computeCycleInfo, todayString, type PeriodEntry } from "@/lib/cycleCalc";
+import { historiqueAvecRetard } from "@/lib/retardRegles";
 import { getUserFromRequest } from "../../middleware/auth";
 
 type SavezVousClient = {
@@ -79,10 +80,11 @@ export async function GET() {
             endDate: entry?.endDate ? entry.endDate.toISOString().slice(0, 10) : null,
           },
         ];
+        // Retard de règles signalé : la phase Hiver prévue ne compte plus (même règle que le calendrier)
         phase = computeCycleInfo(
           profile.isActive,
           { cycleLength: profile.cycleLength, periodLength: profile.periodLength },
-          history,
+          await historiqueAvecRetard(user.id, profile, history, todayString(timezone)),
           timezone,
         ).phase;
       }

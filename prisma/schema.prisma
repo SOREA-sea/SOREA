@@ -107,6 +107,8 @@ model MenstrualProfile {
   pregnancyStartDate  DateTime? // date des dernières règles de la grossesse (DDR)
   deliveryDate        DateTime? // date de l'accouchement (post-partum)
   breastfeeding       Boolean   @default(false)
+  // Mode discret (flocon) : saisons au lieu des phases (null = jamais enregistré en base : reprise de l'ancien localStorage)
+  discreetMode        Boolean?
   createdAt           DateTime  @default(now())
   updatedAt           DateTime  @updatedAt
 
@@ -384,6 +386,8 @@ model UserSession {
   userId    Int
   expiresAt DateTime
   createdAt DateTime @default(now())
+  // Navigateur et système de l'appareil (en-tête User-Agent), pour la liste « Connexions actives »
+  userAgent String?
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }

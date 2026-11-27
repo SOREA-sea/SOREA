@@ -1,9 +1,73 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import Link from "next/link";
-import Image from "next/image";
 import BoutonGererAbonnement from "@/components/BoutonGererAbonnement";
+import FrameAbonnement from "@/components/FrameAbonnement";
+import RubriqueMonSuivi from "@/components/RubriqueMonSuivi";
+import { CarteMotDePasse, CarteConnexions } from "@/components/SecuriteCompte";
+
+// Rubriques des paramètres du compte (sommaire en haut de page, ancres #profil, #securite, #abonnement)
+const RUBRIQUES = [
+  { id: "profil", titre: "Mon profil" },
+  { id: "securite", titre: "Sécurité" },
+  { id: "suivi", titre: "Mon suivi" },
+  { id: "abonnement", titre: "Mon abonnement" },
+];
+
+interface StatutAbonnement {
+  statut: string | null; // trialing, active, past_due, canceled... (webhook Stripe)
+  essaiFin: string | null; // fin des 7 jours offerts à l'inscription
+  formule: "mensuel" | "annuel" | null;
+  prochaineEcheance: string | null;
+  resiliationPrevue: boolean;
+  gerable: boolean; // client Stripe existant : le portail peut s'ouvrir
+}
+
+const dateLongue = (iso: string) =>
+  new Date(iso).toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" });
+
+// Libellé, couleur et explication de l'abonnement, selon son statut
+function decrireAbonnement(a: StatutAbonnement) {
+  const maintenant = new Date();
+  const formule = a.formule === "annuel" ? "Formule annuelle" : a.formule === "mensuel" ? "Formule mensuelle" : null;
+  const echeance = a.prochaineEcheance ? dateLongue(a.prochaineEcheance) : null;
+
+  if (a.statut === "active" && a.resiliationPrevue) {
+    return {
+      badge: "Résiliation prévue", couleur: "bg-amber-100 text-amber-700", formule,
+      detail: echeance ? `Ton abonnement reste actif jusqu'au ${echeance}, puis il s'arrêtera.` : "Ton abonnement s'arrêtera à la fin de la période en cours.",
+    };
+  }
+  if (a.statut === "active") {
+    return {
+      badge: "Actif", couleur: "bg-green-100 text-green-700", formule,
+      detail: echeance ? `Prochain renouvellement le ${echeance}.` : "Ton abonnement est actif.",
+    };
+  }
+  if (a.statut === "trialing") {
+    return {
+      badge: "Essai gratuit", couleur: "bg-purple-100 text-purple-700", formule,
+      detail: echeance ? `Ton essai se termine le ${echeance}. Le premier paiement aura lieu à cette date.` : "Ton essai gratuit est en cours.",
+    };
+  }
+  if (a.statut === "past_due" || a.statut === "unpaid" || a.statut === "incomplete") {
+    return {
+      badge: "Paiement en échec", couleur: "bg-red-100 text-red-600", formule,
+      detail: "Le dernier paiement n'est pas passé. Mets à jour ton moyen de paiement pour garder l'accès.",
+    };
+  }
+  if (a.statut === "canceled" || a.statut === "incomplete_expired") {
+    return { badge: "Résilié", couleur: "bg-gray-100 text-gray-500", formule: null, detail: "Tu n'as plus d'abonnement en cours." };
+  }
+  // Pas d'abonnement Stripe : 7 jours offerts à l'inscription, puis abonnement requis
+  if (a.essaiFin && new Date(a.essaiFin) > maintenant) {
+    return {
+      badge: "Essai gratuit", couleur: "bg-purple-100 text-purple-700", formule: null,
+      detail: `Tes 7 jours offerts se terminent le ${dateLongue(a.essaiFin)}. Choisis ton abonnement pour continuer ensuite.`,
+    };
+  }
+  return { badge: "Aucun abonnement", couleur: "bg-gray-100 text-gray-500", formule: null, detail: "Tu n'as pas d'abonnement en cours." };
+}
 
 interface ProfileData {
   id: number;
@@ -36,7 +100,23 @@ export default function ProfilePage() {
   const [showDisable2FA, setShowDisable2FA] = useState(false);
   const [disablePassword, setDisablePassword] = useState("");
 
-  useEffect(() => { fetchProfile(); }, []);
+  // Sécurité : la liste des connexions se recharge après un changement de mot de passe
+  const [actualisationConnexions, setActualisationConnexions] = useState(0);
+
+  // Abonnement
+  const [abonnement, setAbonnement] = useState<StatutAbonnement | null>(null);
+  const [abonnementErreur, setAbonnementErreur] = useState(false);
+  const [showFrameAbonnement, setShowFrameAbonnement] = useState(false);
+
+  async function fetchAbonnement() {
+    try {
+      const res = await fetch("/api/billing/statut");
+      if (!res.ok) throw new Error();
+      setAbonnement(await res.json());
+    } catch {
+      setAbonnementErreur(true);
+    }
+  }
 
   async function fetchProfile() {
     try {
@@ -52,6 +132,8 @@ export default function ProfilePage() {
     }
   }
 
+  useEffect(() => { fetchProfile(); fetchAbonnement(); }, []);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSaving(true);
@@ -64,7 +146,8 @@ export default function ProfilePage() {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Erreur");
-      setProfile(data.user);
+      setProfile((prev) => (prev ? { ...prev, ...data.user } : data.user));
+      setFormData({ firstName: data.user.firstName, lastName: data.user.lastName, email: data.user.email, timezone: data.user.timezone || "Europe/Paris" });
       setMessage({ type: "success", text: "Profil mis à jour avec succès !" });
       setTimeout(() => setMessage(null), 4000);
     } catch (err: any) {
@@ -169,9 +252,26 @@ export default function ProfilePage() {
     <div className="space-y-8">
       <header>
         <p className="text-xs uppercase tracking-[0.28em] text-foreground/50">Paramètres</p>
-        <h1 className="text-3xl md:text-4xl font-black section-title mt-1">Mon profil</h1>
-        <p className="text-foreground/60 mt-2">Gérez vos informations personnelles et vos préférences.</p>
+        <h1 className="text-3xl md:text-4xl font-black section-title mt-1">Mon compte</h1>
+        <p className="text-foreground/60 mt-2">Gérez vos informations personnelles, la sécurité de votre compte, votre suivi et votre abonnement.</p>
       </header>
+
+      {/* Sommaire des rubriques */}
+      <nav aria-label="Rubriques du compte" className="flex flex-wrap gap-2">
+        {RUBRIQUES.map((r) => (
+          <a
+            key={r.id}
+            href={`#${r.id}`}
+            className="px-4 py-2 rounded-full bg-white/70 border border-white/80 text-sm font-medium hover:bg-white transition-all"
+          >
+            {r.titre}
+          </a>
+        ))}
+      </nav>
+
+      {/* ── Rubrique 1 : Mon profil ── */}
+      <section id="profil" className="space-y-5 scroll-mt-24">
+      <h2 className="text-2xl font-black section-title">Mon profil</h2>
 
       {/* Carte identité + photo modifiable */}
       {profile && (
@@ -182,6 +282,7 @@ export default function ProfilePage() {
               disabled={avatarUploading}
               className="group w-16 h-16 rounded-full overflow-hidden bg-white/80 shadow ring-2 ring-white/60 block cursor-pointer relative"
               title="Modifier la photo"
+              aria-label="Modifier la photo"
             >
               <img
                 src={profile.avatarUrl || "/images/logo_sorea.webp"}
@@ -208,7 +309,10 @@ export default function ProfilePage() {
             <p className="font-bold text-lg">{profile.firstName} {profile.lastName}</p>
             <p className="text-foreground/50 text-sm">{profile.email}</p>
             <p className="text-foreground/40 text-xs mt-1">
-              Membre depuis le {new Date(profile.createdAt).toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" })}
+              Membre depuis le {dateLongue(profile.createdAt)}
+            </p>
+            <p className="text-foreground/40 text-xs mt-0.5">
+              {avatarUploading ? "Envoi de la photo…" : "Clique sur la photo pour la changer (JPG, PNG, WebP ou GIF)."}
             </p>
           </div>
         </div>
@@ -217,7 +321,7 @@ export default function ProfilePage() {
 
       {/* Formulaire infos */}
       <form onSubmit={handleSubmit} className="glass-panel rounded-3xl p-8 space-y-6">
-        <h2 className="text-xl font-bold">Modifier mes informations</h2>
+        <h3 className="text-xl font-bold">Modifier mes informations</h3>
 
         {message && (
           <div className={`p-4 rounded-2xl text-sm font-medium ${message.type === "success" ? "bg-green-50/80 text-green-700 border border-green-200" : "bg-red-50/80 text-red-600 border border-red-200"}`}>
@@ -277,12 +381,20 @@ export default function ProfilePage() {
           </button>
         </div>
       </form>
+      </section>
+
+      {/* ── Rubrique 2 : Sécurité ── */}
+      <section id="securite" className="space-y-5 scroll-mt-24">
+      <h2 className="text-2xl font-black section-title">Sécurité</h2>
+
+      {/* Changer son mot de passe (ferme les autres connexions) */}
+      <CarteMotDePasse onChange={() => setActualisationConnexions((n) => n + 1)} />
 
       {/* 2FA — sans affichage des codes de secours */}
       <div className="glass-panel rounded-3xl p-8 space-y-5">
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-xl font-bold">Double authentification (2FA)</h2>
+            <h3 className="text-xl font-bold">Double authentification (2FA)</h3>
             <p className="text-foreground/60 text-sm mt-1">Renforcez la sécurité de votre compte.</p>
           </div>
           <span className={`px-3 py-1 rounded-full text-xs font-bold ${profile?.twoFactorEnabled ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-500"}`}>
@@ -355,16 +467,57 @@ export default function ProfilePage() {
         )}
       </div>
 
-      {/* Abonnement : résilier ou changer de carte via le portail Stripe */}
-      <div className="glass-panel rounded-3xl p-8 space-y-5">
-        <div>
-          <h2 className="text-xl font-bold">Mon abonnement</h2>
-          <p className="text-foreground/60 text-sm mt-1">
-            Résiliez votre abonnement ou modifiez votre moyen de paiement.
-          </p>
+
+      {/* Connexions actives et déconnexion des autres appareils */}
+      <CarteConnexions actualisation={actualisationConnexions} />
+      </section>
+
+      {/* ── Rubrique 3 : Mon suivi (situation, avec accès direct à « Vous êtes... ») ── */}
+      <RubriqueMonSuivi />
+
+      {/* ── Rubrique 5 : Mon abonnement ── */}
+      <section id="abonnement" className="space-y-5 scroll-mt-24">
+        <h2 className="text-2xl font-black section-title">Mon abonnement</h2>
+
+        <div className="glass-panel rounded-3xl p-8 space-y-5">
+          {abonnementErreur ? (
+            <p className="text-sm text-red-600">Impossible de charger ton abonnement pour le moment. Recharge la page pour réessayer.</p>
+          ) : !abonnement ? (
+            <div className="w-6 h-6 border-4 border-purple-200 border-t-purple-600 rounded-full animate-spin" />
+          ) : (() => {
+            const d = decrireAbonnement(abonnement);
+            // Abonnement en cours (même résilié pour la fin de période, ou en échec de paiement) : géré dans le portail Stripe.
+            // Sinon (essai des 7 jours, résilié, jamais abonné) : on propose de choisir une formule.
+            const enCours = ["active", "trialing", "past_due", "unpaid", "incomplete"].includes(abonnement.statut ?? "");
+            return (
+              <>
+                <div className="flex items-start justify-between gap-4">
+                  <div>
+                    <p className="font-bold text-lg">{d.formule ?? "Abonnement SOREA"}</p>
+                    <p className="text-foreground/60 text-sm mt-1">{d.detail}</p>
+                  </div>
+                  <span className={`shrink-0 px-3 py-1 rounded-full text-xs font-bold ${d.couleur}`}>{d.badge}</span>
+                </div>
+
+                {enCours && abonnement.gerable ? (
+                  <div className="space-y-2">
+                    <BoutonGererAbonnement />
+                    <p className="text-xs text-foreground/50">
+                      Tu seras redirigée vers Stripe pour résilier, changer de formule, modifier ta carte ou télécharger tes factures.
+                    </p>
+                  </div>
+                ) : (
+                  <button type="button" onClick={() => setShowFrameAbonnement(true)} className="btn-primary text-sm">
+                    Choisir mon abonnement
+                  </button>
+                )}
+              </>
+            );
+          })()}
         </div>
-        <BoutonGererAbonnement />
-      </div>
+      </section>
+
+      {showFrameAbonnement && <FrameAbonnement onClose={() => setShowFrameAbonnement(false)} />}
     </div>
   );
 }

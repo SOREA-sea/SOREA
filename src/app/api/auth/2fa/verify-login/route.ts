@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import prisma from "@/lib/prisma";
+import { userAgentDe } from "@/lib/appareil";
 import bcrypt from "bcrypt";
 import { verifyTwoFactorToken, isValidTotpTokenFormat } from "@/app/api/utils/two-factor";
 
@@ -117,6 +118,7 @@ export async function POST(request: Request) {
       data: {
         userId: user.id,
         expiresAt,
+        userAgent: userAgentDe(request),
       },
     });
 

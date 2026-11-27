@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import prisma from "@/lib/prisma";
+import { userAgentDe } from "@/lib/appareil";
 import bcrypt from "bcrypt";
 import crypto from "crypto";
 import { validateEmailFormat, validatePassword } from "@/app/api//utils/validation";
@@ -86,7 +87,7 @@ export async function POST(req: NextRequest) {
 
     // create session
     const session = await prisma.userSession.create({
-      data: { userId: user.id, expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000) },
+      data: { userId: user.id, expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), userAgent: userAgentDe(req) },
     });
 
     const cookieStore2 = await cookies();

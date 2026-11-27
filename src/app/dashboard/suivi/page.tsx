@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { Download } from "lucide-react";
+import { lireModeDiscret } from "@/lib/modeDiscret";
 import {
   getCyclePositionForDay,
   localDay,
@@ -119,6 +120,7 @@ export default function SuiviPage() {
   const [activeTab, setActiveTab] = useState<"Liste" | "Par date">("Liste");
   const [profile, setProfile] = useState<{ cycleLength: number; periodLength: number; lastPeriodStartDate: string | null } | null>(null);
   const [history, setHistory] = useState<PeriodEntry[]>([]);
+  const [modeDiscret, setModeDiscret] = useState(false); // mode discret (flocon), lu en base avec le profil
   const [sortOrder, setSortOrder] = useState<"Plus récents" | "Plus anciens">("Plus récents");
   const [cyclesOuverts, setCyclesOuverts] = useState<string[]>([]);
   const [nbCyclesRapport, setNbCyclesRapport] = useState<3 | 6 | 12>(3);
@@ -142,6 +144,7 @@ export default function SuiviPage() {
           setProfile(data.profile);
           setHistory(data.history ?? []);
           setSituation(lireSituation(data.profile));
+          setModeDiscret(lireModeDiscret(data.profile?.discreetMode));
         })
         .catch((e) => console.error(e));
       fetch("/api/cycle-days")
@@ -193,7 +196,7 @@ export default function SuiviPage() {
   }, []);
 
   const getPhaseInfo = (dateStr: string) => {
-    const isDiscret = typeof window !== 'undefined' && localStorage.getItem('sorea_snowflake_mode') === 'true';
+    const isDiscret = modeDiscret;
     const parts = dateStr.split('/');
     if (parts.length !== 3) {
       return isDiscret
@@ -864,7 +867,8 @@ export default function SuiviPage() {
               const ouvert = cyclesOuverts.includes(cycle.key);
               const phaseDebut = !cycle.avantSuivi && !modeSansCycle ? phaseDuJour(cycle.start) : null;
               // Rappel : tant que la fin des règles n'est pas indiquée, leur durée est estimée.
-              // « Mes règles sont finies » n'est disponible que pendant les règles, à partir du 2e jour.
+              // « Mes règles sont finies » se clique pendant les règles (à partir du 2e jour) ou le lendemain,
+              // y compris après coup sur un jour passé.
               const joursDepuisDebut = dayDiff(cycle.start, aujourdhui);
               const rappelFinRegles =
                 !modeSansCycle && cycle.enCours && cycle.reglesEstimees && joursDepuisDebut >= 1 &&
@@ -918,9 +922,10 @@ export default function SuiviPage() {
 
                   {rappelFinRegles && (
                     <p className="text-xs text-[#7F6674] bg-[#FAF8FC] border border-[#E2DBEF] rounded-xl p-3">
-                      La durée de vos règles est estimée. Le jour où elles s’arrêtent, cliquez sur
+                      La durée de vos règles est estimée. Quand elles s’arrêtent, ouvrez dans le calendrier le premier jour
+                      sans règles et cliquez sur
                       <span className="font-bold text-[#8B47FF]"> « Mes règles sont finies » </span>
-                      dans le calendrier (onglet Paramètre du jour) : vos synthèses et votre rapport seront plus précis.
+                      (onglet Paramètre), même quelques jours plus tard : vos synthèses et votre rapport seront plus précis.
                     </p>
                   )}
 

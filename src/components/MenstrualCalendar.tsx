@@ -3,7 +3,8 @@
 import { useState, useEffect, useRef } from "react";
 import { Settings, ChevronLeft, ChevronRight, X, Trash2 } from "lucide-react";
 import MenstrualFlux from "./MenstrualFlux";
-import { getCyclePositionForDay, phaseForCycleDay, localDay, dayDiff, type PeriodEntry } from "@/lib/cycleCalc";
+import { getCyclePositionForDay, phaseForCycleDay, localDay, dayDiff, clampCycleLength, type PeriodEntry } from "@/lib/cycleCalc";
+import { lireModeDiscret, enregistrerModeDiscret } from "@/lib/modeDiscret";
 
 interface Profile {
   isActive: boolean;
@@ -15,6 +16,7 @@ interface Profile {
   pregnancyStartDate?: string | null;
   deliveryDate?: string | null;
   breastfeeding?: boolean;
+  discreetMode?: boolean | null; // mode discret (flocon), null = jamais enregistré
 }
 
 interface CycleInfo {
@@ -83,19 +85,16 @@ export default function MenstrualCalendar() {
   const [history, setHistory] = useState<PeriodEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [showSettings, setShowSettings] = useState(false);
-  const [isSnowflakeMode, setIsSnowflakeMode] = useState(() => {
-    if (typeof window !== 'undefined') {
-      return localStorage.getItem('sorea_snowflake_mode') === 'true';
-    }
-    return false;
-  });
+  // Mode discret (flocon) : lu en base au premier chargement du profil, enregistré en base à chaque bascule
+  const [isSnowflakeMode, setIsSnowflakeMode] = useState(false);
+  const modeDiscretChargeRef = useRef(false);
   const [showCalendarHelpModal, setShowCalendarHelpModal] = useState(false);
 
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('sorea_snowflake_mode', String(isSnowflakeMode));
-    }
-  }, [isSnowflakeMode]);
+  const basculerModeDiscret = () => {
+    const nouveau = !isSnowflakeMode;
+    setIsSnowflakeMode(nouveau);
+    void enregistrerModeDiscret(nouveau);
+  };
 
   const [isActiveForm, setIsActiveForm] = useState(false);
   const [cycleLengthForm, setCycleLengthForm] = useState(28);
@@ -195,6 +194,20 @@ export default function MenstrualCalendar() {
     }).catch((e) => console.error(e));
   }, [situation, ddrGrossesse, dateAccouchement, allaitement, situationLoaded]);
 
+  // Accès direct à « Vous êtes... » depuis les paramètres du compte (/suivi?vous-etes=1) : appelé une fois la
+  // situation chargée (fetchProfile). La modale s'ouvre sans modifier la situation (si on la referme, rien ne
+  // change), puis le lien est nettoyé pour ne pas la rouvrir au rechargement
+  const ouvrirVousEtesSiDemande = () => {
+    const params = new URLSearchParams(window.location.search);
+    if (!params.has('vous-etes')) return;
+    params.delete('vous-etes');
+    const reste = params.toString();
+    window.history.replaceState(null, '', window.location.pathname + (reste ? `?${reste}` : '') + window.location.hash);
+    setSelectedDate(null);
+    setSurveyView('principal');
+    setShowSurveyModal(true);
+  };
+
   const appliquerSituation = (p: Profile | null) => {
     let sit: string | null = p?.situation ?? null;
     let ddr = p?.pregnancyStartDate ? String(p.pregnancyStartDate).slice(0, 10) : "";
@@ -276,6 +289,27 @@ export default function MenstrualCalendar() {
       setStatutValider({ jour, etat: 'erreur' });
     }
   };
+
+  // « Mes règles sont en retard » cliqué après le jour prévu : le retard est posé (ou retiré) sur la date prévue
+  // et enregistré tout de suite, sans toucher aux autres réglages de ce jour-là
+  const [statutRetardApresCoup, setStatutRetardApresCoup] = useState<'enCours' | 'erreur' | null>(null);
+  const basculerRetardApresCoup = async (jourPrevu: string) => {
+    const nouveau = !rectifierByDay[jourPrevu]?.absent;
+    const base = joursEnregistres[jourPrevu] ?? { absent: false, note: "", test: false, rapport: false };
+    setStatutRetardApresCoup('enCours');
+    try {
+      const d = await envoyerJour(jourPrevu, { ...base, absent: nouveau });
+      const enregistre = { absent: d.late, note: d.note, test: d.ovulationTest, rapport: d.intercourse };
+      setJoursEnregistres((prev) => ({ ...prev, [jourPrevu]: enregistre }));
+      majParametreJour(jourPrevu, { absent: d.late });
+      setStatutRetardApresCoup(null);
+    } catch (e) {
+      console.error(e);
+      setStatutRetardApresCoup('erreur');
+    }
+  };
+  const formatJourFr = (jour: string) =>
+    new Date(jour + 'T00:00:00').toLocaleDateString("fr-FR", { day: 'numeric', month: 'long' });
 
   // Chargement depuis la base ; reprise unique des anciennes données du navigateur (localStorage)
   useEffect(() => {
@@ -664,8 +698,15 @@ const active = localStorage.getItem('sorea_has_notification') === 'true' || loca
       setDerniereRegleConnue(data.lastKnownPeriodStart ?? "");
       setIsActiveForm(data.profile.isActive);
       // Situation lue en base au premier chargement seulement (ensuite l'état local fait foi et part au serveur)
+      const premierChargement = !situationChargeeRef.current;
       const situationSauvee = situationChargeeRef.current ? situation : appliquerSituation(data.profile);
       situationChargeeRef.current = true;
+      if (premierChargement) ouvrirVousEtesSiDemande();
+      // Mode discret lu en base au premier chargement seulement (ensuite l'état local fait foi et part au serveur)
+      if (!modeDiscretChargeRef.current) {
+        modeDiscretChargeRef.current = true;
+        setIsSnowflakeMode(lireModeDiscret(data.profile.discreetMode));
+      }
       // Si le suivi de cycle est désactivé, basculer par défaut sur l'Agenda Todo-List (sauf grossesse / ménopause)
       if (!data.profile.isActive && situationSauvee !== 'enceinte' && situationSauvee !== 'menopausee' && situationSauvee !== 'postpartum') {
         setActiveTab('todo');
@@ -706,12 +747,13 @@ const active = localStorage.getItem('sorea_has_notification') === 'true' || loca
   }, []); // Dépendance vide [] pour éviter de relancer les requêtes en boucle
 
   // Boutons « Mes règles continuent » / « Mes règles sont finies » : enregistrent la durée réelle des règles
-  const updatePeriod = async (action: "continues" | "ended") => {
+  // jour : le jour sélectionné dans le calendrier (aujourd'hui, ou un jour passé pour corriger après coup)
+  const updatePeriod = async (action: "continues" | "ended", jour: string) => {
     try {
       const res = await fetch("/api/menstrual-profile", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ periodAction: action }),
+        body: JSON.stringify({ periodAction: action, day: jour }),
       });
       const data = await res.json();
       if (!res.ok) {
@@ -728,19 +770,16 @@ const active = localStorage.getItem('sorea_has_notification') === 'true' || loca
     }
   };
 
-  // Bouton « Mes règles ont commencé aujourd'hui » : enregistre la date du jour comme début du nouveau cycle
-  const startNewCycleToday = async () => {
+  // Bouton « Mes règles ont commencé aujourd'hui / ce jour-là » : enregistre le jour sélectionné dans le calendrier
+  // (aujourd'hui, ou un jour passé noté après coup) comme début du nouveau cycle
+  const startNewCycle = async (jour: string) => {
     try {
-      const now = new Date();
-      // Date locale au format AAAA-MM-JJ (évite le décalage d'un jour lié au fuseau horaire)
-      const todayStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
-
       const res = await fetch("/api/menstrual-profile", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           isActive: true,
-          lastPeriodStartDate: todayStr,
+          lastPeriodStartDate: jour,
         }),
       });
       if (!res.ok) return;
@@ -750,7 +789,7 @@ const active = localStorage.getItem('sorea_has_notification') === 'true' || loca
       setCycleInfo(data.cycleInfo);
       setHistory(data.history ?? []);
       setDerniereRegleConnue(data.lastKnownPeriodStart ?? "");
-      setLastPeriodStartForm(todayStr);
+      setLastPeriodStartForm(jour);
       setCycleLengthForm(data.profile.cycleLength);
       setPeriodLengthForm(data.profile.periodLength);
     } catch (e) {
@@ -1461,7 +1500,7 @@ return (
           {/* Le mode menstrue/discret s'affiche uniquement sur l'onglet calendrier */}
           {activeTab === 'calendar' && (
             <button
-              onClick={() => setIsSnowflakeMode(!isSnowflakeMode)}
+              onClick={basculerModeDiscret}
               className="px-4 py-3.5 bg-white border border-[#8B47FF] text-[#8B47FF] font-bold rounded-[5px] hover:bg-[#F4EBFF] transition-all duration-300 shadow-sm text-sm cursor-pointer"
             >
               Mode{isSnowflakeMode ? "❄️Saison" : "🩸Phase"}
@@ -1636,7 +1675,7 @@ return (
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <button
               type="button"
-              onClick={startNewCycleToday}
+              onClick={() => startNewCycle(localDay(new Date()))}
               className="p-3 rounded-2xl border border-gray-300 bg-white hover:border-[#8B47FF] text-sm font-semibold text-gray-800 transition-all cursor-pointer shadow-sm text-center"
             >
               Mes règles ont commencé aujourd’hui
@@ -2130,33 +2169,66 @@ return (
 
       {selectedDate && activeTab === 'calendar' && (() => {
         const currentSelectedPhase = getPhaseForDate(selectedDate);
-        // « Mes règles continuent » / « Mes règles sont finies » : seulement pour aujourd'hui,
-        // dans les 15 jours qui suivent le début des dernières règles
-        const todayDay = localDay(new Date());
-        const lastStartDay = profile?.lastPeriodStartDate ? String(profile.lastPeriodStartDate).slice(0, 10) : null;
-        const daysSincePeriodStart = lastStartDay ? dayDiff(lastStartDay, todayDay) : -1;
-        const canUpdatePeriod =
-          localDay(selectedDate) === todayDay && daysSincePeriodStart >= 0 && daysSincePeriodStart <= 14;
-        // « Mes règles sont finies » : pendant les règles en cours seulement (phase Hiver), sauf le 1er jour
-        const canEndPeriod = canUpdatePeriod && daysSincePeriodStart >= 1 && currentSelectedPhase === 'Hiver';
         const today = new Date();
         today.setHours(0, 0, 0, 0);
         const isFutureDate = selectedDate > today;
-        // « Mes règles sont en retard » : seulement le 1er jour PRÉVU des règles (début de phase Hiver estimé),
-        // pas un début de règles déjà enregistré, ni un jour à venir
         const veilleSelection = new Date(selectedDate);
         veilleSelection.setDate(veilleSelection.getDate() - 1);
         const jourSelection = localDay(selectedDate);
+        // « Mes règles continuent » / « Mes règles sont finies » : aujourd'hui ou un jour passé (correction après coup),
+        // dans les 15 jours qui suivent le début des dernières règles
+        const lastStartDay = profile?.lastPeriodStartDate ? String(profile.lastPeriodStartDate).slice(0, 10) : null;
+        const daysSincePeriodStart = lastStartDay ? dayDiff(lastStartDay, jourSelection) : -1;
+        const canUpdatePeriod = !isFutureDate && daysSincePeriodStart >= 0 && daysSincePeriodStart <= 14;
+        // « Mes règles sont finies » : pendant les règles (phase Hiver) sauf le 1er jour, ou le lendemain du dernier
+        // jour de règles affiché (pour confirmer une fin, ou la reculer d'un jour sans passer par « continuent »)
+        const canEndPeriod =
+          canUpdatePeriod &&
+          daysSincePeriodStart >= 1 &&
+          (currentSelectedPhase === 'Hiver' || getPhaseForDate(veilleSelection) === 'Hiver');
+        // « Mes règles sont en retard » : seulement le 1er jour PRÉVU des règles (début de phase Hiver estimé),
+        // pas un début de règles déjà enregistré, ni un jour à venir
         const debutDejaEnregistre =
           jourSelection === lastStartDay || history.some((h) => String(h.startDate).slice(0, 10) === jourSelection);
         // Retard déjà signalé ce jour-là : le bouton reste actif pour pouvoir le retirer
         // (une fois validé, ce jour n'est plus affiché en phase Hiver)
+        // « Mes règles ont commencé » : pas en phase Hiver, pas un jour à venir, et après le dernier début enregistré
+        // (une date plus ancienne remplacerait les dernières règles enregistrées et fausserait l'historique)
+        const canDebuterRegles =
+          currentSelectedPhase !== 'Hiver' && !isFutureDate && (!lastStartDay || jourSelection > lastStartDay);
+        // Jour prévu des prochaines règles (dernier début + durée du cycle), sans tenir compte d'un retard déjà signalé
+        const jourPrevuRegles =
+          lastStartDay && profile?.isActive && situation !== 'perimenopause'
+            ? ajouterJours(lastStartDay, clampCycleLength(profile.cycleLength))
+            : null;
+        // Jour prévu raté : sur un jour passé APRÈS le jour prévu (aucunes règles enregistrées depuis),
+        // le retard reste signalable. Il est enregistré à la date prévue, pour que le bandeau,
+        // les synthèses et le serveur comptent le retard depuis cette date.
+        const retardApresCoup =
+          !!jourPrevuRegles && !isFutureDate && jourSelection > jourPrevuRegles && !rectifierByDay[jourSelection]?.absent;
         const canSignalerRetard =
+          retardApresCoup ||
           !!rectifierByDay[jourSelection]?.absent ||
           (!isFutureDate &&
             !debutDejaEnregistre &&
             currentSelectedPhase === 'Hiver' &&
             getPhaseForDate(veilleSelection) !== 'Hiver');
+        // Infobulle : prochaine date où les règles doivent commencer, à partir d'aujourd'hui, selon les mêmes
+        // prévisions que le calendrier (historique réel, durée du cycle, retard signalé) : 1er jour Hiver qui suit un jour non Hiver
+        const prochainesRegles = (() => {
+          const jour = new Date(today);
+          const veille = new Date(today);
+          veille.setDate(veille.getDate() - 1);
+          for (let i = 0; i < 120; i++) {
+            if (getPhaseForDate(jour) === 'Hiver' && getPhaseForDate(veille) !== 'Hiver') return localDay(jour);
+            jour.setDate(jour.getDate() + 1);
+            veille.setDate(veille.getDate() + 1);
+          }
+          return null;
+        })();
+        const retardActif = retardApresCoup
+          ? !!rectifierByDay[jourPrevuRegles!]?.absent
+          : !!rectifierByDay[jourSelection]?.absent;
 
         return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
@@ -2714,43 +2786,60 @@ return (
               {/* ONGLET 3 : À RECTIFIER ! */}
               {symptomTab === 'rectifier' && situation !== 'enceinte' && situation !== 'menopausee' && situation !== 'postpartum' && (
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  {/* Début des règles */}
+                  {/* Début des règles : le jour sélectionné (aujourd'hui, ou un jour passé noté après coup) */}
                   <button
                     type="button"
-                    disabled={currentSelectedPhase === 'Hiver'}
+                    disabled={!canDebuterRegles}
                     className={`p-4 rounded-2xl border text-sm font-semibold transition-all text-center shadow-sm ${
-                      currentSelectedPhase === 'Hiver'
+                      !canDebuterRegles
                         ? 'border-gray-200 bg-gray-50 text-gray-300 cursor-default select-none'
                         : 'border-gray-300 bg-white hover:border-[#8B47FF] text-gray-800 cursor-pointer'
                     }`}
-                    onClick={startNewCycleToday}
+                    onClick={() => startNewCycle(jourSelection)}
                   >
-                    Mes règles ont commencé aujourd’hui
+                    {jourSelection === localDay(new Date()) ? 'Mes règles ont commencé aujourd’hui' : 'Mes règles ont commencé ce jour-là'}
                   </button>
-                  {/* Ancien « Je ne les ai pas » : seulement le 1er jour prévu des règles */}
+                  {/* Ancien « Je ne les ai pas » : à partir du 1er jour prévu des règles.
+                      Infobulle « Règles prévues le jj/mm » au survol : posée sur un conteneur, car un bouton
+                      désactivé ne reçoit pas le survol de la souris. Affichée SOUS le bouton : la zone défilante
+                      de la fenêtre couperait tout ce qui dépasse au-dessus de la première ligne de boutons */}
+                  <div className="relative group flex">
+                  {prochainesRegles && (
+                    <span
+                      id="infobulle-regles-prevues"
+                      role="tooltip"
+                      className="pointer-events-none absolute top-full left-1/2 -translate-x-1/2 mt-2 whitespace-nowrap rounded-lg bg-[#7F4DC5] px-3 py-1.5 text-xs font-semibold text-white shadow-lg opacity-0 transition-opacity group-hover:opacity-100 group-focus-within:opacity-100 z-10"
+                    >
+                      Règles prévues le {prochainesRegles.slice(8, 10)}/{prochainesRegles.slice(5, 7)}
+                    </span>
+                  )}
                   <button
                     type="button"
-                    disabled={!canSignalerRetard}
+                    aria-describedby={prochainesRegles ? "infobulle-regles-prevues" : undefined}
+                    disabled={!canSignalerRetard || statutRetardApresCoup === 'enCours'}
                     onClick={() =>
-                      majParametreJour(jourSelection, {
-                        absent: !rectifierByDay[jourSelection]?.absent,
-                      })
+                      retardApresCoup
+                        ? basculerRetardApresCoup(jourPrevuRegles!)
+                        : majParametreJour(jourSelection, {
+                            absent: !rectifierByDay[jourSelection]?.absent,
+                          })
                     }
-                    className={`p-4 rounded-2xl border text-sm font-semibold transition-all text-center shadow-sm ${
+                    className={`w-full p-4 rounded-2xl border text-sm font-semibold transition-all text-center shadow-sm ${
                       !canSignalerRetard
                         ? 'border-gray-200 bg-gray-50 text-gray-300 cursor-default select-none'
-                        : rectifierByDay[jourSelection]?.absent
+                        : retardActif
                         ? 'border-[#8B47FF] bg-[#C4B5FD]/40 text-purple-950 cursor-pointer'
                         : 'border-gray-300 bg-white hover:border-[#8B47FF] text-gray-800 cursor-pointer'
                     }`}
                   >
                     Mes règles sont en retard
                   </button>
+                  </div>
                   {/* Pendant les règles */}
                   <button
                     type="button"
                     disabled={!canUpdatePeriod}
-                    onClick={() => updatePeriod("continues")}
+                    onClick={() => updatePeriod("continues", jourSelection)}
                     className={`p-4 rounded-2xl border text-sm font-semibold transition-all text-center shadow-sm ${
                       !canUpdatePeriod
                         ? 'border-gray-200 bg-gray-50 text-gray-300 cursor-default select-none'
@@ -2763,7 +2852,7 @@ return (
                   <button
                     type="button"
                     disabled={!canEndPeriod}
-                    onClick={() => updatePeriod("ended")}
+                    onClick={() => updatePeriod("ended", jourSelection)}
                     className={`p-4 rounded-2xl border text-sm font-semibold transition-all text-center shadow-sm ${
                       !canEndPeriod
                         ? 'border-gray-200 bg-gray-50 text-gray-300 cursor-default select-none'
@@ -2784,6 +2873,16 @@ return (
                   >
                     Je n’ai plus de cycle
                   </button>
+                  {/* Retard signalé après coup : enregistré directement à la date prévue des règles */}
+                  {retardApresCoup && (
+                    <p className="sm:col-span-2 text-xs text-[#7F6674] text-center">
+                      {statutRetardApresCoup === 'erreur'
+                        ? "L'enregistrement du retard a échoué, réessaie."
+                        : retardActif
+                        ? `Retard enregistré depuis le ${formatJourFr(jourPrevuRegles!)}, date prévue de tes règles. Clique de nouveau pour le retirer.`
+                        : `Tes règles étaient prévues le ${formatJourFr(jourPrevuRegles!)}. Le retard sera enregistré à cette date, sans passer par « Valider ».`}
+                    </p>
+                  )}
                   {situation === 'projet' && (
                     <>
                       <button
@@ -3003,11 +3102,18 @@ return (
                     )}
 
                     <div>
-                      <h4 className="text-lg font-bold text-[#7F4DC5] mb-3">Comment s'est passé ta période Menstruelle ?</h4>
+                      {/* Grossesse, ménopause, post-partum : pas de période menstruelle, on parle de la journée */}
+                      <h4 className="text-lg font-bold text-[#7F4DC5] mb-3">
+                        {situationSansCycle ? "Comment s’est passée ta journée ?" : "Comment s’est passée ta période menstruelle ?"}
+                      </h4>
                       <div className="p-4 rounded-2xl border border-gray-300 bg-white">
                         <textarea
                           rows={3}
-                          placeholder="Ma période menstruelle s'est vu accompagné de..."
+                          placeholder={
+                            situationSansCycle
+                              ? "Aujourd’hui, je me suis sentie..."
+                              : "Ma période menstruelle s’est accompagnée de..."
+                          }
                           value={resultatSummary}
                           onChange={(e) => setResultatSummary(e.target.value)}
                           className="w-full text-sm outline-none text-gray-800 placeholder-gray-400 bg-transparent resize-none"

@@ -10,6 +10,7 @@ import {
   todayString,
   type PeriodEntry,
 } from "@/lib/cycleCalc";
+import { historiqueAvecRetard } from "@/lib/retardRegles";
 
 const toDay = (date: Date) => date.toISOString().slice(0, 10);
 
@@ -182,17 +183,19 @@ export async function GET() {
           isActive: false,
           cycleLength: 28,
           periodLength: 5,
-          lastPeriodStartDate: null
+          lastPeriodStartDate: null,
+          discreetMode: null
         },
         cycleInfo: defaultInfo
       }, { status: 200 });
     }
 
     const history = await loadHistory(session.userId, profile.lastPeriodStartDate);
+    // Phase du jour (roues, affirmations) : tient compte d'un retard de règles signalé
     const cycleInfo = computeCycleInfo(
       profile.isActive,
       { cycleLength: profile.cycleLength, periodLength: profile.periodLength },
-      history,
+      await historiqueAvecRetard(session.userId, profile, history, todayString(session.user.timezone)),
       session.user.timezone
     );
 
@@ -241,9 +244,24 @@ export async function PUT(request: Request) {
       }
 
       const startStr = toDay(currentProfile.lastPeriodStartDate);
-      const daysSinceStart = dayDiff(startStr, todayString(session.user.timezone)); // 0 = 1er jour des règles
+      const todayStr = todayString(session.user.timezone);
+      // Jour concerné : aujourd'hui par défaut, ou un jour passé choisi dans le calendrier (correction après coup)
+      let refDay = todayStr;
+      if (body.day !== undefined) {
+        if (typeof body.day !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(body.day) || dayDiff(body.day, todayStr) < 0) {
+          return NextResponse.json({ error: "Jour invalide : choisis aujourd'hui ou un jour passé." }, { status: 400 });
+        }
+        refDay = body.day;
+      }
+      const daysSinceStart = dayDiff(startStr, refDay); // 0 = 1er jour des règles
 
-      if (daysSinceStart < 0 || daysSinceStart > 14) {
+      if (daysSinceStart < 0) {
+        return NextResponse.json(
+          { error: "Ce jour est avant le début de tes dernières règles." },
+          { status: 400 }
+        );
+      }
+      if (daysSinceStart > 14) {
         return NextResponse.json(
           { error: "Ces règles datent de trop longtemps : utilise « Mes règles ont commencé aujourd’hui »." },
           { status: 400 }
@@ -269,10 +287,10 @@ export async function PUT(request: Request) {
 
       let newEndOffset: number | null = null;
       if (body.periodAction === "ended") {
-        // Elle n'a plus ses règles aujourd'hui : le dernier jour de règles est hier (au moins le 1er jour)
+        // Elle n'avait plus ses règles ce jour-là : le dernier jour de règles est la veille (au moins le 1er jour)
         newEndOffset = Math.min(Math.max(daysSinceStart - 1, 0), 9);
       } else if (daysSinceStart > knownEndOffset && daysSinceStart <= 9) {
-        // Règles qui continuent au-delà de la durée prévue : on prolonge jusqu'à aujourd'hui (10 jours maximum)
+        // Règles qui continuent au-delà de la durée prévue : on prolonge jusqu'à ce jour-là (10 jours maximum)
         newEndOffset = daysSinceStart;
       }
 
@@ -295,10 +313,11 @@ export async function PUT(request: Request) {
           : currentProfile;
 
       const history = await loadHistory(session.userId, updatedProfile.lastPeriodStartDate);
+      // Phase du jour (roues, affirmations) : tient compte d'un retard de règles signalé
       const cycleInfo = computeCycleInfo(
         updatedProfile.isActive,
         { cycleLength: updatedProfile.cycleLength, periodLength: updatedProfile.periodLength },
-        history,
+        await historiqueAvecRetard(session.userId, updatedProfile, history, todayString(session.user.timezone)),
         session.user.timezone
       );
       const lastKnownPeriodStart = await loadLastKnownPeriodStart(session.userId);
@@ -316,6 +335,8 @@ export async function PUT(request: Request) {
     const accouchement = jourVersDate(body.deliveryDate);
     if (accouchement !== undefined) data.deliveryDate = accouchement;
     if (typeof body.breastfeeding === "boolean") data.breastfeeding = body.breastfeeding;
+    // Mode discret (flocon), propre au compte
+    if (typeof body.discreetMode === "boolean") data.discreetMode = body.discreetMode;
 
     if (lastPeriodStartDate !== undefined) {
       const newStartDate = lastPeriodStartDate ? new Date(lastPeriodStartDate) : null;
@@ -417,10 +438,11 @@ export async function PUT(request: Request) {
     });
 
     const history = await loadHistory(session.userId, profile.lastPeriodStartDate);
+    // Phase du jour (roues, affirmations) : tient compte d'un retard de règles signalé
     const cycleInfo = computeCycleInfo(
       profile.isActive,
       { cycleLength: profile.cycleLength, periodLength: profile.periodLength },
-      history,
+      await historiqueAvecRetard(session.userId, profile, history, todayString(session.user.timezone)),
       session.user.timezone
     );
 
