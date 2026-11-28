@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import prisma from "@/lib/prisma";
+import { optionsCookieSession } from "@/lib/session";
 
 export async function GET() {
   try {
@@ -43,6 +44,9 @@ export async function GET() {
         { status: 401 }
       );
     }
+
+    // Connexion sans date de fin : le cookie (limité à 400 jours par les navigateurs) est renouvelé à chaque visite
+    cookieStore.set("sorea_session", sessionId, optionsCookieSession());
 
     return NextResponse.json({ user: session.user }, { status: 200 });
 

@@ -43,9 +43,11 @@ export function CarteMotDePasse({ onChange }: { onChange?: () => void }) {
       setMessage({
         type: "ok",
         texte:
-          autres > 0
-            ? `Mot de passe modifié. Tes ${autres} autre${autres > 1 ? "s" : ""} connexion${autres > 1 ? "s ont" : " a"} été fermée${autres > 1 ? "s" : ""}.`
-            : "Mot de passe modifié.",
+          autres > 1
+            ? `Mot de passe modifié. Les ${autres} autres appareils connectés à ton compte ont été déconnectés : il faudra t'y reconnecter avec ton nouveau mot de passe.`
+            : autres === 1
+            ? "Mot de passe modifié. L'autre appareil connecté à ton compte a été déconnecté : il faudra t'y reconnecter avec ton nouveau mot de passe."
+            : "Mot de passe modifié. Utilise-le à ta prochaine connexion.",
       });
       onChange?.();
     } catch (err) {
@@ -93,7 +95,7 @@ export function CarteMotDePasse({ onChange }: { onChange?: () => void }) {
         </div>
       </div>
       <p id="mdp-regles" className="text-xs text-foreground/50 ml-1">
-        Au moins 12 caractères, avec une majuscule, une minuscule, un chiffre et un caractère spécial.
+        Au moins 8 caractères, avec une majuscule, une minuscule, un chiffre et un caractère spécial.
         Évite les suites (abc, 123), les répétitions, ton nom et ta date de naissance.
       </p>
 
@@ -116,7 +118,6 @@ interface Connexion {
   cle: string;
   appareil: string;
   connecteeLe: string;
-  expireLe: string;
   actuelle: boolean;
 }
 
@@ -208,7 +209,7 @@ export function CarteConnexions({ actualisation = 0 }: { actualisation?: number 
                   )}
                 </p>
                 <p className="text-xs text-foreground/50 mt-0.5">
-                  Connecté le {dateHeure(c.connecteeLe)} · expire le {dateHeure(c.expireLe)}
+                  Connecté le {dateHeure(c.connecteeLe)}
                 </p>
               </div>
               {!c.actuelle && (

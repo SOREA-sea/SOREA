@@ -174,7 +174,8 @@ export default function DashboardSidebar({ user, notificationsCount = 0 }: Dashb
   const isAdmin = user.role === "admin";
   const isCoach = user.role === "coach";
 
-  const displayName = user.pseudo || `${user.firstName} ${user.lastName}`;
+  // Le nom de famille n'apparaît pas dans la barre latérale : pseudo, sinon prénom seul
+  const displayName = user.pseudo || user.firstName;
   const avatarSeed = useMemo(() => user.email || user.firstName, [user.email, user.firstName]);
 
   const handleLogout = async () => {

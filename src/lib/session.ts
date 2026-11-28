@@ -1,29 +1,20 @@
-import { getIronSession, SessionOptions } from "iron-session";
-import { cookies } from "next/headers";
+// Durée des connexions : une connexion reste ouverte jusqu'à ce que l'utilisatrice se déconnecte
+// (« Se déconnecter », « Déconnecter » dans Connexions actives, ou changement de mot de passe).
+//
+// - En base, la session reçoit une échéance lointaine (100 ans) : en pratique, elle ne s'arrête jamais seule.
+// - Le cookie, lui, ne peut pas vivre plus de 400 jours dans les navigateurs : il est donc renouvelé
+//   à chaque visite par /api/auth/me (renouvelerCookieSession). Sans visite pendant 400 jours, il faudra se reconnecter.
 
-export interface SessionData {
-  user?: {
-    id: string;
-    email: string;
-    role: "user" | "coach";
-    name?: string;
-  };
-  isLoggedIn: boolean;
-}
+const JOUR = 24 * 60 * 60;
 
-export const sessionOptions: SessionOptions = {
-  password: process.env.SECRET_COOKIE_PASSWORD || "un-mot-de-passe-tres-long-et-complexe-32-caracteres",
-  cookieName: "sorea_auth_session",
-  cookieOptions: {
+export const echeanceSession = () => new Date(Date.now() + 100 * 365 * JOUR * 1000);
+
+export function optionsCookieSession() {
+  return {
+    httpOnly: true,
     secure: process.env.NODE_ENV === "production",
-  },
-};
-
-export const defaultSession: SessionData = {
-  isLoggedIn: false,
-};
-
-export async function getSession() {
-  const cookieStore = await cookies();
-  return await getIronSession<SessionData>(cookieStore, sessionOptions);
+    sameSite: "lax" as const,
+    maxAge: 400 * JOUR,
+    path: "/",
+  };
 }

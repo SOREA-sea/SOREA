@@ -19,7 +19,7 @@ function LoginContent() {
     const [loginLoading, setLoginLoading] = useState(false);
     
     // Inscription state
-    const [formData, setFormData] = useState({ fullName: "", email: "", password: "", confirmPassword: "" });
+    const [formData, setFormData] = useState({ firstName: "", lastName: "", email: "", password: "", confirmPassword: "" });
     const [checkboxAccepted, setCheckboxAccepted] = useState(false);
     const [registerError, setRegisterError] = useState<string | null>(null);
     const [registerLoading, setRegisterLoading] = useState(false);
@@ -79,8 +79,12 @@ const submitRegister = async (asCoach: boolean) => {
     setRegisterError(null);
     
     // VALIDATION - Check all required fields
-    if (!formData.fullName.trim()) {
-        setRegisterError("Le nom complet est requis.");
+    if (!formData.firstName.trim()) {
+        setRegisterError("Le prénom est requis.");
+        return;
+    }
+    if (!formData.lastName.trim()) {
+        setRegisterError("Le nom est requis.");
         return;
     }
     if (!formData.email.trim()) {
@@ -116,8 +120,8 @@ const submitRegister = async (asCoach: boolean) => {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
-                firstName: formData.fullName.trim().split(/\s+/)[0] || "",
-                lastName: formData.fullName.trim().split(/\s+/).slice(1).join(" ") || "",
+                firstName: formData.firstName.trim(),
+                lastName: formData.lastName.trim(),
                 email: formData.email,
                 password: formData.password,
                 isCoach: asCoach,
@@ -292,19 +296,38 @@ const confirm2FALogin = async () => {
                                             </div>
                                         )}
 
-                                        {/* Nom complet */}
-                                        <div className="flex flex-col gap-3">
-                                            <label className="text-xl font-bold tracking-[0.1em] text-[#212121] font-['Inria_Sans']">Nom complet</label>
-                                            <input
-                                                type="text"
-                                                name="fullName"
-                                                required
-                                                value={formData.fullName}
-                                                onChange={(e) => setFormData((p) => ({ ...p, fullName: e.target.value }))}
-                                                placeholder="NOM Prénom"
-                                                className="w-full h-[55px] px-4 rounded-[15px] border border-[rgba(127,102,116,0.7)] text-xl tracking-[0.1em] text-[#7F6674] font-['Inria_Sans'] outline-none focus:border-[#6A18A4] transition-colors"
-                                                style={{ background: "rgba(255, 250, 240, 0.2)" }}
-                                            />
+                                        {/* Prénom et nom : deux champs séparés pour éviter toute inversion */}
+                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                                            <div className="flex flex-col gap-3">
+                                                <label htmlFor="inscription-prenom" className="text-xl font-bold tracking-[0.1em] text-[#212121] font-['Inria_Sans']">Prénom</label>
+                                                <input
+                                                    id="inscription-prenom"
+                                                    type="text"
+                                                    name="firstName"
+                                                    autoComplete="given-name"
+                                                    required
+                                                    value={formData.firstName}
+                                                    onChange={(e) => setFormData((p) => ({ ...p, firstName: e.target.value }))}
+                                                    placeholder="Prénom"
+                                                    className="w-full h-[55px] px-4 rounded-[15px] border border-[rgba(127,102,116,0.7)] text-xl tracking-[0.1em] text-[#7F6674] font-['Inria_Sans'] outline-none focus:border-[#6A18A4] transition-colors"
+                                                    style={{ background: "rgba(255, 250, 240, 0.2)" }}
+                                                />
+                                            </div>
+                                            <div className="flex flex-col gap-3">
+                                                <label htmlFor="inscription-nom" className="text-xl font-bold tracking-[0.1em] text-[#212121] font-['Inria_Sans']">Nom</label>
+                                                <input
+                                                    id="inscription-nom"
+                                                    type="text"
+                                                    name="lastName"
+                                                    autoComplete="family-name"
+                                                    required
+                                                    value={formData.lastName}
+                                                    onChange={(e) => setFormData((p) => ({ ...p, lastName: e.target.value }))}
+                                                    placeholder="Nom de famille"
+                                                    className="w-full h-[55px] px-4 rounded-[15px] border border-[rgba(127,102,116,0.7)] text-xl tracking-[0.1em] text-[#7F6674] font-['Inria_Sans'] outline-none focus:border-[#6A18A4] transition-colors"
+                                                    style={{ background: "rgba(255, 250, 240, 0.2)" }}
+                                                />
+                                            </div>
                                         </div>
 
                                         {/* Email */}
@@ -329,7 +352,7 @@ const confirm2FALogin = async () => {
                                                 type="password"
                                                 name="password"
                                                 required
-                                                minLength={6}
+                                                minLength={8}
                                                 value={formData.password}
                                                 onChange={(e) => setFormData(p => ({ ...p, password: e.target.value }))}
                                                 placeholder="••••••••••••••••••"
@@ -345,7 +368,7 @@ const confirm2FALogin = async () => {
                                                 type="password"
                                                 name="confirmPassword"
                                                 required
-                                                minLength={6}
+                                                minLength={8}
                                                 value={formData.confirmPassword}
                                                 onChange={(e) => setFormData((p) => ({ ...p, confirmPassword: e.target.value }))}
                                                 placeholder="••••••••••••••••••"
@@ -359,26 +382,6 @@ const confirm2FALogin = async () => {
                                                 Mot de passe oublié ?
                                             </a>
                                         </div>
-
-                                        <div className="w-full pl-1 text-[16px] font-semibold text-[#212121] font-['Inria_Sans'] leading-snug max-w-[520px]">
-                                            Je candidate pour travailler avec SOREA et/ ou pour devenir son ambassadrice
-                                        </div>
-
-                                        <button
-                                            type="button"
-                                            disabled={registerLoading}
-                                            onClick={() => submitRegister(true)}
-                                            className="w-full h-[50px] btn-connexion bg-white rounded-[10px] text-xl font-black tracking-[0.1em] font-['Roboto'] hover:opacity-80 transition-opacity disabled:opacity-50 cursor-pointer"
-                                        >
-                                            {registerLoading && registerLoadingType === "coach" ? (
-                                                <svg className="animate-spin mx-auto h-5 w-5 text-[#6A18A4]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-                                                </svg>
-                                            ) : (
-                                                "Je candidate"
-                                            )}
-                                        </button>
 
                                         <label className="flex w-full items-start gap-3 pl-1 text-sm text-[#3D3D3D] font-['Inria_Sans'] cursor-pointer">
                                             <input

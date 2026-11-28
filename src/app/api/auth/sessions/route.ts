@@ -9,7 +9,7 @@ import { decrireAppareil } from "@/lib/appareil";
  * L'identifiant d'une session est la valeur du cookie de connexion : il n'est JAMAIS renvoyé au navigateur.
  * Chaque connexion est désignée par une empreinte (« cle ») qui ne permet pas de se connecter.
  *
- * GET    : liste des connexions non expirées, la connexion en cours en premier.
+ * GET    : liste des connexions ouvertes, la connexion en cours en premier.
  * DELETE : { cle } ferme une autre connexion ; { autres: true } ferme toutes les autres.
  *          La connexion en cours se ferme avec « Se déconnecter » (/api/auth/logout).
  */
@@ -43,7 +43,6 @@ export async function GET() {
         cle: empreinte(s.id),
         appareil: decrireAppareil(s.userAgent),
         connecteeLe: s.createdAt.toISOString(),
-        expireLe: s.expiresAt.toISOString(),
         actuelle: s.id === actuelle.id,
       }))
       .sort((a, b) => Number(b.actuelle) - Number(a.actuelle));

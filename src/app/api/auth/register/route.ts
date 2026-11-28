@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import prisma from "@/lib/prisma";
 import { userAgentDe } from "@/lib/appareil";
+import { echeanceSession, optionsCookieSession } from "@/lib/session";
 import bcrypt from "bcrypt";
 import crypto from "crypto";
 import { validateEmailFormat, validatePassword } from "@/app/api//utils/validation";
@@ -87,17 +88,11 @@ export async function POST(req: NextRequest) {
 
     // create session
     const session = await prisma.userSession.create({
-      data: { userId: user.id, expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), userAgent: userAgentDe(req) },
+      data: { userId: user.id, expiresAt: echeanceSession(), userAgent: userAgentDe(req) },
     });
 
     const cookieStore2 = await cookies();
-    cookieStore2.set("sorea_session", session.id, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
-      maxAge: 30 * 24 * 60 * 60,
-      path: "/",
-    });
+    cookieStore2.set("sorea_session", session.id, optionsCookieSession());
 
     return NextResponse.json({ success: true }, { status: 200 });
 

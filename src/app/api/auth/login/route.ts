@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import prisma from "@/lib/prisma";
 import { userAgentDe } from "@/lib/appareil";
+import { echeanceSession, optionsCookieSession } from "@/lib/session";
 import bcrypt from "bcrypt";
 import crypto from "crypto";
 
@@ -99,8 +100,8 @@ export async function POST(request: Request) {
       }, { status: 206 });
     }
 
-    // Créer la session en base de données (expire dans 7 jours)
-    const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+    // Créer la session en base de données (ouverte jusqu'à ce que l'utilisatrice se déconnecte)
+    const expiresAt = echeanceSession();
     const session = await prisma.userSession.create({
       data: {
         userId: user.id,
@@ -111,13 +112,7 @@ export async function POST(request: Request) {
 
     // Définir le cookie sécurisé "sorea_session"
     const cookieStore = await cookies();
-    cookieStore.set("sorea_session", session.id, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
-      expires: expiresAt,
-      path: "/",
-    });
+    cookieStore.set("sorea_session", session.id, optionsCookieSession());
 
     return NextResponse.json(
       {
