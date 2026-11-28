@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import BoutonGererAbonnement from "@/components/BoutonGererAbonnement";
 import FrameAbonnement from "@/components/FrameAbonnement";
 import RubriqueMonSuivi from "@/components/RubriqueMonSuivi";
+import RubriqueMesDonnees from "@/components/MesDonnees";
 import { CarteMotDePasse, CarteConnexions } from "@/components/SecuriteCompte";
 
 // Rubriques des paramètres du compte (sommaire en haut de page, ancres #profil, #securite, #abonnement)
@@ -12,6 +13,7 @@ const RUBRIQUES = [
   { id: "securite", titre: "Sécurité" },
   { id: "suivi", titre: "Mon suivi" },
   { id: "abonnement", titre: "Mon abonnement" },
+  { id: "donnees", titre: "Mes données" },
 ];
 
 interface StatutAbonnement {
@@ -516,6 +518,9 @@ export default function ProfilePage() {
           })()}
         </div>
       </section>
+
+      {/* ── Rubrique 4 : Mes données (consentement santé, effacement du suivi, suppression du compte) ── */}
+      <RubriqueMesDonnees />
 
       {showFrameAbonnement && <FrameAbonnement onClose={() => setShowFrameAbonnement(false)} />}
     </div>

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import prisma from "@/lib/prisma";
+import { aConsentiSante } from "@/lib/consentementSante";
 import { localDay } from "@/lib/cycleCalc";
 
 /**
@@ -25,6 +26,11 @@ export async function GET() {
 
     if (!session || session.expiresAt < new Date()) {
       return NextResponse.json({ error: "Session expirée" }, { status: 401 });
+    }
+
+    // Sans consentement aux données de santé : rien n'est lu
+    if (!(await aConsentiSante(session.userId))) {
+      return NextResponse.json({ user: session.user, logs: [], consentementRequis: true }, { status: 200 });
     }
 
     const logs = await prisma.symptomLog.findMany({

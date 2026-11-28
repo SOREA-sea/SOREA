@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import prisma from "@/lib/prisma";
+import { aConsentiSante, refusSansConsentement } from "@/lib/consentementSante";
 
 export async function GET(request: Request) {
   try {
@@ -17,6 +18,10 @@ export async function GET(request: Request) {
 
     if (!session || session.expiresAt < new Date()) {
       return NextResponse.json({ error: "Session expirée" }, { status: 401 });
+    }
+    // Sans consentement aux données de santé : rien n'est lu
+    if (!(await aConsentiSante(session.userId))) {
+      return NextResponse.json({ log: null, consentementRequis: true }, { status: 200 });
     }
 
     const { searchParams } = new URL(request.url);
@@ -62,6 +67,7 @@ export async function PUT(request: Request) {
     if (!session || session.expiresAt < new Date()) {
       return NextResponse.json({ error: "Session expirée" }, { status: 401 });
     }
+    if (!(await aConsentiSante(session.userId))) return refusSansConsentement();
 
     const body = await request.json();
     const { date: dateStr, flow, mood, physicalSymptoms } = body;

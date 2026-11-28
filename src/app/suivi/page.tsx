@@ -9,6 +9,7 @@ import Footer from "../../components/Footer";
 import MenstrualCalendar from "../../components/MenstrualCalendar";
 import { notFound } from 'next/navigation';
 import AuthRequiredModal from "@/components/AuthRequiredModal";
+import { PorteConsentementSante } from "@/components/MesDonnees";
 
  
 export default function MyPage() {
@@ -64,7 +65,10 @@ export default function MyPage() {
             if (e.key !== "Tab") bloquerSiNonConnecte(e);
           }}
         >
-          <MenstrualCalendar />
+          {/* Données de santé : sans accord explicite, la demande de consentement remplace le calendrier */}
+          <PorteConsentementSante>
+            <MenstrualCalendar />
+          </PorteConsentementSante>
         </div>
       </section>
 

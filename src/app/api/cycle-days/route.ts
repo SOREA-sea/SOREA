@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import prisma from "@/lib/prisma";
+import { aConsentiSante, refusSansConsentement } from "@/lib/consentementSante";
 
 /**
  * Réglages d'un jour du calendrier (onglet Paramètre) : « Mes règles sont en retard », « Plus de précisions »,
@@ -34,6 +35,8 @@ export async function GET() {
   try {
     const userId = await utilisateurConnecte();
     if (!userId) return NextResponse.json({ error: "Non authentifié" }, { status: 401 });
+    // Sans consentement aux données de santé : rien n'est lu
+    if (!(await aConsentiSante(userId))) return NextResponse.json({ days: [], consentementRequis: true }, { status: 200 });
 
     const jours = await prisma.cycleDay.findMany({ where: { userId }, orderBy: { day: "asc" } });
     return NextResponse.json({ days: jours.map(versClient) }, { status: 200 });
@@ -47,6 +50,7 @@ export async function PUT(request: Request) {
   try {
     const userId = await utilisateurConnecte();
     if (!userId) return NextResponse.json({ error: "Non authentifié" }, { status: 401 });
+    if (!(await aConsentiSante(userId))) return refusSansConsentement();
 
     const body = await request.json();
     const day = typeof body.day === "string" ? body.day : "";

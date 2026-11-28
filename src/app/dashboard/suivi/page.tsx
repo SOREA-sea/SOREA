@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { PorteConsentementSante } from "@/components/MesDonnees";
 import { Download } from "lucide-react";
 import { lireModeDiscret } from "@/lib/modeDiscret";
 import {
@@ -113,7 +114,16 @@ const moyenne = (valeurs: number[]) =>
 const AVERTISSEMENT =
   "Ces informations sont fournies à titre purement indicatif. Pour obtenir un diagnostic ou un avis médical, consultez un professionnel.";
 
+// Données de santé : sans accord explicite, la demande de consentement remplace les synthèses
 export default function SuiviPage() {
+  return (
+    <PorteConsentementSante>
+      <SuiviContenu />
+    </PorteConsentementSante>
+  );
+}
+
+function SuiviContenu() {
   const [jours, setJours] = useState<JourSynthese[]>([]);
   const [nomComplet, setNomComplet] = useState("");
   const [chargement, setChargement] = useState(true);

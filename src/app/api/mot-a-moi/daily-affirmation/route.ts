@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import type { PrismaClient } from "@prisma/client";
 import prisma from "@/lib/prisma";
+import { aConsentiSante } from "@/lib/consentementSante";
 import { computeCycleInfo, todayString, type PeriodEntry } from "@/lib/cycleCalc";
 import { historiqueAvecRetard } from "@/lib/retardRegles";
 import { getUserFromRequest } from "../../middleware/auth";
@@ -64,9 +65,10 @@ export async function GET() {
     const user = await getUserFromRequest();
     if (user) {
       timezone = user.timezone || timezone;
-      const profile = await prisma.menstrualProfile.findUnique({
-        where: { userId: user.id },
-      });
+      // Sans consentement aux données de santé, le cycle n'est pas lu : affirmation neutre
+      const profile = (await aConsentiSante(user.id))
+        ? await prisma.menstrualProfile.findUnique({ where: { userId: user.id } })
+        : null;
 
       if (profile && profile.isActive && profile.lastPeriodStartDate) {
         // @ts-ignore

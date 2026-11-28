@@ -77,6 +77,8 @@ export async function POST(req: NextRequest) {
         role: isCoach ? "coach" : "user",
         birthDate: birthDate ?? null,
         twoFactorEnabled: false,
+        // Consentement aux données de santé coché à l'inscription (facultatif, RGPD article 9)
+        healthConsentAt: body.healthConsent === true ? new Date() : null,
         trialEndsAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // essai gratuit de 7 jours
       },
     });

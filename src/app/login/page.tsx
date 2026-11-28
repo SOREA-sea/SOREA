@@ -1,6 +1,7 @@
 "use client";
 
 import { Suspense, useState } from "react";
+import { TEXTE_CONSENTEMENT_SANTE } from "@/components/MesDonnees";
 import { useRouter, useSearchParams } from "next/navigation";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -21,6 +22,8 @@ function LoginContent() {
     // Inscription state
     const [formData, setFormData] = useState({ firstName: "", lastName: "", email: "", password: "", confirmPassword: "" });
     const [checkboxAccepted, setCheckboxAccepted] = useState(false);
+    // Consentement aux données de santé (RGPD) : facultatif, il peut aussi être donné plus tard sur le suivi
+    const [consentementSante, setConsentementSante] = useState(false);
     const [registerError, setRegisterError] = useState<string | null>(null);
     const [registerLoading, setRegisterLoading] = useState(false);
     const [registerLoadingType, setRegisterLoadingType] = useState<"member" | "coach" | null>(null);
@@ -125,6 +128,7 @@ const submitRegister = async (asCoach: boolean) => {
                 email: formData.email,
                 password: formData.password,
                 isCoach: asCoach,
+                healthConsent: consentementSante,
             }),
         });
 
@@ -269,7 +273,7 @@ const confirm2FALogin = async () => {
                                                 </div>
 
                                                 <div className="flex justify-end">
-                                                    <a href="#" className="text-xl font-bold tracking-[0.1em] text-[#6A18A4] font-['Inria_Sans'] hover:opacity-70 transition-opacity">Mot de passe oublié ?</a>
+                                                    <a href="/mot-de-passe-oublie" className="text-xl font-bold tracking-[0.1em] text-[#6A18A4] font-['Inria_Sans'] hover:opacity-70 transition-opacity">Mot de passe oublié ?</a>
                                                 </div>
 
                                                 <button type="submit" disabled={loginLoading} className=" btn-connexion w-full h-[50px] bg-white rounded-[10px] text-xl font-black tracking-[0.1em] text-[#6A18A4] font-['Roboto'] hover:opacity-80 transition-opacity disabled:opacity-50 cursor-pointer" style={{ boxShadow: "0px 3px 3.1px #BA98F4" }}>{loginLoading ? <svg className="animate-spin mx-auto h-5 w-5 text-[#6A18A4]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" /></svg> : "Se connecter"}</button>
@@ -378,7 +382,7 @@ const confirm2FALogin = async () => {
                                         </div>
 
                                         <div className="flex justify-end">
-                                            <a href="#" className="text-xl font-bold tracking-[0.1em] text-[#6A18A4] font-['Inria_Sans'] hover:opacity-70 transition-opacity">
+                                            <a href="/mot-de-passe-oublie" className="text-xl font-bold tracking-[0.1em] text-[#6A18A4] font-['Inria_Sans'] hover:opacity-70 transition-opacity">
                                                 Mot de passe oublié ?
                                             </a>
                                         </div>
@@ -395,6 +399,19 @@ const confirm2FALogin = async () => {
                                                 <span className="text-[#6A18A4] underline cursor-pointer">
                                                     Conditions Générales d&apos;Utilisation
                                                 </span>.
+                                            </span>
+                                        </label>
+
+                                        {/* Consentement explicite aux données de santé : séparé des CGU et facultatif (RGPD, article 9) */}
+                                        <label className="flex w-full items-start gap-3 pl-1 text-sm text-[#3D3D3D] font-['Inria_Sans'] cursor-pointer">
+                                            <input
+                                                type="checkbox"
+                                                checked={consentementSante}
+                                                onChange={(e) => setConsentementSante(e.target.checked)}
+                                                className="accent-[#6A18A4] w-4 h-4 mt-0.5 cursor-pointer"
+                                            />
+                                            <span className="leading-snug">
+                                                {TEXTE_CONSENTEMENT_SANTE} <em>(Facultatif : tu pourras aussi le faire en ouvrant ton suivi.)</em>
                                             </span>
                                         </label>
 

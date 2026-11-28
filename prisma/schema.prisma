@@ -36,6 +36,16 @@ model User {
   emailVerificationToken  String?
   emailVerificationExpiry DateTime?
 
+  // Consentement explicite au traitement des données de santé (RGPD, article 9)
+  // healthConsentAt : date du consentement en cours (null = pas de consentement : le suivi est bloqué)
+  // healthConsentWithdrawnAt : date du dernier retrait (preuve en cas de contrôle)
+  healthConsentAt          DateTime?
+  healthConsentWithdrawnAt DateTime?
+
+  // Mot de passe oublié : empreinte (SHA-256) du lien envoyé par e-mail, valable 1 heure et une seule fois
+  passwordResetTokenHash String?
+  passwordResetExpiry    DateTime?
+
   //  2FA
   twoFactorEnabled     Boolean @default(false)
   twoFactorSecret      String?

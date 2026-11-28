@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import prisma from "@/lib/prisma";
+import { aConsentiSante, refusSansConsentement } from "@/lib/consentementSante";
 import {
   addDays,
   clampPeriodLength,
@@ -171,9 +172,11 @@ export async function GET() {
       return NextResponse.json({ error: "Session expirée" }, { status: 401 });
     }
 
-    let profile = await prisma.menstrualProfile.findUnique({
-      where: { userId: session.userId }
-    });
+    // Sans consentement aux données de santé : le profil n'est pas lu (même réponse que sans profil)
+    const consenti = await aConsentiSante(session.userId);
+    const profile = consenti
+      ? await prisma.menstrualProfile.findUnique({ where: { userId: session.userId } })
+      : null;
 
     if (!profile) {
       // Si aucun profil n'existe, on retourne les infos par défaut
@@ -186,7 +189,8 @@ export async function GET() {
           lastPeriodStartDate: null,
           discreetMode: null
         },
-        cycleInfo: defaultInfo
+        cycleInfo: defaultInfo,
+        ...(consenti ? {} : { consentementRequis: true })
       }, { status: 200 });
     }
 
@@ -224,6 +228,7 @@ export async function PUT(request: Request) {
     if (!session || session.expiresAt < new Date()) {
       return NextResponse.json({ error: "Session expirée" }, { status: 401 });
     }
+    if (!(await aConsentiSante(session.userId))) return refusSansConsentement();
 
     const body = await request.json();
     const { isActive, cycleLength: rawCycleLength, periodLength: rawPeriodLength, lastPeriodStartDate } = body;
